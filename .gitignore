@@ -18,5 +18,3 @@ Pods/
 
 # Project exclude paths
 /gradle/
-/ktor-inspektor/
-/sample/
