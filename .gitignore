@@ -15,6 +15,3 @@ Pods/
 *.jks
 *.gpg
 *yarn.lock
-
-# Project exclude paths
-/gradle/
