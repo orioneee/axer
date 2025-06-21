@@ -7,14 +7,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -23,7 +21,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CallMade
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
@@ -61,7 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.oriooneee.ktorin.presentation.components.CustomAlertDialog
-import com.oriooneee.ktorin.presentation.navigation.Routes
+import com.oriooneee.ktorin.presentation.screens.HighlightedBodyWrapper
 import com.oriooneee.ktorin.presentation.screens.RequestViewModel
 import com.oriooneee.ktorin.room.entities.Transaction
 import dev.snipme.highlights.Highlights
@@ -314,8 +311,9 @@ class RequestDetailsScreen {
 
     @Composable
     fun RequestDetails(
-        request: Transaction,
+        wrapped: HighlightedBodyWrapper,
     ) {
+        val request = wrapped.request
         Column(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
@@ -362,24 +360,8 @@ class RequestDetailsScreen {
                             .padding(8.dp)
 
                     ) {
-                        val highlights by remember {
-                            mutableStateOf(
-                                Highlights
-                                    .Builder(code = request.requestBody)
-                                    .build()
-                            )
-                        }
-                        var textState by remember {
-                            mutableStateOf(AnnotatedString(highlights.getCode()))
-                        }
-
-                        LaunchedEffect(highlights) {
-                            textState = highlights
-                                .getHighlights()
-                                .generateAnnotatedString(highlights.getCode())
-                        }
                         SelectionContainer {
-                            Text(text = textState)
+                            Text(text = wrapped.highlightedRequestBody)
                         }
                     }
                 }
@@ -390,8 +372,9 @@ class RequestDetailsScreen {
 
     @Composable
     fun ResponseDetails(
-        request: Transaction,
+        wrapped: HighlightedBodyWrapper
     ) {
+        val request = wrapped.request
         Column(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
@@ -400,7 +383,7 @@ class RequestDetailsScreen {
             horizontalAlignment = Alignment.Start,
         ) {
             Spacer(Modifier.height(8.dp))
-            if (request.importantInRequest.isNotEmpty()) {
+            if (request.importantInResponse.isNotEmpty()) {
                 DisplayImportantSection(request.importantInResponse)
                 Spacer(Modifier.height(16.dp))
             }
@@ -436,24 +419,8 @@ class RequestDetailsScreen {
                                     .padding(8.dp)
 
                             ) {
-                                val highlights by remember {
-                                    mutableStateOf(
-                                        Highlights
-                                            .Builder(code = request.responseBody ?: "")
-                                            .build()
-                                    )
-                                }
-                                var textState by remember {
-                                    mutableStateOf(AnnotatedString(highlights.getCode()))
-                                }
-
-                                LaunchedEffect(highlights) {
-                                    textState = highlights
-                                        .getHighlights()
-                                        .generateAnnotatedString(highlights.getCode())
-                                }
                                 SelectionContainer {
-                                    Text(text = textState)
+                                    Text(wrapped.highlightedResponseBody)
                                 }
                             }
                         } else {
@@ -502,8 +469,8 @@ class RequestDetailsScreen {
         val viewModel: RequestViewModel = koinViewModel {
             parametersOf(requestId)
         }
-        val request by viewModel.requestByID.collectAsState(initial = null)
-        if (request == null) {
+        val wrappped by viewModel.requestByID.collectAsState(initial = null)
+        if (wrappped == null) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -516,8 +483,8 @@ class RequestDetailsScreen {
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                request!!.path + if (request?.responseStatus != null) {
-                                    " - ${request!!.responseStatus}"
+                                wrappped!!.request.path + if (wrappped!!.request.responseStatus != null) {
+                                    " - ${wrappped!!.request.responseStatus}"
                                 } else {
                                     ""
                                 }
@@ -559,7 +526,7 @@ class RequestDetailsScreen {
                 ) {
                     val scope = rememberCoroutineScope()
                     val pager = rememberPagerState(
-                        initialPage = if (request!!.method == "GET") 1 else 0,
+                        initialPage = 1,
                         pageCount = {
                             2
                         }
@@ -603,8 +570,8 @@ class RequestDetailsScreen {
                         state = pager
                     ) {
                         when (it) {
-                            0 -> RequestDetails(request = request!!)
-                            1 -> ResponseDetails(request = request!!)
+                            0 -> RequestDetails(wrappped!!)
+                            1 -> ResponseDetails(wrappped!!)
                         }
                     }
                 }

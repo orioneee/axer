@@ -4,7 +4,6 @@ import com.oriooneee.ktorin.presentation.screens.RequestViewModel
 import com.oriooneee.ktorin.presentation.screens.sandbox.SandboxViewModel
 import com.oriooneee.ktorin.room.KtorinDatabase
 import com.oriooneee.ktorin.room.dao.RequestDao
-import com.oriooneee.ktorin.presentation.viewmodels.MainViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -25,7 +24,6 @@ object Modules {
     }
 
     val viewModelModule = module {
-        viewModelOf(::MainViewModel)
         viewModel { (requestId: Long?) ->
             RequestViewModel(
                 requestDao = get(),

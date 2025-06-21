@@ -26,7 +26,7 @@ fun sendGetRequestOkHttp(
     client: OkHttpClient
 ) {
     val request = Request.Builder()
-        .url("https://pastebin.com/raw/CNsie2wb")
+        .url("https://purple-connex-da7fa5d14c63.herokuapp.com/v2/user/profile")
         .header("Accept", "application/json")
         .build()
     CoroutineScope(Dispatchers.IO).launch {
@@ -124,7 +124,7 @@ fun main() = application {
 
             // Only add Authorization header if it's not already present
             if (originalHeaders["Authorization"] == null) {
-                newRequestBuilder.header("Authorization", "Bearer your_token_here")
+                newRequestBuilder.header("Authorization", "c319c205-6601-432a-b269-1f654cf6d67b")
             }
 
             val newRequest = newRequestBuilder.build()
