@@ -12,6 +12,7 @@ pluginManagement {
         }
         gradlePluginPortal()
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -26,6 +27,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        mavenLocal()
     }
 }
 include(":ktor-inspektor")

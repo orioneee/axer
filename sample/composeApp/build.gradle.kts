@@ -12,16 +12,16 @@ kotlin {
 
     androidTarget()
     jvm()
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
+//    listOf(
+//        iosX64(),
+//        iosArm64(),
+//        iosSimulatorArm64()
+//    ).forEach {
+//        it.binaries.framework {
+//            baseName = "ComposeApp"
+//            isStatic = true
+//        }
+//    }
 
     sourceSets {
         commonMain.dependencies {
@@ -35,8 +35,12 @@ kotlin {
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.logging)
+
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
 
             implementation(project(":ktor-inspektor"))
         }
@@ -51,6 +55,8 @@ kotlin {
             implementation(libs.accompanist.permissions)
             implementation(libs.androidx.activityCompose)
 
+            implementation(libs.koin.android)
+
         }
 
         jvmMain.dependencies {
@@ -59,10 +65,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
 
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
-
+//        iosMain.dependencies {
+//            implementation(libs.ktor.client.darwin)
+//        }
     }
 }
 

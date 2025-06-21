@@ -8,14 +8,16 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.oriooneee.KtorinActivity
 import com.oriooneee.ktorin.R
+import com.oriooneee.ktorin.koin.IsolatedContext
 import com.oriooneee.ktorin.room.dao.RequestDao
 import com.oriooneee.ktorin.room.entities.Transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.getValue
 
-actual class RequestProcessor : KoinComponent {
-    private val context: Context by inject()
-    private val dao: RequestDao by inject()
+actual class RequestProcessor {
+    private val context: Context by IsolatedContext.koin.inject()
+    private val dao: RequestDao by IsolatedContext.koin.inject()
 
 
     private suspend fun updateNotification(){

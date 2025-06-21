@@ -1,10 +1,10 @@
 package com.oriooneee.ktorin.koin
 
-import org.koin.core.context.startKoin
+import org.koin.dsl.koinApplication
 
 object InitKtorin {
     fun init() {
-        startKoin { 
+        IsolatedContext.koinApp = koinApplication {
             modules(Modules.getModules())
         }
     }

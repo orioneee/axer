@@ -12,14 +12,18 @@ plugins {
     alias(libs.plugins.room)
 }
 
+val libraryVersion = "1.0.0"
+
+version = libraryVersion
+
 kotlin {
     jvmToolchain(21)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+//    iosX64()
+//    iosArm64()
+//    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
@@ -34,14 +38,16 @@ kotlin {
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.logging)
+
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
-
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.sqlite.bundled)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
+
 
             implementation(libs.navigation.compose)
 
@@ -51,8 +57,11 @@ kotlin {
             implementation(libs.coil.compose)
 
             implementation(libs.kodeview)
-
         }
+
+//        iosMain.dependencies {
+//            implementation(libs.ktor.client.darwin)
+//        }
 
         val jvmAndAndroid by creating {
             dependsOn(commonMain.get())
@@ -61,6 +70,16 @@ kotlin {
                 implementation(libs.okhttp)
             }
         }
+
+//        val iosX64Main by getting {
+//            dependsOn(iosMain.get())
+//        }
+//        val iosArm64Main by getting {
+//            dependsOn(iosMain.get())
+//        }
+//        val iosSimulatorArm64Main by getting {
+//            dependsOn(iosMain.get())
+//        }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -81,10 +100,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp)
             }
-        }
-
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
         }
 
     }
@@ -109,45 +124,28 @@ android {
     }
 }
 
-//Publishing your Kotlin Multiplatform library to Maven Central
-//https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-publish-libraries.html
-mavenPublishing {
-//    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-//    coordinates("com.oriooneee.ktorin", "ktor-inspektor", "1.0.0")
-//
-//    pom {
-//        name = "Ktorin"
-//        description = "Kotlin Multiplatform library"
-//        url = "github url" //todo
-//
-//        licenses {
-//            license {
-//                name = "MIT"
-//                url = "https://opensource.org/licenses/MIT"
-//            }
-//        }
-//
-//        developers {
-//            developer {
-//                id = "" //todo
-//                name = "" //todo
-//                email = "" //todo
-//            }
-//        }
-//
-//        scm {
-//            url = "github url" //todo
-//        }
-//    }
-//    if (project.hasProperty("signing.keyId")) signAllPublications()
+publishing {
+    publications {
+        create<MavenPublication>("kmpLibrary") {
+            from(components["kotlin"])
+
+            groupId = "com.oriooneee.ktorin"
+            artifactId = "ktor-inspektor"
+            version = libraryVersion
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
+
 
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspJvm", libs.androidx.room.compiler)
-    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-    add("kspIosX64", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
+//    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+//    add("kspIosX64", libs.androidx.room.compiler)
+//    add("kspIosArm64", libs.androidx.room.compiler)
 }
 
 room {
