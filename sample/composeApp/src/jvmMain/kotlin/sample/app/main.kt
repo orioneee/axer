@@ -20,6 +20,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import sample.app.App
 import java.awt.Dimension
 
 fun sendGetRequestOkHttp(
@@ -141,42 +142,42 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
     ) {
         window.minimumSize = Dimension(350, 600)
-        Column(
-            modifier = Modifier.fillMaxSize().background(Color.White),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                }
-            ) {
-                Text("Send get request")
-            }
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                }
-            ) {
-                Text("Send post request")
-            }
-            Button(
-                onClick = {
-                    sendImageRequestOkHttp(client)
-                }
-            ) {
-                Text("Send request for image")
-            }
-
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                    sendPostRequestOkHttp(client)
-                    sendImageRequestOkHttp(client)
-                }
-            ) {
-                Text("Send all requests")
-            }
-        }
+//        Column(
+//            modifier = Modifier.fillMaxSize().background(Color.White),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+//        ) {
+//            Button(
+//                onClick = {
+//                    sendGetRequestOkHttp(client)
+//                }
+//            ) {
+//                Text("Send get request")
+//            }
+//            Button(
+//                onClick = {
+//                    sendGetRequestOkHttp(client)
+//                }
+//            ) {
+//                Text("Send post request")
+//            }
+//            Button(
+//                onClick = {
+//                    sendImageRequestOkHttp(client)
+//                }
+//            ) {
+//                Text("Send request for image")
+//            }
+//
+//            Button(
+//                onClick = {
+//                    sendGetRequestOkHttp(client)
+//                    sendPostRequestOkHttp(client)
+//                    sendImageRequestOkHttp(client)
+//                }
+//            ) {
+//                Text("Send all requests")
+//            }
+        App()
     }
 }

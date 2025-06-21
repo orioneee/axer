@@ -22,7 +22,7 @@ val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
         val sendTime = Clock.System.now().toEpochMilliseconds()
         val method = it.method.value
         val host = it.url.host
-        val path = it.url.encodedPath
+        val path = it.url.toString().substringAfter(host)
         val requestHeaders: Map<String, String> = it.headers.entries()
             .associate { entry -> entry.key to entry.value.joinToString(", ") }
 

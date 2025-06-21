@@ -46,6 +46,7 @@ class KtorinOkhttpInterceptor private constructor(
             val method = request.method
             val host = request.url.host
             val path = request.url.encodedPath
+            val query = request.url.query
             val requestHeaders =
                 request.headers.toMultimap().mapValues { it.value.joinToString(", ") }
             val requestBody = request.body?.let { body ->
@@ -58,7 +59,7 @@ class KtorinOkhttpInterceptor private constructor(
                 sendTime = sendTime,
                 method = method,
                 host = host,
-                path = path,
+                path = path + if (query != null) "?$query" else "",
                 requestHeaders = requestHeaders,
                 requestBody = requestBody
             )

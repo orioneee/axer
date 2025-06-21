@@ -28,7 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 
-val url = "https://pastebin.com/raw/CNsie2wb"
+val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
 
 
 fun sendGetRequest(client: HttpClient) {

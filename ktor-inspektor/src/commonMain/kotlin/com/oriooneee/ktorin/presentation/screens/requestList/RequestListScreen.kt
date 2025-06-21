@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.oriooneee.ktorin.presentation.clickableWithoutRipple
@@ -75,6 +76,8 @@ class RequestListScreen() {
                         request.error != null ||
                         (request.responseStatus != null && !request.responseStatus.toString().startsWith("2") )
                     ) MaterialTheme.colorScheme.error else Color.Unspecified,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             },
             supportingContent = {
@@ -129,15 +132,26 @@ class RequestListScreen() {
                     .padding(contentPadding),
 
                 ) {
-                LazyColumn {
-                    items(requests) { item ->
-                        RequestCard(
-                            isSelected = item.id == selectedRequestId,
-                            request = item,
-                            onClick = {
-                                onClickToRequestDetails(item)
-                            }
-                        )
+                if(requests.isEmpty()){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+
+                        ){
+                        Text("No requests yet")
+                    }
+                } else{
+                    LazyColumn {
+                        items(requests) { item ->
+                            RequestCard(
+                                isSelected = item.id == selectedRequestId,
+                                request = item,
+                                onClick = {
+                                    onClickToRequestDetails(item)
+                                }
+                            )
+                        }
                     }
                 }
             }
