@@ -14,8 +14,6 @@ actual class RequestProcessor : KoinComponent {
         dao.upsert(request)
     }
     actual suspend fun onFinished(request: Transaction){
-        dao.upsert(request).also {
-            println("Request processed: ${request.id} - ${request.method} ${request.path} $it")
-        }
+        dao.upsert(request)
     }
 }

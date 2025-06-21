@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -56,8 +57,7 @@ class RequestListScreen() {
                 .clip(RoundedCornerShape(16.dp))
                 .clickableWithoutRipple {
                     onClick()
-                }
-            ,
+                },
             headlineContent = {
                 val annotatedString = buildAnnotatedString {
                     withStyle(
@@ -69,16 +69,23 @@ class RequestListScreen() {
                     }
                     append(" ${request.path}")
                 }
-                Text(annotatedString)
+                Text(
+                    annotatedString,
+                    color = if (
+                        request.error != null ||
+                        (request.responseStatus != null && !request.responseStatus.toString().startsWith("2") )
+                    ) MaterialTheme.colorScheme.error else Color.Unspecified,
+                )
             },
             supportingContent = {
-                val text = "${request.host} ${request.formatedSendTime()} " + if(request.isFinished()) "${request.totalTime}ms" else ""
+                val text =
+                    "${request.host} ${request.formatedSendTime()} " + if (request.isFinished()) "${request.totalTime}ms" else ""
                 Text(text)
             },
-            leadingContent = {
-                if(request.isInProgress()){
+            trailingContent = {
+                if (request.isInProgress()) {
                     CircularProgressIndicator()
-                } else{
+                } else {
                     Text(request.responseStatus?.toString() ?: "")
                 }
             }
@@ -92,11 +99,11 @@ class RequestListScreen() {
         onClickToRequestDetails: (Transaction) -> Unit,
         onClearRequests: () -> Unit
     ) {
-        val viewModel: RequestViewModel = koinViewModel{
+        val viewModel: RequestViewModel = koinViewModel {
             parametersOf(null)
         }
         val requests by viewModel.requests.collectAsState(emptyList())
-        Scaffold (
+        Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Requests") },
@@ -115,7 +122,7 @@ class RequestListScreen() {
                     }
                 )
             }
-        ){ contentPadding ->
+        ) { contentPadding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()

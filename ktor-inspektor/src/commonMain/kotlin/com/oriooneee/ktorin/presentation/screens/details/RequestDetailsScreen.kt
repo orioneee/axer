@@ -31,6 +31,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -299,6 +300,18 @@ class RequestDetailsScreen {
         }
     }
 
+    fun getSizeText(size: Long): String {
+        return if (
+            size < 1024
+        ) {
+            "$size bytes"
+        } else if (size < 1024 * 1024) {
+            "${size / 1024} KB"
+        } else {
+            "${size / (1024 * 1024)} MB"
+        }
+    }
+
     @Composable
     fun RequestDetails(
         request: Transaction,
@@ -315,20 +328,27 @@ class RequestDetailsScreen {
                 DisplayImportantSection(request.importantInRequest)
                 Spacer(Modifier.height(16.dp))
             }
-            Text(buildStringSection("Url", request.fullUrl))
-            Text(buildStringSection("Method", request.method))
+            SelectionContainer {
+                Text(buildStringSection("Url", request.fullUrl))
+            }
+            SelectionContainer {
+                Text(buildStringSection("Method", request.method))
+            }
             Text(
                 buildStringSection(
                     "Duration",
                     if (request.responseTime != null) "${request.totalTime} ms" else ""
                 )
             )
-            Text(
-                buildStringSection(
-                    "Request size",
-                    if (request.requestBody != null) "${request.requestBody.toByteArray().size} bytes" else "0 bytes"
-                ),
-            )
+            if ((request.requestBody?.toByteArray()?.size ?: 0) > 0) {
+                Text(
+                    buildStringSection(
+                        "Request size",
+                        getSizeText(request.requestBody?.toByteArray()?.size?.toLong() ?: 0L)
+                    ),
+                )
+            }
+
             if (request.requestHeaders.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
                 HeaderSection(request.requestHeaders)
@@ -387,27 +407,19 @@ class RequestDetailsScreen {
             val size = kotlin.math.max(
                 request.responseBody?.toByteArray()?.size ?: 0,
                 request.imageBytes?.size ?: 0
-            )
-            val sizeText = if (
-                size < 1024
-            ) {
-                "$size bytes"
-            } else if (size < 1024 * 1024) {
-                "${size / 1024} KB"
-            } else {
-                "${size / (1024 * 1024)} MB"
-            }
+            ).toLong()
+
             Text(
                 buildStringSection(
                     title = "Response size",
-                    content = sizeText
+                    content = getSizeText(size)
                 )
             )
 
             Text(
                 buildStringSection(
                     title = "Status",
-                    content = request.responseStatus?.toString() ?: "No response"
+                    content = request.responseStatus?.toString() ?: if( request.error != null) "Request failed" else "Unknown"
                 )
             )
             if (request.responseHeaders.isNotEmpty()) {
@@ -415,42 +427,64 @@ class RequestDetailsScreen {
                 HeaderSection(request.responseHeaders)
             }
             Spacer(Modifier.height(16.dp))
-            if (request.responseBody?.isNotBlank() == true || request.imageBytes?.isNotEmpty() == true) {
+            if (request.responseBody?.isNotBlank() == true || request.imageBytes?.isNotEmpty() == true || !request.error.isNullOrBlank()) {
                 BodySection {
                     if (request.isImage != true) {
-                        Box(
-                            modifier = Modifier
-                                .padding(8.dp)
+                        if (request.error == null) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(8.dp)
 
-                        ) {
-                            val highlights by remember {
-                                mutableStateOf(
-                                    Highlights
-                                        .Builder(code = request.responseBody ?: "")
-                                        .build()
-                                )
-                            }
-                            var textState by remember {
-                                mutableStateOf(AnnotatedString(highlights.getCode()))
-                            }
+                            ) {
+                                val highlights by remember {
+                                    mutableStateOf(
+                                        Highlights
+                                            .Builder(code = request.responseBody ?: "")
+                                            .build()
+                                    )
+                                }
+                                var textState by remember {
+                                    mutableStateOf(AnnotatedString(highlights.getCode()))
+                                }
 
-                            LaunchedEffect(highlights) {
-                                textState = highlights
-                                    .getHighlights()
-                                    .generateAnnotatedString(highlights.getCode())
+                                LaunchedEffect(highlights) {
+                                    textState = highlights
+                                        .getHighlights()
+                                        .generateAnnotatedString(highlights.getCode())
+                                }
+                                SelectionContainer {
+                                    Text(text = textState)
+                                }
                             }
-                            SelectionContainer {
-                                Text(text = textState)
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                SelectionContainer {
+                                    Text(
+                                        "Error: ${request.error}",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     } else {
-                        AsyncImage(
-                            model = request.imageBytes,
-                            contentDescription = "Response Image",
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                        )
+                                .padding(8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = request.imageBytes,
+                                contentDescription = "Response Image",
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -501,18 +535,18 @@ class RequestDetailsScreen {
                                 )
                             }
                         },
-                        actions = {
-                            IconButton(
-                                onClick = {
-                                    navController.navigate(Routes.SANDBOX.route + "/${request!!.id}")
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CallMade,
-                                    contentDescription = "Back"
-                                )
-                            }
-                        }
+//                        actions = {
+//                            IconButton(
+//                                onClick = {
+//                                    navController.navigate(Routes.SANDBOX.route + "/${request!!.id}")
+//                                }
+//                            ) {
+//                                Icon(
+//                                    imageVector = Icons.Default.CallMade,
+//                                    contentDescription = "Back"
+//                                )
+//                            }
+//                        }
                     )
                 },
             ) {

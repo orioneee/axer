@@ -18,7 +18,6 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
-
     on(Send) {
         val sendTime = Clock.System.now().toEpochMilliseconds()
         val method = it.method.value
@@ -55,7 +54,6 @@ val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
                 it.body.toString()
             }
         }
-        println("Body type: ${it.body::class.simpleName}")
         val processor = RequestProcessor()
         var state = Transaction(
             sendTime = sendTime,

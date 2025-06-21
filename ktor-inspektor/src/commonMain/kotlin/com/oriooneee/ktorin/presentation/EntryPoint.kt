@@ -31,7 +31,6 @@ object EntryPoint {
             BoxWithConstraints(
                 modifier = Modifier.fillMaxSize()
             ) {
-                println("maxWidth: $maxWidth")
                 if (maxWidth > 800.dp) {
                     SplitScreen(
                         first = {

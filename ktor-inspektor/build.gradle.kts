@@ -54,19 +54,33 @@ kotlin {
 
         }
 
+        val jvmAndAndroid by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.okhttp)
+            }
+        }
+
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
 
-        androidMain.dependencies {
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.koin.android)
+        androidMain {
+            dependsOn(jvmAndAndroid)
+            dependencies {
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.koin.android)
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.okhttp)
+        jvmMain {
+            dependsOn(jvmAndAndroid)
+            dependencies {
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.ktor.client.okhttp)
+            }
         }
 
         iosMain.dependencies {
@@ -98,34 +112,34 @@ android {
 //Publishing your Kotlin Multiplatform library to Maven Central
 //https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-publish-libraries.html
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    coordinates("com.oriooneee.ktorin", "ktor-inspektor", "1.0.0")
-
-    pom {
-        name = "Ktorin"
-        description = "Kotlin Multiplatform library"
-        url = "github url" //todo
-
-        licenses {
-            license {
-                name = "MIT"
-                url = "https://opensource.org/licenses/MIT"
-            }
-        }
-
-        developers {
-            developer {
-                id = "" //todo
-                name = "" //todo
-                email = "" //todo
-            }
-        }
-
-        scm {
-            url = "github url" //todo
-        }
-    }
-    if (project.hasProperty("signing.keyId")) signAllPublications()
+//    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+//    coordinates("com.oriooneee.ktorin", "ktor-inspektor", "1.0.0")
+//
+//    pom {
+//        name = "Ktorin"
+//        description = "Kotlin Multiplatform library"
+//        url = "github url" //todo
+//
+//        licenses {
+//            license {
+//                name = "MIT"
+//                url = "https://opensource.org/licenses/MIT"
+//            }
+//        }
+//
+//        developers {
+//            developer {
+//                id = "" //todo
+//                name = "" //todo
+//                email = "" //todo
+//            }
+//        }
+//
+//        scm {
+//            url = "github url" //todo
+//        }
+//    }
+//    if (project.hasProperty("signing.keyId")) signAllPublications()
 }
 
 dependencies {

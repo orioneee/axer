@@ -30,4 +30,3 @@ dependencyResolutionManagement {
 }
 include(":ktor-inspektor")
 include(":sample:composeApp")
-

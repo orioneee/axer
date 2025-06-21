@@ -17,7 +17,6 @@ class RequestViewModel(
         prettyPrint = true
     }
     val requests = requestDao.getAll().map {
-        println(it.joinToString("\n"))
         it.reversed()
     }
     val requestByID = requestDao.getById(requestId).map {
