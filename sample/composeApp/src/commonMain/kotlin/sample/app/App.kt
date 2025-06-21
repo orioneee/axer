@@ -90,6 +90,8 @@ fun App() {
             }
         }
         install(KtorinPlugin) {
+            testValue = "Test value override"
+
             requestImportantSelector = object : RequestImportantSelector {
                 override suspend fun selectImportant(request: Request): List<String> {
                     val tokenData = request.headers.entries.firstOrNull {

@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -72,14 +73,15 @@ import org.koin.core.parameter.parametersOf
 class RequestDetailsScreen {
     fun buildStringSection(
         title: String,
-        content: String
+        content: String,
+        separator: String = ": "
     ) = buildAnnotatedString {
         withStyle(
             style = SpanStyle(
                 fontWeight = FontWeight.Bold
             )
         ) {
-            append("$title: ")
+            append(title + separator)
         }
         append(content)
     }
@@ -88,40 +90,9 @@ class RequestDetailsScreen {
     fun DisplayImportantSection(
         data: List<String>
     ) {
-        var isExpanded by remember { mutableStateOf(false) }
+        var isExpanded by remember { mutableStateOf(true) }
         val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
         var isVisibleInfoDialog by remember { mutableStateOf(false) }
-        CustomAlertDialog(
-            isShowDialog = isVisibleInfoDialog,
-            onDismiss = {
-                isVisibleInfoDialog = false
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .width(IntrinsicSize.Min)
-            ) {
-                Text("Why this data is important?", fontSize = 24.sp)
-                Text("Developer mark this data as important")
-                Spacer(Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .width(IntrinsicSize.Max),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = {
-                            isVisibleInfoDialog = false
-                        }
-                    ) {
-                        Text("Close")
-                    }
-                }
-            }
-        }
         Card {
             Column {
                 Row(
@@ -131,23 +102,23 @@ class RequestDetailsScreen {
                         .clickable {
                             isExpanded = !isExpanded
                         }
-                        .padding(16.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             buildStringSection(
                                 title = "Important",
-                                content = ""
+                                content = "",
+                                separator = ""
                             )
                         )
                         IconButton(
                             onClick = {
-
+                                isVisibleInfoDialog = true
                             }
                         ) {
                             Image(
@@ -181,6 +152,43 @@ class RequestDetailsScreen {
                                     Text(it)
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+        CustomAlertDialog(
+            isShowDialog = isVisibleInfoDialog,
+            onDismiss = {
+                isVisibleInfoDialog = false
+            }
+        ) {
+            Surface(
+                modifier = Modifier,
+//                    .width(450.dp)
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                ) {
+                    Text("Why this data is important?", fontSize = 24.sp)
+                    Spacer(Modifier.height(16.dp))
+                    Text("Developer mark this as important")
+                    Spacer(Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(
+                            onClick = {
+                                isVisibleInfoDialog = false
+                            }
+                        ) {
+                            Text("Close")
                         }
                     }
                 }
@@ -297,11 +305,12 @@ class RequestDetailsScreen {
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(horizontal = 8.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start,
         ) {
+            Spacer(Modifier.height(8.dp))
             if (request.importantInRequest.isNotEmpty()) {
                 DisplayImportantSection(request.importantInRequest)
                 Spacer(Modifier.height(16.dp))
@@ -331,13 +340,31 @@ class RequestDetailsScreen {
                     Box(
                         modifier = Modifier
                             .padding(8.dp)
+
                     ) {
+                        val highlights by remember {
+                            mutableStateOf(
+                                Highlights
+                                    .Builder(code = request.requestBody)
+                                    .build()
+                            )
+                        }
+                        var textState by remember {
+                            mutableStateOf(AnnotatedString(highlights.getCode()))
+                        }
+
+                        LaunchedEffect(highlights) {
+                            textState = highlights
+                                .getHighlights()
+                                .generateAnnotatedString(highlights.getCode())
+                        }
                         SelectionContainer {
-                            Text(request.requestBody)
+                            Text(text = textState)
                         }
                     }
                 }
             }
+            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -352,6 +379,7 @@ class RequestDetailsScreen {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start,
         ) {
+            Spacer(Modifier.height(8.dp))
             if (request.importantInRequest.isNotEmpty()) {
                 DisplayImportantSection(request.importantInResponse)
                 Spacer(Modifier.height(16.dp))

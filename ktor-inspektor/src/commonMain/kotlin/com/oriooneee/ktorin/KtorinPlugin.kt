@@ -18,16 +18,6 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
-    val requestImportantSelector = object : RequestImportantSelector {
-        override suspend fun selectImportant(request: com.oriooneee.ktorin.room.entities.Request): List<String> {
-            return emptyList()
-        }
-    }
-    val responseImportantSelector = object : ResponseImportantSelector {
-        override suspend fun selectImportant(response: com.oriooneee.ktorin.room.entities.Response): List<String> {
-            return emptyList()
-        }
-    }
 
     on(Send) {
         val sendTime = Clock.System.now().toEpochMilliseconds()
@@ -76,7 +66,8 @@ val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
             requestBody = requestBody,
         )
         val request = state.asRequest()
-        val importantInRequest = requestImportantSelector?.selectImportant(request) ?: emptyList()
+        val importantInRequest =
+            pluginConfig.requestImportantSelector.selectImportant(request)
         state = state.copy(importantInRequest = importantInRequest)
         val id = processor.onSend(state)
         state = state.copy(id = id)
@@ -105,7 +96,8 @@ val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
             isImage = isImage
         )
         val resp = finishedState.asResponse()
-        val importantInResponse = responseImportantSelector?.selectImportant(resp) ?: emptyList()
+        val importantInResponse =
+            pluginConfig.responseImportantSelector.selectImportant(resp)
         processor.onFinished(finishedState.copy(importantInResponse = importantInResponse))
         response
     }
