@@ -9,7 +9,7 @@ struct ComposeApp: App {
         }
     }
     init(){
-        InitKtorin().initializeShareLibrary()
+        Axer().initialize()
     }
 }
 

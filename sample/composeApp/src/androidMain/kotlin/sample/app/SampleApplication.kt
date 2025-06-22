@@ -1,14 +1,14 @@
 package sample.app
 
 import android.app.Application
-import com.oriooneee.Ktorin
+import com.oriooneee.AxerManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class SampleApplication: Application() {
     override fun onCreate() {
         super.onCreate()
-        Ktorin.init(this)
+        AxerManager.init(this)
         startKoin {
             androidContext(this@SampleApplication)
             modules(SampleKoinModule.module)

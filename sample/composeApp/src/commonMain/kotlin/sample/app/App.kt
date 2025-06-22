@@ -9,11 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.oriooneee.ktorin.KtorinPlugin
-import com.oriooneee.ktorin.config.RequestImportantSelector
-import com.oriooneee.ktorin.config.ResponseImportantSelector
-import com.oriooneee.ktorin.domain.Request
-import com.oriooneee.ktorin.domain.Response
+import com.oriooneee.axer.AxerPlugin
+import com.oriooneee.axer.domain.Request
+import com.oriooneee.axer.domain.Response
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -86,24 +84,16 @@ fun App() {
                 header("Authorization", "Bearer your_token_here")
             }
         }
-        install(KtorinPlugin) {
-            requestImportantSelector = object : RequestImportantSelector {
-                override suspend fun selectImportant(request: Request): List<String> {
-                    val tokenData = request.headers.entries.firstOrNull {
-                        it.key.equals("Authorization", ignoreCase = true)
-                    }
-                    return if (tokenData != null) {
-                        listOf(tokenData.value)
-                    } else {
-                        emptyList()
-                    }
+        install(AxerPlugin) {
+            requestImportantSelector = { request: Request ->
+                val tokenData = request.headers.entries.firstOrNull {
+                    it.key.equals("Authorization", ignoreCase = true)
                 }
-            }
-            responseImportantSelector = object : ResponseImportantSelector {
-                override suspend fun selectImportant(response: Response): List<String> {
-                    return listOf("Data: Test important data")
+                if (tokenData != null) {
+                    listOf(tokenData.value)
+                } else {
+                    emptyList()
                 }
-
             }
         }
     }

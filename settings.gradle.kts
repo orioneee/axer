@@ -1,4 +1,4 @@
-rootProject.name = "Ktorin"
+rootProject.name = "Axer"
 
 pluginManagement {
     repositories {
@@ -30,5 +30,5 @@ dependencyResolutionManagement {
         mavenLocal()
     }
 }
-include(":ktor-inspektor")
+include(":axer")
 include(":sample:composeApp")

@@ -42,7 +42,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation(project(":ktor-inspektor"))
+            implementation(project(":axer"))
         }
 
         commonTest.dependencies {

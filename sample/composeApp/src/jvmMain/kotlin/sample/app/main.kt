@@ -1,18 +1,9 @@
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.oriooneee.ktorin.KtorinOkhttpInterceptor
-import com.oriooneee.ktorin.koin.InitKtorin
-import com.oriooneee.ktorin.ktorinWindows
+import com.oriooneee.axer.AxerOkhttpInterceptor
+import com.oriooneee.axer.AxerWindows
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -113,8 +104,7 @@ fun sendImageRequestOkHttp(
 
 
 fun main() = application {
-    InitKtorin.init()
-    ktorinWindows()
+    AxerWindows()
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val originalRequest = chain.request()
@@ -132,7 +122,7 @@ fun main() = application {
             chain.proceed(newRequest)
         }
         .addInterceptor(
-            KtorinOkhttpInterceptor.Builder()
+            AxerOkhttpInterceptor.Builder()
                 .build()
         )
         .build()
