@@ -12,16 +12,16 @@ kotlin {
 
     androidTarget()
     jvm()
-//    listOf(
+    listOf(
 //        iosX64(),
-//        iosArm64(),
-//        iosSimulatorArm64()
-//    ).forEach {
-//        it.binaries.framework {
-//            baseName = "ComposeApp"
-//            isStatic = true
-//        }
-//    }
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -65,9 +65,22 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
 
-//        iosMain.dependencies {
-//            implementation(libs.ktor.client.darwin)
-//        }
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+                implementation("dev.icerock.moko:permissions:0.19.1")
+                implementation("dev.icerock.moko:permissions-notifications:0.19.1")
+                implementation("dev.icerock.moko:permissions-compose:0.19.1") // permissions api + compose extensions
+            }
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
     }
 }
 

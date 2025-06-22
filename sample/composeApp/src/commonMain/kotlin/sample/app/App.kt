@@ -25,6 +25,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 
 val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
@@ -81,6 +82,7 @@ fun sedRequestForImage(client: HttpClient) {
 
 @Composable
 fun App() {
+    handlePermissions()
     val client = HttpClient {
         install(DefaultRequest) {
             contentType(ContentType.Application.Json)

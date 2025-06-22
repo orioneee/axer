@@ -22,8 +22,8 @@ kotlin {
     androidTarget { publishLibraryVariants("release") }
     jvm()
 //    iosX64()
-//    iosArm64()
-//    iosSimulatorArm64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
@@ -59,9 +59,12 @@ kotlin {
             implementation(libs.kodeview)
         }
 
-//        iosMain.dependencies {
-//            implementation(libs.ktor.client.darwin)
-//        }
+        val iosMain by getting {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
+        }
 
         val jvmAndAndroid by creating {
             dependsOn(commonMain.get())
@@ -71,15 +74,12 @@ kotlin {
             }
         }
 
-//        val iosX64Main by getting {
-//            dependsOn(iosMain.get())
-//        }
-//        val iosArm64Main by getting {
-//            dependsOn(iosMain.get())
-//        }
-//        val iosSimulatorArm64Main by getting {
-//            dependsOn(iosMain.get())
-//        }
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
