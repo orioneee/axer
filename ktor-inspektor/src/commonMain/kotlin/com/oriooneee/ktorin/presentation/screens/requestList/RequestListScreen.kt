@@ -1,19 +1,29 @@
 package com.oriooneee.ktorin.presentation.screens.requestList
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.oriooneee.ktorin.presentation.clickableWithoutRipple
 import com.oriooneee.ktorin.presentation.screens.RequestViewModel
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -52,6 +62,7 @@ class RequestListScreen() {
             },
             label = "RequestCardColorAnimation"
         )
+        val animatedFontWeight by animateIntAsState(if(request.isViewed) 400 else 700)
         ListItem(
             colors = ListItemDefaults.colors(containerColor = animatedContainerColor),
             modifier = Modifier
@@ -74,10 +85,12 @@ class RequestListScreen() {
                     annotatedString,
                     color = if (
                         request.error != null ||
-                        (request.responseStatus != null && !request.responseStatus.toString().startsWith("2") )
+                        (request.responseStatus != null && !request.responseStatus.toString()
+                            .startsWith("2"))
                     ) MaterialTheme.colorScheme.error else Color.Unspecified,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight(animatedFontWeight)
                 )
             },
             supportingContent = {
@@ -95,6 +108,47 @@ class RequestListScreen() {
         )
     }
 
+    @Composable
+    fun <T> FilterRow(
+        items: List<T>,
+        selectedItems: List<T>,
+        onItemClicked: (T) -> Unit,
+        onClear: () -> Unit,
+        getItemString: (T) -> String
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item {
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Clear,
+                        contentDescription = "Clear Filters"
+                    )
+                }
+            }
+            items(items) {
+                val isSelected = selectedItems.contains(it)
+                val itemString = getItemString(it)
+                InputChip(
+                    label = {
+                        Text(itemString)
+                    },
+                    selected = isSelected,
+                    onClick = {
+                        onItemClicked(it)
+                    },
+                )
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
@@ -105,7 +159,12 @@ class RequestListScreen() {
         val viewModel: RequestViewModel = koinViewModel {
             parametersOf(null)
         }
-        val requests by viewModel.requests.collectAsState(emptyList())
+        val allRequests by viewModel.requests.collectAsState(emptyList())
+        val filtredRequests by viewModel.filteredRequests.collectAsState(emptyList())
+        val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
+        val imageFilters = viewModel.imageFilters.collectAsState(emptyList())
+        val selectedMethods by viewModel.selectedMethods.collectAsState(emptyList())
+        val selectedImageFilter by viewModel.selectedImageFilter.collectAsState(emptyList())
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -132,25 +191,62 @@ class RequestListScreen() {
                     .padding(contentPadding),
 
                 ) {
-                if(requests.isEmpty()){
+                if (allRequests.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
                         contentAlignment = androidx.compose.ui.Alignment.Center
 
-                        ){
+                    ) {
                         Text("No requests yet")
                     }
-                } else{
+                } else {
                     LazyColumn {
-                        items(requests) { item ->
-                            RequestCard(
-                                isSelected = item.id == selectedRequestId,
-                                request = item,
-                                onClick = {
-                                    onClickToRequestDetails(item)
-                                }
-                            )
+                        item {
+                            if (methodFilters.value.isNotEmpty()) {
+                                FilterRow(
+                                    items = methodFilters.value,
+                                    selectedItems = selectedMethods,
+                                    onItemClicked = { method ->
+                                        viewModel.toggleMethodFilter(method)
+                                    },
+                                    onClear = {
+                                        viewModel.clearMethodFilters()
+                                    },
+                                    getItemString = { it }
+                                )
+                            }
+                        }
+                        item {
+                            if (imageFilters.value.isNotEmpty()) {
+                                FilterRow(
+                                    items = imageFilters.value,
+                                    selectedItems = selectedImageFilter,
+                                    onItemClicked = { filter ->
+                                        viewModel.toggleImageFilter(filter)
+                                    },
+                                    onClear = {
+                                        viewModel.clearImageFilters()
+                                    },
+                                    getItemString = { it }
+                                )
+                            }
+                        }
+                        items(allRequests) { item ->
+                            val isVisible = filtredRequests.contains(item)
+                            AnimatedVisibility(
+                                visible = isVisible,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                RequestCard(
+                                    isSelected = item.id == selectedRequestId,
+                                    request = item,
+                                    onClick = {
+                                        onClickToRequestDetails(item)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

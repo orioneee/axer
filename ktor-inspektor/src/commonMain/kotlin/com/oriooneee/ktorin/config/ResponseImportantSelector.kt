@@ -1,6 +1,6 @@
 package com.oriooneee.ktorin.config
 
-import com.oriooneee.ktorin.room.entities.Response
+import com.oriooneee.ktorin.domain.Response
 
 interface ResponseImportantSelector {
     suspend fun selectImportant(response: Response): List<String>

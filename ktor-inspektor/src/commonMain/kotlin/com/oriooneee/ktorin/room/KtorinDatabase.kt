@@ -9,15 +9,14 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.oriooneee.ktorin.room.converters.ListConverter
 import com.oriooneee.ktorin.room.converters.MapConverter
 import com.oriooneee.ktorin.room.dao.RequestDao
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 
 @Database(
     entities = [
         Transaction::class
     ],
-    version = 6
+    version = 7
 )
 @ConstructedBy(KtorinDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class)

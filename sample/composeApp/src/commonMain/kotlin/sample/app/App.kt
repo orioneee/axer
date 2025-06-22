@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import com.oriooneee.ktorin.KtorinPlugin
 import com.oriooneee.ktorin.config.RequestImportantSelector
 import com.oriooneee.ktorin.config.ResponseImportantSelector
-import com.oriooneee.ktorin.room.entities.Request
-import com.oriooneee.ktorin.room.entities.Response
+import com.oriooneee.ktorin.domain.Request
+import com.oriooneee.ktorin.domain.Response
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -25,7 +25,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 
 val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
@@ -90,8 +89,6 @@ fun App() {
             }
         }
         install(KtorinPlugin) {
-            testValue = "Test value override"
-
             requestImportantSelector = object : RequestImportantSelector {
                 override suspend fun selectImportant(request: Request): List<String> {
                     val tokenData = request.headers.entries.firstOrNull {

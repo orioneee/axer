@@ -10,9 +10,7 @@ import com.oriooneee.KtorinActivity
 import com.oriooneee.ktorin.R
 import com.oriooneee.ktorin.koin.IsolatedContext
 import com.oriooneee.ktorin.room.dao.RequestDao
-import com.oriooneee.ktorin.room.entities.Transaction
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import com.oriooneee.ktorin.domain.Transaction
 import kotlin.getValue
 
 actual class RequestProcessor {

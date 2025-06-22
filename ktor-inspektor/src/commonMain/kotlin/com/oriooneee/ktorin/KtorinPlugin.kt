@@ -1,16 +1,13 @@
 package com.oriooneee.ktorin
 
 import com.oriooneee.ktorin.config.KtorinConfig
-import com.oriooneee.ktorin.config.RequestImportantSelector
-import com.oriooneee.ktorin.config.ResponseImportantSelector
 import com.oriooneee.ktorin.requestProcessor.RequestProcessor
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.content.OutgoingContent
-import io.ktor.http.encodedPath
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
 import kotlin.time.Clock

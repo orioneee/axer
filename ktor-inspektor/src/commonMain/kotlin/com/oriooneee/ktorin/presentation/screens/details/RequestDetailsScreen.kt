@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -58,12 +57,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.oriooneee.ktorin.domain.HighlightedBodyWrapper
 import com.oriooneee.ktorin.presentation.components.CustomAlertDialog
-import com.oriooneee.ktorin.presentation.screens.HighlightedBodyWrapper
 import com.oriooneee.ktorin.presentation.screens.RequestViewModel
-import com.oriooneee.ktorin.room.entities.Transaction
-import dev.snipme.highlights.Highlights
-import generateAnnotatedString
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -171,10 +167,8 @@ class RequestDetailsScreen {
                     modifier = Modifier
                         .padding(16.dp),
                 ) {
-                    Text("Why this data is important?", fontSize = 24.sp)
-                    Spacer(Modifier.height(16.dp))
                     Text("Developer mark this as important")
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
                             .padding(8.dp)
@@ -450,6 +444,7 @@ class RequestDetailsScreen {
                                 model = request.imageBytes,
                                 contentDescription = "Response Image",
                                 modifier = Modifier
+                                    .height(300.dp)
                                     .clip(RoundedCornerShape(12.dp))
                             )
                         }
@@ -471,6 +466,11 @@ class RequestDetailsScreen {
             parametersOf(requestId)
         }
         val wrappped by viewModel.requestByID.collectAsState(initial = null)
+        LaunchedEffect(wrappped) {
+            if(wrappped != null && !wrappped!!.request.isViewed){
+                viewModel.onViewed(wrappped!!.request)
+            }
+        }
         if (wrappped == null) {
             Box(
                 modifier = Modifier.fillMaxSize(),

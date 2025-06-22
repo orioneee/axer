@@ -1,4 +1,4 @@
-package com.oriooneee.ktorin.room.entities
+package com.oriooneee.ktorin.domain
 
 data class Response(
     val responseBody: String?,

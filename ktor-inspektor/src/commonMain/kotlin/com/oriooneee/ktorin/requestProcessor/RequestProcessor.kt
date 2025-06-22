@@ -2,7 +2,7 @@
 
 package com.oriooneee.ktorin.requestProcessor
 
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 
 
 expect class RequestProcessor (){

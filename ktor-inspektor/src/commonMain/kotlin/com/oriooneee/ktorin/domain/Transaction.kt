@@ -1,4 +1,4 @@
-package com.oriooneee.ktorin.room.entities
+package com.oriooneee.ktorin.domain
 
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -34,6 +34,8 @@ data class Transaction(
 
     val importantInRequest: List<String> = emptyList(),
     val importantInResponse: List<String> = emptyList(),
+
+    val isViewed: Boolean = false
 ) {
 
     fun updateToError(error: String): Transaction {

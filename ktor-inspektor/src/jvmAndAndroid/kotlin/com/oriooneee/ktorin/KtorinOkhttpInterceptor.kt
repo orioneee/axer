@@ -2,8 +2,9 @@ package com.oriooneee.ktorin
 
 import com.oriooneee.ktorin.config.RequestImportantSelector
 import com.oriooneee.ktorin.config.ResponseImportantSelector
+import com.oriooneee.ktorin.domain.Request
 import com.oriooneee.ktorin.requestProcessor.RequestProcessor
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -16,13 +17,13 @@ class KtorinOkhttpInterceptor private constructor(
 
     class Builder(){
         private var requestImportantSelector: RequestImportantSelector = object : RequestImportantSelector {
-            override suspend fun selectImportant(request: com.oriooneee.ktorin.room.entities.Request): List<String> {
+            override suspend fun selectImportant(request: Request): List<String> {
                 return emptyList()
             }
         }
 
         private var responseImportantSelector: ResponseImportantSelector = object : ResponseImportantSelector {
-            override suspend fun selectImportant(response: com.oriooneee.ktorin.room.entities.Response): List<String> {
+            override suspend fun selectImportant(response: com.oriooneee.ktorin.domain.Response): List<String> {
                 return emptyList()
             }
         }

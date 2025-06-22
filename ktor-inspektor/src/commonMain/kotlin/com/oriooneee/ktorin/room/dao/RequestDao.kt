@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import com.oriooneee.ktorin.room.entities.Transaction
+import com.oriooneee.ktorin.domain.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,5 +35,6 @@ interface RequestDao {
     @Query("SELECT * FROM Request WHERE id = :id")
     fun getById(id: Long?): Flow<Transaction?>
 
-
+    @Query("UPDATE Request SET isViewed = :isViewed WHERE id = :id")
+    suspend fun updateViewed(id: Long, isViewed: Boolean)
 }
