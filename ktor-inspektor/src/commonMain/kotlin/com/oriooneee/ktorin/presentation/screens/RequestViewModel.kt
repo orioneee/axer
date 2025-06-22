@@ -4,6 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oriooneee.ktorin.domain.HighlightedBodyWrapper
+import com.oriooneee.ktorin.domain.TimeFilter
 import com.oriooneee.ktorin.room.dao.RequestDao
 import com.oriooneee.ktorin.domain.Transaction
 import dev.snipme.highlights.Highlights
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 
 
@@ -100,14 +102,18 @@ class RequestViewModel(
         it.map { it.method }
             .distinct()
             .sortedBy { it }
+            .takeIf { it.size > 1 } ?: emptyList()
     }
     val imageFilters = requests.map {
-        if(it.any { it.isImage == true }){
-            listOf("Non Image", "Image")
-        } else {
-            listOf()
-        }
+        it.map { if (it.isImage == true) "Image" else "Non image" }
+            .distinct()
+            .sortedBy { it }
+            .takeIf { it.size > 1 } ?: emptyList()
     }
+
+    val selectedTimeFilter = MutableStateFlow<TimeFilter>(
+        TimeFilter.ALL
+    )
 
     private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
     private val _selectedImageFilter = MutableStateFlow<List<String>>(emptyList())
@@ -118,8 +124,9 @@ class RequestViewModel(
     val filteredRequests = combine(
         requests,
         _selectedMethods,
-        _selectedImageFilter
-    ) { requests, selectedMethods, selectedImageFilter ->
+        _selectedImageFilter,
+        selectedTimeFilter
+    ) { requests, selectedMethods, selectedImageFilter, timeFilter ->
         val filterdByMethod = if (selectedMethods.isEmpty()) {
             requests
         } else {
@@ -133,7 +140,16 @@ class RequestViewModel(
                 else it.isImage == false
             }
         }
-        filterdByImage
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        filterdByImage.filter {
+            currentTime - (it.responseTime ?: it.sendTime) <= timeFilter.duration
+        }
+    }
+
+    fun resetTimeFilter() {
+        viewModelScope.launch {
+            selectedTimeFilter.value = TimeFilter.ALL
+        }
     }
 
     fun toggleMethodFilter(method: String) {
@@ -153,6 +169,12 @@ class RequestViewModel(
             } else {
                 _selectedImageFilter.value + filter
             }
+        }
+    }
+
+    fun setTimeFilter(timeFilter: TimeFilter) {
+        viewModelScope.launch {
+            selectedTimeFilter.value = timeFilter
         }
     }
 
@@ -176,7 +198,7 @@ class RequestViewModel(
 
     fun onViewed(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(transaction.isViewed) return@launch
+            if (transaction.isViewed) return@launch
             requestDao.upsert(transaction.copy(isViewed = true))
         }
     }

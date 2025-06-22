@@ -3,10 +3,31 @@
 package com.oriooneee.ktorin.requestProcessor
 
 import com.oriooneee.ktorin.domain.Transaction
+import com.oriooneee.ktorin.koin.IsolatedContext
+import com.oriooneee.ktorin.room.dao.RequestDao
 
 
-expect class RequestProcessor (){
-    suspend fun onSend(request: Transaction): Long
-    suspend fun onFailed(request: Transaction)
-    suspend fun onFinished(request: Transaction)
+class RequestProcessor() {
+    private val dao: RequestDao by IsolatedContext.koin.inject()
+
+    suspend fun onSend(request: Transaction): Long {
+        val id = dao.upsert(request)
+        val firstFive = dao.getFirstFive()
+        updateNotification(firstFive)
+        return id
+    }
+
+    suspend fun onFailed(request: Transaction) {
+        dao.upsert(request)
+        val firstFive = dao.getFirstFive()
+        updateNotification(firstFive)
+    }
+
+    suspend fun onFinished(request: Transaction) {
+        dao.upsert(request)
+        val firstFive = dao.getFirstFive()
+        updateNotification(firstFive)
+    }
 }
+
+expect suspend fun updateNotification(requests: List<Transaction>)

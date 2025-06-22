@@ -1,65 +1,67 @@
 package com.oriooneee.ktorin.requestProcessor
 
+import androidx.compose.ui.window.ComposeUIViewController
 import com.oriooneee.ktorin.domain.Transaction
-import com.oriooneee.ktorin.koin.IsolatedContext
-import com.oriooneee.ktorin.room.dao.RequestDao
-import platform.UserNotifications.UNAuthorizationOptionAlert
-import platform.UserNotifications.UNAuthorizationOptionSound
+import com.oriooneee.ktorin.presentation.EntryPoint
+import platform.CoreData.NSUUIDAttributeType
+import platform.UIKit.UIApplication
 import platform.UserNotifications.UNMutableNotificationContent
+import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationPresentationOptionAlert
+import platform.UserNotifications.UNNotificationPresentationOptions
 import platform.UserNotifications.UNNotificationRequest
-import platform.UserNotifications.UNTimeIntervalNotificationTrigger
+import platform.UserNotifications.UNNotificationResponse
 import platform.UserNotifications.UNUserNotificationCenter
+import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
+import platform.darwin.NSObject
 
+actual suspend fun updateNotification(requests: List<Transaction>) {
+    val notificationText = requests.joinToString("\n") {
+        val statusCode = it.responseStatus ?: "..."
+        val method = it.method
+        val path = it.path
+        "$method $path - $statusCode"
+    }
 
-actual class RequestProcessor {
-    private val dao: RequestDao by IsolatedContext.koin.inject()
+    val content = UNMutableNotificationContent()
+    content.setTitle("Ktorin Requests")
+    content.setBody(notificationText)
 
-    suspend fun updateNotification(firstFive: List<Transaction>) {
-        val notificationText = firstFive.joinToString("\n") {
-            val statusCode = it.responseStatus ?: "..."
-            val method = it.method
-            val path = it.path
-            "$method $path - $statusCode"
+    val uuid = NSUUIDAttributeType.toString()
+
+    val request = UNNotificationRequest.requestWithIdentifier(
+        uuid,
+        content,
+        null // Trigger can be set to null for immediate delivery
+    )
+
+    val center = UNUserNotificationCenter.currentNotificationCenter()
+    center.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
+        override fun userNotificationCenter(
+            center: UNUserNotificationCenter,
+            willPresentNotification: UNNotification,
+            withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+        ) {
+            withCompletionHandler(UNNotificationPresentationOptionAlert)
         }
 
-        val center = UNUserNotificationCenter.currentNotificationCenter()
-        center.requestAuthorizationWithOptions(
-            options = UNAuthorizationOptionAlert or UNAuthorizationOptionSound,
-            completionHandler = { granted, error ->
-                if (granted && error == null) {
-                    val content = UNMutableNotificationContent().apply {
-                        setTitle("Ktorin Requests")
-                        setBody(notificationText)
-                    }
-
-                    val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(
-                        timeInterval = 1.0, repeats = false
-                    )
-
-                    val request = UNNotificationRequest.requestWithIdentifier(
-                        identifier = "ktorin_notification",
-                        content = content,
-                        trigger = trigger
-                    )
-
-                    center.addNotificationRequest(request, withCompletionHandler = null)
-                }
-            }
-        )
+        override fun userNotificationCenter(
+            center: UNUserNotificationCenter,
+            didReceiveNotificationResponse: UNNotificationResponse,
+            withCompletionHandler: () -> Unit
+        ) {
+            val pluginViewController = ComposeUIViewController { EntryPoint.Screen() }
+            val topController =
+                UIApplication.sharedApplication.keyWindow?.rootViewController
+                    ?: throw IllegalStateException("No key window or root view controller found")
+            topController.presentViewController(
+                pluginViewController,
+                animated = true,
+                completion = null
+            )
+            withCompletionHandler()
+        }
     }
-
-    actual suspend fun onSend(request: Transaction): Long {
-        dao.upsert(request)
-        val firstFive = dao.getFirstFive()
-        updateNotification(firstFive)
-        return request.id
-    }
-
-    actual suspend fun onFailed(request: Transaction) {
-        dao.upsert(request)
-    }
-
-    actual suspend fun onFinished(request: Transaction) {
-        dao.upsert(request)
+    center.addNotificationRequest(request) { error ->
     }
 }

@@ -13,65 +13,43 @@ import com.oriooneee.ktorin.room.dao.RequestDao
 import com.oriooneee.ktorin.domain.Transaction
 import kotlin.getValue
 
-actual class RequestProcessor {
-    private val context: Context by IsolatedContext.koin.inject()
-    private val dao: RequestDao by IsolatedContext.koin.inject()
-
-
-    private suspend fun updateNotification(){
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = android.app.NotificationChannel(
-                "ktorin_channel",
-                "Ktorin Notifications",
-                android.app.NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-        val firstFive = dao.getFirstFive()
-        val notificationText = firstFive.joinToString("\n") {
-            val statusCode = it.responseStatus ?: "..."
-            val method = it.method
-            val path = it.path
-            "$method $path - $statusCode"
-        }
-
-        val intent = Intent(context, KtorinActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+actual suspend fun updateNotification(requests: List<Transaction>) {
+    val context: Context = IsolatedContext.koinApp.koin.get()
+    val notificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        val channel = android.app.NotificationChannel(
+            "ktorin_channel",
+            "Ktorin Notifications",
+            android.app.NotificationManager.IMPORTANCE_DEFAULT
         )
-
-        val notification = NotificationCompat.Builder(context, "ktorin_channel")
-            .setContentTitle("Ktorin Requests")
-            .setContentText(notificationText)
-            .setSmallIcon(R.drawable.ic_http)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(1, notification)
+        notificationManager.createNotificationChannel(channel)
+    }
+    val notificationText = requests.joinToString("\n") {
+        val statusCode = it.responseStatus ?: "..."
+        val method = it.method
+        val path = it.path
+        "$method $path - $statusCode"
     }
 
-    actual suspend fun onSend(request: Transaction): Long {
-        val id = dao.upsert(request)
-        updateNotification()
-        return id
+    val intent = Intent(context, KtorinActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
 
-    actual suspend fun onFailed(request: Transaction) {
-        dao.upsert(request)
-        updateNotification()
-    }
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
 
-    actual suspend fun onFinished(request: Transaction) {
-        dao.upsert(request)
-        updateNotification()
-    }
+    val notification = NotificationCompat.Builder(context, "ktorin_channel")
+        .setContentTitle("Ktorin Requests")
+        .setContentText(notificationText)
+        .setSmallIcon(R.drawable.ic_http)
+        .setContentIntent(pendingIntent)
+        .setAutoCancel(true)
+        .build()
+
+    notificationManager.notify(1, notification)
 }

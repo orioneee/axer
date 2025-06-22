@@ -67,7 +67,7 @@ data class Transaction(
     }
 
     fun isFinished(): Boolean {
-        return responseStatus != null && error == null
+        return responseStatus != null || error == null
     }
 
     @get:Ignore

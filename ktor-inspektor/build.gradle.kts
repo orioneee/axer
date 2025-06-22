@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion = "1.0.5"
+val libraryVersion = "1.0.6"
 
 version = libraryVersion
 
@@ -21,9 +21,17 @@ kotlin {
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
-//    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    listOf(
+//        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
+            baseName = "Ktorin"
+            isStatic = false
+        }
+    }
+
 
     sourceSets {
         commonMain.dependencies {

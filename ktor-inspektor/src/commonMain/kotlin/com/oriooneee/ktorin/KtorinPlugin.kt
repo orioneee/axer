@@ -83,7 +83,11 @@ val KtorinPlugin = createClientPlugin("Ktorin", ::KtorinConfig) {
 
         val responseStatus = response.response.status.value
         val finishedState = state.updateToFinished(
-            responseBody = if (isImage) null else response.response.bodyAsText(),
+            responseBody = if (isImage) null else try {
+                response.response.bodyAsText()
+            } catch (e: Exception) {
+                "Error reading response body: ${e.message}"
+            },
             responseTime = responseTime,
             responseHeaders = responseHeaders,
             responseStatus = responseStatus,

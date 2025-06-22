@@ -489,7 +489,7 @@ class RequestDetailsScreen {
                                 } else {
                                     ""
                                 },
-                                maxLines = 2,
+                                maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },

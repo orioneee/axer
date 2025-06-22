@@ -9,8 +9,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.oriooneee.ktorin.domain.TimeFilter
 import com.oriooneee.ktorin.presentation.clickableWithoutRipple
 import com.oriooneee.ktorin.presentation.screens.RequestViewModel
 import com.oriooneee.ktorin.domain.Transaction
@@ -62,7 +65,7 @@ class RequestListScreen() {
             },
             label = "RequestCardColorAnimation"
         )
-        val animatedFontWeight by animateIntAsState(if(request.isViewed) 400 else 700)
+        val animatedFontWeight by animateIntAsState(if (request.isViewed) 400 else 700)
         ListItem(
             colors = ListItemDefaults.colors(containerColor = animatedContainerColor),
             modifier = Modifier
@@ -114,7 +117,8 @@ class RequestListScreen() {
         selectedItems: List<T>,
         onItemClicked: (T) -> Unit,
         onClear: () -> Unit,
-        getItemString: (T) -> String
+        getItemString: (T) -> String,
+        withClearButton: Boolean = true
     ) {
         LazyRow(
             modifier = Modifier
@@ -122,15 +126,21 @@ class RequestListScreen() {
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
-                IconButton(
-                    onClick = onClear,
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Clear,
-                        contentDescription = "Clear Filters"
-                    )
+            if(withClearButton){
+                item {
+                    IconButton(
+                        onClick = onClear,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Clear,
+                            contentDescription = "Clear Filters"
+                        )
+                    }
+                }
+            } else{
+                item{
+                    Spacer(Modifier.width(8.dp))
                 }
             }
             items(items) {
@@ -165,6 +175,7 @@ class RequestListScreen() {
         val imageFilters = viewModel.imageFilters.collectAsState(emptyList())
         val selectedMethods by viewModel.selectedMethods.collectAsState(emptyList())
         val selectedImageFilter by viewModel.selectedImageFilter.collectAsState(emptyList())
+        val selectedTimeFilter by viewModel.selectedTimeFilter.collectAsState(TimeFilter.ALL)
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -232,6 +243,20 @@ class RequestListScreen() {
                                 )
                             }
                         }
+//                        item {
+//                            FilterRow(
+//                                items = TimeFilter.entries,
+//                                selectedItems = listOf(selectedTimeFilter),
+//                                onItemClicked = { filter ->
+//                                    viewModel.setTimeFilter(filter)
+//                                },
+//                                onClear = {
+//                                    viewModel.resetTimeFilter()
+//                                },
+//                                getItemString = { it.text },
+//                                withClearButton = false
+//                            )
+//                        }
                         items(allRequests) { item ->
                             val isVisible = filtredRequests.contains(item)
                             AnimatedVisibility(
