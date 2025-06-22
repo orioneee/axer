@@ -11,7 +11,7 @@ import com.oriooneee.axer.presentation.screens.details.RequestDetailsScreen
 import com.oriooneee.axer.presentation.screens.requestList.RequestListScreen
 import com.oriooneee.axer.presentation.screens.sandbox.SandboxScreen
 
-class MobileNavigation {
+internal class MobileNavigation {
     @Composable
     fun Host(
         navController: NavHostController,

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-expect fun CustomAlertDialog(
+internal expect fun CustomAlertDialog(
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
     content: @Composable () -> Unit,

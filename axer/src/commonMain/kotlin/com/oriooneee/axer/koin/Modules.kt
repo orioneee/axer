@@ -7,7 +7,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-object Modules {
+internal object Modules {
     fun getModules() = listOf(
         getPlatformModules(),
         daoModule,

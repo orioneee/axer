@@ -2,7 +2,7 @@ package com.oriooneee.axer.koin
 
 import org.koin.core.KoinApplication
 
-object IsolatedContext {
+internal object IsolatedContext {
     lateinit var koinApp: KoinApplication
         private set
     val koin by lazy {

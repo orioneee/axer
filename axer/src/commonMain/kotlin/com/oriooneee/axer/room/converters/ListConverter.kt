@@ -3,7 +3,7 @@ package com.oriooneee.axer.room.converters
 import androidx.room.TypeConverter
 import kotlinx.serialization.json.Json
 
-class ListConverter {
+internal class ListConverter {
     @TypeConverter
     fun fromListToString(list: List<String>?): String? {
         return Json.encodeToString(list ?: emptyList())

@@ -19,7 +19,7 @@ import com.oriooneee.axer.presentation.BlueTheme
 import com.oriooneee.axer.presentation.screens.details.RequestDetailsScreen
 import com.oriooneee.axer.presentation.screens.sandbox.SandboxScreen
 
-class DesktopNavigation {
+internal class DesktopNavigation {
     @Composable
     fun Host(
         navController: NavHostController,

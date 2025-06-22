@@ -1,3 +1,3 @@
 package com.oriooneee.axer
 
-expect fun ByteArray.isValidImage(): Boolean
+internal expect fun ByteArray.isValidImage(): Boolean

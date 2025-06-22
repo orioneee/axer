@@ -43,14 +43,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.oriooneee.axer.domain.TimeFilter
+import com.oriooneee.axer.domain.Transaction
 import com.oriooneee.axer.presentation.clickableWithoutRipple
 import com.oriooneee.axer.presentation.screens.RequestViewModel
-import com.oriooneee.axer.domain.Transaction
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class RequestListScreen() {
+internal class RequestListScreen() {
     @Composable
     fun RequestCard(
         isSelected: Boolean,
@@ -176,7 +175,6 @@ class RequestListScreen() {
         val imageFilters = viewModel.imageFilters.collectAsState(emptyList())
         val selectedMethods by viewModel.selectedMethods.collectAsState(emptyList())
         val selectedImageFilter by viewModel.selectedImageFilter.collectAsState(emptyList())
-        val selectedTimeFilter by viewModel.selectedTimeFilter.collectAsState(TimeFilter.ALL)
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(

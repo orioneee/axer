@@ -10,8 +10,8 @@ import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlin.time.ExperimentalTime
 
-@Entity(tableName = "Request")
-data class Transaction(
+@Entity(tableName = "Transactions")
+internal data class Transaction(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L,
 

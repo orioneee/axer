@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class RequestDetailsScreen {
+internal class RequestDetailsScreen {
     fun buildStringSection(
         title: String,
         content: String,

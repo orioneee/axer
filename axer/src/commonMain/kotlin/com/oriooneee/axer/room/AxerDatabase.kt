@@ -17,21 +17,21 @@ import kotlinx.coroutines.IO
     entities = [
         Transaction::class
     ],
-    version = 7
+    version = 8
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class)
-abstract class AxerDatabase : RoomDatabase() {
+internal abstract class AxerDatabase : RoomDatabase() {
     abstract fun getRequestDao(): RequestDao
 }
 
 // Room compiler generates the `actual` implementations
 @Suppress("NO_ACTUAL_FOR_EXPECT", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDatabase> {
+internal expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDatabase> {
     override fun initialize(): AxerDatabase
 }
 
-fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
+internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)

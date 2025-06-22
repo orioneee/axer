@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
-class SandboxViewModel(
-    private val requestDao: RequestDao,
+internal class SandboxViewModel(
+    requestDao: RequestDao,
     requestId: Long?
 ) : ViewModel() {
     val json = Json {

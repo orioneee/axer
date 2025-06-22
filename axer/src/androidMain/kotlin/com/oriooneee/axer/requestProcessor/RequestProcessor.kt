@@ -11,7 +11,7 @@ import com.oriooneee.axer.R
 import com.oriooneee.axer.koin.IsolatedContext
 import com.oriooneee.axer.domain.Transaction
 
-actual suspend fun updateNotification(requests: List<Transaction>) {
+internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val context: Context = IsolatedContext.koinApp.koin.get()
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -19,7 +19,7 @@ actual suspend fun updateNotification(requests: List<Transaction>) {
         val channel = android.app.NotificationChannel(
             "axer_channel",
             "Axer",
-            android.app.NotificationManager.IMPORTANCE_DEFAULT
+            android.app.NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
     }

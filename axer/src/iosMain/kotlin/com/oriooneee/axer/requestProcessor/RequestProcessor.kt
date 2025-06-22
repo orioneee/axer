@@ -15,7 +15,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
-actual suspend fun updateNotification(requests: List<Transaction>) {
+internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val notificationText = requests.joinToString("\n") {
         val statusCode = it.responseStatus ?: "..."
         val method = it.method

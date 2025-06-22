@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun SplitScreen(
+internal fun SplitScreen(
     first: @Composable () -> Unit,
     second: @Composable () -> Unit,
     firstWeight: Float = 0.45f,

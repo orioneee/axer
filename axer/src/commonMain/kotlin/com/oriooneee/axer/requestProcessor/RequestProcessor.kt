@@ -7,7 +7,7 @@ import com.oriooneee.axer.koin.IsolatedContext
 import com.oriooneee.axer.room.dao.RequestDao
 
 
-class RequestProcessor() {
+internal class RequestProcessor() {
     private val dao: RequestDao by IsolatedContext.koin.inject()
 
     suspend fun onSend(request: Transaction): Long {
@@ -30,4 +30,4 @@ class RequestProcessor() {
     }
 }
 
-expect suspend fun updateNotification(requests: List<Transaction>)
+internal expect suspend fun updateNotification(requests: List<Transaction>)

@@ -17,7 +17,7 @@ import com.oriooneee.axer.presentation.navigation.Routes
 import com.oriooneee.axer.presentation.screens.requestList.RequestListScreen
 import org.koin.compose.KoinIsolatedContext
 
-object EntryPoint {
+internal object EntryPoint {
     @Composable
     fun Screen(
         onClose: (() -> Unit)?
