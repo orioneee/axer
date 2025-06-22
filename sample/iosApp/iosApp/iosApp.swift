@@ -8,10 +8,14 @@ struct ComposeApp: App {
             ContentView().ignoresSafeArea(.all)
         }
     }
+    init(){
+        InitKtorin().initializeShareLibrary()
+    }
 }
 
 struct ContentView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
+        
         return MainKt.MainViewController()
     }
 

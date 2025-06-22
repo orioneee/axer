@@ -33,14 +33,10 @@ val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
 
 fun sendGetRequest(client: HttpClient) {
     CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val resp = client.get(url)
-            if (resp.status.value == 200) {
-                val responseBody = resp.bodyAsText()
-            } else {
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val resp = client.get(url)
+        if (resp.status.value == 200) {
+            val responseBody = resp.bodyAsText()
+        } else {
         }
     }
 }
@@ -103,7 +99,7 @@ fun App() {
                     }
                 }
             }
-            responseImportantSelector = object : ResponseImportantSelector{
+            responseImportantSelector = object : ResponseImportantSelector {
                 override suspend fun selectImportant(response: Response): List<String> {
                     return listOf("Data: Test important data")
                 }

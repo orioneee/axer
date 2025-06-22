@@ -12,20 +12,18 @@ import dev.icerock.moko.permissions.compose.PermissionsControllerFactory
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import dev.icerock.moko.permissions.notifications.REMOTE_NOTIFICATION
 
-actual object PermissionHandler {
-    @Composable
-    actual fun handlePermissions() {
-        val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
-        val controller: PermissionsController =
-            remember(factory) { factory.createPermissionsController() }
-        BindEffect(controller)
-        LaunchedEffect(Unit) {
-            try {
-                controller.providePermission(Permission.REMOTE_NOTIFICATION)
-            } catch (deniedAlways: DeniedAlwaysException) {
-            } catch (denied: DeniedException) {
-            } catch (e: Exception) {
-            }
+@Composable
+actual fun handlePermissions() {
+    val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
+    val controller: PermissionsController =
+        remember(factory) { factory.createPermissionsController() }
+    BindEffect(controller)
+    LaunchedEffect(Unit) {
+        try {
+            controller.providePermission(Permission.REMOTE_NOTIFICATION)
+        } catch (deniedAlways: DeniedAlwaysException) {
+        } catch (denied: DeniedException) {
+        } catch (e: Exception) {
         }
     }
 }

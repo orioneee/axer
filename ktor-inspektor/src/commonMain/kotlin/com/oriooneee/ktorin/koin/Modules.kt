@@ -10,13 +10,13 @@ import org.koin.dsl.module
 
 object Modules {
     fun getModules() = listOf(
+        getPlatformModules(),
         daoModule,
         viewModelModule,
-        getPlatformModules()
     )
 
     val daoModule = module {
-        single<RequestDao> {
+        single {
             val database: KtorinDatabase = get()
             database.getRequestDao()
         }

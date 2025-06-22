@@ -1,7 +1,15 @@
 package com.oriooneee.ktorin.koin
 
+import com.oriooneee.ktorin.room.getDatabaseBuilder
+import com.oriooneee.ktorin.room.getKtorinDatabase
 import org.koin.core.module.Module
+import org.koin.dsl.module
 
-actual fun getPlatformModules(): List<Module> {
-    TODO("Not yet implemented")
+actual fun getPlatformModules(): Module {
+    return module {
+        single {
+            val builder = getDatabaseBuilder()
+            getKtorinDatabase(builder)
+        }
+    }
 }
