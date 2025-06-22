@@ -9,7 +9,7 @@ import platform.Foundation.NSUserDomainMask
 
 
 internal fun getDatabaseBuilder(): RoomDatabase.Builder<AxerDatabase> {
-    val dbFilePath = documentDirectory() + "/my_room.db"
+    val dbFilePath = documentDirectory() + "/axer_database.db"
     return Room.databaseBuilder<AxerDatabase>(
         name = dbFilePath,
     )
