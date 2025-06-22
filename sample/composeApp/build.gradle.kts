@@ -42,7 +42,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            implementation(project(":axer"))
+            implementation(project(":axer-no-op"))
         }
 
         commonTest.dependencies {
@@ -69,9 +69,9 @@ kotlin {
             dependsOn(commonMain.get())
             dependencies {
                 implementation(libs.ktor.client.darwin)
-                implementation("dev.icerock.moko:permissions:0.19.1")
-                implementation("dev.icerock.moko:permissions-notifications:0.19.1")
-                implementation("dev.icerock.moko:permissions-compose:0.19.1") // permissions api + compose extensions
+                implementation(libs.permissions)
+                implementation(libs.permissions.notifications)
+                implementation(libs.permissions.compose)
             }
         }
 
@@ -99,7 +99,7 @@ android {
 
     buildTypes {
         debug {
-            isDebuggable = false
+            isDebuggable = true
         }
     }
 
