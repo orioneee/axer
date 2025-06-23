@@ -3,8 +3,8 @@ package com.oriooneee.axer.presentation.screens
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oriooneee.axer.domain.HighlightedBodyWrapper
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.HighlightedBodyWrapper
+import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.room.dao.RequestDao
 import dev.snipme.highlights.Highlights
 import generateAnnotatedString
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 
 

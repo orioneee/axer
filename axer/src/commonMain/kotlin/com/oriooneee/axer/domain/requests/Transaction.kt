@@ -1,4 +1,4 @@
-package com.oriooneee.axer.domain
+package com.oriooneee.axer.domain.requests
 
 import androidx.room.Entity
 import androidx.room.Ignore

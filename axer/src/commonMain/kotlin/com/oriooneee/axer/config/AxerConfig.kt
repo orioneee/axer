@@ -1,7 +1,7 @@
 package com.oriooneee.axer.config
 
-import com.oriooneee.axer.domain.Request
-import com.oriooneee.axer.domain.Response
+import com.oriooneee.axer.domain.requests.Request
+import com.oriooneee.axer.domain.requests.Response
 
 
 class AxerConfig(){

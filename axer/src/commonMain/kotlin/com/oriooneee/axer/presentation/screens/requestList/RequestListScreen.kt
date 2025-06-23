@@ -43,7 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.clickableWithoutRipple
 import com.oriooneee.axer.presentation.screens.RequestViewModel
 import org.koin.compose.viewmodel.koinViewModel

@@ -1,19 +1,16 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
-package com.oriooneee.axer.requestProcessor
+package com.oriooneee.axer
 
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.oriooneee.AxerActivity
-import com.oriooneee.axer.NotificationInfo
-import com.oriooneee.axer.R
+import com.oriooneee.axer.domain.exceptions.AxerException
 import com.oriooneee.axer.koin.IsolatedContext
-import com.oriooneee.axer.domain.requests.Transaction
 
-internal actual suspend fun updateNotification(requests: List<Transaction>) {
-    val context: Context = IsolatedContext.koinApp.koin.get()
+actual fun notifyAboutException(exception: AxerException) {
+    val context: Context by IsolatedContext.koin.inject()
+
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -24,12 +21,7 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         )
         notificationManager.createNotificationChannel(channel)
     }
-    val notificationText = requests.joinToString("\n") {
-        val statusCode = it.responseStatus ?: "..."
-        val method = it.method
-        val path = it.path
-        "$method $path - $statusCode"
-    }
+    val notificationText = exception.shortName
 
     val intent = Intent(context, AxerActivity::class.java).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -42,13 +34,13 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val notification = NotificationCompat.Builder(context, "axer_channel")
-        .setContentTitle("Axer")
+    val notification = NotificationCompat.Builder(context, NotificationInfo.CHANNEL_ID)
+        .setContentTitle("Recorded new exception")
         .setContentText(notificationText)
-        .setSmallIcon(R.drawable.ic_http)
+        .setSmallIcon(R.drawable.ic_exception)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
         .build()
 
-    notificationManager.notify(NotificationInfo.REQUEST_NOTIFICATION_ID, notification)
+    notificationManager.notify(exception.id.toInt(), notification)
 }

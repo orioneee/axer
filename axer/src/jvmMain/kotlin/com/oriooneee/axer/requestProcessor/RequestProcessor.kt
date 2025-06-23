@@ -2,6 +2,6 @@
 
 package com.oriooneee.axer.requestProcessor
 
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {}

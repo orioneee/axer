@@ -1,6 +1,7 @@
 package com.oriooneee.axer.koin
 
 import com.oriooneee.axer.presentation.screens.RequestViewModel
+import com.oriooneee.axer.presentation.screens.exceptions.ExceptionsViewModel
 import com.oriooneee.axer.presentation.screens.sandbox.SandboxViewModel
 import com.oriooneee.axer.room.AxerDatabase
 import org.koin.core.module.Module
@@ -19,6 +20,10 @@ internal object Modules {
             val database: AxerDatabase = get()
             database.getRequestDao()
         }
+        single {
+            val database: AxerDatabase = get()
+            database.getAxerExceptionDao()
+        }
     }
 
     val viewModelModule = module {
@@ -26,6 +31,12 @@ internal object Modules {
             RequestViewModel(
                 requestDao = get(),
                 requestId = requestId
+            )
+        }
+        viewModel { (exceptionID: Long?) ->
+            ExceptionsViewModel(
+                exceptionDao = get(),
+                exceptionID = exceptionID
             )
         }
         viewModel { (requestId: Long?) ->

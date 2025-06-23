@@ -2,7 +2,7 @@
 
 package com.oriooneee.axer.requestProcessor
 
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.koin.IsolatedContext
 import com.oriooneee.axer.room.dao.RequestDao
 

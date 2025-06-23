@@ -56,7 +56,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import com.oriooneee.axer.domain.HighlightedBodyWrapper
+import com.oriooneee.axer.domain.requests.HighlightedBodyWrapper
 import com.oriooneee.axer.presentation.components.CustomAlertDialog
 import com.oriooneee.axer.presentation.screens.RequestViewModel
 import io.ktor.utils.io.core.toByteArray

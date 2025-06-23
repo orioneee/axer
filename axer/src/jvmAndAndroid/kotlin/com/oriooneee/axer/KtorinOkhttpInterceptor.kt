@@ -1,8 +1,8 @@
 package com.oriooneee.axer
 
-import com.oriooneee.axer.domain.Request
+import com.oriooneee.axer.domain.requests.Request
 import com.oriooneee.axer.requestProcessor.RequestProcessor
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -10,7 +10,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 
 class AxerOkhttpInterceptor private constructor(
     private val requestImportantSelector: (Request) -> List<String>,
-    private val responseImportantSelector: (com.oriooneee.axer.domain.Response) -> List<String>,
+    private val responseImportantSelector: (com.oriooneee.axer.domain.requests.Response) -> List<String>,
     private val requestFilter: (Request) -> Boolean,
 ) : Interceptor {
 
@@ -19,7 +19,7 @@ class AxerOkhttpInterceptor private constructor(
             emptyList()
         }
 
-        private var responseImportantSelector: (com.oriooneee.axer.domain.Response) -> List<String> = { response ->
+        private var responseImportantSelector: (com.oriooneee.axer.domain.requests.Response) -> List<String> = { response ->
             emptyList()
         }
 
@@ -31,7 +31,7 @@ class AxerOkhttpInterceptor private constructor(
             this.requestImportantSelector = selector
         }
 
-        fun setResponseImportantSelector(selector: (com.oriooneee.axer.domain.Response) -> List<String>) = apply {
+        fun setResponseImportantSelector(selector: (com.oriooneee.axer.domain.requests.Response) -> List<String>) = apply {
             this.responseImportantSelector = selector
         }
 

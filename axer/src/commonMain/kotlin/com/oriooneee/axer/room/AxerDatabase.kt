@@ -6,23 +6,27 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.oriooneee.axer.domain.exceptions.AxerException
 import com.oriooneee.axer.room.converters.ListConverter
 import com.oriooneee.axer.room.converters.MapConverter
 import com.oriooneee.axer.room.dao.RequestDao
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
+import com.oriooneee.axer.room.dao.AxerExceptionDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
     entities = [
-        Transaction::class
+        Transaction::class,
+        AxerException::class
     ],
-    version = 8
+    version = 9
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class)
 internal abstract class AxerDatabase : RoomDatabase() {
     abstract fun getRequestDao(): RequestDao
+    abstract fun getAxerExceptionDao(): AxerExceptionDao
 }
 
 // Room compiler generates the `actual` implementations

@@ -1,8 +1,18 @@
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.oriooneee.axer.Axer
 import com.oriooneee.axer.AxerOkhttpInterceptor
+import com.oriooneee.axer.AxerUncaughtExceptionHandler
 import com.oriooneee.axer.AxerWindows
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -105,6 +115,7 @@ fun sendImageRequestOkHttp(
 
 fun main() = application {
     AxerWindows()
+    Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val originalRequest = chain.request()
@@ -132,42 +143,58 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
     ) {
         window.minimumSize = Dimension(350, 600)
-//        Column(
-//            modifier = Modifier.fillMaxSize().background(Color.White),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
-//        ) {
-//            Button(
-//                onClick = {
-//                    sendGetRequestOkHttp(client)
-//                }
-//            ) {
-//                Text("Send get request")
-//            }
-//            Button(
-//                onClick = {
-//                    sendGetRequestOkHttp(client)
-//                }
-//            ) {
-//                Text("Send post request")
-//            }
-//            Button(
-//                onClick = {
-//                    sendImageRequestOkHttp(client)
-//                }
-//            ) {
-//                Text("Send request for image")
-//            }
-//
-//            Button(
-//                onClick = {
-//                    sendGetRequestOkHttp(client)
-//                    sendPostRequestOkHttp(client)
-//                    sendImageRequestOkHttp(client)
-//                }
-//            ) {
-//                Text("Send all requests")
-//            }
-        App()
+        Column(
+            modifier = Modifier.fillMaxSize().background(Color.White),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = {
+                    sendGetRequestOkHttp(client)
+                }
+            ) {
+                Text("Send get request")
+            }
+            Button(
+                onClick = {
+                    sendGetRequestOkHttp(client)
+                }
+            ) {
+                Text("Send post request")
+            }
+            Button(
+                onClick = {
+                    sendImageRequestOkHttp(client)
+                }
+            ) {
+                Text("Send request for image")
+            }
+            Button(
+                onClick = {
+                    Axer.recordException(UninitializedPropertyAccessException("Test exception"))
+                }
+            ) {
+                Text("Record non fatal exception")
+            }
+
+            Button(
+                onClick = {
+                    throw Exception("Test fatal exception")
+                }
+            ) {
+                Text("Throw fatal exception")
+            }
+
+            Button(
+                onClick = {
+                    sendGetRequestOkHttp(client)
+                    sendPostRequestOkHttp(client)
+                    sendImageRequestOkHttp(client)
+                }
+            ) {
+                Text("Send all requests")
+            }
+//        App(
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.oriooneee.axer.requestProcessor
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.oriooneee.axer.domain.Transaction
+import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.EntryPoint
 import platform.CoreData.NSUUIDAttributeType
 import platform.UIKit.UIApplication

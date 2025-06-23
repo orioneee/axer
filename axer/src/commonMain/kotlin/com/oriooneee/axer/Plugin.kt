@@ -1,8 +1,8 @@
 package com.oriooneee.axer
 
 import com.oriooneee.axer.config.AxerConfig
+import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.requestProcessor.RequestProcessor
-import com.oriooneee.axer.domain.Transaction
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.bodyAsBytes
