@@ -1,8 +1,8 @@
 package com.oriooneee.axer.presentation.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.NetworkCell
-import androidx.compose.material.icons.outlined.SmsFailed
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.ui.graphics.vector.ImageVector
 
 internal enum class FlowDestinations(
@@ -11,12 +11,12 @@ internal enum class FlowDestinations(
     val route: Routes,
 ) {
     REQUESTS_FLOW(
-        icon = Icons.Outlined.NetworkCell,
+        icon = Icons.Outlined.NetworkCheck,
         label = "Requests",
         route = Routes.REQUESTS_FLOW
     ),
     EXCEPTIONS_FLOW(
-        icon = Icons.Outlined.SmsFailed,
+        icon = Icons.Outlined.Info,
         label = "Exceptions",
         route = Routes.EXCEPTIONS_FLOW
     )
