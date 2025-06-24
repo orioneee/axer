@@ -1,4 +1,4 @@
-package com.oriooneee.axer.presentation.screens
+package com.oriooneee.axer.presentation.screens.requests
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-
 
 internal class RequestViewModel(
     private val requestDao: RequestDao,
@@ -52,8 +51,10 @@ internal class RequestViewModel(
             responseBody
         }
 
-        val highlightedRequestBody = AnnotatedString(prittyRequestBody ?: "")
-        val highlightedResponseBody = AnnotatedString(prittyResponseBody ?: "")
+        val highlightedRequestBody =
+            androidx.compose.ui.text.AnnotatedString(prittyRequestBody ?: "")
+        val highlightedResponseBody =
+            androidx.compose.ui.text.AnnotatedString(prittyResponseBody ?: "")
 
         viewModelScope.launch(Dispatchers.IO) {
             launch {
@@ -78,8 +79,10 @@ internal class RequestViewModel(
         )
     }
 
-    private val _highlightedRequestBody = MutableStateFlow<AnnotatedString>(AnnotatedString(""))
-    private val _highlightedResponseBody = MutableStateFlow<AnnotatedString>(AnnotatedString(""))
+    private val _highlightedRequestBody =
+        MutableStateFlow<AnnotatedString>(androidx.compose.ui.text.AnnotatedString(""))
+    private val _highlightedResponseBody =
+        MutableStateFlow<AnnotatedString>(androidx.compose.ui.text.AnnotatedString(""))
 
     val requestByID = combine(
         _requestByID,

@@ -1,4 +1,4 @@
-package com.oriooneee.axer.presentation.navigation
+package com.oriooneee.axer.presentation.navigation.requests
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -7,15 +7,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import com.oriooneee.axer.presentation.BlueTheme
-import com.oriooneee.axer.presentation.screens.details.RequestDetailsScreen
-import com.oriooneee.axer.presentation.screens.requestList.RequestListScreen
-import com.oriooneee.axer.presentation.screens.sandbox.SandboxScreen
+import com.oriooneee.axer.presentation.navigation.Animations
+import com.oriooneee.axer.presentation.navigation.Routes
+import com.oriooneee.axer.presentation.screens.requests.RequestDetailsScreen
+import com.oriooneee.axer.presentation.screens.requests.RequestListScreen
 
-internal class MobileNavigation {
+internal class RequestsMobileNavigation {
     @Composable
     fun Host(
         navController: NavHostController,
-        onClose: (() -> Unit)?,
     ) {
         MaterialTheme(BlueTheme) {
             NavHost(
@@ -36,7 +36,6 @@ internal class MobileNavigation {
                         onClearRequests = {
 
                         },
-                        onClose = onClose
                     )
                 }
                 composable(
@@ -47,16 +46,6 @@ internal class MobileNavigation {
                     }
                     if (requestId != null) {
                         RequestDetailsScreen().Screen(navController, requestId)
-                    }
-                }
-                composable(
-                    Routes.SANDBOX.route + "/{requestId}"
-                ) {
-                    val requestId = it.arguments?.read {
-                        getString("requestId").toLongOrNull()
-                    }
-                    if (requestId != null) {
-                        SandboxScreen().Screen(navController, requestId)
                     }
                 }
             }

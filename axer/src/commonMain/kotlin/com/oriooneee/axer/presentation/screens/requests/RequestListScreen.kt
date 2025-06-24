@@ -1,4 +1,4 @@
-package com.oriooneee.axer.presentation.screens.requestList
+package com.oriooneee.axer.presentation.screens.requests
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,7 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.clickableWithoutRipple
-import com.oriooneee.axer.presentation.screens.RequestViewModel
+import com.oriooneee.axer.presentation.screens.requests.RequestViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -164,7 +165,6 @@ internal class RequestListScreen() {
         selectedRequestId: Long? = null,
         onClickToRequestDetails: (Transaction) -> Unit,
         onClearRequests: () -> Unit,
-        onClose: (() -> Unit)?
     ) {
         val viewModel: RequestViewModel = koinViewModel {
             parametersOf(null)
@@ -192,16 +192,6 @@ internal class RequestListScreen() {
                             )
                         }
                     },
-                    navigationIcon = {
-                        if (onClose != null) {
-                            IconButton(onClick = onClose) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Clear,
-                                    contentDescription = "Close"
-                                )
-                            }
-                        }
-                    }
                 )
             }
         ) { contentPadding ->
@@ -215,7 +205,7 @@ internal class RequestListScreen() {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
-                        contentAlignment = androidx.compose.ui.Alignment.Center
+                        contentAlignment = Alignment.Center
 
                     ) {
                         Text("No requests yet")

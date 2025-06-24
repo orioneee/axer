@@ -46,18 +46,30 @@ import androidx.compose.ui.unit.dp
 import com.oriooneee.axer.domain.exceptions.AxerException
 import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.clickableWithoutRipple
-import com.oriooneee.axer.presentation.screens.RequestViewModel
+import com.oriooneee.axer.presentation.screens.requests.RequestViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 internal class ExceptionsList {
     @Composable
-    fun RequestCard(
+    fun ExceptionItem(
         isSelected: Boolean,
         exception: AxerException,
         onClick: () -> Unit,
     ) {
+        val animatedContainerColor by animateColorAsState(
+            targetValue = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
+            label = "RequestCardColorAnimation"
+        )
         ListItem(
+            colors = ListItemDefaults.colors(
+                containerColor = animatedContainerColor,
+                headlineColor = if (exception.isFatal) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            ),
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
                 .clickableWithoutRipple {
@@ -81,10 +93,9 @@ internal class ExceptionsList {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        selectedRequestId: Long? = null,
+        selectedExceptionID: Long? = null,
         onClickToException: (AxerException) -> Unit,
         onClearRequests: () -> Unit,
-        onClose: (() -> Unit)?
     ) {
         val viewModel: ExceptionsViewModel = koinViewModel {
             parametersOf(null)
@@ -109,17 +120,8 @@ internal class ExceptionsList {
                             )
                         }
                     },
-                    navigationIcon = {
-                        if (onClose != null) {
-                            IconButton(onClick = onClose) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Clear,
-                                    contentDescription = "Close"
-                                )
-                            }
-                        }
-                    }
-                )
+
+                    )
             }
         ) { contentPadding ->
             Box(
@@ -140,8 +142,8 @@ internal class ExceptionsList {
                 } else {
                     LazyColumn {
                         items(exceptions) { item ->
-                            RequestCard(
-                                isSelected = item.id == selectedRequestId,
+                            ExceptionItem(
+                                isSelected = item.id == selectedExceptionID,
                                 exception = item,
                                 onClick = {
                                     onClickToException(item)

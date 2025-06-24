@@ -1,4 +1,4 @@
-package com.oriooneee.axer.presentation.screens.details
+package com.oriooneee.axer.presentation.screens.requests
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,28 +57,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.oriooneee.axer.domain.requests.HighlightedBodyWrapper
+import com.oriooneee.axer.presentation.components.BodySection
 import com.oriooneee.axer.presentation.components.CustomAlertDialog
-import com.oriooneee.axer.presentation.screens.RequestViewModel
+import com.oriooneee.axer.presentation.components.buildStringSection
+import com.oriooneee.axer.presentation.screens.requests.RequestViewModel
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.max
 
 internal class RequestDetailsScreen {
-    fun buildStringSection(
-        title: String,
-        content: String,
-        separator: String = ": "
-    ) = buildAnnotatedString {
-        withStyle(
-            style = SpanStyle(
-                fontWeight = FontWeight.Bold
-            )
-        ) {
-            append(title + separator)
-        }
-        append(content)
-    }
 
     @Composable
     fun DisplayImportantSection(
@@ -245,52 +234,6 @@ internal class RequestDetailsScreen {
         }
     }
 
-    @Composable
-    fun BodySection(
-        content: @Composable () -> Unit
-    ) {
-        var isExpanded by remember { mutableStateOf(true) }
-        val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
-        Card {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            isExpanded = !isExpanded
-                        }
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        buildStringSection(
-                            title = "Body",
-                            content = ""
-                        )
-                    )
-                    Image(
-                        modifier = Modifier.rotate(animatedRotation),
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null
-                    )
-                }
-                AnimatedVisibility(
-                    visible = isExpanded
-                ) {
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        content()
-                    }
-                }
-            }
-        }
-    }
-
     fun getSizeText(size: Long): String {
         return if (
             size < 1024
@@ -381,7 +324,7 @@ internal class RequestDetailsScreen {
                 DisplayImportantSection(request.importantInResponse)
                 Spacer(Modifier.height(16.dp))
             }
-            val size = kotlin.math.max(
+            val size = max(
                 request.responseBody?.toByteArray()?.size ?: 0,
                 request.imageBytes?.size ?: 0
             ).toLong()
@@ -396,7 +339,8 @@ internal class RequestDetailsScreen {
             Text(
                 buildStringSection(
                     title = "Status",
-                    content = request.responseStatus?.toString() ?: if( request.error != null) "Request failed" else "Unknown"
+                    content = request.responseStatus?.toString()
+                        ?: if (request.error != null) "Request failed" else "Unknown"
                 )
             )
             if (request.responseHeaders.isNotEmpty()) {
@@ -466,7 +410,7 @@ internal class RequestDetailsScreen {
         }
         val wrappped by viewModel.requestByID.collectAsState(initial = null)
         LaunchedEffect(wrappped) {
-            if(wrappped != null && !wrappped!!.request.isViewed){
+            if (wrappped != null && !wrappped!!.request.isViewed) {
                 viewModel.onViewed(wrappped!!.request)
             }
         }
@@ -504,18 +448,6 @@ internal class RequestDetailsScreen {
                                 )
                             }
                         },
-//                        actions = {
-//                            IconButton(
-//                                onClick = {
-//                                    navController.navigate(Routes.SANDBOX.route + "/${request!!.id}")
-//                                }
-//                            ) {
-//                                Icon(
-//                                    imageVector = Icons.Default.CallMade,
-//                                    contentDescription = "Back"
-//                                )
-//                            }
-//                        }
                     )
                 },
             ) {
