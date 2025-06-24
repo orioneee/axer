@@ -23,7 +23,11 @@ object ExceptionEntryPoint {
             val navController = rememberNavController()
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
             val currentSelectedID = currentBackStackEntry?.arguments?.read {
-                getString("exceptionsID").toLongOrNull()
+                try{
+                    getString("exceptionsID").toLongOrNull()
+                } catch (e: Exception) {
+                    null
+                }
             }
             BoxWithConstraints(
                 modifier = Modifier.fillMaxSize()
