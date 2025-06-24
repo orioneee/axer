@@ -9,4 +9,5 @@ import androidx.compose.ui.window.rememberWindowState
 fun AxerWindows(
     state: WindowState = rememberWindowState(width = 800.dp, height = 600.dp),
     onCloseWindow: () -> Unit = {}
-) {}
+) {
+}

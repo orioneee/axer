@@ -5,4 +5,6 @@ import io.ktor.client.plugins.api.createClientPlugin
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-val AxerPlugin = createClientPlugin("Axer", ::AxerConfig) {}
+val AxerPlugin = createClientPlugin("Axer", ::AxerConfig) {
+
+}

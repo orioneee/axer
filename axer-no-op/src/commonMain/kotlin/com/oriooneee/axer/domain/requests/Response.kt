@@ -1,4 +1,4 @@
-package com.oriooneee.axer.domain
+package com.oriooneee.axer.domain.requests
 
 data class Response(
     val responseBody: String?,
