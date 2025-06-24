@@ -2,6 +2,8 @@
 
 package com.oriooneee.axer
 
+import kotlinx.coroutines.Job
+
 object Axer {
     val plugin = AxerPlugin
 
@@ -14,9 +16,9 @@ object Axer {
 
     fun recordAsFatal(
         throwable: Throwable,
-    ) {
+    ): Job {
         val processor = ExceptionProcessor()
-        processor.onException(throwable, true)
+        return processor.onException(throwable, true)
     }
 }
 

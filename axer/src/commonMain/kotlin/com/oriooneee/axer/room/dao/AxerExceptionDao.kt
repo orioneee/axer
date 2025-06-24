@@ -19,4 +19,7 @@ internal interface AxerExceptionDao {
 
     @Upsert
     suspend fun upsert(axerException: AxerException): Long
+
+    @Query("SELECT * FROM axer_exceptions")
+    suspend fun getAllSuspend(): List<AxerException>
 }

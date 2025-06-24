@@ -18,18 +18,18 @@ internal class ExceptionProcessor() {
         exception: Throwable,
         isFatal: Boolean,
     ) = CoroutineScope(Dispatchers.IO).launch {
-        runCatching {
-            val exception = AxerException(
-                message = exception.message ?: "Unknown error",
-                stackTrace = exception.stackTraceToString(),
-                time = Clock.System.now().toEpochMilliseconds(),
-                isFatal = isFatal,
-                shortName = exception::class.simpleName ?: "UnknownException",
-            )
-            dao.upsert(exception)
-        }.onFailure {
-            it.printStackTrace()
-        }
+        val exception = AxerException(
+            message = exception.message ?: "Unknown error",
+            stackTrace = exception.stackTraceToString().take(256),
+            time = Clock.System.now().toEpochMilliseconds(),
+            isFatal = isFatal,
+            shortName = exception::class.simpleName ?: "UnknownException",
+        )
+        dao.upsert(exception)
+        println(dao.getAllSuspend())
+        notifyAboutException(exception)
+        println("Exception recorded: ${exception.shortName} - ${exception.message}")
+
     }
 }
 
