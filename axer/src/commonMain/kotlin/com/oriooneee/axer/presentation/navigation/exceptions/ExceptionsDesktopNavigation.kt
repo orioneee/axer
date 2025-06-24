@@ -1,5 +1,8 @@
 package com.oriooneee.axer.presentation.navigation.exceptions
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,10 +20,10 @@ internal class ExceptionsDesktopNavigation {
         NavHost(
             navController = navController,
             startDestination = Routes.EXCEPTIONS_LIST.route,
-            exitTransition = { Animations.exitTransition },
-            popEnterTransition = { Animations.popEnterTransition },
-            enterTransition = { Animations.enterTransition },
-            popExitTransition = { Animations.popExitTransition }
+            exitTransition = { fadeOut(tween(300)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            enterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(300)) }
         ) {
             composable(
                 Routes.EXCEPTIONS_LIST.route

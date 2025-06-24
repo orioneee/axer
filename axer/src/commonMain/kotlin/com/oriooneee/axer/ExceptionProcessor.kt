@@ -5,6 +5,7 @@ import com.oriooneee.axer.koin.IsolatedContext
 import com.oriooneee.axer.room.dao.AxerExceptionDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -15,10 +16,10 @@ internal class ExceptionProcessor() {
     @OptIn(ExperimentalTime::class)
     fun onException(
         exception: Throwable,
-        isFatal: Boolean ,
+        isFatal: Boolean,
     ) = CoroutineScope(Dispatchers.IO).launch {
         runCatching {
-           val exception = AxerException(
+            val exception = AxerException(
                 message = exception.message ?: "Unknown error",
                 stackTrace = exception.stackTraceToString(),
                 time = Clock.System.now().toEpochMilliseconds(),
@@ -32,5 +33,5 @@ internal class ExceptionProcessor() {
     }
 }
 
-expect fun notifyAboutException(exception: AxerException)
+internal expect fun notifyAboutException(exception: AxerException)
 

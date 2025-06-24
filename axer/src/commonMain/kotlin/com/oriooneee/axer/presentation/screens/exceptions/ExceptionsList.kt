@@ -84,7 +84,10 @@ internal class ExceptionsList {
                 )
             },
             supportingContent = {
-                Text(exception.formatedTime())
+                Text(exception.formatedTime() + " ${exception.message}",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             },
         )
     }

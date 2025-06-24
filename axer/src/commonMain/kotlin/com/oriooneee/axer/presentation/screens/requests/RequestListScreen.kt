@@ -3,6 +3,7 @@ package com.oriooneee.axer.presentation.screens.requests
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -126,7 +128,7 @@ internal class RequestListScreen() {
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if(withClearButton){
+            if (withClearButton) {
                 item {
                     IconButton(
                         onClick = onClear,
@@ -138,8 +140,8 @@ internal class RequestListScreen() {
                         )
                     }
                 }
-            } else{
-                item{
+            } else {
+                item {
                     Spacer(Modifier.width(8.dp))
                 }
             }
@@ -169,8 +171,7 @@ internal class RequestListScreen() {
         val viewModel: RequestViewModel = koinViewModel {
             parametersOf(null)
         }
-        val allRequests by viewModel.requests.collectAsState(emptyList())
-        val filtredRequests by viewModel.filteredRequests.collectAsState(emptyList())
+        val requests by viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val imageFilters = viewModel.imageFilters.collectAsState(emptyList())
         val selectedMethods by viewModel.selectedMethods.collectAsState(emptyList())
@@ -201,14 +202,14 @@ internal class RequestListScreen() {
                     .padding(contentPadding),
 
                 ) {
-                if (allRequests.isEmpty()) {
+                if (requests.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
 
                     ) {
-                        Text("No requests yet")
+                        Text("No requests found")
                     }
                 } else {
                     LazyColumn {
@@ -242,26 +243,15 @@ internal class RequestListScreen() {
                                 )
                             }
                         }
-//                        item {
-//                            FilterRow(
-//                                items = TimeFilter.entries,
-//                                selectedItems = listOf(selectedTimeFilter),
-//                                onItemClicked = { filter ->
-//                                    viewModel.setTimeFilter(filter)
-//                                },
-//                                onClear = {
-//                                    viewModel.resetTimeFilter()
-//                                },
-//                                getItemString = { it.text },
-//                                withClearButton = false
-//                            )
-//                        }
-                        items(allRequests) { item ->
-                            val isVisible = filtredRequests.contains(item)
-                            AnimatedVisibility(
-                                visible = isVisible,
-                                enter = fadeIn() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically()
+                        items(requests) { item ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItem(
+                                        fadeInSpec = tween(300),
+                                        fadeOutSpec = tween(300),
+                                        placementSpec = tween(300)
+                                    )
                             ) {
                                 RequestCard(
                                     isSelected = item.id == selectedRequestId,

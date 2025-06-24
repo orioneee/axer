@@ -111,8 +111,6 @@ fun sendImageRequestOkHttp(
 }
 
 
-
-
 fun main() = application {
     AxerWindows()
     Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
@@ -143,58 +141,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
     ) {
         window.minimumSize = Dimension(350, 600)
-        Column(
-            modifier = Modifier.fillMaxSize().background(Color.White),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                }
-            ) {
-                Text("Send get request")
-            }
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                }
-            ) {
-                Text("Send post request")
-            }
-            Button(
-                onClick = {
-                    sendImageRequestOkHttp(client)
-                }
-            ) {
-                Text("Send request for image")
-            }
-            Button(
-                onClick = {
-                    Axer.recordException(UninitializedPropertyAccessException("Test exception"))
-                }
-            ) {
-                Text("Record non fatal exception")
-            }
-
-            Button(
-                onClick = {
-                    throw Exception("Test fatal exception")
-                }
-            ) {
-                Text("Throw fatal exception")
-            }
-
-            Button(
-                onClick = {
-                    sendGetRequestOkHttp(client)
-                    sendPostRequestOkHttp(client)
-                    sendImageRequestOkHttp(client)
-                }
-            ) {
-                Text("Send all requests")
-            }
-//        App(
-        }
+        App()
     }
 }

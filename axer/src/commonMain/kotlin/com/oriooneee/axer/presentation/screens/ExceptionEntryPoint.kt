@@ -36,14 +36,14 @@ object ExceptionEntryPoint {
                                 onClearRequests = {
                                     val currentRoute =
                                         navController.currentBackStackEntry?.destination?.route
-                                    if (currentRoute != Routes.REQUESTS_LIST.route) {
+                                    if (currentRoute != Routes.EXCEPTION_DETAIL.route) {
                                         navController.popBackStack()
                                     }
                                 },
                                 onClickToException = {
                                     navController.navigate(Routes.EXCEPTION_DETAIL.route + "/${it.id}") {
                                         launchSingleTop = true
-                                        popUpTo(Routes.REQUESTS_LIST.route)
+                                        popUpTo(Routes.EXCEPTIONS_LIST.route)
                                     }
                                 },
                             )

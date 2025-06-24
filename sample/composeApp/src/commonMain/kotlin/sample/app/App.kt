@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.oriooneee.axer.Axer
 import com.oriooneee.axer.AxerPlugin
 import com.oriooneee.axer.domain.requests.Request
 import io.ktor.client.HttpClient
@@ -131,6 +132,22 @@ fun App() {
             }
         ) {
             Text("Send all requests")
+        }
+
+        Button(
+            onClick = {
+                Axer.recordException(Exception("Test non-fatal exception"))
+            }
+        ) {
+            Text("Record non fatal exception")
+        }
+
+        Button(
+            onClick = {
+                throw Exception("Test fatal exception")
+            }
+        ) {
+            Text("Throw fatal exception")
         }
     }
 }
