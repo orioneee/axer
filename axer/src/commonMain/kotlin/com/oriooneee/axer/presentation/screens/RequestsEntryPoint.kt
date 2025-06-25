@@ -23,7 +23,7 @@ object RequestsEntryPoint {
             val navController = rememberNavController()
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
             val currentSelectedID = currentBackStackEntry?.arguments?.read {
-                getString("requestId").toLongOrNull()
+                getStringOrNull("requestId")?.toLongOrNull()
             }
             BoxWithConstraints(
                 modifier = Modifier.fillMaxSize()

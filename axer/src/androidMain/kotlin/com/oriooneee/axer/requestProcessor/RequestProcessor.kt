@@ -42,7 +42,7 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val notification = NotificationCompat.Builder(context, "axer_channel")
+    val notification = NotificationCompat.Builder(context, NotificationInfo.CHANNEL_ID)
         .setContentTitle("Axer")
         .setContentText(notificationText)
         .setSmallIcon(R.drawable.ic_http)

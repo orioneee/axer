@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val libraryVersion = "1.0.6"
+val libraryVersion = "1.0.10"
 
 version = libraryVersion
 
