@@ -9,7 +9,7 @@ import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlin.time.ExperimentalTime
 
-@Entity(tableName = "axer_exceptions")
+@Entity()
 data class AxerException(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,

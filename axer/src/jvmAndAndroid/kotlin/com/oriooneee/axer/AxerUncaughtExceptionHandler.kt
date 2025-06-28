@@ -12,7 +12,11 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
         runBlocking {
             Axer.recordAsFatal(p1).join()
         }
-        defaultHandler?.uncaughtException(p0, p1)
+        if(defaultHandler == null){
+            System.err.println(p1.stackTraceToString())
+        } else {
+            defaultHandler.uncaughtException(p0, p1)
+        }
     }
 }
 

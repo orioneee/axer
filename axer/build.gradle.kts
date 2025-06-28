@@ -68,6 +68,9 @@ kotlin {
             implementation(libs.coil.compose)
 
             implementation(libs.kodeview)
+
+            implementation("androidx.sqlite:sqlite:2.5.2")
+            implementation("io.github.windedge.table:table-m3:0.2.1")
         }
 
         val iosMain by creating {

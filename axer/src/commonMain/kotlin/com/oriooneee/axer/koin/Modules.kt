@@ -1,5 +1,6 @@
 package com.oriooneee.axer.koin
 
+import com.oriooneee.axer.presentation.screens.database.DatabaseInspectionViewModel
 import com.oriooneee.axer.presentation.screens.requests.RequestViewModel
 import com.oriooneee.axer.presentation.screens.exceptions.ExceptionsViewModel
 import com.oriooneee.axer.room.AxerDatabase
@@ -37,6 +38,9 @@ internal object Modules {
                 exceptionDao = get(),
                 exceptionID = exceptionID
             )
+        }
+        viewModel {(tableName: String?) ->
+            DatabaseInspectionViewModel(tableName)
         }
     }
 }

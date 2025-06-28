@@ -20,7 +20,7 @@ import kotlinx.coroutines.IO
         Transaction::class,
         AxerException::class
     ],
-    version = 9
+    version = 10
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class)
@@ -37,7 +37,7 @@ internal expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDat
 
 internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
     return builder
-        .setDriver(BundledSQLiteDriver())
+        .setDriver(AxerBundledSQLiteDriver.getInstance())
         .setQueryCoroutineContext(Dispatchers.IO)
         .fallbackToDestructiveMigration(false)
         .build()

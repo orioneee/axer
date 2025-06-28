@@ -26,10 +26,7 @@ internal class ExceptionProcessor() {
             shortName = exception::class.simpleName ?: "UnknownException",
         )
         dao.upsert(exception)
-        println(dao.getAllSuspend())
         notifyAboutException(exception)
-        println("Exception recorded: ${exception.shortName} - ${exception.message}")
-
     }
 }
 
