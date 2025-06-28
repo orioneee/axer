@@ -2,9 +2,12 @@ package com.oriooneee.axer.presentation.screens.database
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oriooneee.axer.domain.database.RowItem
+import com.oriooneee.axer.domain.database.SchemaItem
 import com.oriooneee.axer.room.AxerBundledSQLiteDriver
 import com.oriooneee.axer.room.RoomReader
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -21,10 +24,10 @@ class DatabaseInspectionViewModel(
     private val _tables = MutableStateFlow<List<String>>(emptyList())
     val tables = _tables.asStateFlow()
 
-    private val _tableSchema = MutableStateFlow<List<String>>(emptyList())
+    private val _tableSchema = MutableStateFlow<List<SchemaItem>>(emptyList())
     val tableSchema = _tableSchema.asStateFlow()
 
-    private val _tableContent = MutableStateFlow<List<List<String>>>(emptyList())
+    private val _tableContent = MutableStateFlow<List<RowItem>>(emptyList())
     val tableContent = _tableContent.asStateFlow()
 
     fun loadTables() {
@@ -42,22 +45,35 @@ class DatabaseInspectionViewModel(
     fun getTableInfo() {
         viewModelScope.launch {
             if (tableName != null) {
-                launch {
+                val schema = async {
                     try {
                         val schema = reader.getTableSchema(tableName)
                         _tableSchema.value = schema
+                        schema
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        null
                     }
                 }
-                launch {
+                val content = async {
                     try {
                         val content = reader.getTableContent(tableName)
-                        _tableContent.value = content
+//                        _tableContent.value = content
+                        content
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        null
                     }
                 }
+                val schemaResult = schema.await()
+                val contentResult = content.await()
+                val rowItems = contentResult?.map { row ->
+                    RowItem(
+                        schema = schemaResult ?: emptyList(),
+                        cells = row
+                    )
+                } ?: emptyList()
+                _tableContent.value = rowItems
             }
         }
     }

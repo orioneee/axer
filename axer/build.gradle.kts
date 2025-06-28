@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion = "1.0.10"
+val libraryVersion = "1.0.11"
 
 version = libraryVersion
 
@@ -70,7 +70,10 @@ kotlin {
             implementation(libs.kodeview)
 
             implementation("androidx.sqlite:sqlite:2.5.2")
-            implementation("io.github.windedge.table:table-m3:0.2.1")
+
+
+            implementation("com.ryinex.kotlin:compose-data-table:1.0.7")
+
         }
 
         val iosMain by creating {

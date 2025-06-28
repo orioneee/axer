@@ -1,5 +1,7 @@
 package com.oriooneee.axer.room
 
+import com.oriooneee.axer.domain.database.SchemaItem
+
 class RoomReader(
     val axerDriver: AxerBundledSQLiteDriver
 ) {
@@ -27,13 +29,18 @@ class RoomReader(
         return tables
     }
 
-    suspend fun getTableSchema(tableName: String): MutableList<String> {
+    suspend fun getTableSchema(tableName: String): List<SchemaItem> {
         val stmt = connection.prepare("PRAGMA table_info($tableName)")
-        val schema = mutableListOf<String>()
+        val schema = mutableListOf<SchemaItem>()
         while (stmt.step()) {
             val columnName = stmt.getText(1) ?: "unknown"
-            val columnType = stmt.getText(2) ?: "unknown"
-            schema.add("$columnName - $columnType")
+            val isPrimary = stmt.getInt(5) == 1
+            schema.add(
+                SchemaItem(
+                    name = columnName,
+                    isPrimary = isPrimary
+                )
+            )
         }
         stmt.close()
         return schema
