@@ -66,7 +66,7 @@ fun sedRequestForImage(client: HttpClient) {
                 val responseBody = resp.bodyAsText()
                 // Handle the image data as needed
             } else {
-                // Handle error response
+                // Handle message response
             }
         } catch (e: Exception) {
             e.printStackTrace()

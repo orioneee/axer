@@ -19,7 +19,7 @@ internal class ExceptionProcessor() {
         isFatal: Boolean,
     ) = CoroutineScope(Dispatchers.IO).launch {
         val exception = AxerException(
-            message = exception.message ?: "Unknown error",
+            message = exception.message ?: "Unknown message",
             stackTrace = exception.stackTraceToString().take(256),
             time = Clock.System.now().toEpochMilliseconds(),
             isFatal = isFatal,

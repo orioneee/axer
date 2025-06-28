@@ -72,8 +72,7 @@ kotlin {
             implementation("androidx.sqlite:sqlite:2.5.2")
 
 
-            implementation("com.ryinex.kotlin:compose-data-table:1.0.7")
-
+            implementation("io.github.sunny-chung:composable-table:1.3.1")
         }
 
         val iosMain by creating {

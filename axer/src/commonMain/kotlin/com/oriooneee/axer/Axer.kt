@@ -20,5 +20,11 @@ object Axer {
         val processor = ExceptionProcessor()
         return processor.onException(throwable, true)
     }
+
+    fun openAxerUI(){
+        openAxer()
+    }
 }
+
+internal expect fun openAxer()
 

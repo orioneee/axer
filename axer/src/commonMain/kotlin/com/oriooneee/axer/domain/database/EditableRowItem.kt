@@ -1,6 +1,7 @@
 package com.oriooneee.axer.domain.database
 
-data class EditableRowItem(
+internal data class EditableRowItem(
     val item: RowItem,
-    val selectedColumnIndex: Int
+    val selectedColumnIndex: Int,
+    val editedValue: RoomCell,
 )
