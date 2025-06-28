@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -16,19 +17,24 @@ internal class ExceptionProcessor() {
     @OptIn(ExperimentalTime::class)
     fun onException(
         exception: Throwable,
+        simpleName: String,
         isFatal: Boolean,
-    ) = CoroutineScope(Dispatchers.IO).launch {
+    ) = runBlocking {
+        println("Recording exception: ${exception.message} as $simpleName, isFatal: $isFatal")
         val exception = AxerException(
             message = exception.message ?: "Unknown message",
-            stackTrace = exception.stackTraceToString().take(256),
+            stackTrace = getStackTrace(exception),
             time = Clock.System.now().toEpochMilliseconds(),
             isFatal = isFatal,
-            shortName = exception::class.simpleName ?: "UnknownException",
+            shortName = simpleName,
         )
+        println("Exception object created: $exception")
         dao.upsert(exception)
+        println("Exception recorded: $exception")
         notifyAboutException(exception)
     }
 }
 
 internal expect fun notifyAboutException(exception: AxerException)
+internal expect fun getStackTrace(throwable: Throwable): String
 

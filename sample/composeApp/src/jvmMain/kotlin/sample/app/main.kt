@@ -2,6 +2,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.oriooneee.axer.Axer
 import com.oriooneee.axer.AxerOkhttpInterceptor
 import com.oriooneee.axer.AxerUncaughtExceptionHandler
 import com.oriooneee.axer.AxerWindows
@@ -104,7 +105,7 @@ fun sendImageRequestOkHttp(
 
 fun main() = application {
     AxerWindows()
-    Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
+    Axer.installAxerErrorHandler()
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val originalRequest = chain.request()

@@ -1,5 +1,77 @@
 package com.oriooneee.axer
 
+import androidx.compose.ui.window.ComposeUIViewController
 import com.oriooneee.axer.domain.exceptions.AxerException
+import com.oriooneee.axer.presentation.EntryPoint
+import platform.Foundation.NSUUID
+import platform.UIKit.UIApplication
+import platform.UserNotifications.UNMutableNotificationContent
+import platform.UserNotifications.UNNotification
+import platform.UserNotifications.UNNotificationPresentationOptionAlert
+import platform.UserNotifications.UNNotificationPresentationOptions
+import platform.UserNotifications.UNNotificationRequest
+import platform.UserNotifications.UNNotificationResponse
+import platform.UserNotifications.UNUserNotificationCenter
+import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
+import platform.darwin.NSObject
 
-actual fun notifyAboutException(exception: AxerException) {}
+actual fun notifyAboutException(exception: AxerException) {
+    val content = UNMutableNotificationContent().apply {
+        setTitle("Exception Captured")
+        setBody("${exception.shortName}: ${exception.message}")
+    }
+
+    val uuid = NSUUID().UUIDString()
+
+    val request = UNNotificationRequest.requestWithIdentifier(
+        identifier = uuid,
+        content = content,
+        trigger = null // Immediate delivery
+    )
+
+    val center = UNUserNotificationCenter.currentNotificationCenter()
+    center.delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
+        override fun userNotificationCenter(
+            center: UNUserNotificationCenter,
+            willPresentNotification: UNNotification,
+            withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+        ) {
+            withCompletionHandler(UNNotificationPresentationOptionAlert)
+        }
+
+        override fun userNotificationCenter(
+            center: UNUserNotificationCenter,
+            didReceiveNotificationResponse: UNNotificationResponse,
+            withCompletionHandler: () -> Unit
+        ) {
+            val topController =
+                UIApplication.sharedApplication.keyWindow?.rootViewController
+                    ?: throw IllegalStateException("No root view controller found")
+
+            topController.presentViewController(
+                ComposeUIViewController {
+                    EntryPoint.Screen(
+                        onClose = {
+                            topController.dismissViewControllerAnimated(
+                                flag = true,
+                                completion = null
+                            )
+                        }
+                    )
+                },
+                animated = true,
+                completion = null
+            )
+
+            withCompletionHandler()
+        }
+    }
+
+    center.addNotificationRequest(request) { error ->
+        // Optional: handle error
+    }
+}
+
+actual fun getStackTrace(throwable: Throwable): String {
+    return "Stack trace is not available on iOS"
+}

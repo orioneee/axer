@@ -9,10 +9,8 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
 
 
     open override fun uncaughtException(p0: Thread, p1: Throwable) {
-        runBlocking {
-            Axer.recordAsFatal(p1).join()
-        }
-        if(defaultHandler == null){
+        Axer.recordAsFatal(p1)
+        if (defaultHandler == null) {
             System.err.println(p1.stackTraceToString())
         } else {
             defaultHandler.uncaughtException(p0, p1)

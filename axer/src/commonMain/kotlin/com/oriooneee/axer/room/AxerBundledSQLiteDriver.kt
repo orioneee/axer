@@ -16,7 +16,6 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     override fun open(fileName: String): SQLiteConnection {
         this.fileName = fileName
         val connection = driver.open(fileName)
-        println("Opened SQLite connection with file name: $fileName connection: $connection")
         return object : SQLiteConnection {
 
             fun isSqlQueryChangeData(sql: String): Boolean {
@@ -24,7 +23,6 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
             }
 
             override fun prepare(sql: String): SQLiteStatement {
-                println("Preparing SQL statement: $sql")
                 if (isSqlQueryChangeData(sql)) {
                     queryFlow.tryEmit(sql)
                 }

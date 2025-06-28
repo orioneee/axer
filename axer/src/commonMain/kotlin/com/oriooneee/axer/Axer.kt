@@ -11,20 +11,26 @@ object Axer {
         throwable: Throwable,
     ) {
         val processor = ExceptionProcessor()
-        processor.onException(throwable, false)
+        processor.onException(throwable, throwable::class.simpleName ?: "UnknownException", false)
     }
 
     fun recordAsFatal(
         throwable: Throwable,
-    ): Job {
+        simpleName: String = throwable::class.simpleName ?: "UnknownException",
+    ) {
         val processor = ExceptionProcessor()
-        return processor.onException(throwable, true)
+        processor.onException(throwable, simpleName, true)
     }
 
     fun openAxerUI(){
         openAxer()
     }
+
+    fun installAxerErrorHandler(){
+        installErrorHandler()
+    }
 }
 
 internal expect fun openAxer()
+internal expect fun installErrorHandler()
 

@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.oriooneee.axer.Axer
 import com.oriooneee.axer.AxerUncaughtExceptionHandler
 import org.koin.android.ext.android.inject
 
@@ -19,7 +20,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
+        Axer.installAxerErrorHandler()
         enableEdgeToEdge()
         setContent {
             val notificationPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
