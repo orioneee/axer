@@ -1,6 +1,20 @@
 # Axer Library
 
-Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection. 
+# Axer Library
+
+<div align="center">
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.32%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.51%E2%80%AFPM.png" width="45%" />
+  <br />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.19.17%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.30%E2%80%AFPM.png" width="45%" />
+  <br />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.57%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.25.15%E2%80%AFPM.png" width="45%" />
+</div>
+
+
+Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
 
 **Note**: Axer is currently in alpha (`1.0.0-alpha04`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
 
@@ -102,7 +116,26 @@ AxerOkhttpInterceptor.Builder()
     .build()
 ```
 
-These configurations allow Axer to record network requests and display important data extracted by the provided selectors.
+#### JVM Window
+
+To display the Axer UI in a JVM environment:
+
+```kotlin
+fun main() = application {
+    AxerWindows()
+    ...
+}
+```
+
+#### Call UI
+
+To open the Axer UI programmatically:
+
+```kotlin
+Axer.openAxerUI()
+```
+
+These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI.
 
 ### Exception Handling
 
@@ -159,8 +192,8 @@ The only required configuration is setting the driver:
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
-  - Stack traces are not supported.
-  - Fatal crash capturing via `installAxerErrorHandler` is not supported.
+   - Stack traces are not supported.
+   - Fatal crash capturing via `installAxerErrorHandler` is not supported.
 - **Stability**: The library is in alpha (`1.0.0-alpha04`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
