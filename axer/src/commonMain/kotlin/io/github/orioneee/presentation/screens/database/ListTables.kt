@@ -3,8 +3,15 @@ package io.github.orioneee.presentation.screens.database
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,27 +41,24 @@ import org.koin.core.parameter.parametersOf
 internal class ListTables {
     @Composable
     fun ListTableContent(tables: List<Table>, onClickToTable: (Table) -> Unit) {
-        FlowRow(
+        LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-            ,
-            horizontalArrangement = Arrangement.Center
+                .padding(4.dp),
+            columns = GridCells.Adaptive(minSize = 200.dp)
         ) {
-            tables.forEach {
+            items(tables) {
                 Card(
                     modifier = Modifier
-                        .padding(16.dp),
-                    onClick = {
-                        onClickToTable(it)
-                    }
+                        .padding(horizontal = 4.dp)
+                        .fillMaxWidth(),
+                    onClick = { onClickToTable(it) }
                 ) {
                     Text(
                         text = "${it.name} (${it.rowCount} rows)",
                         modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
                             .padding(8.dp)
-
                     )
                 }
             }
