@@ -52,7 +52,6 @@ fun sendPost(client: HttpClient) {
             } else {
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }
@@ -69,7 +68,6 @@ fun sedRequestForImage(client: HttpClient) {
                 // Handle message response
             }
         } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }
@@ -148,6 +146,13 @@ fun App() {
             }
         ) {
             Text("Throw fatal exception")
+        }
+        Button(
+            onClick = {
+                Axer.openAxerUI()
+            }
+        ) {
+            Text("Open Axer UI")
         }
     }
 }

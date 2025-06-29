@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.oriooneee.axer.domain.database.EditableRowItem
 import com.oriooneee.axer.domain.database.RowItem
 import com.oriooneee.axer.domain.database.SchemaItem
+import com.oriooneee.axer.domain.database.SortColumn
+import com.oriooneee.axer.getPlatformStackTrace
 import com.oriooneee.axer.room.AxerBundledSQLiteDriver
 import com.oriooneee.axer.room.RoomReader
 import kotlinx.coroutines.FlowPreview
@@ -12,8 +14,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -21,6 +25,10 @@ import kotlinx.coroutines.launch
 internal class DatabaseInspectionViewModel(
     private val tableName: String?,
 ) : ViewModel() {
+    companion object {
+        const val PAGE_SIZE = 20
+    }
+
     private val reader = RoomReader(AxerBundledSQLiteDriver.instance)
 
     private val _tables = MutableStateFlow<List<String>>(emptyList())
@@ -29,8 +37,40 @@ internal class DatabaseInspectionViewModel(
     private val _tableSchema = MutableStateFlow<List<SchemaItem>>(emptyList())
     val tableSchema = _tableSchema.asStateFlow()
 
+    private val _sortColumn = MutableStateFlow<SortColumn?>(null)
+    val sortColumn = _sortColumn.asStateFlow()
+
     private val _tableContent = MutableStateFlow<List<RowItem>>(emptyList())
-    val tableContent = _tableContent.asStateFlow()
+    val tableContent = combine(
+        _tableContent,
+        _sortColumn
+    ) { content, sortColumn ->
+        val reversed = content
+            .reversed()
+
+        val sorted = if (sortColumn != null) {
+            if (sortColumn.isDescending) {
+                if (sortColumn.schemaItem.type == RoomReader.SQLiteColumnType.INTEGER) {
+                    reversed.sortedByDescending {
+                        it.cells[sortColumn.index]?.value?.toLongOrNull() ?: Long.MAX_VALUE
+                    }
+                } else {
+                    reversed.sortedByDescending { it.cells[sortColumn.index]?.value ?: "" }
+                }
+            } else {
+                if (sortColumn.schemaItem.type == RoomReader.SQLiteColumnType.INTEGER) {
+                    reversed.sortedBy {
+                        it.cells[sortColumn.index]?.value?.toLongOrNull() ?: Long.MIN_VALUE
+                    }
+                } else {
+                    reversed.sortedBy { it.cells[sortColumn.index]?.value ?: "" }
+                }
+            }
+        } else {
+            reversed
+        }
+        sorted.chunked(PAGE_SIZE)
+    }
 
     private val _isUpdatingCell = MutableStateFlow<Boolean>(false)
     val isUpdatingCell = _isUpdatingCell.asSharedFlow()
@@ -47,7 +87,6 @@ internal class DatabaseInspectionViewModel(
                 val tableList = reader.getAllTables()
                 _tables.value = tableList
             } catch (e: Exception) {
-                e.printStackTrace()
                 _tables.value = emptyList()
             }
         }
@@ -62,7 +101,6 @@ internal class DatabaseInspectionViewModel(
                         _tableSchema.value = schema
                         schema
                     } catch (e: Exception) {
-                        e.printStackTrace()
                         null
                     }
                 }
@@ -72,7 +110,6 @@ internal class DatabaseInspectionViewModel(
 //                        _tableContent.value = content
                         content
                     } catch (e: Exception) {
-                        e.printStackTrace()
                         null
                     }
                 }
@@ -95,7 +132,6 @@ internal class DatabaseInspectionViewModel(
                 reader.clearTable(tableName ?: "")
                 getTableInfo()
             } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
@@ -119,14 +155,13 @@ internal class DatabaseInspectionViewModel(
             _isUpdatingCell.value = true
             try {
                 reader.updateCell(
-                    tableName,
+                    tableName = tableName,
                     editableItem = editableItem
                 )
                 getTableInfo()
                 _message.value = "Cell updated successfully"
             } catch (e: Exception) {
-                _message.value = e.stackTraceToString().substringBefore("\n")
-                e.printStackTrace()
+                _message.value = e.getPlatformStackTrace().substringBefore("\n")
             } finally {
                 _isUpdatingCell.value = false
                 _editableRowItem.value = null
@@ -159,9 +194,26 @@ internal class DatabaseInspectionViewModel(
                 getTableInfo()
                 _message.value = "Row deleted successfully"
             } catch (e: Exception) {
-                _message.value = e.stackTraceToString().substringBefore("\n")
-                e.printStackTrace()
+                _message.value = e.getPlatformStackTrace().substringBefore("\n")
+
             }
+        }
+    }
+
+    fun onClickSortColumn(
+        schemaItem: SchemaItem
+    ) {
+        val currentSort = _sortColumn.value
+        if (currentSort != null && currentSort.schemaItem.name == schemaItem.name) {
+            _sortColumn.value = currentSort.copy(isDescending = !currentSort.isDescending)
+        } else {
+            val currentSchema = _tableSchema.value
+            val index = currentSchema.indexOfFirst { it.name == schemaItem.name }
+            _sortColumn.value = SortColumn(
+                index = index,
+                schemaItem = schemaItem,
+                isDescending = true
+            )
         }
     }
 }

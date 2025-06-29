@@ -3,12 +3,6 @@ package com.oriooneee.axer.domain.requests
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import kotlinx.datetime.Instant.Companion.fromEpochMilliseconds
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
-import kotlin.time.ExperimentalTime
 
 @Entity(tableName = "Transactions")
 internal data class Transaction(
@@ -77,18 +71,10 @@ internal data class Transaction(
         } else {
             0L
         }
+
     @get:Ignore
     val fullUrl: String
         get() = "http://${host}${path}"
-
-    @OptIn(ExperimentalTime::class, FormatStringsInDatetimeFormats::class)
-    fun formatedSendTime(): String{
-        val date = fromEpochMilliseconds(sendTime)
-        val format = DateTimeComponents.Format {
-            byUnicodePattern("HH:mm:ss")
-        }
-        return date.format(format)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

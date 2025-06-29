@@ -44,25 +44,7 @@ actual fun notifyAboutException(exception: AxerException) {
             didReceiveNotificationResponse: UNNotificationResponse,
             withCompletionHandler: () -> Unit
         ) {
-            val topController =
-                UIApplication.sharedApplication.keyWindow?.rootViewController
-                    ?: throw IllegalStateException("No root view controller found")
-
-            topController.presentViewController(
-                ComposeUIViewController {
-                    EntryPoint.Screen(
-                        onClose = {
-                            topController.dismissViewControllerAnimated(
-                                flag = true,
-                                completion = null
-                            )
-                        }
-                    )
-                },
-                animated = true,
-                completion = null
-            )
-
+            Axer.openAxerUI()
             withCompletionHandler()
         }
     }
@@ -70,8 +52,4 @@ actual fun notifyAboutException(exception: AxerException) {
     center.addNotificationRequest(request) { error ->
         // Optional: handle error
     }
-}
-
-actual fun getStackTrace(throwable: Throwable): String {
-    return "Stack trace is not available on iOS"
 }

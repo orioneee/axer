@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.oriooneee.axer.domain.exceptions.AxerException
 import com.oriooneee.axer.presentation.clickableWithoutRipple
+import com.oriooneee.axer.formateAsTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -65,7 +66,7 @@ internal class ExceptionsList {
                 )
             },
             supportingContent = {
-                Text(exception.formatedTime() + " ${exception.message}",
+                Text(exception.time.formateAsTime() + " ${exception.message}",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

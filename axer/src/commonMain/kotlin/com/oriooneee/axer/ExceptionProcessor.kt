@@ -20,21 +20,17 @@ internal class ExceptionProcessor() {
         simpleName: String,
         isFatal: Boolean,
     ) = runBlocking {
-        println("Recording exception: ${exception.message} as $simpleName, isFatal: $isFatal")
         val exception = AxerException(
             message = exception.message ?: "Unknown message",
-            stackTrace = getStackTrace(exception),
+            stackTrace = exception.getPlatformStackTrace(),
             time = Clock.System.now().toEpochMilliseconds(),
             isFatal = isFatal,
             shortName = simpleName,
         )
-        println("Exception object created: $exception")
         dao.upsert(exception)
-        println("Exception recorded: $exception")
         notifyAboutException(exception)
     }
 }
 
 internal expect fun notifyAboutException(exception: AxerException)
-internal expect fun getStackTrace(throwable: Throwable): String
 

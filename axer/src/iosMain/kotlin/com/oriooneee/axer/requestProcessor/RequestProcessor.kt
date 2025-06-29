@@ -1,6 +1,7 @@
 package com.oriooneee.axer.requestProcessor
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.oriooneee.axer.Axer
 import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.EntryPoint
 import platform.CoreData.NSUUIDAttributeType
@@ -50,24 +51,7 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
             didReceiveNotificationResponse: UNNotificationResponse,
             withCompletionHandler: () -> Unit
         ) {
-//            val pluginViewController =
-            val topController =
-                UIApplication.sharedApplication.keyWindow?.rootViewController
-                    ?: throw IllegalStateException("No key window or root view controller found")
-            topController.presentViewController(
-                ComposeUIViewController {
-                    EntryPoint.Screen(
-                        onClose = {
-                            topController.dismissViewControllerAnimated(
-                                flag = true,
-                                completion = null
-                            )
-                        }
-                    )
-                },
-                animated = true,
-                completion = null
-            )
+            Axer.openAxerUI()
             withCompletionHandler()
         }
     }

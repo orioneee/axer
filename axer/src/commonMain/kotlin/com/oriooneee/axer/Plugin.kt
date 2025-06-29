@@ -72,7 +72,7 @@ val AxerPlugin = createClientPlugin("Axer", ::AxerConfig) {
         val response = try {
             proceed(it)
         } catch (e: Exception) {
-            val stackTrace = e.stackTraceToString()
+            val stackTrace = e.getPlatformStackTrace()
             processor.onFailed(state.updateToError(stackTrace))
             throw e
         }

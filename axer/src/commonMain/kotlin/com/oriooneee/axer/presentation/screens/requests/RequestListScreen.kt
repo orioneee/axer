@@ -1,13 +1,8 @@
 package com.oriooneee.axer.presentation.screens.requests
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -48,7 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.oriooneee.axer.domain.requests.Transaction
 import com.oriooneee.axer.presentation.clickableWithoutRipple
-import com.oriooneee.axer.presentation.screens.requests.RequestViewModel
+import com.oriooneee.axer.formateAsTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -100,7 +95,7 @@ internal class RequestListScreen() {
             },
             supportingContent = {
                 val text =
-                    "${request.host} ${request.formatedSendTime()} " + if (request.isFinished()) "${request.totalTime}ms" else ""
+                    "${request.host} ${request.sendTime.formateAsTime()} " + if (request.isFinished()) "${request.totalTime}ms" else ""
                 Text(text)
             },
             trailingContent = {

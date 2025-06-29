@@ -13,12 +13,15 @@ internal class RoomReader(
         axerDriver.driver.open(axerDriver.fileName)
     }
 
-    enum class SQLiteColumnType(val code: Int) {
-        INTEGER(1),
-        FLOAT(2),
-        TEXT(3),
-        BLOB(4),
-        NULL(5)
+    enum class SQLiteColumnType(
+        val code: Int,
+        val textName: String,
+    ) {
+        INTEGER(1, "INTEGER"),
+        FLOAT(2, "FLOAT"),
+        TEXT(3, "TEXT"),
+        BLOB(4, "BLOB"),
+        NULL(5, "NULL");
     }
 
 
@@ -41,10 +44,22 @@ internal class RoomReader(
         while (stmt.step()) {
             val columnName = stmt.getText(1) ?: "unknown"
             val isPrimary = stmt.getInt(5) == 1
+            val isNotNullable = stmt.getInt(3) == 1
+            val name = stmt.getColumnName(2)
+            val type = stmt.getText(2)
+            println("Column $2: Name = $name, Type = $type")
             schema.add(
                 SchemaItem(
                     name = columnName,
-                    isPrimary = isPrimary
+                    isPrimary = isPrimary,
+                    isNullable = !isNotNullable,
+                    type = when (stmt.getText(2)) {
+                        SQLiteColumnType.INTEGER.name -> SQLiteColumnType.INTEGER
+                        SQLiteColumnType.FLOAT.name -> SQLiteColumnType.FLOAT
+                        SQLiteColumnType.TEXT.name -> SQLiteColumnType.TEXT
+                        SQLiteColumnType.BLOB.name -> SQLiteColumnType.BLOB
+                        else -> SQLiteColumnType.NULL
+                    }
                 )
             )
         }
@@ -65,32 +80,26 @@ internal class RoomReader(
                     val type = statement.getColumnType(i)
                     val value = when (type) {
                         SQLiteColumnType.INTEGER.code -> RoomCell(
-                            type = SQLiteColumnType.INTEGER,
                             value = statement.getLong(i)?.toString() ?: "NULL"
                         )
 
                         SQLiteColumnType.FLOAT.code -> RoomCell(
-                            type = SQLiteColumnType.FLOAT,
                             value = statement.getDouble(i)?.toString() ?: "NULL"
                         )
 
                         SQLiteColumnType.TEXT.code -> statement.getText(i)?.let { text ->
                             RoomCell(
-                                type = SQLiteColumnType.TEXT,
                                 value = text
                             )
                         } ?: RoomCell(
-                            type = SQLiteColumnType.NULL,
                             value = "NULL"
                         )
 
                         SQLiteColumnType.BLOB.code -> RoomCell(
-                            type = SQLiteColumnType.BLOB,
                             value = "ByteArray(${statement.getBlob(i)?.size ?: 0})"
                         )
 
                         SQLiteColumnType.NULL.code -> RoomCell(
-                            type = SQLiteColumnType.NULL,
                             value = "NULL"
                         )
 
@@ -136,15 +145,19 @@ internal class RoomReader(
 
     fun SQLiteStatement.bindCell(
         index: Int,
-        cell: RoomCell?
+        cell: RoomCell?,
+        type: SQLiteColumnType
     ) {
-        when (cell?.type) {
-            SQLiteColumnType.INTEGER -> bindInt(index, cell.value.toInt())
+        if (cell?.value == null) {
+            bindNull(index)
+            return
+        }
+        when (type) {
+            SQLiteColumnType.INTEGER -> bindLong(index, cell.value.toLong())
             SQLiteColumnType.FLOAT -> bindDouble(index, cell.value.toDouble())
             SQLiteColumnType.TEXT -> bindText(index, cell.value)
-//            SQLiteColumnType.BLOB -> bindBlob(index, cell.value.toByteArray())
             SQLiteColumnType.NULL -> bindNull(index)
-            else -> throw IllegalArgumentException("Unsupported cell type: ${cell?.type}")
+            else -> throw IllegalArgumentException("Unsupported cell type: ${type}")
         }
     }
 
@@ -160,17 +173,38 @@ internal class RoomReader(
             throw IllegalStateException("No primary key found in schema")
         }
 
-        val primaryKeyColumnName = editableItem.item.schema[indexOfPrimaryKey].name
+        val primarySchemaItem = editableItem.item.schema[indexOfPrimaryKey]
         val primaryKeyValue = editableItem.item.cells[indexOfPrimaryKey]
 
         val stmt = connection.prepare(
-            "UPDATE $tableName SET $columnName = ? WHERE $primaryKeyColumnName = ?"
+            "UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?"
         )
 
+        val query = "UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?"
+        println("Executing query: $query with values: $newValue, $primaryKeyValue")
+
+
         try {
-            stmt.bindCell(1, newValue)
-            stmt.bindCell(2, primaryKeyValue)
+            stmt.bindCell(1, newValue, editableItem.schemaItem.type)
+            stmt.bindCell(2, primaryKeyValue, primarySchemaItem.type)
             stmt.step()
+            val columnCount = stmt.getColumnCount()
+            if (columnCount != 0) {
+                (0 until columnCount).forEach { i ->
+                    val type = stmt.getColumnType(i)
+                    println(
+                        if (type == SQLiteColumnType.INTEGER.code || type == SQLiteColumnType.FLOAT.code) {
+                            stmt.getLong(i) // Force step to execute
+                        } else if (type == SQLiteColumnType.TEXT.code) {
+                            stmt.getText(i) // Force step to execute
+                        } else if (type == SQLiteColumnType.BLOB.code) {
+                            stmt.getBlob(i) // Force step to execute
+                        } else {
+                            "NULL" // Handle NULL case
+                        }
+                    )
+                }
+            }
         } finally {
             stmt.close()
         }
@@ -179,22 +213,22 @@ internal class RoomReader(
     suspend fun deleteRow(
         tableName: String,
         row: RowItem
-    ){
+    ) {
         val indexOfPrimaryKey = row.schema.indexOfFirst { it.isPrimary }
 
         if (indexOfPrimaryKey == -1) {
             throw IllegalStateException("No primary key found in schema")
         }
 
-        val primaryKeyColumnName = row.schema[indexOfPrimaryKey].name
+        val primaryKeySchemaItem = row.schema[indexOfPrimaryKey]
         val primaryKeyValue = row.cells[indexOfPrimaryKey]
 
         val stmt = connection.prepare(
-            "DELETE FROM $tableName WHERE $primaryKeyColumnName = ?"
+            "DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?"
         )
 
         try {
-            stmt.bindCell(1, primaryKeyValue)
+            stmt.bindCell(1, primaryKeyValue, primaryKeySchemaItem.type)
             stmt.step()
         } finally {
             stmt.close()
