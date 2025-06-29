@@ -12,8 +12,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion = "1.0.0-alpha1"
-
+val libraryVersion: String by project
 version = libraryVersion
 
 kotlin {
@@ -123,6 +122,7 @@ kotlin {
         compilations["main"].compileTaskProvider.configure {
             compilerOptions {
                 freeCompilerArgs.add("-Xexport-kdoc")
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }

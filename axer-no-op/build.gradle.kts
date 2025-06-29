@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val libraryVersion = "1.0.0-alpha1"
+val libraryVersion: String by project
 
 version = libraryVersion
 
