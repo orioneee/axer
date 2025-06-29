@@ -30,7 +30,7 @@ import sample.app.room.SampleDatabase
 import sample.app.room.entity.Director
 import sample.app.room.entity.Movie
 
-val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
+val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 
 
 fun sendGetRequest(client: HttpClient) {
@@ -119,6 +119,7 @@ internal fun populateDatabase(database: SampleDatabase) {
 
 @Composable
 fun App() {
+    Axer.installAxerErrorHandler()
     handlePermissions()
     val client = HttpClient {
         install(DefaultRequest) {
@@ -137,6 +138,9 @@ fun App() {
                 } else {
                     emptyList()
                 }
+            }
+            responseImportantSelector={
+                listOf("Some important response data")
             }
         }
     }
