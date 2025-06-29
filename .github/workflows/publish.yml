@@ -1,9 +1,9 @@
-# .github/workflows/publish.yml
-
 name: Publish
 on:
   release:
     types: [released, prereleased]
+  workflow_dispatch:  # Manual trigger
+
 jobs:
   publish:
     name: Release build and publish

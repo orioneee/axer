@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
@@ -85,7 +87,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.oriooneee.axer"
+    namespace = "io.github.orioneee.axer"
     compileSdk = 35
 
     defaultConfig {
@@ -93,17 +95,40 @@ android {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("kmpLibrary") {
-            from(components["kotlin"])
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-            groupId = "com.oriooneee.axer-no-op"
-            artifactId = "axer"
-            version = libraryVersion
+    signAllPublications()
+
+    coordinates(
+        groupId = "io.github.orioneee",
+        artifactId = "axer-no-op",
+        version = libraryVersion,
+    )
+
+    pom {
+        name = "Axer"
+        description = "Debugging tool for Kotlin Multiplatform applications"
+        inceptionYear = "2025"
+        url = "https://github.com/orioneee/Axer"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
         }
-    }
-    repositories {
-        mavenLocal()
+        developers {
+            developer {
+                id = "orioneee"
+                name = "Danylo Perepeluk"
+                url = "https://github.com/orioneee"
+            }
+        }
+        scm {
+            url = "https://github.com/orioneee/Axer"
+            connection = "scm:git:git://github.com/orioneee/Axer.git"
+            developerConnection = "scm:git:ssh://git@github.com/orioneee/Axer.git"
+        }
     }
 }

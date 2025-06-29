@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import io.github.AxerActivity
+import io.github.orioneee.axer.R
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.koin.IsolatedContext
 

@@ -8,7 +8,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import io.github.AxerActivity
 import io.github.orioneee.NotificationInfo
-import io.github.orioneee.R
+import io.github.orioneee.axer.R
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.domain.requests.Transaction
 
