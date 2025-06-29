@@ -6,7 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import io.github.AxerActivity
+import io.github.orioneee.AxerActivity
 import io.github.orioneee.NotificationInfo
 import io.github.orioneee.axer.R
 import io.github.orioneee.koin.IsolatedContext

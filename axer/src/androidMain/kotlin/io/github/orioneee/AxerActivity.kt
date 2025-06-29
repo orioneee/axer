@@ -1,4 +1,4 @@
-package io.github
+package io.github.orioneee
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

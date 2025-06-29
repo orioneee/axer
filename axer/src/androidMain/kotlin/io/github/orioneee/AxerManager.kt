@@ -1,4 +1,4 @@
-package io.github
+package io.github.orioneee
 
 import android.app.Application
 import io.github.orioneee.koin.IsolatedContext

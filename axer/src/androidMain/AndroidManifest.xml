@@ -4,7 +4,7 @@
 
     <application>
         <activity
-            android:name="io.github.AxerActivity"
+            android:name="io.github.orioneee.AxerActivity"
             android:launchMode="singleTask"
             android:exported="true" />
 

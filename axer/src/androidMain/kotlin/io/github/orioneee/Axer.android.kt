@@ -2,7 +2,6 @@ package io.github.orioneee
 
 import android.content.Context
 import android.content.Intent
-import io.github.AxerActivity
 import io.github.orioneee.koin.IsolatedContext
 
 actual fun openAxer() {
