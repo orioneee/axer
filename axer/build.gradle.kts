@@ -138,22 +138,6 @@ android {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("kmpLibrary") {
-            from(components["kotlin"])
-
-            groupId = "io.github.orioneee"
-            artifactId = "axer"
-            version = libraryVersion
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}
-
-
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
