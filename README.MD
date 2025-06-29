@@ -37,6 +37,8 @@ The no-op variant does nothing but maintains the same API, ensuring seamless int
 
 You must initialize Axer **once** before any recording or monitoring.
 
+Also don't forget about permissions for notification on android and ios
+
 ### Android
 
 In your `Application` class:
