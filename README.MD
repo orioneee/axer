@@ -1,17 +1,16 @@
 # Axer Library
 
-# Axer Library
-
 <div align="center">
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.32%E2%80%AFPM.png" width="45%" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.51%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.32%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.51%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
   <br />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.19.17%E2%80%AFPM.png" width="45%" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.30%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.19.17%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.30%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
   <br />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.57%E2%80%AFPM.png" width="45%" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.25.15%E2%80%AFPM.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.57%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.25.15%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
 </div>
+
 
 
 Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
@@ -44,10 +43,10 @@ In your `Application` class:
 
 ```kotlin
 class SampleApplication : Application() {
-  override fun onCreate() {
-    super.onCreate()
-    AxerManager.init(this)
-  }
+    override fun onCreate() {
+        super.onCreate()
+        AxerManager.init(this)
+    }
 }
 ```
 
@@ -73,27 +72,27 @@ Axer can monitor HTTP requests and extract important data using selectors. It su
 
 ```kotlin
 val client = HttpClient {
-  install(DefaultRequest) {
-    contentType(ContentType.Application.Json)
-    if (!headers.contains("Authorization")) {
-      header("Authorization", "Bearer your_token_here")
+    install(DefaultRequest) {
+        contentType(ContentType.Application.Json)
+        if (!headers.contains("Authorization")) {
+            header("Authorization", "Bearer your_token_here")
+        }
     }
-  }
-  install(AxerPlugin) {
-    requestImportantSelector = { request: Request ->
-      val tokenData = request.headers.entries.firstOrNull {
-        it.key.equals("Authorization", ignoreCase = true)
-      }
-      if (tokenData != null) {
-        listOf(tokenData.value)
-      } else {
-        emptyList()
-      }
+    install(AxerPlugin) {
+        requestImportantSelector = { request: Request ->
+            val tokenData = request.headers.entries.firstOrNull {
+                it.key.equals("Authorization", ignoreCase = true)
+            }
+            if (tokenData != null) {
+                listOf(tokenData.value)
+            } else {
+                emptyList()
+            }
+        }
+        responseImportantSelector = {
+            listOf("Some important response data")
+        }
     }
-    responseImportantSelector = {
-      listOf("Some important response data")
-    }
-  }
 }
 ```
 
@@ -101,19 +100,19 @@ val client = HttpClient {
 
 ```kotlin
 AxerOkhttpInterceptor.Builder()
-  .setRequestImportantSelector {
-    if (it.headers.contains("cookie")) {
-      val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
-      if (token.isNullOrBlank()) {
-        emptyList()
-      } else {
-        listOf("PHPSESID: $token")
-      }
-    } else {
-      emptyList()
+    .setRequestImportantSelector {
+        if (it.headers.contains("cookie")) {
+            val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
+            if (token.isNullOrBlank()) {
+                emptyList()
+            } else {
+                listOf("PHPSESID: $token")
+            }
+        } else {
+            emptyList()
+        }
     }
-  }
-  .build()
+    .build()
 ```
 
 #### JVM Window
@@ -122,8 +121,8 @@ To display the Axer UI in a JVM environment:
 
 ```kotlin
 fun main() = application {
-  AxerWindows()
-  ...
+    AxerWindows()
+    ...
 }
 ```
 
@@ -153,7 +152,7 @@ You can customize the crash at jvm and android by overriding the open class Axer
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
-  // Custom implementation
+    // Custom implementation
 }
 ...
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
@@ -179,10 +178,10 @@ Axer supports live inspection of Room databases and execution of custom queries.
 
 ```kotlin
 builder
-  .setDriver(AxerBundledSQLiteDriver.getInstance())
-  .setQueryCoroutineContext(Dispatchers.IO)
-  .fallbackToDestructiveMigration(false)
-  .build()
+    .setDriver(AxerBundledSQLiteDriver.getInstance())
+    .setQueryCoroutineContext(Dispatchers.IO)
+    .fallbackToDestructiveMigration(false)
+    .build()
 ```
 
 The only required configuration is setting the driver:
