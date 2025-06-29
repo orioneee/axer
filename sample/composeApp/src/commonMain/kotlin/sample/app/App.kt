@@ -25,6 +25,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import org.koin.core.Koin
+import org.koin.core.component.KoinComponent
+import sample.app.room.SampleDatabase
+import sample.app.room.entity.Director
+import sample.app.room.entity.Movie
 
 val url = "https://pastebin.com/raw/CNsie2wb?apiKey=test_api_key"
 
@@ -69,6 +75,47 @@ fun sedRequestForImage(client: HttpClient) {
             }
         } catch (e: Exception) {
         }
+    }
+}
+
+internal fun populateDatabase(database: SampleDatabase) {
+    CoroutineScope(Dispatchers.IO).launch {
+        val nameList = listOf(
+            "John", "Jane", "Alice", "Bob", "Charlie", "Diana", "Ethan", "Fiona",
+            "George", "Hannah", "Ian", "Julia", "Kevin", "Laura", "Mike", "Nina",
+            "Oscar", "Paula", "Quentin", "Rachel"
+        )
+        val surnameList = listOf(
+            "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller",
+            "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White",
+            "Harris", "Martin", "Thompson", "Garcia", "Martinez"
+        )
+        val directors = List(100_000) {
+            val name = nameList.random()
+            val surname = surnameList.random()
+            Director(
+                firstName = name,
+                lastName = surname,
+            )
+        }
+        val directorsDao = database.getDirectorDao()
+        directorsDao.upsertDirectors(directors)
+        val directorsFromDB = directorsDao.getAllDirectors()
+        val movies = List(1_000_000) {
+            val name = "Movie ${it + 1}"
+            val director = directorsFromDB.random()
+            Movie(
+                title = name,
+                directorId = director.id,
+                releaseYear = (2000..2023).random(),
+                rating = (10..50).random().toFloat().div(10f),
+                description = "Description for $name",
+                genre = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi").random()
+            )
+        }
+        val moviesDao = database.getMovieDao()
+        moviesDao.upsertMovies(movies)
+        println("Database populated with ${directors.size} directors and ${movies.size} movies.")
     }
 }
 
@@ -153,6 +200,24 @@ fun App() {
             }
         ) {
             Text("Open Axer UI")
+        }
+        val database: SampleDatabase = koinInject()
+        Button(
+            onClick = {
+                populateDatabase(database)
+            }
+        ) {
+            Text("Populate database")
+        }
+        Button(
+            onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.getMovieDao().deleteAll()
+                    database.getDirectorDao().deleteAll()
+                }
+            }
+        ) {
+            Text("Clear database")
         }
     }
 }

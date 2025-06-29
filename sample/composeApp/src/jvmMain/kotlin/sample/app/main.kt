@@ -6,12 +6,17 @@ import com.oriooneee.axer.Axer
 import com.oriooneee.axer.AxerOkhttpInterceptor
 import com.oriooneee.axer.AxerWindows
 import okhttp3.OkHttpClient
+import org.koin.core.context.startKoin
 import sample.app.App
+import sample.app.koin.KoinModules
 import java.awt.Dimension
 
 fun main() = application {
     AxerWindows()
     Axer.installAxerErrorHandler()
+    startKoin {
+        modules(KoinModules.module)
+    }
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val originalRequest = chain.request()

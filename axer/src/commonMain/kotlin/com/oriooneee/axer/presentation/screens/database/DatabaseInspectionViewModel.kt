@@ -9,7 +9,9 @@ import com.oriooneee.axer.domain.database.SortColumn
 import com.oriooneee.axer.getPlatformStackTrace
 import com.oriooneee.axer.room.AxerBundledSQLiteDriver
 import com.oriooneee.axer.room.RoomReader
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -141,7 +143,9 @@ internal class DatabaseInspectionViewModel(
         reader.axerDriver.queryFlow
             .debounce(100)
             .onEach {
-                if (tableName != null) {
+                if (tableName == null) {
+                    loadTables()
+                } else {
                     getTableInfo()
                 }
             }
@@ -152,7 +156,7 @@ internal class DatabaseInspectionViewModel(
         editableItem: EditableRowItem
     ) {
         if (tableName == null) return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isUpdatingCell.value = true
             try {
                 reader.updateCell(
