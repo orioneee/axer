@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion = "1.0.13"
+val libraryVersion = "1.0.15"
 
 version = libraryVersion
 

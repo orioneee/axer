@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -80,6 +79,8 @@ internal class DatabaseInspectionViewModel(
 
     private val _message = MutableStateFlow<String?>(null)
     val message = _message.asStateFlow()
+
+    private val _selectedVerticalIndex = MutableStateFlow<Int?>(null)
 
     fun loadTables() {
         viewModelScope.launch {
@@ -169,7 +170,8 @@ internal class DatabaseInspectionViewModel(
         }
     }
 
-    fun onSelectItem(editableItem: EditableRowItem?) {
+    fun onSelectItem(editableItem: EditableRowItem?, verticalIndex: Int?) {
+        _selectedVerticalIndex.value = verticalIndex
         _editableRowItem.value = editableItem
     }
 

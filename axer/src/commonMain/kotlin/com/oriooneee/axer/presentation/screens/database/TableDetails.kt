@@ -1,6 +1,7 @@
 package com.oriooneee.axer.presentation.screens.database
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -44,13 +46,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.oriooneee.axer.domain.database.EditableRowItem
-import com.oriooneee.axer.domain.database.SortColumn
 import com.sunnychung.lib.android.composabletable.ux.Table
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -71,7 +73,7 @@ class TableDetails {
                     modifier = Modifier
                         .background(color = backgroundColor)
                         .widthIn(max = 350.dp)
-                        .border(width = 1.dp, color = Color.Gray)
+                        .border(width = .5.dp, color = MaterialTheme.colorScheme.outline)
                         .clickable(
                             enabled = onClick != null
                         ) {
@@ -123,13 +125,16 @@ class TableDetails {
         isClickable: Boolean,
         alignment: Alignment = Alignment.Center,
         backgroundColor: Color = MaterialTheme.colorScheme.surface,
+        borderColor: Color = MaterialTheme.colorScheme.outline,
         onClick: () -> Unit = {}
     ) {
+        val animatedBackgroundColor by animateColorAsState(backgroundColor)
+        val animatedBorderColor by animateColorAsState(borderColor)
         Box(
             modifier = Modifier
-                .background(color = backgroundColor)
+                .background(color = animatedBackgroundColor)
                 .widthIn(max = 350.dp)
-                .border(width = 1.dp, color = Color.Gray)
+                .border(width = 0.5.dp, color = animatedBorderColor)
                 .clickable(
                     enabled = isClickable
                 ) {
@@ -144,6 +149,33 @@ class TableDetails {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+
+    @Composable
+    fun DeleteButton(
+        isClickable: Boolean,
+        backgroundColor: Color = MaterialTheme.colorScheme.surface,
+        onClick: () -> Unit = {}
+    ) {
+        Box(
+            modifier = Modifier
+                .background(color = backgroundColor)
+                .widthIn(max = 350.dp)
+                .border(width = .5.dp, color = MaterialTheme.colorScheme.outline),
+            contentAlignment = Alignment.Center
+
+        ) {
+            IconButton(
+                enabled = isClickable,
+                onClick = onClick
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Row",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 
@@ -193,7 +225,7 @@ class TableDetails {
             }
         }
         LaunchedEffect(currentPage) {
-            viewModel.onSelectItem(null)
+            viewModel.onSelectItem(null, null)
         }
         Scaffold(
             snackbarHost = {
@@ -344,6 +376,13 @@ class TableDetails {
                     }
                 }
                 Table(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(8.dp)
+                        ),
                     rowCount = currentItems.size + 1, // +1 for header
                     columnCount = schema.size + 1,    // +1 for delete button column at the end
                     stickyRowCount = 1,
@@ -363,8 +402,7 @@ class TableDetails {
                             )
                         } else {
                             HeaderCell(
-                                text = null,
-                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                text = "Action",
                                 isSortColumn = false,
                                 isDescending = false,
                             )
@@ -385,6 +423,10 @@ class TableDetails {
                                     else -> MaterialTheme.colorScheme.surface
                                 },
                                 isClickable = !isPrimary && !isUpdatingCell,
+                                borderColor = if (isSelected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.outline,
                                 onClick = {
                                     val newSelectedItem = if (!isSelected && cellData != null) {
                                         EditableRowItem(
@@ -396,28 +438,16 @@ class TableDetails {
                                     } else {
                                         null
                                     }
-                                    viewModel.onSelectItem(newSelectedItem)
+                                    viewModel.onSelectItem(newSelectedItem, rowIndex - 1)
                                 }
                             )
                         } else {
-                            // Last column = delete button
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.deleteRow(item)
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete Row",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
+                            DeleteButton(
+                                isClickable = !isUpdatingCell,
+                                onClick = {
+                                    viewModel.deleteRow(item)
                                 }
-                            }
+                            )
                         }
                     }
                 }
