@@ -197,7 +197,7 @@ The only required configuration is setting the driver:
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
   - Stack traces are not supported.
-  - Fatal crash capturing via `installAxerErrorHandler` is not supported.
+  - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
 - **Stability**: The library is in alpha (`1.0.0-alpha04`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
