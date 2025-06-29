@@ -1,7 +1,7 @@
 package sample.app
 
 import android.app.Application
-import com.oriooneee.AxerManager
+import io.github.orioneeeManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import sample.app.koin.KoinModules

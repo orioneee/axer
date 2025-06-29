@@ -2,9 +2,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.oriooneee.axer.Axer
-import com.oriooneee.axer.AxerOkhttpInterceptor
-import com.oriooneee.axer.AxerWindows
+import io.github.orioneee.Axer
+import io.github.orioneee.AxerOkhttpInterceptor
+import io.github.orioneee.AxerWindows
 import okhttp3.OkHttpClient
 import org.koin.core.context.startKoin
 import sample.app.App

@@ -9,9 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.oriooneee.axer.Axer
-import com.oriooneee.axer.AxerPlugin
-import com.oriooneee.axer.domain.requests.Request
+import io.github.orioneee.Axer
+import io.github.orioneee.AxerPlugin
+import io.github.orioneee.domain.requests.Request
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get

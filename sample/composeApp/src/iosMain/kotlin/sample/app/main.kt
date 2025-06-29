@@ -1,5 +1,5 @@
 import androidx.compose.ui.window.ComposeUIViewController
-import com.oriooneee.axer.Axer
+import io.github.orioneee.Axer
 import org.koin.core.context.startKoin
 import platform.UIKit.UIViewController
 import sample.app.App

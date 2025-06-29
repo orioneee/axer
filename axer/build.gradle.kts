@@ -67,8 +67,6 @@ kotlin {
 
             implementation(libs.kodeview)
 
-//            implementation("androidx.sqlite:sqlite:2.5.2")
-
 
             implementation(libs.composable.table)
         }
@@ -130,7 +128,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.oriooneee.axer"
+    namespace = "io.github.orioneee"
     compileSdk = 35
 
     defaultConfig {
@@ -143,7 +141,7 @@ publishing {
         create<MavenPublication>("kmpLibrary") {
             from(components["kotlin"])
 
-            groupId = "com.oriooneee.axer"
+            groupId = "io.github.orioneee"
             artifactId = "axer"
             version = libraryVersion
         }
