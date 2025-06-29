@@ -44,10 +44,10 @@ In your `Application` class:
 
 ```kotlin
 class SampleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        AxerManager.init(this)
-    }
+  override fun onCreate() {
+    super.onCreate()
+    AxerManager.init(this)
+  }
 }
 ```
 
@@ -73,27 +73,27 @@ Axer can monitor HTTP requests and extract important data using selectors. It su
 
 ```kotlin
 val client = HttpClient {
-    install(DefaultRequest) {
-        contentType(ContentType.Application.Json)
-        if (!headers.contains("Authorization")) {
-            header("Authorization", "Bearer your_token_here")
-        }
+  install(DefaultRequest) {
+    contentType(ContentType.Application.Json)
+    if (!headers.contains("Authorization")) {
+      header("Authorization", "Bearer your_token_here")
     }
-    install(AxerPlugin) {
-        requestImportantSelector = { request: Request ->
-            val tokenData = request.headers.entries.firstOrNull {
-                it.key.equals("Authorization", ignoreCase = true)
-            }
-            if (tokenData != null) {
-                listOf(tokenData.value)
-            } else {
-                emptyList()
-            }
-        }
-        responseImportantSelector = {
-            listOf("Some important response data")
-        }
+  }
+  install(AxerPlugin) {
+    requestImportantSelector = { request: Request ->
+      val tokenData = request.headers.entries.firstOrNull {
+        it.key.equals("Authorization", ignoreCase = true)
+      }
+      if (tokenData != null) {
+        listOf(tokenData.value)
+      } else {
+        emptyList()
+      }
     }
+    responseImportantSelector = {
+      listOf("Some important response data")
+    }
+  }
 }
 ```
 
@@ -101,19 +101,19 @@ val client = HttpClient {
 
 ```kotlin
 AxerOkhttpInterceptor.Builder()
-    .setRequestImportantSelector {
-        if (it.headers.contains("cookie")) {
-            val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
-            if (token.isNullOrBlank()) {
-                emptyList()
-            } else {
-                listOf("PHPSESID: $token")
-            }
-        } else {
-            emptyList()
-        }
+  .setRequestImportantSelector {
+    if (it.headers.contains("cookie")) {
+      val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
+      if (token.isNullOrBlank()) {
+        emptyList()
+      } else {
+        listOf("PHPSESID: $token")
+      }
+    } else {
+      emptyList()
     }
-    .build()
+  }
+  .build()
 ```
 
 #### JVM Window
@@ -122,8 +122,8 @@ To display the Axer UI in a JVM environment:
 
 ```kotlin
 fun main() = application {
-    AxerWindows()
-    ...
+  AxerWindows()
+  ...
 }
 ```
 
@@ -149,12 +149,15 @@ Install the error handler on the main thread:
 Axer.installAxerErrorHandler()
 ```
 
-You can customize the crash handler by overriding the open class:
+You can customize the crash at jvm and android by overriding the open class AxerUncaughtExceptionHandler and settings it like:
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
-    // Custom implementation
+  // Custom implementation
 }
+...
+Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
+
 ```
 
 **Note**: Fatal crash handling is not supported on iOS.
@@ -176,10 +179,10 @@ Axer supports live inspection of Room databases and execution of custom queries.
 
 ```kotlin
 builder
-    .setDriver(AxerBundledSQLiteDriver.getInstance())
-    .setQueryCoroutineContext(Dispatchers.IO)
-    .fallbackToDestructiveMigration(false)
-    .build()
+  .setDriver(AxerBundledSQLiteDriver.getInstance())
+  .setQueryCoroutineContext(Dispatchers.IO)
+  .fallbackToDestructiveMigration(false)
+  .build()
 ```
 
 The only required configuration is setting the driver:
@@ -192,8 +195,8 @@ The only required configuration is setting the driver:
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
-   - Stack traces are not supported.
-   - Fatal crash capturing via `installAxerErrorHandler` is not supported.
+  - Stack traces are not supported.
+  - Fatal crash capturing via `installAxerErrorHandler` is not supported.
 - **Stability**: The library is in alpha (`1.0.0-alpha04`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
