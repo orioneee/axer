@@ -8,14 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import axer.axer.generated.resources.Res
 import com.oriooneee.axer.koin.IsolatedContext
 import com.oriooneee.axer.presentation.navigation.FlowDestinations
 import com.oriooneee.axer.presentation.navigation.MainNavigation
 import org.koin.compose.KoinIsolatedContext
 
-internal object EntryPoint {
-
+object AxerUIEntryPoint {
     @Composable
     fun Screen(
         onClose: (() -> Unit)?

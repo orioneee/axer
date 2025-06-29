@@ -1,3 +1,3 @@
 package com.oriooneee.axer
 
-expect fun Throwable.getPlatformStackTrace(): String
+internal expect fun Throwable.getPlatformStackTrace(): String

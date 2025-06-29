@@ -26,8 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.koin.core.Koin
-import org.koin.core.component.KoinComponent
 import sample.app.room.SampleDatabase
 import sample.app.room.entity.Director
 import sample.app.room.entity.Movie
@@ -101,7 +99,7 @@ internal fun populateDatabase(database: SampleDatabase) {
         val directorsDao = database.getDirectorDao()
         directorsDao.upsertDirectors(directors)
         val directorsFromDB = directorsDao.getAllDirectors()
-        val movies = List(1_000_000) {
+        val movies = List(50_000) {
             val name = "Movie ${it + 1}"
             val director = directorsFromDB.random()
             Movie(
@@ -218,6 +216,18 @@ fun App() {
             }
         ) {
             Text("Clear database")
+        }
+        Button(
+            onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.getMovieDao().getAllMovies().let {
+                        println("Movies in database: ${it.size}")
+                    }
+                    println("Directors in database: ${database.getDirectorDao().getAllDirectors().size}")
+                }
+            }
+        ) {
+            Text("Get all movies and directors")
         }
     }
 }

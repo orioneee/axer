@@ -9,6 +9,7 @@ import com.oriooneee.axer.presentation.navigation.Animations
 import com.oriooneee.axer.presentation.navigation.Routes
 import com.oriooneee.axer.presentation.screens.database.ListTables
 import com.oriooneee.axer.presentation.screens.database.TableDetails
+import com.oriooneee.axer.presentation.screens.database.rawQuery.RawQueryScreen
 
 internal class DatabaseMobileNavigation {
     @Composable
@@ -27,9 +28,10 @@ internal class DatabaseMobileNavigation {
                 Routes.TABLES_LIST.route
             ) {
                 ListTables().Screen(
+                    navController = navController,
                     onClickToTable = {
                         navController.navigate(
-                            Routes.TABLE_DETAILS.route + "/$it",
+                            Routes.TABLE_DETAILS.route + "/${it.name}",
                         )
                     },
                 )
@@ -41,10 +43,18 @@ internal class DatabaseMobileNavigation {
                     getString("tableName")
                 }
                 TableDetails().Screen(
+                    navController = navController,
                     tableName = tableName ?: "",
-                ) {
-                    navController.popBackStack()
-                }
+                )
+            }
+            composable(
+                Routes.RAW_QUERY.route,
+            ) {
+                RawQueryScreen().Screen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }

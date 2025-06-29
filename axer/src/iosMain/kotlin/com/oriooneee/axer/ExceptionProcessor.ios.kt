@@ -1,10 +1,7 @@
 package com.oriooneee.axer
 
-import androidx.compose.ui.window.ComposeUIViewController
 import com.oriooneee.axer.domain.exceptions.AxerException
-import com.oriooneee.axer.presentation.EntryPoint
 import platform.Foundation.NSUUID
-import platform.UIKit.UIApplication
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
 import platform.UserNotifications.UNNotificationPresentationOptionAlert
@@ -15,7 +12,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
-actual fun notifyAboutException(exception: AxerException) {
+internal actual fun notifyAboutException(exception: AxerException) {
     val content = UNMutableNotificationContent().apply {
         setTitle("Exception Captured")
         setBody("${exception.shortName}: ${exception.message}")

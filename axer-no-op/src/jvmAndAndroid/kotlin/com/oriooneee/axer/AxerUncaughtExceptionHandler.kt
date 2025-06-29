@@ -8,12 +8,6 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
 
 
     open override fun uncaughtException(p0: Thread, p1: Throwable) {
-        if(defaultHandler != null) {
-            defaultHandler.uncaughtException(p0, p1)
-        } else {
-            logAboutException(p1, exit = true)
-        }
+        defaultHandler?.uncaughtException(p0, p1)
     }
 }
-
-expect fun logAboutException(exception: Throwable, exit: Boolean)

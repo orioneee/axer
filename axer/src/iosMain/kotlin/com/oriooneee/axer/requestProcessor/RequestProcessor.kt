@@ -1,11 +1,8 @@
 package com.oriooneee.axer.requestProcessor
 
-import androidx.compose.ui.window.ComposeUIViewController
 import com.oriooneee.axer.Axer
 import com.oriooneee.axer.domain.requests.Transaction
-import com.oriooneee.axer.presentation.EntryPoint
 import platform.CoreData.NSUUIDAttributeType
-import platform.UIKit.UIApplication
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
 import platform.UserNotifications.UNNotificationPresentationOptionAlert

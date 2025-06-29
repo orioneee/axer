@@ -27,7 +27,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BodySection(
+internal fun BodySection(
     title: String = "Body",
     content: @Composable () -> Unit,
 ) {

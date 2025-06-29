@@ -11,12 +11,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.read
 import com.oriooneee.axer.presentation.SplitScreen
+import com.oriooneee.axer.presentation.navigation.Routes
 import com.oriooneee.axer.presentation.navigation.exceptions.ExceptionsDesktopNavigation
 import com.oriooneee.axer.presentation.navigation.exceptions.ExceptionsMobileNavigation
-import com.oriooneee.axer.presentation.navigation.Routes
 import com.oriooneee.axer.presentation.screens.exceptions.ExceptionsList
 
-object ExceptionEntryPoint {
+internal object ExceptionEntryPoint {
     @Composable
     fun ExceptionsContent() {
         Surface {

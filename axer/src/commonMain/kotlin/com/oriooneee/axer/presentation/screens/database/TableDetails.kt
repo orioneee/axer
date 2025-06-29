@@ -1,30 +1,13 @@
 package com.oriooneee.axer.presentation.screens.database
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FirstPage
-import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,144 +29,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.oriooneee.axer.domain.database.EditableRowItem
-import com.sunnychung.lib.android.composabletable.ux.Table
+import com.oriooneee.axer.presentation.components.ContentCell
+import com.oriooneee.axer.presentation.components.DeleteButton
+import com.oriooneee.axer.presentation.components.HeaderCell
+import com.oriooneee.axer.presentation.components.PaginationUI
+import com.oriooneee.axer.presentation.components.ViewSQLTable
+import com.oriooneee.axer.presentation.navigation.Routes
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class TableDetails {
-
-    @Composable
-    fun HeaderCell(
-        text: String?,
-        backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-        onClick: (() -> Unit)? = null,
-        isSortColumn: Boolean,
-        isDescending: Boolean
-    ) {
-        if (text != null) {
-            SelectionContainer {
-                Box(
-                    modifier = Modifier
-                        .background(color = backgroundColor)
-                        .widthIn(max = 350.dp)
-                        .border(width = .5.dp, color = MaterialTheme.colorScheme.outline)
-                        .clickable(
-                            enabled = onClick != null
-                        ) {
-                            onClick?.invoke()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = text,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .padding(10.dp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        val animatedRotation by animateFloatAsState(
-                            targetValue = if (isDescending) 270f else 90f,
-                            label = "SortIconRotation"
-                        )
-                        if (isSortColumn) {
-                            Icon(
-                                Icons.Outlined.ArrowBackIosNew,
-                                contentDescription = "Sort Icon",
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .size(16.dp)
-                                    .rotate(animatedRotation)
-                            )
-                        }
-                    }
-                }
-            }
-        } else {
-            Spacer(
-                Modifier
-                    .background(color = backgroundColor)
-                    .size(32.dp)
-            )
-        }
-    }
-
-    @Composable
-    fun ContentCell(
-        text: String,
-        isClickable: Boolean,
-        alignment: Alignment = Alignment.Center,
-        backgroundColor: Color = MaterialTheme.colorScheme.surface,
-        borderColor: Color = MaterialTheme.colorScheme.outline,
-        onClick: () -> Unit = {}
-    ) {
-        val animatedBackgroundColor by animateColorAsState(backgroundColor)
-        val animatedBorderColor by animateColorAsState(borderColor)
-        Box(
-            modifier = Modifier
-                .background(color = animatedBackgroundColor)
-                .widthIn(max = 350.dp)
-                .border(width = 0.5.dp, color = animatedBorderColor)
-                .clickable(
-                    enabled = isClickable
-                ) {
-                    onClick()
-                }
-        ) {
-            Text(
-                text = text,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .align(alignment),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-
-    @Composable
-    fun DeleteButton(
-        isClickable: Boolean,
-        backgroundColor: Color = MaterialTheme.colorScheme.surface,
-        onClick: () -> Unit = {}
-    ) {
-        Box(
-            modifier = Modifier
-                .background(color = backgroundColor)
-                .widthIn(max = 350.dp)
-                .border(width = .5.dp, color = MaterialTheme.colorScheme.outline),
-            contentAlignment = Alignment.Center
-
-        ) {
-            IconButton(
-                enabled = isClickable,
-                onClick = onClick
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Row",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-    }
+internal class TableDetails {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
         tableName: String,
-        onBack: () -> Unit,
+        navController: NavHostController,
     ) {
         val viewModel: DatabaseInspectionViewModel = koinViewModel {
             parametersOf(tableName)
@@ -201,21 +66,7 @@ class TableDetails {
         val currentItems = pages.getOrNull(currentPage) ?: emptyList()
         val sortColumn by viewModel.sortColumn.collectAsState()
 
-        val firstVisibleItemIndex = remember(currentPage) {
-            currentPage * DatabaseInspectionViewModel.PAGE_SIZE
-        }
-        val lastVisibleItemIndex = remember(firstVisibleItemIndex, currentItems) {
-            firstVisibleItemIndex + currentItems.size - 1
-        }
-        val totalItems = remember(pages) {
-            pages.sumOf { it.size }
-        }
-        val canMinusPage = remember(currentPage) {
-            currentPage > 0
-        }
-        val canPlusPage = remember(currentPage, pages) {
-            currentPage < pages.size - 1
-        }
+
 
 
         LaunchedEffect(message) {
@@ -225,7 +76,7 @@ class TableDetails {
             }
         }
         LaunchedEffect(currentPage) {
-            viewModel.onSelectItem(null, null)
+            viewModel.onSelectItem(null)
         }
         Scaffold(
             snackbarHost = {
@@ -236,7 +87,9 @@ class TableDetails {
                     title = { Text("Table - $tableName") },
                     navigationIcon = {
                         IconButton(
-                            onClick = onBack,
+                            onClick = {
+                                navController.popBackStack()
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
@@ -245,6 +98,16 @@ class TableDetails {
                         }
                     },
                     actions = {
+                        IconButton(
+                            onClick = {
+                                navController.navigate(Routes.RAW_QUERY.route)
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.RawOn,
+                                null,
+                            )
+                        }
                         TextButton(
                             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                             onClick = {
@@ -309,148 +172,79 @@ class TableDetails {
                         }
                     )
                 }
-                if (pages.size > 1) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text("${firstVisibleItemIndex + 1} - ${lastVisibleItemIndex + 1} of $totalItems")
-                        IconButton(
-                            enabled = canMinusPage,
+                PaginationUI(
+                    pages = pages,
+                    page = currentPage,
+                    onSetPage = { newPage ->
+                        currentPage = newPage
+                    },
+                    currentItemsSize = currentItems.size,
+                )
+                ViewSQLTable(
+                    headers = schema,
+                    row = currentItems,
+                    withDeleteButton = true,
+                    headerUI = { item, rowIndex, columnIndex ->
+                        HeaderCell(
+                            text = schema[columnIndex].name,
                             onClick = {
-                                currentPage = 0
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FirstPage,
-                                contentDescription = "First Page",
-                                modifier = Modifier
-                                    .size(16.dp)
-                            )
-                        }
-                        IconButton(
-                            enabled = canMinusPage,
+                                viewModel.onClickSortColumn(schema[columnIndex])
+                            },
+                            isSortColumn = sortColumn?.schemaItem == schema[columnIndex],
+                            isDescending = sortColumn?.let {
+                                it.index == columnIndex && it.isDescending
+                            } == true,
+                        )
+                    },
+                    cellUI = { line, schema, rowIndex, columnIndex ->
+                        val isPrimary = schema.isPrimary
+                        val isSelected =
+                            selectedItem?.item == line && selectedItem?.selectedColumnIndex == columnIndex
+                        val cellData = line.cells[columnIndex]
+                        ContentCell(
+                            text = cellData?.value ?: "NULL",
+                            alignment = Alignment.CenterStart,
+                            backgroundColor = when {
+                                isSelected -> MaterialTheme.colorScheme.tertiaryContainer
+                                isPrimary -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.surface
+                            },
+                            isClickable = !isPrimary && !isUpdatingCell,
+                            borderColor = if (isSelected)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.outline,
                             onClick = {
-                                currentPage = (currentPage - 1).coerceAtLeast(0)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = "First Page",
-                                modifier = Modifier
-                                    .size(16.dp)
-                            )
-                        }
-                        IconButton(
-                            enabled = canPlusPage,
-                            onClick = {
-                                currentPage = (currentPage + 1).coerceAtMost(pages.size - 1)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = "First Page",
-                                modifier = Modifier
-                                    .rotate(180f)
-                                    .size(16.dp)
-                            )
-                        }
-                        IconButton(
-                            enabled = canPlusPage,
-                            onClick = {
-                                currentPage = pages.lastIndex
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FirstPage,
-                                contentDescription = "First Page",
-                                modifier = Modifier
-                                    .rotate(180f)
-                                    .size(16.dp)
-                            )
-                        }
-
-                    }
-                }
-                Table(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(8.dp)
-                        ),
-                    rowCount = currentItems.size + 1, // +1 for header
-                    columnCount = schema.size + 1,    // +1 for delete button column at the end
-                    stickyRowCount = 1,
-                    stickyColumnCount = 1
-                ) { rowIndex, columnIndex ->
-                    if (rowIndex == 0) {
-                        if (columnIndex < schema.size) {
-                            HeaderCell(
-                                text = schema[columnIndex].name,
-                                onClick = {
-                                    viewModel.onClickSortColumn(schema[columnIndex])
-                                },
-                                isSortColumn = sortColumn?.schemaItem == schema[columnIndex],
-                                isDescending = sortColumn?.let {
-                                    it.index == columnIndex && it.isDescending
-                                } == true,
-                            )
-                        } else {
-                            HeaderCell(
-                                text = "Action",
-                                isSortColumn = false,
-                                isDescending = false,
-                            )
-                        }
-                    } else {
-                        val item = currentItems[rowIndex - 1]
-                        if (columnIndex < schema.size) {
-                            val isPrimary = schema[columnIndex].isPrimary
-                            val isSelected =
-                                selectedItem?.item == item && selectedItem?.selectedColumnIndex == columnIndex
-                            val cellData = item.cells[columnIndex]
-                            ContentCell(
-                                text = cellData?.value ?: "NULL",
-                                alignment = Alignment.CenterStart,
-                                backgroundColor = when {
-                                    isSelected -> MaterialTheme.colorScheme.tertiaryContainer
-                                    isPrimary -> MaterialTheme.colorScheme.primaryContainer
-                                    else -> MaterialTheme.colorScheme.surface
-                                },
-                                isClickable = !isPrimary && !isUpdatingCell,
-                                borderColor = if (isSelected)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.outline,
-                                onClick = {
-                                    val newSelectedItem = if (!isSelected && cellData != null) {
-                                        EditableRowItem(
-                                            item = item,
-                                            selectedColumnIndex = columnIndex,
-                                            editedValue = cellData,
-                                            schemaItem = schema[columnIndex]
-                                        )
-                                    } else {
-                                        null
-                                    }
-                                    viewModel.onSelectItem(newSelectedItem, rowIndex - 1)
+                                val newSelectedItem = if (!isSelected && cellData != null) {
+                                    EditableRowItem(
+                                        item = line,
+                                        selectedColumnIndex = columnIndex,
+                                        editedValue = cellData,
+                                        schemaItem = schema
+                                    )
+                                } else {
+                                    null
                                 }
-                            )
-                        } else {
-                            DeleteButton(
-                                isClickable = !isUpdatingCell,
-                                onClick = {
-                                    viewModel.deleteRow(item)
-                                }
-                            )
-                        }
+                                viewModel.onSelectItem(newSelectedItem)
+                            }
+                        )
+                    },
+                    deleteButtonUI = { line, rowIndex ->
+                        DeleteButton(
+                            isClickable = !isUpdatingCell,
+                            onClick = {
+                                viewModel.deleteRow(line)
+                            }
+                        )
+                    },
+                    deleteButtonHeaderUI = {
+                        HeaderCell(
+                            text = "Action",
+                            isSortColumn = false,
+                            isDescending = false,
+                        )
                     }
-                }
+                )
             }
         }
     }

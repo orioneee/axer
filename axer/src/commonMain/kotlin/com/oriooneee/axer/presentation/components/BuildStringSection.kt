@@ -5,7 +5,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 
-fun buildStringSection(
+internal fun buildStringSection(
     title: String,
     content: String,
     separator: String = ": "

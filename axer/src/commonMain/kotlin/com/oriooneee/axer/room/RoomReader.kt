@@ -2,9 +2,11 @@ package com.oriooneee.axer.room
 
 import androidx.sqlite.SQLiteStatement
 import com.oriooneee.axer.domain.database.EditableRowItem
+import com.oriooneee.axer.domain.database.QueryResponse
 import com.oriooneee.axer.domain.database.RoomCell
 import com.oriooneee.axer.domain.database.RowItem
 import com.oriooneee.axer.domain.database.SchemaItem
+import com.oriooneee.axer.domain.database.Table
 
 internal class RoomReader(
     val axerDriver: AxerBundledSQLiteDriver
@@ -22,10 +24,33 @@ internal class RoomReader(
         TEXT(3, "TEXT"),
         BLOB(4, "BLOB"),
         NULL(5, "NULL");
+
+        companion object {
+            fun fromCode(code: Int): SQLiteColumnType {
+                return entries.find { it.code == code } ?: NULL
+            }
+
+            fun fromTextName(name: String): SQLiteColumnType {
+                return entries.find { it.textName == name } ?: NULL
+            }
+        }
+    }
+
+    suspend fun getTableSize(tableName: String): Int {
+        val stmt = connection.prepare("SELECT COUNT(*) FROM $tableName")
+        return try {
+            if (stmt.step()) {
+                stmt.getLong(0).toInt()
+            } else {
+                0
+            }
+        } finally {
+            stmt.close()
+        }
     }
 
 
-    suspend fun getAllTables(): List<String> {
+    suspend fun getAllTables(): List<Table> {
         val tables = mutableListOf<String>()
         val stmt = connection.prepare("SELECT name FROM sqlite_master WHERE type='table'")
         while (stmt.step()) {
@@ -35,6 +60,12 @@ internal class RoomReader(
         stmt.close()
         return tables.filter {
             it != "sqlite_sequence" && it != "android_metadata" && it != "room_master_table"
+        }.map {
+            val rowCount = getTableSize(it)
+            Table(
+                name = it,
+                rowCount = rowCount
+            )
         }
     }
 
@@ -45,9 +76,6 @@ internal class RoomReader(
             val columnName = stmt.getText(1) ?: "unknown"
             val isPrimary = stmt.getInt(5) == 1
             val isNotNullable = stmt.getInt(3) == 1
-            val name = stmt.getColumnName(2)
-            val type = stmt.getText(2)
-            println("Column $2: Name = $name, Type = $type")
             schema.add(
                 SchemaItem(
                     name = columnName,
@@ -180,31 +208,11 @@ internal class RoomReader(
             "UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?"
         )
 
-        val query = "UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?"
-        println("Executing query: $query with values: $newValue, $primaryKeyValue")
-
 
         try {
             stmt.bindCell(1, newValue, editableItem.schemaItem.type)
             stmt.bindCell(2, primaryKeyValue, primarySchemaItem.type)
             stmt.step()
-            val columnCount = stmt.getColumnCount()
-            if (columnCount != 0) {
-                (0 until columnCount).forEach { i ->
-                    val type = stmt.getColumnType(i)
-                    println(
-                        if (type == SQLiteColumnType.INTEGER.code || type == SQLiteColumnType.FLOAT.code) {
-                            stmt.getLong(i) // Force step to execute
-                        } else if (type == SQLiteColumnType.TEXT.code) {
-                            stmt.getText(i) // Force step to execute
-                        } else if (type == SQLiteColumnType.BLOB.code) {
-                            stmt.getBlob(i) // Force step to execute
-                        } else {
-                            "NULL" // Handle NULL case
-                        }
-                    )
-                }
-            }
         } finally {
             stmt.close()
         }
@@ -233,6 +241,76 @@ internal class RoomReader(
         } finally {
             stmt.close()
         }
+    }
+
+    suspend fun executeRawQuery(
+        query: String
+    ): QueryResponse {
+        val columns = mutableSetOf<SchemaItem>()
+        val rows = mutableListOf<List<RoomCell?>>()
+        val statement = connection.prepare(query)
+
+        val columnCount = statement.getColumnCount()
+
+        try {
+            while (statement.step()) {
+                val row = mutableListOf<RoomCell?>()
+                for (i in 0 until columnCount) {
+                    val columnName = statement.getColumnName(i)
+                    val type = SQLiteColumnType.fromCode(statement.getColumnType(i))
+                    if (columns.none { it.name == columnName }) {
+                        columns.add(
+                            SchemaItem(
+                                name = columnName,
+                                isPrimary = false, // Primary key info not available in raw queries
+                                isNullable = true, // Nullable info not available in raw queries
+                                type = type
+                            )
+                        )
+                    }
+
+
+                    val value = when (type) {
+                        SQLiteColumnType.INTEGER -> RoomCell(
+                            value = statement.getLong(i)?.toString() ?: "NULL"
+                        )
+
+                        SQLiteColumnType.FLOAT -> RoomCell(
+                            value = statement.getDouble(i)?.toString() ?: "NULL"
+                        )
+
+                        SQLiteColumnType.TEXT -> statement.getText(i)?.let { text ->
+                            RoomCell(
+                                value = text
+                            )
+                        } ?: RoomCell(
+                            value = "NULL"
+                        )
+
+                        SQLiteColumnType.BLOB -> RoomCell(
+                            value = "ByteArray(${statement.getBlob(i)?.size ?: 0})"
+                        )
+
+                        SQLiteColumnType.NULL -> RoomCell(
+                            value = "NULL"
+                        )
+                    }
+                    row.add(value)
+                }
+                rows.add(row)
+            }
+        } finally {
+            statement.close()
+        }
+        return QueryResponse(
+            schema = columns.toList(),
+            rows = rows.map { row ->
+                RowItem(
+                    cells = row,
+                    schema = columns.toList()
+                )
+            }
+        )
     }
 
 }

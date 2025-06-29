@@ -2,10 +2,8 @@
 
 package com.oriooneee.axer
 
-import kotlinx.coroutines.Job
-
 object Axer {
-    val plugin = AxerPlugin
+    val ktorPlugin = AxerPlugin
 
     fun recordException(
         throwable: Throwable,

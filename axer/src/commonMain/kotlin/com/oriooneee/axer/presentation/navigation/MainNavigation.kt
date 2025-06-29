@@ -8,7 +8,7 @@ import com.oriooneee.axer.presentation.screens.DatabaseEntryPoint
 import com.oriooneee.axer.presentation.screens.ExceptionEntryPoint
 import com.oriooneee.axer.presentation.screens.RequestsEntryPoint
 
-class MainNavigation {
+internal class MainNavigation {
     @Composable
     fun Host(
         navController: NavHostController,

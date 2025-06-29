@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
@@ -12,7 +10,7 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion = "1.0.15"
+val libraryVersion = "1.0.0-alpha1"
 
 version = libraryVersion
 

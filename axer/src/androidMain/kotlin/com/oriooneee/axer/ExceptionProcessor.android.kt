@@ -8,7 +8,7 @@ import com.oriooneee.AxerActivity
 import com.oriooneee.axer.domain.exceptions.AxerException
 import com.oriooneee.axer.koin.IsolatedContext
 
-actual fun notifyAboutException(exception: AxerException) {
+internal actual fun notifyAboutException(exception: AxerException) {
     val context: Context by IsolatedContext.koin.inject()
 
     val notificationManager =

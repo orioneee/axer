@@ -1,12 +1,13 @@
 package com.oriooneee.axer
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.oriooneee.axer.presentation.EntryPoint
+import com.oriooneee.axer.presentation.AxerUIEntryPoint
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
-import platform.Foundation.*
+import platform.Foundation.NSException
+import platform.Foundation.NSSetUncaughtExceptionHandler
 import platform.UIKit.UIApplication
-import platform.posix.*
+import platform.posix.exit
 import kotlin.experimental.ExperimentalNativeApi
 
 actual fun openAxer() {
@@ -16,7 +17,7 @@ actual fun openAxer() {
 
     topController.presentViewController(
         ComposeUIViewController {
-            EntryPoint.Screen(
+            AxerUIEntryPoint.Screen(
                 onClose = {
                     topController.dismissViewControllerAnimated(
                         flag = true,

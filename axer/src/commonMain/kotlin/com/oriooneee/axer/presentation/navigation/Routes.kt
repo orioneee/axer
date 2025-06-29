@@ -14,4 +14,5 @@ internal enum class Routes(val route: String) {
 
     TABLES_LIST("tables_list"),
     TABLE_DETAILS("table_details"),
+    RAW_QUERY("raw_query"),
 }

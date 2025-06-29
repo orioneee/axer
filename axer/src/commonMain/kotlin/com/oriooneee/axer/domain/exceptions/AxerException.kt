@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity()
-data class AxerException(
+internal data class AxerException(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val time: Long,

@@ -2,20 +2,27 @@
 
 package com.oriooneee.axer
 
-import kotlinx.coroutines.Job
-
 object Axer {
-    val plugin = AxerPlugin
+    val ktorPlugin = AxerPlugin
 
     fun recordException(
         throwable: Throwable,
     ) {
+
     }
 
     fun recordAsFatal(
         throwable: Throwable,
-    ): Job {
-        return Job()
+        simpleName: String = throwable::class.simpleName ?: "UnknownException",
+    ) {
+
+    }
+
+    fun openAxerUI(){
+    }
+
+    fun installAxerErrorHandler(){
     }
 }
+
 

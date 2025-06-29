@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val libraryVersion = "1.0.10"
+val libraryVersion = "1.0.0-alpha1"
 
 version = libraryVersion
 
@@ -31,6 +31,8 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(compose.material3)
+            implementation(libs.sqlite.bundled)
+
         }
 
         val iosMain by creating {

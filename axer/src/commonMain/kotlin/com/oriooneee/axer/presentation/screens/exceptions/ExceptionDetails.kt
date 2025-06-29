@@ -26,13 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.oriooneee.axer.formateAsTime
 import com.oriooneee.axer.presentation.components.BodySection
 import com.oriooneee.axer.presentation.components.buildStringSection
-import com.oriooneee.axer.formateAsTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class ExceptionDetails {
+internal class ExceptionDetails {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(

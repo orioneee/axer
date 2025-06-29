@@ -6,7 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.rememberWindowState
 import com.oriooneee.axer.koin.InitAxer
-import com.oriooneee.axer.presentation.EntryPoint
+import com.oriooneee.axer.presentation.AxerUIEntryPoint
 
 @Composable
 fun AxerWindows(
@@ -16,9 +16,9 @@ fun AxerWindows(
     InitAxer.init()
     Window(
         state = state,
-        title = "Axer request monitor",
+        title = "Axer Monitor",
         onCloseRequest = onCloseWindow,
     ) {
-        EntryPoint.Screen(null)
+        AxerUIEntryPoint.Screen(null)
     }
 }

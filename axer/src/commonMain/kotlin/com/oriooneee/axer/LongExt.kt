@@ -9,7 +9,7 @@ import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
 
 @OptIn(FormatStringsInDatetimeFormats::class)
-fun Long.formateAsTime(): String {
+internal fun Long.formateAsTime(): String {
     val instant = fromEpochMilliseconds(this)
     val timeZone = TimeZone.currentSystemDefault()
     val dateTime = instant.toLocalDateTime(timeZone)

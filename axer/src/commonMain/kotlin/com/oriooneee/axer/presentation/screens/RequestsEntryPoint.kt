@@ -16,7 +16,7 @@ import com.oriooneee.axer.presentation.navigation.requests.RequestsDesktopNaviga
 import com.oriooneee.axer.presentation.navigation.requests.RequestsMobileNavigation
 import com.oriooneee.axer.presentation.screens.requests.RequestListScreen
 
-object RequestsEntryPoint {
+internal object RequestsEntryPoint {
     @Composable
     fun RequestContent() {
         Surface {

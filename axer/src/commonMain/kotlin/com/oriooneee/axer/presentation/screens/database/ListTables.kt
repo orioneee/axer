@@ -1,15 +1,19 @@
 package com.oriooneee.axer.presentation.screens.database
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,30 +23,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.oriooneee.axer.domain.database.Table
+import com.oriooneee.axer.presentation.navigation.Routes
 import com.oriooneee.axer.room.AxerBundledSQLiteDriver
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class ListTables {
+internal class ListTables {
     @Composable
-    fun ListTableContent(tables: List<String>, onClickToTable: (String) -> Unit) {
+    fun ListTableContent(tables: List<Table>, onClickToTable: (Table) -> Unit) {
         FlowRow(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+            ,
+            horizontalArrangement = Arrangement.Center
         ) {
             tables.forEach {
                 Card(
                     modifier = Modifier
-                        .padding(8.dp),
+                        .padding(16.dp),
                     onClick = {
                         onClickToTable(it)
                     }
                 ) {
                     Text(
-                        text = it,
+                        text = "${it.name} (${it.rowCount} rows)",
                         modifier = Modifier
-                            .padding(16.dp)
+                            .padding(8.dp)
 
                     )
                 }
@@ -53,9 +63,10 @@ class ListTables {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        onClickToTable: (String) -> Unit,
+        onClickToTable: (Table) -> Unit,
+        navController: NavHostController,
     ) {
-        val viewModel: DatabaseInspectionViewModel = koinViewModel{
+        val viewModel: DatabaseInspectionViewModel = koinViewModel {
             parametersOf(null)
         }
         val isInitialized by AxerBundledSQLiteDriver.isInitialized.collectAsState(false)
@@ -63,6 +74,19 @@ class ListTables {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Database") },
+                    actions = {
+                        IconButton(
+                            enabled = isInitialized,
+                            onClick = {
+                                navController.navigate(Routes.RAW_QUERY.route)
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.RawOn,
+                                null,
+                            )
+                        }
+                    }
                 )
             }
         ) { contentPadding ->

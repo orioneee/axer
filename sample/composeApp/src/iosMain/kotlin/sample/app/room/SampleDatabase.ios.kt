@@ -1,9 +1,7 @@
 package sample.app.room
 
-import androidx.room.RoomDatabase
-
 import androidx.room.Room
-import com.oriooneee.axer.room.AxerDatabase
+import androidx.room.RoomDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
