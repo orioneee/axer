@@ -67,10 +67,10 @@ kotlin {
 
             implementation(libs.kodeview)
 
-            implementation("androidx.sqlite:sqlite:2.5.2")
+//            implementation("androidx.sqlite:sqlite:2.5.2")
 
 
-            implementation("io.github.sunny-chung:composable-table:1.3.1")
+            implementation(libs.composable.table)
         }
 
         val iosMain by creating {

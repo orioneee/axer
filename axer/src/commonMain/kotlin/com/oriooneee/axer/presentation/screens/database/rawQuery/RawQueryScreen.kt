@@ -1,11 +1,15 @@
 package com.oriooneee.axer.presentation.screens.database.rawQuery
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -18,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +30,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import com.oriooneee.axer.domain.database.EditableRowItem
 import com.oriooneee.axer.presentation.components.ContentCell
 import com.oriooneee.axer.presentation.components.HeaderCell
 import com.oriooneee.axer.presentation.components.PaginationUI
@@ -52,6 +68,12 @@ internal class RawQueryScreen {
         var currentPage by remember {
             mutableStateOf(0)
         }
+        var selectedCellForPreview: EditableRowItem? by remember {
+            mutableStateOf(null)
+        }
+        var isShowingPreview by remember {
+            mutableStateOf(false)
+        }
         val currentItems = pages.getOrNull(currentPage) ?: emptyList()
         val isLoading by viewModel.isLoading.collectAsState(false)
         val currentQuery by viewModel.currentQuery.collectAsState("")
@@ -65,30 +87,23 @@ internal class RawQueryScreen {
                             onClick = onBack,
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back"
+                                imageVector = Icons.Default.ArrowBack, contentDescription = "Back"
                             )
                         }
                     },
                 )
-            }
-        ) { contentPadding ->
+            }) { contentPadding ->
             Column(
-                modifier = Modifier.Companion
-                    .fillMaxSize()
-                    .padding(contentPadding)
-                    .padding(8.dp),
+                modifier = Modifier.Companion.fillMaxSize().padding(contentPadding).padding(8.dp),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally,
             ) {
                 OutlinedTextField(
                     enabled = !isLoading,
                     trailingIcon = {
                         IconButton(
-                            enabled = !isLoading,
-                            onClick = {
+                            enabled = !isLoading, onClick = {
                                 viewModel.executeQuery()
-                            }
-                        ) {
+                            }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Save Changes",
@@ -97,6 +112,17 @@ internal class RawQueryScreen {
                         }
                     },
                     modifier = Modifier
+                        .onPreviewKeyEvent { keyEvent ->
+                            if (keyEvent.type == KeyEventType.KeyDown) {
+                                // Only trigger if Enter is pressed alone (no modifiers like Shift)
+                                if (keyEvent.key == Key.Enter && keyEvent.isCtrlPressed.not() && keyEvent.isShiftPressed.not() && keyEvent.isAltPressed.not() && keyEvent.isMetaPressed.not()) {
+                                    viewModel.executeQuery()
+                                    return@onPreviewKeyEvent true // consume the event
+                                }
+                            }
+                            return@onPreviewKeyEvent false // let TextField handle all other keys
+                        }
+
                         .fillMaxWidth()
                         .heightIn(max = 400.dp)
                         .padding(vertical = 16.dp),
@@ -113,10 +139,36 @@ internal class RawQueryScreen {
                     },
                     currentItemsSize = currentItems.size,
                 )
+                AnimatedVisibility(
+                    isShowingPreview,
+                ) {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            selectedCellForPreview = null
+                        }
+                    }
+                    SelectionContainer {
+                        Box(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        ) {
+
+                            Text(
+                                selectedCellForPreview?.editedValue?.value ?: "",
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                }
                 if (isLoading) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
@@ -140,22 +192,36 @@ internal class RawQueryScreen {
                         cellUI = { line, schema, rowIndex, columnIndex ->
                             val isPrimary = schema.isPrimary
                             val cellData = line.cells[columnIndex]
+                            val isSelected = selectedCellForPreview?.let {
+                                it.schemaItem == schema && it.selectedColumnIndex == columnIndex && it.item == line && it.editedValue == cellData && isShowingPreview
+                            } ?: false
                             ContentCell(
                                 text = cellData?.value ?: "NULL",
                                 alignment = Alignment.CenterStart,
                                 backgroundColor = when {
+                                    isSelected -> MaterialTheme.colorScheme.tertiaryContainer
                                     isPrimary -> MaterialTheme.colorScheme.primaryContainer
                                     else -> MaterialTheme.colorScheme.surface
                                 },
-                                isClickable = false,
-                                onClick = {},
+                                isClickable = true,
+                                onClick = {
+                                    if (isSelected) {
+                                        isShowingPreview = false
+                                    } else {
+                                        selectedCellForPreview = EditableRowItem(
+                                            schemaItem = schema,
+                                            selectedColumnIndex = columnIndex,
+                                            item = line,
+                                            editedValue = cellData
+                                        )
+                                        isShowingPreview = true
+                                    }
+                                },
                             )
                         },
                         deleteButtonUI = { line, rowIndex ->
                         },
-                        deleteButtonHeaderUI = {
-                        }
-                    )
+                        deleteButtonHeaderUI = {})
                 }
             }
         }
