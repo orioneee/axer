@@ -2,20 +2,19 @@
 
 package io.github.orioneee
 
+
 object Axer {
     val ktorPlugin = AxerPlugin
 
     fun recordException(
         throwable: Throwable,
     ) {
-
     }
 
     fun recordAsFatal(
         throwable: Throwable,
         simpleName: String = throwable::class.simpleName ?: "UnknownException",
     ) {
-
     }
 
     fun openAxerUI(){
@@ -23,6 +22,7 @@ object Axer {
 
     fun installAxerErrorHandler(){
     }
+
+    internal fun initIfCan(){
+    }
 }
-
-

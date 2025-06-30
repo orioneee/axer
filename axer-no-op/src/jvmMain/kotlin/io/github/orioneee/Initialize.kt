@@ -1,3 +1,5 @@
 package io.github.orioneee
 
-fun Axer.initialize() {}
+@Deprecated("No longer needed initialization on jvm")
+fun Axer.initialize() {
+}

@@ -10,6 +10,10 @@ class AxerOkhttpInterceptor private constructor(
     private val requestFilter: (Request) -> Boolean,
 ) : Interceptor {
 
+    init {
+        Axer.initIfCan()
+    }
+
     class Builder() {
         private var requestImportantSelector: (Request) -> List<String> = { request ->
             emptyList()
