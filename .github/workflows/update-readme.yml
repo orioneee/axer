@@ -2,11 +2,13 @@ name: Update README
 
 on:
   push:
+    branches:
+      - '**'
+    tags:
+      - '*'
     paths:
       - 'axer/template/**'
-    tags:
-      - '*'  # Trigger on any tag push
-  workflow_dispatch:  # Allow manual trigger
+
 
 jobs:
   update_readme:

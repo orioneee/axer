@@ -25,7 +25,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          LOG=$(git log ${{ steps.prev_tag.outputs.previous_tag }}..HEAD --pretty=format:"%s (%an)" |
+          LOG=$(git log ${{ steps.prev_tag.outputs.previous_tag }}..HEAD --pretty=format:"%s" |
             grep -v 'github-actions' |
             grep '^-' || echo "No user commits starting with '-' since last tag.")
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
