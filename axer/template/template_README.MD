@@ -124,6 +124,14 @@ To open the Axer UI programmatically:
 Axer.openAxerUI()
 ```
 
+#UI integration
+
+if you want to integrate Axer UI in your app, you can use the following code:
+
+```kotlin
+AxerUIEntryPoint().Screen()
+```
+
 These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI. Also you can acces ui in android, ios by clicking on notification(**requare notification permissions**)
 
 ### Exception Handling
