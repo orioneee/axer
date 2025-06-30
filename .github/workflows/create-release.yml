@@ -3,10 +3,11 @@ name: Create GitHub Release
 on:
   push:
     tags:
-      - '*'  # Trigger on all tag pushes
+      - '*'
 
 jobs:
   create_release:
+    if: "!contains(github.ref_name, 'test')"
     runs-on: ubuntu-latest
 
     steps:
