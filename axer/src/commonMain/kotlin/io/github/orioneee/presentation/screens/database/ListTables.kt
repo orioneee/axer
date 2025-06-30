@@ -50,7 +50,7 @@ internal class ListTables {
             items(tables) {
                 Card(
                     modifier = Modifier
-                        .padding(horizontal = 4.dp)
+                        .padding(4.dp)
                         .fillMaxWidth(),
                     onClick = { onClickToTable(it) }
                 ) {
