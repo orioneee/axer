@@ -15,20 +15,20 @@
 
 Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
 
-**Note**: Axer is currently in alpha (`1.0.0-alpha06`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
+**Note**: Axer is currently in alpha (`{{AXER_VERSION}}`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
 
 ## Installation
 
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-alpha06")
+implementation("io.github.orioneee:axer:{{AXER_VERSION}}")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-alpha06")
+implementation("io.github.orioneee:axer-no-op:{{AXER_VERSION}}")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -56,7 +56,7 @@ class SampleApplication : Application() {
 
 Call the initialization method:
 
-```swift
+```kotlin
 Axer.initialize()
 ```
 
@@ -199,9 +199,9 @@ The only required configuration is setting the driver:
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
-  - Stack traces are not supported.
-  - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in alpha (`1.0.0-alpha06`) and may have bugs or breaking changes in future releases.
+    - Stack traces are not supported.
+    - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
+- **Stability**: The library is in alpha (`{{AXER_VERSION}}`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
 
