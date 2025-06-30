@@ -1,51 +1,51 @@
-name: Bump Version and Tag
+name: Update Axer Version
 
 on:
-  push:
-    branches:
-      - main  # Change to your default branch
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version to set in README.md'
+        required: false
 
 jobs:
-  bump:
+  update-version:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Required for pushing tags and creating releases
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fetch all tags
-        run: git fetch --tags
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
-      - name: Get latest tag
+      - name: Get latest git tag
         id: get_tag
         run: |
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0-alpha00")
-          echo "Latest tag: $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Bump version
-        id: bump
+      - name: Determine new version
+        id: set_version
         run: |
-          LATEST="${{ steps.get_tag.outputs.tag }}"
-          BASE=$(echo "$LATEST" | sed -E 's/-alpha[0-9]+$//')
-          SUFFIX=$(echo "$LATEST" | grep -oE '[0-9]+$')
-          NEW_SUFFIX=$(printf "%02d" $((10#$SUFFIX + 1)))
-          NEW_TAG="${BASE}-alpha${NEW_SUFFIX}"
-          echo "New tag: $NEW_TAG"
-          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+          NEW_VERSION=${{ github.event.inputs.version }}
+          if [ -z "$NEW_VERSION" ]; then
+            NEW_VERSION=$LATEST_TAG
+          fi
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create new Git tag
+      - name: Update version in README.md
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag ${{ steps.bump.outputs.new_tag }}
-          git push origin ${{ steps.bump.outputs.new_tag }}
+          sed -i 's/{{AXER_VERSION}}/${{ env.NEW_VERSION }}/g' README.md
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.bump.outputs.new_tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit changes
+        run: |
+          git add README.md
+          git commit -m "Update version to ${{ env.NEW_VERSION }} in README.md"
+          git push origin main
