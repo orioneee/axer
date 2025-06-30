@@ -1,0 +1,51 @@
+name: Bump Version and Tag
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required for pushing tags and creating releases
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0-alpha00")
+          echo "Latest tag: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version
+        id: bump
+        run: |
+          LATEST="${{ steps.get_tag.outputs.tag }}"
+          BASE=$(echo "$LATEST" | sed -E 's/-alpha[0-9]+$//')
+          SUFFIX=$(echo "$LATEST" | grep -oE '[0-9]+$')
+          NEW_SUFFIX=$(printf "%02d" $((10#$SUFFIX + 1)))
+          NEW_TAG="${BASE}-alpha${NEW_SUFFIX}"
+          echo "New tag: $NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create new Git tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.bump.outputs.new_tag }}
+          git push origin ${{ steps.bump.outputs.new_tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.new_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
