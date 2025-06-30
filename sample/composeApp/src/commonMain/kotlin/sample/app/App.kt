@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.orioneee.Axer
-import io.github.orioneee.AxerPlugin
 import io.github.orioneee.domain.requests.Request
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
@@ -128,7 +127,7 @@ fun App() {
                 header("Authorization", "Bearer your_token_here")
             }
         }
-        install(AxerPlugin) {
+        install(Axer.ktorPlugin) {
             requestImportantSelector = { request: Request ->
                 val tokenData = request.headers.entries.firstOrNull {
                     it.key.equals("Authorization", ignoreCase = true)

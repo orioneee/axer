@@ -27,8 +27,13 @@ object Axer {
     fun installAxerErrorHandler(){
         installErrorHandler()
     }
+
+    internal fun initIfCan(){
+        initializeIfCan()
+    }
 }
 
 internal expect fun openAxer()
 internal expect fun installErrorHandler()
+internal expect fun initializeIfCan()
 

@@ -8,15 +8,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.github.orioneee.Axer
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
 import org.koin.compose.KoinIsolatedContext
 
-object AxerUIEntryPoint {
+class AxerUIEntryPoint {
+    init {
+        Axer.initIfCan()
+    }
+
     @Composable
     fun Screen(
-        onClose: (() -> Unit)?
     ) {
         MaterialTheme(BlueTheme) {
             KoinIsolatedContext(

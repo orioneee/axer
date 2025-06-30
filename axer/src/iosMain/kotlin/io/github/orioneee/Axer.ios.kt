@@ -1,9 +1,13 @@
 package io.github.orioneee
 
 import androidx.compose.ui.window.ComposeUIViewController
+import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.koin.Modules
+import io.github.orioneee.koin.getPlatformModules
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
+import org.koin.dsl.koinApplication
 import platform.Foundation.NSException
 import platform.Foundation.NSSetUncaughtExceptionHandler
 import platform.UIKit.UIApplication
@@ -17,14 +21,7 @@ actual fun openAxer() {
 
     topController.presentViewController(
         ComposeUIViewController {
-            AxerUIEntryPoint.Screen(
-                onClose = {
-                    topController.dismissViewControllerAnimated(
-                        flag = true,
-                        completion = null
-                    )
-                }
-            )
+            AxerUIEntryPoint().Screen()
         },
         animated = true,
         completion = null
@@ -51,5 +48,18 @@ fun customUncaughtExceptionHandler(exception: NSException?) {
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun installErrorHandler() {
+    Axer.initIfCan()
     NSSetUncaughtExceptionHandler(staticCFunction(::customUncaughtExceptionHandler))
+}
+
+actual fun initializeIfCan() {
+    IsolatedContext.initIfNotInited(
+        koinApplication {
+            modules(
+                getPlatformModules(),
+                Modules.daoModule,
+                Modules.viewModelModule
+            )
+        }
+    )
 }

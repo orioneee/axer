@@ -13,7 +13,7 @@ class AxerActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Surface {
-                AxerUIEntryPoint.Screen(null)
+                AxerUIEntryPoint.Screen()
             }
         }
     }

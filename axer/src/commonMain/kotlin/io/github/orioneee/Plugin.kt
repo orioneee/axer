@@ -3,6 +3,7 @@ package io.github.orioneee
 import io.github.orioneee.config.AxerConfig
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.requestProcessor.RequestProcessor
+import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.bodyAsBytes
@@ -14,8 +15,9 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-val AxerPlugin = createClientPlugin("Axer", ::AxerConfig) {
+internal val AxerPlugin: ClientPlugin<AxerConfig> = createClientPlugin("Axer", ::AxerConfig) {
     on(Send) {
+        Axer.initIfCan()
         val sendTime = Clock.System.now().toEpochMilliseconds()
         val method = it.method.value
         val host = it.url.host
@@ -61,7 +63,7 @@ val AxerPlugin = createClientPlugin("Axer", ::AxerConfig) {
             requestBody = requestBody,
         )
         val request = state.asRequest()
-        if(!pluginConfig.requestFilter.invoke(request)) {
+        if (!pluginConfig.requestFilter.invoke(request)) {
             return@on proceed(it)
         }
         val importantInRequest = pluginConfig.requestImportantSelector.invoke(request)

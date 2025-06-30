@@ -12,3 +12,5 @@ actual fun openAxer() {
 
     context.startActivity(intent)
 }
+
+actual fun initializeIfCan() {}

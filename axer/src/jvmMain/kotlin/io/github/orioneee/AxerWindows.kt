@@ -12,12 +12,11 @@ fun AxerWindows(
     state: WindowState = rememberWindowState(width = 800.dp, height = 600.dp),
     onCloseWindow: () -> Unit = {}
 ) {
-    Axer.initialize()
     Window(
         state = state,
         title = "Axer Monitor",
         onCloseRequest = onCloseWindow,
     ) {
-        AxerUIEntryPoint.Screen(null)
+        AxerUIEntryPoint().Screen()
     }
 }

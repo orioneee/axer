@@ -14,14 +14,19 @@ class AxerOkhttpInterceptor private constructor(
     private val requestFilter: (Request) -> Boolean,
 ) : Interceptor {
 
-    class Builder(){
+    init {
+        Axer.initIfCan()
+    }
+
+    class Builder() {
         private var requestImportantSelector: (Request) -> List<String> = { request ->
             emptyList()
         }
 
-        private var responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String> = { response ->
-            emptyList()
-        }
+        private var responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String> =
+            { response ->
+                emptyList()
+            }
 
         private var requestFilter: (Request) -> Boolean = { request ->
             true
@@ -31,9 +36,10 @@ class AxerOkhttpInterceptor private constructor(
             this.requestImportantSelector = selector
         }
 
-        fun setResponseImportantSelector(selector: (io.github.orioneee.domain.requests.Response) -> List<String>) = apply {
-            this.responseImportantSelector = selector
-        }
+        fun setResponseImportantSelector(selector: (io.github.orioneee.domain.requests.Response) -> List<String>) =
+            apply {
+                this.responseImportantSelector = selector
+            }
 
         fun setRequestFilter(filter: (Request) -> Boolean) = apply {
             this.requestFilter = filter
@@ -83,7 +89,6 @@ class AxerOkhttpInterceptor private constructor(
 
             try {
                 val response = chain.proceed(request)
-//                throw Exception("Test exception")
                 val responseTime = System.currentTimeMillis()
 
                 val responseHeaders =

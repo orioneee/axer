@@ -15,6 +15,10 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
             defaultHandler.uncaughtException(p0, p1)
         }
     }
+
+    init {
+        Axer.initIfCan()
+    }
 }
 
 expect fun logAboutException(exception: Throwable, exit: Boolean)

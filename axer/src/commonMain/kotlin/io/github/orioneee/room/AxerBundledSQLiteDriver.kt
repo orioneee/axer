@@ -4,6 +4,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.orioneee.Axer
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -13,13 +14,20 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
 
     val queryFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
+    init {
+        Axer.initIfCan()
+    }
+
     override fun open(fileName: String): SQLiteConnection {
         this.fileName = fileName
         val connection = driver.open(fileName)
         return object : SQLiteConnection {
 
             fun isSqlQueryChangeData(sql: String): Boolean {
-                return sql.startsWith("INSERT") || sql.startsWith("UPDATE") || sql.startsWith("DELETE") || sql.contains("END TRANSACTION", ignoreCase = true)
+                return sql.startsWith("INSERT") || sql.startsWith("UPDATE") || sql.startsWith("DELETE") || sql.contains(
+                    "END TRANSACTION",
+                    ignoreCase = true
+                )
             }
 
             override fun prepare(sql: String): SQLiteStatement {
