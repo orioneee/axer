@@ -35,7 +35,7 @@ The no-op variant does nothing but maintains the same API, ensuring seamless int
 
 ## Initialization
 
-You must initialize Axer **once** before any recording or monitoring.
+You must initialize Axer **once** before any recording or monitoring on each platform. This is typically done in the `Application` class for Android, or in the main function for JVM applications.
 
 Also don't forget about permissions for notification on android and ios
 
@@ -45,10 +45,10 @@ In your `Application` class:
 
 ```kotlin
 class SampleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        AxerManager.init(this)
-    }
+  override fun onCreate() {
+    super.onCreate()
+    Axer.initialize(this)
+  }
 }
 ```
 
@@ -57,12 +57,15 @@ class SampleApplication : Application() {
 Call the initialization method:
 
 ```swift
-InitAxer.initialize()
+Axer.initialize()
 ```
 
 ### JVM
 
-No explicit initialization is required if a window is displayed.
+No explicit initialization is required if a window is displayed. but if you want manage window manually, you can call:
+```kotlin
+Axer.initialize()
+```
 
 ## Usage
 
@@ -74,27 +77,27 @@ Axer can monitor HTTP requests and extract important data using selectors. It su
 
 ```kotlin
 val client = HttpClient {
-    install(DefaultRequest) {
-        contentType(ContentType.Application.Json)
-        if (!headers.contains("Authorization")) {
-            header("Authorization", "Bearer your_token_here")
-        }
+  install(DefaultRequest) {
+    contentType(ContentType.Application.Json)
+    if (!headers.contains("Authorization")) {
+      header("Authorization", "Bearer your_token_here")
     }
-    install(AxerPlugin) {
-        requestImportantSelector = { request: Request ->
-            val tokenData = request.headers.entries.firstOrNull {
-                it.key.equals("Authorization", ignoreCase = true)
-            }
-            if (tokenData != null) {
-                listOf(tokenData.value)
-            } else {
-                emptyList()
-            }
-        }
-        responseImportantSelector = {
-            listOf("Some important response data")
-        }
+  }
+  install(AxerPlugin) {
+    requestImportantSelector = { request: Request ->
+      val tokenData = request.headers.entries.firstOrNull {
+        it.key.equals("Authorization", ignoreCase = true)
+      }
+      if (tokenData != null) {
+        listOf(tokenData.value)
+      } else {
+        emptyList()
+      }
     }
+    responseImportantSelector = {
+      listOf("Some important response data")
+    }
+  }
 }
 ```
 
@@ -102,19 +105,19 @@ val client = HttpClient {
 
 ```kotlin
 AxerOkhttpInterceptor.Builder()
-    .setRequestImportantSelector {
-        if (it.headers.contains("cookie")) {
-            val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
-            if (token.isNullOrBlank()) {
-                emptyList()
-            } else {
-                listOf("PHPSESID: $token")
-            }
-        } else {
-            emptyList()
-        }
+  .setRequestImportantSelector {
+    if (it.headers.contains("cookie")) {
+      val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
+      if (token.isNullOrBlank()) {
+        emptyList()
+      } else {
+        listOf("PHPSESID: $token")
+      }
+    } else {
+      emptyList()
     }
-    .build()
+  }
+  .build()
 ```
 
 #### JVM Window
@@ -123,8 +126,8 @@ To display the Axer UI in a JVM environment:
 
 ```kotlin
 fun main() = application {
-    AxerWindows()
-    ...
+  AxerWindows()
+  ...
 }
 ```
 
@@ -136,7 +139,7 @@ To open the Axer UI programmatically:
 Axer.openAxerUI()
 ```
 
-These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI.
+These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI. Also you can acces ui in android, ios by clicking on notification(**requare notification permissions**)
 
 ### Exception Handling
 
@@ -154,7 +157,7 @@ You can customize the crash at jvm and android by overriding the open class Axer
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
-    // Custom implementation
+  // Custom implementation
 }
 ...
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
@@ -180,10 +183,10 @@ Axer supports live inspection of Room databases and execution of custom queries.
 
 ```kotlin
 builder
-    .setDriver(AxerBundledSQLiteDriver.getInstance())
-    .setQueryCoroutineContext(Dispatchers.IO)
-    .fallbackToDestructiveMigration(false)
-    .build()
+  .setDriver(AxerBundledSQLiteDriver.getInstance())
+  .setQueryCoroutineContext(Dispatchers.IO)
+  .fallbackToDestructiveMigration(false)
+  .build()
 ```
 
 The only required configuration is setting the driver:
