@@ -69,18 +69,27 @@ val client = HttpClient {
     }
   }
   install(Axer.ktorPlugin) {
-    requestImportantSelector = { request: Request ->
-      val tokenData = request.headers.entries.firstOrNull {
-        it.key.equals("Authorization", ignoreCase = true)
+    requestReducer = { request ->
+      val redactedHeaders = request.headers.mapValues { (key, value) ->
+        if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
       }
-      if (tokenData != null) {
-        listOf(tokenData.value)
-      } else {
-        emptyList()
-      }
+      request.copy(headers = redactedHeaders) // this will present in request but not in UI
     }
-    responseImportantSelector = {
-      listOf("Some important response data")
+
+    responseReducer = { response ->
+        response.copy(
+          headers = response.headers.mapValues { (key, value) ->
+            if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+          }
+        ) // this will change content type which display only in UI
+    }
+
+    requestImportantSelector = { request ->
+        listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
+    }
+
+    responseImportantSelector = { response ->
+      listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
     }
   }
 }
@@ -89,20 +98,32 @@ val client = HttpClient {
 #### OkHttp Example
 
 ```kotlin
-AxerOkhttpInterceptor.Builder()
-  .setRequestImportantSelector {
-    if (it.headers.contains("cookie")) {
-      val token = it.headers["cookie"]?.replace("PHPSESSID=", "")
-      if (token.isNullOrBlank()) {
-        emptyList()
-      } else {
-        listOf("PHPSESID: $token")
-      }
-    } else {
-      emptyList()
-    }
-  }
+val client = OkHttpClient.Builder()
+  .addInterceptor(
+    AxerOkhttpInterceptor.Builder()
+      .setRequestReducer { request ->
+        val redactedHeaders = request.headers.mapValues { (key, value) ->
+          if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
+        }
+        request.copy(headers = redactedHeaders)
+      } // this will present in request but not in UI
+      .setResponseReducer { response ->
+        response.copy(
+          headers = response.headers.mapValues { (key, value) ->
+            if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+          }
+        )
+      } // this will change content type which display only in UI
+      .setRequestImportantSelector { request ->
+        listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
+      } // if you want highlight any important data in request
+      .setResponseImportantSelector { response ->
+        listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+      } 
+      .build()
+  )
   .build()
+
 ```
 
 #### JVM Window
