@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +25,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +41,7 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
 import com.sunnychung.lib.android.composabletable.ux.Table
+import io.github.orioneee.extentions.formate
 
 @Composable
 internal fun HeaderCell(
@@ -159,7 +163,7 @@ internal fun DeleteButton(
 
 @Composable
 internal fun PaginationUI(
-    pages: List<List<RowItem>>,
+    totalItems: Int,
     page: Int,
     currentItemsSize: Int,
     onSetPage: (Int) -> Unit
@@ -170,16 +174,13 @@ internal fun PaginationUI(
     val lastVisibleItemIndex = remember(firstVisibleItemIndex, currentItemsSize) {
         firstVisibleItemIndex + currentItemsSize - 1
     }
-    val totalItems = remember(pages) {
-        pages.sumOf { it.size }
-    }
     val canMinusPage = remember(page) {
         page > 0
     }
-    val canPlusPage = remember(page, pages) {
-        page < pages.size - 1
+    val canPlusPage = remember(page, totalItems) {
+        page < totalItems - 1
     }
-    if (pages.size > 1) {
+    if (totalItems > 1) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -187,7 +188,16 @@ internal fun PaginationUI(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Text("${firstVisibleItemIndex + 1} - ${lastVisibleItemIndex + 1} of $totalItems")
+
+            var rowCountTarget = remember { mutableStateOf(totalItems) }
+
+            val animatedRowCount = animateIntAsState(rowCountTarget.value)
+
+            LaunchedEffect(totalItems){
+                rowCountTarget.value = totalItems
+            }
+
+            Text("${firstVisibleItemIndex + 1} - ${lastVisibleItemIndex + 1} of ${animatedRowCount.value.formate()}")
             IconButton(
                 enabled = canMinusPage,
                 onClick = {
@@ -217,7 +227,7 @@ internal fun PaginationUI(
             IconButton(
                 enabled = canPlusPage,
                 onClick = {
-                    onSetPage((page + 1).coerceAtMost(pages.size - 1))
+                    onSetPage((page + 1).coerceAtMost(totalItems - 1))
                 }
             ) {
                 Icon(
@@ -231,7 +241,7 @@ internal fun PaginationUI(
             IconButton(
                 enabled = canPlusPage,
                 onClick = {
-                    onSetPage(pages.lastIndex)
+                    onSetPage(totalItems - 1)
                 }
             ) {
                 Icon(

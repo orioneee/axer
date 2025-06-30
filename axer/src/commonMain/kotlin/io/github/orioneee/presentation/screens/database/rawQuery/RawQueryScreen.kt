@@ -132,7 +132,7 @@ internal class RawQueryScreen {
                     },
                 )
                 PaginationUI(
-                    pages = pages,
+                    totalItems = pages.size,
                     page = currentPage,
                     onSetPage = { newPage ->
                         currentPage = newPage
