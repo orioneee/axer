@@ -17,7 +17,10 @@ fun getLatestGitTag() = providers.exec {
     isIgnoreExitValue = true
 }.standardOutput
     .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
+
 val libraryVersion = getLatestGitTag()
+
+println("Library version: $libraryVersion")
 
 version = libraryVersion
 
