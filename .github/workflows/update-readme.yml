@@ -5,11 +5,8 @@ on:
     tags:
       - '*'  # Trigger on any tag push
     paths:
-      - 'axer/template_README.MD'  # Trigger when this file changes
-  workflow_dispatch:  # Allow manual triggering
-
-
-
+      - 'axer/template/**'  # Trigger when anything in template folder changes
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   update_readme:
@@ -31,7 +28,7 @@ jobs:
 
       - name: Replace version in template_README.MD
         run: |
-          sed "s/{{AXER_VERSION}}/${{ steps.get_tag.outputs.tag }}/" axer/template_README.MD > README.md
+          sed "s/{{AXER_VERSION}}/${{ steps.get_tag.outputs.tag }}/" axer/template/template_README.MD > README.md
 
       - name: Determine branch or default to main
         id: extract_branch
