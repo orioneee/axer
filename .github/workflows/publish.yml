@@ -1,4 +1,4 @@
-name: Publish
+name: Update README and Publish to MavenCentral
 on:
   release:
     types: [released, prereleased]
