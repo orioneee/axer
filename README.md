@@ -52,21 +52,6 @@ class SampleApplication : Application() {
 }
 ```
 
-### iOS
-
-Call the initialization method:
-
-```kotlin
-Axer.initialize()
-```
-
-### JVM
-
-No explicit initialization is required if a window is displayed. but if you want manage window manually, you can call:
-```kotlin
-Axer.initialize()
-```
-
 ## Usage
 
 ### HTTP Request Monitoring
@@ -83,7 +68,7 @@ val client = HttpClient {
       header("Authorization", "Bearer your_token_here")
     }
   }
-  install(AxerPlugin) {
+  install(Axer.ktorPlugin) {
     requestImportantSelector = { request: Request ->
       val tokenData = request.headers.entries.firstOrNull {
         it.key.equals("Authorization", ignoreCase = true)
@@ -164,7 +149,7 @@ Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
 
 ```
 
-**Note**: Fatal crash handling is not supported on iOS.
+**Note**: Fatal crash handling on IOS may work incorrectly
 
 #### Manual Exception Recording
 
@@ -199,8 +184,8 @@ The only required configuration is setting the driver:
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
-    - Stack traces are not supported.
-    - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
+  - Stack traces are not supported.
+  - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
 - **Stability**: The library is in alpha (`1.0.0-alpha08`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
