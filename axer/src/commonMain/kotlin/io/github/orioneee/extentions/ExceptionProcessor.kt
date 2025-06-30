@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.koin.IsolatedContext

@@ -2,6 +2,8 @@
 
 package io.github.orioneee
 
+import io.github.orioneee.extentions.ExceptionProcessor
+
 object Axer {
     val ktorPlugin = AxerPlugin
 

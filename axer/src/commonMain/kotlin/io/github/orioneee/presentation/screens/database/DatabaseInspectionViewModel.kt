@@ -7,10 +7,10 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.domain.database.Table
-import io.github.orioneee.getPlatformStackTrace
+import io.github.orioneee.extentions.getPlatformStackTrace
 import io.github.orioneee.room.AxerBundledSQLiteDriver
 import io.github.orioneee.room.RoomReader
-import io.github.orioneee.sortBySortingItemAndChunck
+import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO

@@ -1,5 +1,6 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
+import io.github.orioneee.Axer
 import io.github.orioneee.domain.exceptions.AxerException
 import platform.Foundation.NSUUID
 import platform.UserNotifications.UNMutableNotificationContent

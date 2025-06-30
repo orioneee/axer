@@ -1,3 +1,3 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 actual fun Throwable.getPlatformStackTrace(): String = stackTraceToString()

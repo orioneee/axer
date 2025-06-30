@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 import kotlin.experimental.ExperimentalNativeApi
 

@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SortColumn

@@ -3,6 +3,7 @@ package io.github.orioneee
 import io.github.orioneee.domain.requests.Request
 import io.github.orioneee.requestProcessor.RequestProcessor
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.extentions.isValidImage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response

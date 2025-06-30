@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 // JVM only
 import java.awt.image.BufferedImage

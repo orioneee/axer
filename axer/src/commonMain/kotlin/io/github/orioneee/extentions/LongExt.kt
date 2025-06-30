@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.extentions
 
 import kotlinx.datetime.Instant.Companion.fromEpochMilliseconds
 import kotlinx.datetime.LocalDateTime

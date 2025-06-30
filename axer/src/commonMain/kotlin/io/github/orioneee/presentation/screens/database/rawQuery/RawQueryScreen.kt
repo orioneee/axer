@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,7 +47,7 @@ import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
 import io.github.orioneee.presentation.components.ViewSQLTable
-import io.github.orioneee.sortBySortingItemAndChunck
+import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import org.koin.compose.viewmodel.koinViewModel
 
 internal class RawQueryScreen {

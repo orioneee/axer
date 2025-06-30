@@ -43,7 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.presentation.clickableWithoutRipple
-import io.github.orioneee.formateAsTime
+import io.github.orioneee.extentions.formateAsTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
