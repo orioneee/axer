@@ -3,10 +3,10 @@ name: Update README
 on:
   push:
     tags:
-      - '*'                      # Trigger on tag push
+      - '*'  # Trigger on tag push
     paths:
-      - 'axer/template_README.MD'  # Also trigger if template file changes
-  workflow_dispatch:             # Allow manual trigger
+      - 'axer/template_README.MD'
+  workflow_dispatch:
 
 jobs:
   update_readme:
@@ -20,17 +20,15 @@ jobs:
           fetch-tags: true
           ref: ${{ github.ref }}
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: 21
+      - name: Get latest Git tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 || echo "0.0.0")
+          echo "tag=$latest_tag" >> $GITHUB_OUTPUT
 
-      - name: Generate README with latest version
-        run: ./gradlew generateReadmeDocsWithLatestVersion --no-configuration-cache
-
-      - name: Move README.md to project root
-        run: mv axer/README.md ./README.md
+      - name: Replace version in template_README.MD
+        run: |
+          sed "s/{{AXER_VERSION}}/${{ steps.get_tag.outputs.tag }}/" axer/template_README.MD > README.md
 
       - name: Determine branch or default to main
         id: extract_branch
@@ -47,7 +45,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add README.md
-          git diff --cached --quiet || git commit -m "update version in README.md to ${{ github.ref_name || 'manual run' }}"
+          git diff --cached --quiet || git commit -m "update version in README.md to ${{ steps.get_tag.outputs.tag }}"
           git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
