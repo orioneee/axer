@@ -1,0 +1,53 @@
+name: Update README
+
+on:
+  push:
+    tags:
+      - '*'                      # Trigger on tag push
+    paths:
+      - 'axer/template_README.MD'  # Also trigger if template file changes
+  workflow_dispatch:             # Allow manual trigger
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: ${{ github.ref }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+
+      - name: Generate README with latest version
+        run: ./gradlew generateReadmeDocsWithLatestVersion --no-configuration-cache
+
+      - name: Move README.md to project root
+        run: mv axer/README.md ./README.md
+
+      - name: Determine branch or default to main
+        id: extract_branch
+        run: |
+          ref=${{ github.ref }}
+          if [[ "$ref" == refs/heads/* ]]; then
+            echo "branch=${ref#refs/heads/}" >> $GITHUB_OUTPUT
+          else
+            echo "branch=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push updated README.md
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          git diff --cached --quiet || git commit -m "update version in README.md to ${{ github.ref_name || 'manual run' }}"
+          git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
