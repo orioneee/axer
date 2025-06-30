@@ -173,7 +173,7 @@ builder
   .fallbackToDestructiveMigration(false)
   .build()
 ```
-
+asdfasdfaf
 The only required configuration is setting the driver:
 
 ```kotlin
