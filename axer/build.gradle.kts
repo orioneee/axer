@@ -18,9 +18,7 @@ fun getLatestGitTag() = providers.exec {
 }.standardOutput
     .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
-val ver: String? by project
-
-val libraryVersion = ver ?: getLatestGitTag()
+val libraryVersion = getLatestGitTag()
 
 println("Library version: $libraryVersion")
 
