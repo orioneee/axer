@@ -3,10 +3,13 @@ name: Update README
 on:
   push:
     tags:
-      - '*'  # Trigger on tag push
+      - '*'  # Trigger on any tag push
     paths:
-      - 'axer/template_README.MD'
-  workflow_dispatch:
+      - 'axer/template_README.MD'  # Trigger when this file changes
+  workflow_dispatch:  # Allow manual triggering
+
+
+
 
 jobs:
   update_readme:
