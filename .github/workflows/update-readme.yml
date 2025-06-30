@@ -4,7 +4,10 @@ on:
   push:
     paths:
       - 'axer/template/**'
-    types: [ released, prereleased ]
+
+  release:
+    types: [published, prereleased]
+
 
 
 jobs:
