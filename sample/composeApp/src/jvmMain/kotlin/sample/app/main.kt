@@ -12,8 +12,8 @@ import sample.app.koin.KoinModules
 import java.awt.Dimension
 
 fun main() = application {
-    AxerWindows()
     Axer.installAxerErrorHandler()
+    AxerWindows()
     startKoin {
         modules(KoinModules.module)
     }

@@ -8,9 +8,6 @@ struct ComposeApp: App {
             ContentView().ignoresSafeArea(.all)
         }
     }
-    init(){
-        Axer().initialize()
-    }
 }
 
 struct ContentView: UIViewControllerRepresentable {
