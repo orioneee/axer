@@ -45,6 +45,7 @@ In your `Application` class:
 
 ```kotlin
 class SampleApplication : Application() {
+    //dont forget to register your application in AndroidManifest.xml
   override fun onCreate() {
     super.onCreate()
     Axer.initialize(this)
