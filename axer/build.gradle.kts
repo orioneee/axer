@@ -18,7 +18,9 @@ fun getLatestGitTag() = providers.exec {
 }.standardOutput
     .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
-val libraryVersion = getLatestGitTag()
+val ver: String? by project
+
+val libraryVersion = ver ?: getLatestGitTag()
 
 println("Library version: $libraryVersion")
 
@@ -207,7 +209,11 @@ val generateReadmeDocsWithLatestVersion by tasks.registering(Exec::class) {
     outputs.file("README.md")
 
     // Use commandLine with lambda to defer evaluation
-    commandLine("bash", "-c", "sed 's/{{AXER_VERSION}}/${libraryVersion}/' template_README.MD > README.md")
+    commandLine(
+        "bash",
+        "-c",
+        "sed 's/{{AXER_VERSION}}/${libraryVersion}/' template_README.MD > README.md"
+    )
 
     doLast {
         println("README.md generated with the latest version: $libraryVersion")

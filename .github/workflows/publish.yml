@@ -19,7 +19,7 @@ jobs:
           java-version: 21
 
       - name: Generate README with latest version
-        run: ./gradlew generateReadmeDocsWithLatestVersion --no-configuration-cache
+        run: ./gradlew generateReadmeDocsWithLatestVersion -Pver=${{ github.ref_name }} --no-configuration-cache
 
       - name: Move README.md to project root
         run: mv axer/README.md ./README.md
@@ -28,12 +28,11 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          VERSION=$(git describe --tags --abbrev=0)
           git add README.md
-          git commit -m "update version in README.md to $VERSION"
+          git commit -m "update version in README.md to ${{ github.ref_name }}"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Publish to MavenCentral
         run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
