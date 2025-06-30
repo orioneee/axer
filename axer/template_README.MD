@@ -174,6 +174,7 @@ builder
   .build()
 ```
 
+
 The only required configuration is setting the driver:
 
 ```kotlin
