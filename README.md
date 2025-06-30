@@ -145,7 +145,7 @@ To open the Axer UI programmatically:
 Axer.openAxerUI()
 ```
 
-#UI integration
+#### UI integration
 
 if you want to integrate Axer UI in your app, you can use the following code:
 
