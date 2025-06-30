@@ -2,10 +2,10 @@ name: Update README
 
 on:
   push:
+    paths:
+      - 'axer/template/**'
     tags:
       - '*'  # Trigger on any tag push
-    paths:
-      - 'axer/template/**'  # Trigger when anything in template folder changes
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
