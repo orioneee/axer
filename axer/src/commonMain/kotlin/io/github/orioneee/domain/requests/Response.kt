@@ -1,11 +1,11 @@
 package io.github.orioneee.domain.requests
 
 data class Response(
-    val responseBody: String?,
-    val responseTime: Long,
-    val responseHeaders: Map<String, String>,
-    val responseStatus: Int,
-    val imageBytes: ByteArray?,
+    val body: String?,
+    val time: Long,
+    val headers: Map<String, String>,
+    val status: Int,
+    val image: ByteArray?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -13,21 +13,21 @@ data class Response(
 
         other as Response
 
-        if (responseTime != other.responseTime) return false
-        if (responseStatus != other.responseStatus) return false
-        if (responseBody != other.responseBody) return false
-        if (responseHeaders != other.responseHeaders) return false
-        if (!imageBytes.contentEquals(other.imageBytes)) return false
+        if (time != other.time) return false
+        if (status != other.status) return false
+        if (body != other.body) return false
+        if (headers != other.headers) return false
+        if (!image.contentEquals(other.image)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = responseTime.hashCode()
-        result = 31 * result + responseStatus
-        result = 31 * result + (responseBody?.hashCode() ?: 0)
-        result = 31 * result + responseHeaders.hashCode()
-        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
+        var result = time.hashCode()
+        result = 31 * result + status
+        result = 31 * result + (body?.hashCode() ?: 0)
+        result = 31 * result + headers.hashCode()
+        result = 31 * result + (image?.contentHashCode() ?: 0)
         return result
     }
 }

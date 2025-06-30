@@ -22,7 +22,4 @@ object Axer {
 
     fun installAxerErrorHandler(){
     }
-
-    internal fun initIfCan(){
-    }
 }

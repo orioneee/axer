@@ -133,11 +133,11 @@ internal data class Transaction(
 
     fun asResponse(): Response {
         return Response(
-            responseBody = responseBody,
-            responseTime = responseTime!!,
-            responseHeaders = responseHeaders,
-            responseStatus = responseStatus!!,
-            imageBytes = imageBytes
+            body = responseBody,
+            time = responseTime!!,
+            headers = responseHeaders,
+            status = responseStatus!!,
+            image = imageBytes
         )
     }
 }

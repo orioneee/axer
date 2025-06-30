@@ -13,8 +13,10 @@ class AxerOkhttpInterceptor private constructor(
     private val requestImportantSelector: (Request) -> List<String>,
     private val responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String>,
     private val requestFilter: (Request) -> Boolean,
+    private val responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean,
+    private val requestReducer: (Request) -> Request = { request -> request },
+    private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response
 ) : Interceptor {
-
     init {
         Axer.initIfCan()
     }
@@ -37,6 +39,23 @@ class AxerOkhttpInterceptor private constructor(
             this.requestImportantSelector = selector
         }
 
+        private var requestReducer: (Request) -> Request = { request ->
+            request
+        }
+        private var responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean =
+            { response ->
+                true
+            }
+
+        fun setRequestReducer(reducer: (Request) -> Request) = apply {
+            this.requestReducer = reducer
+        }
+
+        fun setResponseFilter(filter: (io.github.orioneee.domain.requests.Response) -> Boolean) =
+            apply {
+                this.responseFilter = filter
+            }
+
         fun setResponseImportantSelector(selector: (io.github.orioneee.domain.requests.Response) -> List<String>) =
             apply {
                 this.responseImportantSelector = selector
@@ -46,10 +65,23 @@ class AxerOkhttpInterceptor private constructor(
             this.requestFilter = filter
         }
 
+        private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
+            { response ->
+                response
+            }
+
+        fun setResponseReducer(reducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response) =
+            apply {
+                this.responseReducer = reducer
+            }
+
         fun build() = AxerOkhttpInterceptor(
             requestImportantSelector = requestImportantSelector,
             responseImportantSelector = responseImportantSelector,
-            requestFilter = requestFilter
+            requestFilter = requestFilter,
+            responseFilter = responseFilter,
+            requestReducer = requestReducer,
+            responseReducer = responseReducer
         )
     }
 
@@ -84,7 +116,16 @@ class AxerOkhttpInterceptor private constructor(
                 return@runBlocking chain.proceed(request)
             }
             val importantInRequest = requestImportantSelector(requestModel)
-            transaction = transaction.copy(importantInRequest = importantInRequest)
+            val reducedRequest = requestReducer(requestModel)
+            transaction = transaction.copy(
+                importantInRequest = importantInRequest,
+                requestHeaders = reducedRequest.headers,
+                requestBody = reducedRequest.body,
+                method = reducedRequest.method,
+                host = reducedRequest.host,
+                path = reducedRequest.path,
+                sendTime = reducedRequest.sendTime
+            )
             val id = processor.onSend(transaction)
             transaction = transaction.copy(id = id)
 
@@ -107,8 +148,24 @@ class AxerOkhttpInterceptor private constructor(
                 )
 
                 val responseModel = finishedTransaction.asResponse()
-                val importantInResponse = responseImportantSelector(responseModel)
-                processor.onFinished(finishedTransaction.copy(importantInResponse = importantInResponse))
+                val responseFiltred = responseFilter(responseModel)
+                if(responseFiltred){
+                    val importantInResponse = responseImportantSelector(responseModel)
+                    val reducedResponse = responseReducer(responseModel)
+                    val finishedState = finishedTransaction.copy(
+                        importantInResponse = importantInResponse,
+                        responseHeaders = reducedResponse.headers,
+                        responseBody = reducedResponse.body,
+                        responseStatus = reducedResponse.status,
+                        responseTime = reducedResponse.time,
+                        imageBytes = reducedResponse.image,
+                        isImage = reducedResponse.image != null && reducedResponse.image.isNotEmpty(),
+                    )
+                    processor.onFinished(finishedState)
+                } else {
+                    processor.deleteRequestIfNotFiltred(finishedTransaction.id)
+                }
+
 
                 response.newBuilder()
                     .body(responseBodyBytes.toResponseBody(response.body?.contentType()))

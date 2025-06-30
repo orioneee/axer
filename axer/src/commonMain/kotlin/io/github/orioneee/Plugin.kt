@@ -69,7 +69,16 @@ internal val AxerPlugin: ClientPlugin<AxerConfig> = createClientPlugin("Axer", :
             return@on proceed(it)
         }
         val importantInRequest = pluginConfig.requestImportantSelector.invoke(request)
-        state = state.copy(importantInRequest = importantInRequest)
+        val reduced = pluginConfig.requestReducer.invoke(request)
+        state = state.copy(
+            importantInRequest = importantInRequest,
+            requestHeaders = reduced.headers,
+            requestBody = reduced.body,
+            method = reduced.method,
+            host = reduced.host,
+            path = reduced.path,
+            sendTime = reduced.sendTime
+        )
         val id = processor.onSend(state)
         state = state.copy(id = id)
 
@@ -101,9 +110,23 @@ internal val AxerPlugin: ClientPlugin<AxerConfig> = createClientPlugin("Axer", :
             isImage = isImage
         )
         val resp = finishedState.asResponse()
-        val importantInResponse =
-            pluginConfig.responseImportantSelector.invoke(resp)
-        processor.onFinished(finishedState.copy(importantInResponse = importantInResponse))
+        val importantInResponse = pluginConfig.responseImportantSelector.invoke(resp)
+        val responseFiltred = pluginConfig.responseFilter.invoke(resp)
+        if (responseFiltred == true) {
+            val reducedResponse = pluginConfig.responseReducer.invoke(resp)
+            processor.onFinished(
+                finishedState.copy(
+                    importantInResponse = importantInResponse,
+                    responseHeaders = reducedResponse.headers,
+                    responseBody = reducedResponse.body,
+                    responseStatus = reducedResponse.status,
+                    imageBytes = reducedResponse.image,
+                    isImage = reducedResponse.image != null && reducedResponse.image.isNotEmpty()
+                )
+            )
+        } else {
+            processor.deleteRequestIfNotFiltred(finishedState.id)
+        }
         response
     }
 }

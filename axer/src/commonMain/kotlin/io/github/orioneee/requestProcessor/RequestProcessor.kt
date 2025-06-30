@@ -10,6 +10,10 @@ import io.github.orioneee.room.dao.RequestDao
 internal class RequestProcessor() {
     private val dao: RequestDao by IsolatedContext.koin.inject()
 
+    suspend fun deleteRequestIfNotFiltred(id: Long){
+        dao.deleteById(id)
+    }
+
     suspend fun onSend(request: Transaction): Long {
         val id = dao.upsert(request)
         val firstFive = dao.getFirstFive()

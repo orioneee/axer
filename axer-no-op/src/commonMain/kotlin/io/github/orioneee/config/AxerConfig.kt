@@ -14,4 +14,13 @@ class AxerConfig(){
     var requestFilter: (Request) -> Boolean = { request ->
         true
     }
+    var responseFilter: (Response) -> Boolean = { response ->
+        true
+    }
+    var requestReducer : (Request) -> Request = { request ->
+        request
+    }
+    var responseReducer : (Response) -> Response = { response ->
+        response
+    }
 }
