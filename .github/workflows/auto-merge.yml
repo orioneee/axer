@@ -1,35 +1,18 @@
-name: Dependabot auto-merge patch updates
-
-on:
-  pull_request_target:
-    types: [opened, reopened, synchronize]
-  workflow_dispatch:
+name: Dependabot
+on: pull_request
 
 permissions:
   contents: write
-  pull-requests: write
-  issues: write
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    env:
+      PR_URL: ${{github.event.pull_request.html_url}}
+      GITHUB_TOKEN: ${{secrets.GH_TOKEN}}
     steps:
-      - name: Fetch metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: ${{ secrets.GH_TOKEN }}
-
-      - name: Approve PR
+      - name: approve
         run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Enable auto-merge (patch only) and delete branch
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr merge --auto --merge --delete-branch "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: merge
+        run: gh pr merge --auto --squash --delete-branch "$PR_URL"
