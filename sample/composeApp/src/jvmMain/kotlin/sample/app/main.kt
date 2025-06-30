@@ -63,16 +63,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
     ) {
         window.minimumSize = Dimension(350, 600)
-        Button(
-            onClick = {
-                val reuqest = client.newCall(
-                    okhttp3.Request.Builder()
-                        .url(url)
-                        .build()
-                ).execute()
-            },
-        ) {
-            Text("Send get request")
-        }
+        App()
     }
 }

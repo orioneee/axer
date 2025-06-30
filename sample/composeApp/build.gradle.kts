@@ -48,7 +48,7 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
 
-            implementation(project(":axer-no-op"))
+            implementation(project(":axer"))
         }
 
         commonTest.dependencies {

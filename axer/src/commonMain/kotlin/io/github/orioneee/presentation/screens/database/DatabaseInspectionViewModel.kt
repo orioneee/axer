@@ -43,6 +43,9 @@ internal class DatabaseInspectionViewModel(
     private val _sortColumn = MutableStateFlow<SortColumn?>(null)
     val sortColumn = _sortColumn.asStateFlow()
 
+    private val _currentPage = MutableStateFlow<Int>(0)
+    val currentPage = _currentPage.asStateFlow()
+
     private val _tableContent = MutableStateFlow<List<RowItem>>(emptyList())
     val tableContent = combine(
         _tableContent,
@@ -86,7 +89,11 @@ internal class DatabaseInspectionViewModel(
                 }
                 val content = async {
                     try {
-                        val content = reader.getTableContent(tableName)
+                        val content = reader.getTableContent(
+                            tableName,
+                            page =  null,
+                            pageSize = null
+                        )
 //                        _tableContent.value = content
                         content
                     } catch (e: Exception) {
