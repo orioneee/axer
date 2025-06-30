@@ -53,6 +53,14 @@ class SampleApplication : Application() {
 }
 ```
 
+```xml
+<application
+    android:name=".SampleApplication" // add this
+    android:icon="@android:mipmap/sym_def_app_icon"
+    android:label="sample"
+    android:theme="@android:style/Theme.Material.NoActionBar">
+```
+
 ## Usage
 
 ### HTTP Request Monitoring
