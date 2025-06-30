@@ -1,0 +1,31 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - '*'  # Match all tags
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check tag source branch
+        id: branch_check
+        run: |
+          BRANCH=$(git branch -r --contains ${{ github.sha }} | grep origin/main || true)
+          echo "BRANCH=$BRANCH"
+          if [[ -z "$BRANCH" ]]; then
+            echo "This tag was not created from main. Skipping release."
+            exit 1
+          fi
+
+      - name: Create GitHub Release
+        if: steps.branch_check.outcome == 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

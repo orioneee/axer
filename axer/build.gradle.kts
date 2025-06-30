@@ -12,7 +12,13 @@ plugins {
     alias(libs.plugins.room)
 }
 
-val libraryVersion: String by project
+fun getLatestGitTag() = providers.exec {
+    commandLine("git", "describe", "--tags", "--abbrev=0")
+    isIgnoreExitValue = true
+}.standardOutput
+    .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
+val libraryVersion = getLatestGitTag()
+
 version = libraryVersion
 
 kotlin {
