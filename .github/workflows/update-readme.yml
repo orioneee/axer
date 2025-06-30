@@ -2,12 +2,10 @@ name: Update README
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '*'
     paths:
       - 'axer/template/**'
+    release:
+      types: [ released, prereleased ]
   workflow_dispatch:
 
 
