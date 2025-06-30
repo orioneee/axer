@@ -128,18 +128,24 @@ fun App() {
             }
         }
         install(Axer.ktorPlugin) {
-            requestImportantSelector = { request: Request ->
-                val tokenData = request.headers.entries.firstOrNull {
-                    it.key.equals("Authorization", ignoreCase = true)
-                }
-                if (tokenData != null) {
-                    listOf(tokenData.value)
-                } else {
-                    emptyList()
-                }
+            requestImportantSelector = { request ->
+                listOf("request-url: ${request.method} path: ${request.path}")
             }
-            responseImportantSelector={
-                listOf("Some important response data")
+            responseImportantSelector = { response ->
+                listOf("status: ${response.status}")
+            }
+            requestFilter = { request ->
+                println("Called requestFilter for ${request.path}")
+                true
+            }
+            responseFilter = { response ->
+                false
+            }
+            requestReducer = { request ->
+                request.copy(path = request.path + "?reduced=true")
+            }
+            responseReducer = { response ->
+                response.copy(body = "REDACTED")
             }
         }
     }

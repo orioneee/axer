@@ -1,3 +1,5 @@
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -11,6 +13,9 @@ import sample.app.App
 import sample.app.koin.KoinModules
 import java.awt.Dimension
 
+val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
+
+
 fun main() = application {
     Axer.installAxerErrorHandler()
     AxerWindows()
@@ -19,31 +24,55 @@ fun main() = application {
     }
     val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
-            val originalRequest = chain.request()
-            val originalHeaders = originalRequest.headers
-
-            val newRequestBuilder = originalRequest.newBuilder()
+            val original = chain.request()
+            val requestBuilder = original.newBuilder()
                 .header("Content-Type", "application/json")
 
-            // Only add Authorization header if it's not already present
-            if (originalHeaders["Authorization"] == null) {
-                newRequestBuilder.header("Authorization", "c319c205-6601-432a-b269-1f654cf6d67b")
+            if (original.header("Authorization") == null) {
+                requestBuilder.header("Authorization", "Bearer your_token_here")
             }
 
-            val newRequest = newRequestBuilder.build()
-            chain.proceed(newRequest)
+            chain.proceed(requestBuilder.build())
         }
-        .addInterceptor(
-            AxerOkhttpInterceptor.Builder()
-                .build()
+        .addInterceptor(AxerOkhttpInterceptor.Builder()
+            .setRequestImportantSelector { request ->
+                listOf("request-url: ${request.method} path: ${request.path}")
+            }
+            .setResponseImportantSelector { response ->
+                listOf("status: ${response.status}")
+            }
+            .setRequestFilter { request ->
+                true
+            }
+            .setResponseFilter { response ->
+                true
+            }
+            .setRequestReducer { request ->
+                request.copy(path = "${request.path}?reduced=true")
+            }
+            .setResponseReducer { response ->
+                response.copy(body = "REDACTED")
+            }
+            .build()
         )
         .build()
+
     Window(
         title = "sample",
         state = rememberWindowState(width = 350.dp, height = 600.dp),
         onCloseRequest = ::exitApplication,
     ) {
         window.minimumSize = Dimension(350, 600)
-        App()
+        Button(
+            onClick = {
+                val reuqest = client.newCall(
+                    okhttp3.Request.Builder()
+                        .url(url)
+                        .build()
+                ).execute()
+            },
+        ) {
+            Text("Send get request")
+        }
     }
 }
