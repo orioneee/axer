@@ -2,9 +2,9 @@ name: Update README
 
 on:
   push:
-    types: [ released, prereleased ]
     paths:
       - 'axer/template/**'
+    types: [ released, prereleased ]
 
 
 jobs:
