@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -25,9 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -55,17 +52,17 @@ internal class TableDetails {
             parametersOf(tableName)
         }
         LaunchedEffect(Unit) {
-            viewModel.getTableInfo()
+            viewModel.getTableContent()
         }
         val schema by viewModel.tableSchema.collectAsState()
-        val pages by viewModel.tableContent.collectAsState(emptyList())
         val isUpdatingCell by viewModel.isUpdatingCell.collectAsState(false)
         val selectedItem by viewModel.editableRowItem.collectAsState()
         val message by viewModel.message.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
-        var currentPage by remember { mutableStateOf(0) }
-        val currentItems = pages.getOrNull(currentPage) ?: emptyList()
+        var currentPage = viewModel.currentPage.collectAsState(0)
+        val currentItems = viewModel.tableContent.collectAsState(emptyList())
         val sortColumn by viewModel.sortColumn.collectAsState()
+        val totalItems = viewModel.totalItems.collectAsState()
 
 
 
@@ -174,16 +171,16 @@ internal class TableDetails {
                     )
                 }
                 PaginationUI(
-                    pages = pages,
-                    page = currentPage,
+                    totalItems = totalItems.value,
+                    page = currentPage.value,
                     onSetPage = { newPage ->
-                        currentPage = newPage
+                        viewModel.setPage(newPage)
                     },
-                    currentItemsSize = currentItems.size,
+                    currentItemsSize = currentItems.value.size,
                 )
                 ViewSQLTable(
                     headers = schema,
-                    row = currentItems,
+                    row = currentItems.value,
                     withDeleteButton = true,
                     headerUI = { item, rowIndex, columnIndex ->
                         HeaderCell(

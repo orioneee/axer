@@ -58,15 +58,27 @@ internal class RoomReader(
             tables.add(name)
         }
         stmt.close()
-        return tables.filter {
+        return tables/*.filter {
             it != "sqlite_sequence" && it != "android_metadata" && it != "room_master_table"
-        }.map {
+        }*/.map {
             val rowCount = getTableSize(it)
+            val columnCount = getColumnCount(it)
             Table(
                 name = it,
-                rowCount = rowCount
+                rowCount = rowCount,
+                columnCount = columnCount
             )
         }
+    }
+
+    suspend fun getColumnCount(tableName: String): Int {
+        val stmt = connection.prepare("PRAGMA table_info($tableName)")
+        var count = 0
+        while (stmt.step()) {
+            count++
+        }
+        stmt.close()
+        return count
     }
 
     suspend fun getTableSchema(tableName: String): List<SchemaItem> {
@@ -95,12 +107,24 @@ internal class RoomReader(
         return schema
     }
 
-    suspend fun getTableContent(tableName: String): List<List<RoomCell?>> {
+    suspend fun getTableContent(
+        tableName: String,
+        page: Int?,
+        pageSize: Int?,
+    ): List<List<RoomCell?>> {
         val result = mutableListOf<List<RoomCell?>>()
-        val statement = connection.prepare("SELECT * FROM $tableName")
+        val statement = if(
+            page != null && pageSize != null
+        ){
+            connection.prepare("SELECT * FROM $tableName LIMIT ? OFFSET ?").apply {
+                bindLong(1, pageSize.toLong())
+                bindLong(2, (page * pageSize).toLong())
+            }
+        } else{
+            connection.prepare("SELECT * FROM $tableName")
+        }
 
         val columnCount = statement.getColumnCount()
-
         try {
             while (statement.step()) {
                 val row = mutableListOf<RoomCell?>()

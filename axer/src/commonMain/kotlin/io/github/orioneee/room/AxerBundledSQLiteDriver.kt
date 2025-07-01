@@ -19,10 +19,12 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     }
 
     override fun open(fileName: String): SQLiteConnection {
-        this.fileName = fileName
+        if(!::fileName.isInitialized || this.fileName != fileName) {
+            queryFlow.tryEmit(fileName)
+            this.fileName = fileName
+        }
         val connection = driver.open(fileName)
         return object : SQLiteConnection {
-
             fun isSqlQueryChangeData(sql: String): Boolean {
                 return sql.startsWith("INSERT") || sql.startsWith("UPDATE") || sql.startsWith("DELETE") || sql.contains(
                     "END TRANSACTION",

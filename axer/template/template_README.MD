@@ -229,4 +229,3 @@ The only required configuration is setting the driver:
 ## Inspiration
 
 Axer was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending its capabilities with Room database inspection and cross-platform support.
-

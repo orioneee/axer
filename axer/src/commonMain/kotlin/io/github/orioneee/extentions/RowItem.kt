@@ -8,7 +8,12 @@ import io.github.orioneee.room.RoomReader
 internal fun List<RowItem>.sortBySortingItemAndChunck(
     sortColumn: SortColumn?,
     pageSize: Int = DatabaseInspectionViewModel.PAGE_SIZE
-): List<List<RowItem>> {
+) = sortBySortingItem(sortColumn).chunked(pageSize)
+
+
+internal fun List<RowItem>.sortBySortingItem(
+    sortColumn: SortColumn?,
+): List<RowItem> {
     val reversed = this
         .reversed()
 
@@ -33,5 +38,5 @@ internal fun List<RowItem>.sortBySortingItemAndChunck(
     } else {
         reversed
     }
-    return sorted.chunked(pageSize)
+    return sorted
 }

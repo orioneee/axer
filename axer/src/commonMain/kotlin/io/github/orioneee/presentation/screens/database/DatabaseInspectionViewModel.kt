@@ -3,18 +3,18 @@ package io.github.orioneee.presentation.screens.database
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.domain.database.EditableRowItem
+import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.getPlatformStackTrace
+import io.github.orioneee.extentions.sortBySortingItem
 import io.github.orioneee.room.AxerBundledSQLiteDriver
 import io.github.orioneee.room.RoomReader
-import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,12 +43,28 @@ internal class DatabaseInspectionViewModel(
     private val _sortColumn = MutableStateFlow<SortColumn?>(null)
     val sortColumn = _sortColumn.asStateFlow()
 
-    private val _tableContent = MutableStateFlow<List<RowItem>>(emptyList())
+    private val _currentPage = MutableStateFlow<Int>(0)
+    val currentPage = _currentPage.asStateFlow()
+
+    private val _totalTotalItems = MutableStateFlow<Int>(0)
+    val totalItems = _totalTotalItems.asStateFlow()
+
+    private val _itemsOnPage = MutableStateFlow<List<List<RoomCell?>>>(emptyList())
     val tableContent = combine(
-        _tableContent,
-        _sortColumn
-    ) { content, sortColumn ->
-        content.sortBySortingItemAndChunck(sortColumn)
+        _itemsOnPage,
+        _sortColumn,
+        _tableSchema
+    ) { content, sortColumn, schema ->
+        if (content.isEmpty() || schema.isEmpty()) {
+            return@combine emptyList<RowItem>()
+        }
+        val rowItems = content.map { row ->
+            RowItem(
+                cells = row,
+                schema = _tableSchema.value
+            )
+        }
+        rowItems.sortBySortingItem(sortColumn)
     }
 
     private val _isUpdatingCell = MutableStateFlow<Boolean>(false)
@@ -72,36 +88,43 @@ internal class DatabaseInspectionViewModel(
         }
     }
 
-    fun getTableInfo() {
+    fun getSchema() {
+        if (tableName == null) return
         viewModelScope.launch {
-            if (tableName != null) {
-                val schema = async {
+            try {
+                val schema = reader.getTableSchema(tableName)
+                _tableSchema.value = schema
+                schema
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    fun getTableContent() {
+        if (tableName != null) {
+            viewModelScope.launch {
+                launch {
                     try {
-                        val schema = reader.getTableSchema(tableName)
-                        _tableSchema.value = schema
-                        schema
+                        val content = reader.getTableContent(
+                            tableName,
+                            page = _currentPage.value,
+                            pageSize = PAGE_SIZE
+                        )
+                        _itemsOnPage.value = content
+
                     } catch (e: Exception) {
-                        null
                     }
                 }
-                val content = async {
+                launch {
                     try {
-                        val content = reader.getTableContent(tableName)
-//                        _tableContent.value = content
-                        content
+                        val size = reader.getTableSize(
+                            tableName,
+                        )
+                        _totalTotalItems.value = size
                     } catch (e: Exception) {
-                        null
                     }
                 }
-                val schemaResult = schema.await()
-                val contentResult = content.await()
-                val rowItems = contentResult?.map { row ->
-                    RowItem(
-                        schema = schemaResult ?: emptyList(),
-                        cells = row
-                    )
-                } ?: emptyList()
-                _tableContent.value = rowItems
             }
         }
     }
@@ -111,20 +134,21 @@ internal class DatabaseInspectionViewModel(
             try {
                 _editableRowItem.value = null
                 reader.clearTable(tableName ?: "")
-                getTableInfo()
+                getTableContent()
             } catch (e: Exception) {
             }
         }
     }
 
     init {
+        getSchema()
         reader.axerDriver.queryFlow
             .debounce(100)
             .onEach {
                 if (tableName == null) {
                     loadTables()
                 } else {
-                    getTableInfo()
+                    getTableContent()
                 }
             }
             .launchIn(viewModelScope)
@@ -141,7 +165,7 @@ internal class DatabaseInspectionViewModel(
                     tableName = tableName,
                     editableItem = editableItem
                 )
-                getTableInfo()
+                getTableContent()
                 _message.value = "Cell updated successfully"
             } catch (e: Exception) {
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
@@ -179,7 +203,7 @@ internal class DatabaseInspectionViewModel(
                     tableName,
                     row = rowItem
                 )
-                getTableInfo()
+                getTableContent()
                 _message.value = "Row deleted successfully"
             } catch (e: Exception) {
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
@@ -202,6 +226,15 @@ internal class DatabaseInspectionViewModel(
                 schemaItem = schemaItem,
                 isDescending = true
             )
+        }
+    }
+
+    fun setPage(
+        page: Int
+    ) {
+        if(page != _currentPage.value) {
+            _currentPage.value = page
+            getTableContent()
         }
     }
 }
