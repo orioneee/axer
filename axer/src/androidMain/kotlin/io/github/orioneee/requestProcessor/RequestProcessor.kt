@@ -16,22 +16,15 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val context: Context = IsolatedContext.koinApp.koin.get()
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-        val channel = android.app.NotificationChannel(
-            /* id = */ NotificationInfo.CHANNEL_ID,
-            /* name = */ NotificationInfo.CHANNEL_NAME,
-            /* importance = */ android.app.NotificationManager.IMPORTANCE_LOW
-        )
-        notificationManager.createNotificationChannel(channel)
-    }
-    val notificationText = requests.joinToString("\n") {
-        val statusCode = it.responseStatus ?: "..."
-        val method = it.method
-        val path = it.path
-        "$method $path - $statusCode"
-    }
 
+    val channel = android.app.NotificationChannel(
+        NotificationInfo.CHANNEL_ID,
+        NotificationInfo.CHANNEL_NAME,
+        android.app.NotificationManager.IMPORTANCE_LOW
+    )
+    notificationManager.createNotificationChannel(channel)
 
+    // PendingIntent to open app
     val pendingIntent = PendingIntent.getActivity(
         context,
         0,
@@ -39,28 +32,45 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val clearIntent =
-        Intent(context, ClearAllRequestBroadcastReceiver::class.java)
-    val clearPendingIntent =
-        PendingIntent.getBroadcast(
-            context,
-            11,
-            clearIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
-        )
-    val action = NotificationCompat.Action(
-        R.drawable.ic_exception,
-        "Clear",
-        clearPendingIntent,
+    // Clear action
+    val clearIntent = Intent(context, ClearAllRequestBroadcastReceiver::class.java)
+    val clearPendingIntent = PendingIntent.getBroadcast(
+        context,
+        11,
+        clearIntent,
+        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
     )
+    val action = NotificationCompat.Action(
+        R.drawable.ic_exception_short_cut,
+        "Clear",
+        clearPendingIntent
+    )
+
+    // Compose notification content and inbox style
+    val inboxStyle = NotificationCompat.InboxStyle()
+    val lines = requests.map {
+        val statusCode = it.responseStatus ?: "..."
+        val method = it.method
+        val path = it.path
+        "$statusCode $method $path"
+    }
+
+    lines.forEach { inboxStyle.addLine(it) }
+
+    // Optional: set summary text (collapsed version)
+    if (lines.isNotEmpty()) {
+        inboxStyle.setSummaryText("${lines.size} request${if (lines.size > 1) "s" else ""}")
+    }
 
     val notification = NotificationCompat.Builder(context, NotificationInfo.CHANNEL_ID)
         .setContentTitle("Axer")
-        .setContentText(notificationText)
+        .setContentText(lines.firstOrNull() ?: "No requests")
+        .setStyle(inboxStyle)
         .setSmallIcon(R.drawable.ic_http)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
         .addAction(action)
+        .setSubText(lines.size.toString())
         .build()
 
     notificationManager.notify(NotificationInfo.REQUEST_NOTIFICATION_ID, notification)

@@ -16,14 +16,12 @@ internal actual fun notifyAboutException(exception: AxerException) {
 
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            /* id = */ NotificationInfo.CHANNEL_ID,
-            /* name = */ NotificationInfo.CHANNEL_NAME,
-            /* importance = */ NotificationManager.IMPORTANCE_LOW
-        )
-        notificationManager.createNotificationChannel(channel)
-    }
+    val channel = NotificationChannel(
+        /* id = */ NotificationInfo.CHANNEL_ID,
+        /* name = */ NotificationInfo.CHANNEL_NAME,
+        /* importance = */ NotificationManager.IMPORTANCE_LOW
+    )
+    notificationManager.createNotificationChannel(channel)
     val notificationText = exception.shortName
 
     val pendingIntent = PendingIntent.getActivity(
@@ -36,7 +34,7 @@ internal actual fun notifyAboutException(exception: AxerException) {
     val notification = NotificationCompat.Builder(context, NotificationInfo.CHANNEL_ID)
         .setContentTitle("Recorded new exception")
         .setContentText(notificationText)
-        .setSmallIcon(R.drawable.ic_exception)
+        .setSmallIcon(R.drawable.bug_report)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
         .build()

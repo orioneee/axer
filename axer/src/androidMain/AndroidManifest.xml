@@ -5,6 +5,7 @@
     <application>
         <activity
             android:name="io.github.orioneee.AxerActivity"
+            android:label="Axer"
             android:launchMode="singleTask"
             android:taskAffinity="io.github.orioneee.axer"
             android:exported="true" />

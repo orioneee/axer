@@ -25,8 +25,8 @@ internal interface RequestDao {
 //    suspend fun update(request: Request){
 //    }
 
-    @Query("SELECT * FROM Transactions ORDER BY id DESC LIMIT 5")
-    suspend fun getFirstFive(): List<Transaction>
+    @Query("SELECT * FROM Transactions WHERE isViewed = 0 ORDER BY id DESC LIMIT 5")
+    suspend fun getFirstFiveNotReaded(): List<Transaction>
 
 
     @Query("DELETE FROM Transactions")

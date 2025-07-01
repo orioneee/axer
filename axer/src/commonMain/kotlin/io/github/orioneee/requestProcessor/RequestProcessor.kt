@@ -16,20 +16,20 @@ internal class RequestProcessor() {
 
     suspend fun onSend(request: Transaction): Long {
         val id = dao.upsert(request)
-        val firstFive = dao.getFirstFive()
+        val firstFive = dao.getFirstFiveNotReaded()
         updateNotification(firstFive)
         return id
     }
 
     suspend fun onFailed(request: Transaction) {
         dao.upsert(request)
-        val firstFive = dao.getFirstFive()
+        val firstFive = dao.getFirstFiveNotReaded()
         updateNotification(firstFive)
     }
 
     suspend fun onFinished(request: Transaction) {
         dao.upsert(request)
-        val firstFive = dao.getFirstFive()
+        val firstFive = dao.getFirstFiveNotReaded()
         updateNotification(firstFive)
     }
 }
