@@ -197,23 +197,3 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
-val generateReadmeDocsWithLatestVersion by tasks.registering(Exec::class) {
-    group = "documentation"
-    description = "Generates README.md with the latest version of the library"
-
-    // Use inputs to declare the template file, so Gradle can track it
-    inputs.file("template_README.MD")
-    outputs.file("README.md")
-
-    // Use commandLine with lambda to defer evaluation
-    commandLine(
-        "bash",
-        "-c",
-        "sed 's/{{AXER_VERSION}}/${libraryVersion}/' template_README.MD > README.md"
-    )
-
-    doLast {
-        println("README.md generated with the latest version: $libraryVersion")
-    }
-}
-

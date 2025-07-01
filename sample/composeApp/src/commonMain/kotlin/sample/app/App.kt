@@ -98,7 +98,7 @@ internal fun populateDatabase(database: SampleDatabase) {
         val directorsDao = database.getDirectorDao()
         directorsDao.upsertDirectors(directors)
         val directorsFromDB = directorsDao.getAllDirectors()
-        val movies = List(50_000) {
+        val movies = List(25) {
             val name = "Movie ${it + 1}"
             val director = directorsFromDB.random()
             Movie(

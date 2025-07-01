@@ -178,82 +178,91 @@ internal fun PaginationUI(
         page > 0
     }
     val canPlusPage = remember(page, totalItems) {
-        page < totalItems - 1
+        (page + 1) * DatabaseInspectionViewModel.PAGE_SIZE < totalItems
     }
-    if (totalItems > 1) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
+//    if (totalItems > 1) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
 
-            var rowCountTarget = remember { mutableStateOf(totalItems) }
+        var rowCountTarget = remember { mutableStateOf(totalItems) }
 
-            val animatedRowCount = animateIntAsState(rowCountTarget.value)
+        val animatedRowCount = animateIntAsState(rowCountTarget.value)
 
-            LaunchedEffect(totalItems){
-                rowCountTarget.value = totalItems
-            }
-
-            Text("${firstVisibleItemIndex + 1} - ${lastVisibleItemIndex + 1} of ${animatedRowCount.value.formate()}")
-            IconButton(
-                enabled = canMinusPage,
-                onClick = {
-                    onSetPage(0)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FirstPage,
-                    contentDescription = "First Page",
-                    modifier = Modifier
-                        .size(16.dp)
-                )
-            }
-            IconButton(
-                enabled = canMinusPage,
-                onClick = {
-                    onSetPage((page - 1).coerceAtLeast(0))
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = "First Page",
-                    modifier = Modifier
-                        .size(16.dp)
-                )
-            }
-            IconButton(
-                enabled = canPlusPage,
-                onClick = {
-                    onSetPage((page + 1).coerceAtMost(totalItems - 1))
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = "First Page",
-                    modifier = Modifier
-                        .rotate(180f)
-                        .size(16.dp)
-                )
-            }
-            IconButton(
-                enabled = canPlusPage,
-                onClick = {
-                    onSetPage(totalItems - 1)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FirstPage,
-                    contentDescription = "First Page",
-                    modifier = Modifier
-                        .rotate(180f)
-                        .size(16.dp)
-                )
-            }
-
+        LaunchedEffect(totalItems) {
+            rowCountTarget.value = totalItems
         }
+
+        Text("${firstVisibleItemIndex + 1} - ${lastVisibleItemIndex + 1} of ${animatedRowCount.value.formate()}")
+        IconButton(
+            enabled = canMinusPage,
+            onClick = {
+                onSetPage(0)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.FirstPage,
+                contentDescription = "First Page",
+                modifier = Modifier
+                    .size(16.dp)
+            )
+        }
+        IconButton(
+            enabled = canMinusPage,
+            onClick = {
+                onSetPage((page - 1).coerceAtLeast(0))
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBackIosNew,
+                contentDescription = "First Page",
+                modifier = Modifier
+                    .size(16.dp)
+            )
+        }
+        IconButton(
+            enabled = canPlusPage,
+            onClick = {
+                onSetPage(page + 1)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBackIosNew,
+                contentDescription = "First Page",
+                modifier = Modifier
+                    .rotate(180f)
+                    .size(16.dp)
+            )
+        }
+        IconButton(
+            enabled = canPlusPage,
+            onClick = {
+                val lastPage = totalItems.toFloat().div(DatabaseInspectionViewModel.PAGE_SIZE)
+                //round to biggest integer
+                onSetPage(
+                    if (lastPage % 1 == 0f) {
+                        lastPage.toInt() - 1
+                    } else {
+                        lastPage.toInt()
+                    }
+                )
+//                    onSetPage()
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.FirstPage,
+                contentDescription = "First Page",
+                modifier = Modifier
+                    .rotate(180f)
+                    .size(16.dp)
+            )
+        }
+
+//        }
     }
 }
 
