@@ -91,11 +91,11 @@ kotlin {
 
 android {
     namespace = "sample.app"
-    compileSdk = 35
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 23
-        targetSdk = 35
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.compileSdk.get().toInt()
 
         applicationId = "sample.app.androidApp"
         versionCode = 1
@@ -104,7 +104,7 @@ android {
 
     buildTypes {
         debug {
-            isDebuggable = true
+            isDebuggable = false
         }
     }
 

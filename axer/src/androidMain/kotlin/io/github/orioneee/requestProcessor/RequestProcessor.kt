@@ -6,11 +6,11 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import io.github.orioneee.AxerActivity
+import io.github.orioneee.ClearAllRequestBroadcastReceiver
 import io.github.orioneee.NotificationInfo
 import io.github.orioneee.axer.R
-import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.koin.IsolatedContext
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val context: Context = IsolatedContext.koinApp.koin.get()
@@ -31,17 +31,27 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         "$method $path - $statusCode"
     }
 
-    val intent = Intent(context, AxerActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-    }
 
     val pendingIntent = PendingIntent.getActivity(
         context,
         0,
-        intent,
+        NotificationInfo.getLaunchIntent(context),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val clearIntent =
+        Intent(context, ClearAllRequestBroadcastReceiver::class.java)
+    val clearPendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            11,
+            clearIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    val action = NotificationCompat.Action(
+        R.drawable.ic_exception,
+        "Clear",
+        clearPendingIntent,
     )
 
     val notification = NotificationCompat.Builder(context, NotificationInfo.CHANNEL_ID)
@@ -50,6 +60,7 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         .setSmallIcon(R.drawable.ic_http)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
+        .addAction(action)
         .build()
 
     notificationManager.notify(NotificationInfo.REQUEST_NOTIFICATION_ID, notification)

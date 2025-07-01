@@ -6,9 +6,12 @@
         <activity
             android:name="io.github.orioneee.AxerActivity"
             android:launchMode="singleTask"
-            android:label="Axer"
             android:taskAffinity="io.github.orioneee.axer"
             android:exported="true" />
+
+        <receiver
+            android:name="io.github.orioneee.ClearAllRequestBroadcastReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>
