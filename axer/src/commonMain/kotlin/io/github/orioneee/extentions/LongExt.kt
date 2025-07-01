@@ -7,11 +7,11 @@ import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant.Companion.fromEpochMilliseconds
+import kotlin.time.Instant
 
 @OptIn(FormatStringsInDatetimeFormats::class, ExperimentalTime::class)
 internal fun Long.formateAsTime(): String {
-    val instant = fromEpochMilliseconds(this)
+    val instant = Instant.fromEpochMilliseconds(this)
     val timeZone = TimeZone.currentSystemDefault()
     val dateTime = instant.toLocalDateTime(timeZone)
 
