@@ -1,34 +1,41 @@
 # Axer Library
 
 <div align="center">
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.32%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.51%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/requests.gif" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/exceptions.gif" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/room.gif" width="30%" style="margin: 10px;" />
+
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.32%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.18.51%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.19.17%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
   <br />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.19.17%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.30%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.30%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.57%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.25.15%E2%80%AFPM.png" width="30%" style="margin: 10px;" />
   <br />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.20.57%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/Screenshot%202025-06-29%20at%2010.25.15%E2%80%AFPM.png" width="45%" style="margin: 10px;" />
+
 </div>
+
+Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
 
 
 
 Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
 
-**Note**: Axer is currently in alpha (`1.0.0-alpha19`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
+**Note**: Axer is currently in alpha (`1.0.0-alpha20`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
 
 ## Installation
 
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-alpha19")
+implementation("io.github.orioneee:axer:1.0.0-alpha20")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-alpha19")
+implementation("io.github.orioneee:axer-no-op:1.0.0-alpha20")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -45,7 +52,7 @@ In your `Application` class:
 
 ```kotlin
 class SampleApplication : Application() {
-    //dont forget to register your application in AndroidManifest.xml
+  //dont forget to register your application in AndroidManifest.xml
   override fun onCreate() {
     super.onCreate()
     Axer.initialize(this)
@@ -55,10 +62,10 @@ class SampleApplication : Application() {
 
 ```xml
 <application
-    android:name=".SampleApplication" // add this
-    android:icon="@android:mipmap/sym_def_app_icon"
-    android:label="sample"
-    android:theme="@android:style/Theme.Material.NoActionBar">
+        android:name=".SampleApplication" // add this
+        android:icon="@android:mipmap/sym_def_app_icon"
+        android:label="sample"
+        android:theme="@android:style/Theme.Material.NoActionBar">
 ```
 
 ## Usage
@@ -86,15 +93,15 @@ val client = HttpClient {
     }
 
     responseReducer = { response ->
-        response.copy(
-          headers = response.headers.mapValues { (key, value) ->
-            if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
-          }
-        ) // this will change content type which display only in UI
+      response.copy(
+        headers = response.headers.mapValues { (key, value) ->
+          if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+        }
+      ) // this will change content type which display only in UI
     }
 
     requestImportantSelector = { request ->
-        listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
+      listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
     }
 
     responseImportantSelector = { response ->
@@ -128,7 +135,7 @@ val client = OkHttpClient.Builder()
       } // if you want highlight any important data in request
       .setResponseImportantSelector { response ->
         listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
-      } 
+      }
       .build()
   )
   .build()
@@ -224,7 +231,7 @@ The only required configuration is setting the driver:
 - **iOS Limitations**:
   - Stack traces are not supported.
   - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in alpha (`1.0.0-alpha19`) and may have bugs or breaking changes in future releases.
+- **Stability**: The library is in alpha (`1.0.0-alpha20`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
 
