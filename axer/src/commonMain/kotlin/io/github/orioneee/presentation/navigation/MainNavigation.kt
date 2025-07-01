@@ -1,5 +1,8 @@
 package io.github.orioneee.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,6 +19,10 @@ internal class MainNavigation {
         NavHost(
             navController = navController,
             startDestination = Routes.REQUESTS_FLOW.route,
+            exitTransition = { fadeOut(tween(300)) },
+            popEnterTransition = { fadeIn(tween(300)) },
+            enterTransition = { fadeIn(tween(300)) },
+            popExitTransition = { fadeOut(tween(300)) }
         ) {
             composable(Routes.REQUESTS_FLOW.route) {
                 RequestsEntryPoint.RequestContent()

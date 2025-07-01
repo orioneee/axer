@@ -135,11 +135,10 @@ fun App() {
                 listOf("status: ${response.status}")
             }
             requestFilter = { request ->
-                println("Called requestFilter for ${request.path}")
                 true
             }
             responseFilter = { response ->
-                false
+                true
             }
             requestReducer = { request ->
                 request.copy(path = request.path + "?reduced=true")

@@ -7,10 +7,12 @@ import io.github.orioneee.koin.IsolatedContext
 actual fun openAxer() {
     val context: Context by IsolatedContext.koin.inject()
     val intent = Intent(context, AxerActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     }
-
     context.startActivity(intent)
 }
+
 
 actual fun initializeIfCan() {}

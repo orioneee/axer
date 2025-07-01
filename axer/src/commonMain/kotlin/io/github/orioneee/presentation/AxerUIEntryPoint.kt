@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.orioneee.Axer
+import io.github.orioneee.extentions.navigateSaveState
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
@@ -42,7 +43,7 @@ class AxerUIEntryPoint {
                                 label = { Text(it.label) },
                                 selected = it.route.route == currentRoute,
                                 onClick = {
-                                    navController.navigate(it.route.route)
+                                    navController.navigateSaveState(it.route.route)
                                 }
                             )
                         }

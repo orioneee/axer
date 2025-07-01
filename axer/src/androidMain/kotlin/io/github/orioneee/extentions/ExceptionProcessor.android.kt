@@ -29,7 +29,9 @@ internal actual fun notifyAboutException(exception: AxerException) {
     val notificationText = exception.shortName
 
     val intent = Intent(context, AxerActivity::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     }
 
     val pendingIntent = PendingIntent.getActivity(
