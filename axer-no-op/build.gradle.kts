@@ -113,8 +113,8 @@ mavenPublishing {
     )
 
     pom {
-        name = "Axer"
-        description = "Debugging tool for Kotlin Multiplatform applications"
+        name = "Axer no-op"
+        description = "A no-op implementation of Axer, which do nothing which can be used in production without any changes to the codebase."
         inceptionYear = "2025"
         url = "https://github.com/orioneee/Axer"
         licenses {
