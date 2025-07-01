@@ -29,7 +29,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.material3)
             implementation(libs.kotlinx.datetime)
@@ -48,7 +47,7 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
 
-            implementation(project(":axer-no-op"))
+            implementation(project(":axer"))
         }
 
         commonTest.dependencies {

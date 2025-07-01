@@ -4,11 +4,9 @@ on:
   push:
     paths:
       - 'axer/template/**'
-
   release:
     types: [published, prereleased]
-
-
+  workflow_dispatch:
 
 jobs:
   update_readme:
@@ -18,19 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          fetch-tags: true
-          ref: ${{ github.ref }}
+          fetch-depth: 0  # fetch all history and tags
 
       - name: Get latest Git tag
         id: get_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0 || echo "0.0.0")
           echo "tag=$latest_tag" >> $GITHUB_OUTPUT
-
-      - name: Replace version in template_README.MD
-        run: |
-          sed "s/{{AXER_VERSION}}/${{ steps.get_tag.outputs.tag }}/" axer/template/template_README.MD > README.md
 
       - name: Determine branch or default to main
         id: extract_branch
@@ -42,12 +34,28 @@ jobs:
             echo "branch=main" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit and push updated README.md
+      - name: Pull latest changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git pull origin ${{ steps.extract_branch.outputs.branch }} --rebase || true
+
+      - name: Replace version in template README
+        run: |
+          sed "s/{{AXER_VERSION}}/${{ steps.get_tag.outputs.tag }}/" axer/template/template_README.MD > README.md
+
+      - name: Commit and push updated README.md if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add README.md
-          git diff --cached --quiet || git commit -m "update version in README.md to ${{ steps.get_tag.outputs.tag }}"
-          git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          if ! git diff --cached --quiet; then
+            git commit -m "update version in README.md to ${{ steps.get_tag.outputs.tag }}"
+            git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
+          else
+            echo "No changes to commit"
+          fi

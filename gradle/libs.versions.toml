@@ -4,13 +4,13 @@ accompanistPermissions = "0.37.3"
 coilCompose = "3.2.0"
 composableTable = "1.3.1"
 kodeview = "0.9.0"
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 agp = "8.10.1"
 maven-publish = "0.32.0"
 kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.8.1"
-kotlinx-datetime = "0.6.2"
-ktor = "3.1.3"
+kotlinx-serialization = "1.9.0"
+kotlinx-datetime = "0.7.0-0.6.x-compat"
+ktor = "3.2.0"
 koin = "4.1.0"
 compose = "1.8.1"
 androidx-activityCompose = "1.10.1"
@@ -19,15 +19,10 @@ permissions = "0.19.1"
 permissionsNotifications = "0.19.1"
 permissionsCompose = "0.19.1"
 room = "2.7.2"
-ksp = "2.1.21-2.0.2"
+ksp = "2.2.0-2.0.2"
 sqlite = "2.5.2"
 androidx-lifecycle = "2.9.0"
 navigationCompose = "2.9.0-beta03"
-kotlinStdlib = "2.1.21"
-kotlinTest = "2.1.21"
-runner = "1.6.2"
-core = "1.6.1"
-junit = "1.2.1"
 
 
 [libraries]
@@ -38,7 +33,6 @@ kodeview = { module = "dev.snipme:kodeview", version.ref = "kodeview" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -70,11 +64,6 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
-kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
-androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
-androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 
 
 [plugins]
