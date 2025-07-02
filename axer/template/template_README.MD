@@ -186,6 +186,22 @@ You need initialize logger, this will apply base to Napier
 ```kotlin
 Axer.initializeLogger()
 ```
+than you can log just like in android but call Axer
+```kotlin
+Axer.d("App", "Test debug log")
+//Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
+Axer.e("App", "Test error log")
+//Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
+Axer.i("App", "Test info log")
+//Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
+Axer.w("App", "Test warning log")
+//Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
+Axer.v("App", "Test verbose log")
+//Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
+Axer.wtf("App", "Test assert log")
+Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
+```
+
 <div style="display: flex; justify-content: center; margin-top: 20px;">
   <table style="border-collapse: collapse; text-align: center;">
     <tr>
