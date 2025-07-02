@@ -6,13 +6,15 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class CleanAxerAntiLog() : Antilog() {
+    @OptIn(ExperimentalTime::class)
     override fun performLog(
         priority: LogLevel,
         tag: String?,
         throwable: Throwable?,
         message: String?
     ) {
-        performPlatformLog(priority, tag, throwable, message)
+        val time = Clock.System.now().toEpochMilliseconds()
+        performPlatformLog(priority, tag, throwable, message, time)
     }
 }
 
