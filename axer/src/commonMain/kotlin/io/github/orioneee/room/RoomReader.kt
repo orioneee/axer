@@ -113,14 +113,14 @@ internal class RoomReader(
         pageSize: Int?,
     ): List<List<RoomCell?>> {
         val result = mutableListOf<List<RoomCell?>>()
-        val statement = if(
+        val statement = if (
             page != null && pageSize != null
-        ){
+        ) {
             connection.prepare("SELECT * FROM $tableName LIMIT ? OFFSET ?").apply {
                 bindLong(1, pageSize.toLong())
                 bindLong(2, (page * pageSize).toLong())
             }
-        } else{
+        } else {
             connection.prepare("SELECT * FROM $tableName")
         }
 
@@ -267,13 +267,58 @@ internal class RoomReader(
         }
     }
 
+    fun extractTableName(query: String): String? {
+        val normalized =
+            query.trim().replace("\n", " ").replace("\t", " ").replace(Regex("\\s+"), " ")
+        val words = normalized.split(" ")
+
+        return when {
+            normalized.startsWith("INSERT", ignoreCase = true) -> {
+                // INSERT INTO tableName ...
+                val intoIndex = words.indexOfFirst { it.equals("INTO", ignoreCase = true) }
+                if (intoIndex != -1 && intoIndex + 1 < words.size) words[intoIndex + 1] else null
+            }
+
+            normalized.startsWith("UPDATE", ignoreCase = true) -> {
+                // UPDATE tableName SET ...
+                if (words.size > 1) words[1] else null
+            }
+
+            normalized.startsWith("DELETE", ignoreCase = true) -> {
+                // DELETE FROM tableName ...
+                val fromIndex = words.indexOfFirst { it.equals("FROM", ignoreCase = true) }
+                if (fromIndex != -1 && fromIndex + 1 < words.size) words[fromIndex + 1] else null
+            }
+
+            normalized.startsWith("CREATE", ignoreCase = true) -> {
+                // CREATE TABLE tableName ...
+                val tableIndex = words.indexOfFirst { it.equals("TABLE", ignoreCase = true) }
+                if (tableIndex != -1 && tableIndex + 1 < words.size) words[tableIndex + 1] else null
+            }
+
+            normalized.startsWith("ALTER", ignoreCase = true) -> {
+                // ALTER TABLE tableName ...
+                val tableIndex = words.indexOfFirst { it.equals("TABLE", ignoreCase = true) }
+                if (tableIndex != -1 && tableIndex + 1 < words.size) words[tableIndex + 1] else null
+            }
+
+            normalized.startsWith("DROP", ignoreCase = true) -> {
+                // DROP TABLE tableName ...
+                val tableIndex = words.indexOfFirst { it.equals("TABLE", ignoreCase = true) }
+                if (tableIndex != -1 && tableIndex + 1 < words.size) words[tableIndex + 1] else null
+            }
+
+            else -> null
+        }
+    }
+
+
     suspend fun executeRawQuery(
         query: String
     ): QueryResponse {
         val columns = mutableSetOf<SchemaItem>()
         val rows = mutableListOf<List<RoomCell?>>()
         val statement = connection.prepare(query)
-
         val columnCount = statement.getColumnCount()
 
         try {
@@ -326,7 +371,11 @@ internal class RoomReader(
         } finally {
             statement.close()
         }
-        return QueryResponse(
+        val editQueries = listOf(
+            "UPDATE", "INSERT", "DELETE", "CREATE", "ALTER", "DROP"
+        )
+        val isEditable = editQueries.any { query.startsWith(it, ignoreCase = true) }
+        val originalResponse = QueryResponse(
             schema = columns.toList(),
             rows = rows.map { row ->
                 RowItem(
@@ -335,6 +384,15 @@ internal class RoomReader(
                 )
             }
         )
+        if (!isEditable) {
+            return originalResponse
+        } else {
+            val tableName = extractTableName(query)
+            if (tableName == null) {
+                return originalResponse
+            }
+            return executeRawQuery("SELECT * FROM $tableName")
+        }
     }
 
 }
