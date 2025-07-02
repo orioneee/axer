@@ -76,7 +76,7 @@ internal class RawQueryViewModel : ViewModel() {
     }
 
     init {
-        reader.axerDriver.queryFlow
+        reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
                 executeQuery()

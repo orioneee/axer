@@ -142,7 +142,7 @@ internal class DatabaseInspectionViewModel(
 
     init {
         getSchema()
-        reader.axerDriver.queryFlow
+        reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
                 if (tableName == null) {

@@ -9,6 +9,7 @@ import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.navigation.Routes
 import io.github.orioneee.presentation.screens.database.ListTables
 import io.github.orioneee.presentation.screens.database.TableDetails
+import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesScreen
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryScreen
 
 internal class DatabaseMobileNavigation {
@@ -55,6 +56,11 @@ internal class DatabaseMobileNavigation {
                         navController.popBackStack()
                     }
                 )
+            }
+            composable(
+                Routes.ALL_QUERIES.route,
+            ) {
+                AllQueriesScreen().Screen(navController)
             }
         }
     }

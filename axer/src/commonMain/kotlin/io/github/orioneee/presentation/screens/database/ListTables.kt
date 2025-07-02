@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -22,6 +25,7 @@ import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -60,7 +64,7 @@ internal class ListTables {
 
                 val animatedRowCount = animateIntAsState(rowCountTarget.value)
 
-                LaunchedEffect(it.rowCount){
+                LaunchedEffect(it.rowCount) {
                     rowCountTarget.value = it.rowCount
                 }
                 ListItem(
@@ -80,6 +84,12 @@ internal class ListTables {
                         .clip(RoundedCornerShape(16.dp))
                         .clickable { onClickToTable(it) },
                 )
+            }
+            item(
+                span = { GridItemSpan(1) }
+            ) {
+                Spacer(Modifier.height(70.dp))
+
             }
         }
     }
@@ -112,6 +122,15 @@ internal class ListTables {
                         }
                     }
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(Routes.ALL_QUERIES.route)
+                    }
+                ) {
+                    Text("All Queries", Modifier.padding(4.dp))
+                }
             }
         ) { contentPadding ->
             Box(

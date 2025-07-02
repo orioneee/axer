@@ -1,6 +1,7 @@
 package io.github.orioneee.koin
 
 import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
+import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
 import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
 import io.github.orioneee.presentation.screens.requests.RequestViewModel
@@ -45,6 +46,9 @@ internal object Modules {
         }
         viewModel {
             RawQueryViewModel()
+        }
+        viewModel {
+            AllQueriesViewModel()
         }
     }
 }
