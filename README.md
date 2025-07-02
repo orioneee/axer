@@ -16,23 +16,23 @@
 
 </div>
 
-Axer is a library designed to monitor HTTP requests, record exceptions (fatal and non-fatal), and inspect Room databases in real-time with the ability to execute custom queries and edit values in table. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
+Axer is a library designed to monitor **HTTP requests**, record **exceptions** (fatal and non-fatal), **inspect Room** databases in real-time with the ability to execute custom queries and edit values in table. Also library provide **logging** functional. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
 
 
-**Note**: Axer is currently in alpha (`1.0.0-alpha22`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
+**Note**: Axer is currently in alpha (`1.0.0-alpha23`) and is not considered stable. It supports Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash capturing via `installAxerErrorHandler` are not supported.
 
 ## Installation
 
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-alpha22")
+implementation("io.github.orioneee:axer:1.0.0-alpha23")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-alpha22")
+implementation("io.github.orioneee:axer-no-op:1.0.0-alpha23")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -168,6 +168,38 @@ AxerUIEntryPoint().Screen()
 
 These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI. Also you can acces ui in android, ios by clicking on notification(**requare notification permissions**)
 
+### Logger
+Logger maded by [Napier](https://github.com/AAkira/Napier)
+
+**if you already use Napier you just need install logsaver**
+
+```kotlin
+Napier.base(AxerLogSaver())
+```
+
+and simply log with napier as before, all logs will be saved and displayed
+
+**if you dont use Napier**
+You need initialize logger, this will apply base to Napier
+```kotlin
+Axer.initializeLogger()
+```
+and after that you can log just as in android but calling axer
+```kotlin
+Axer.d("App", "Test debug log")
+Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
+Axer.e("App", "Test error log")
+Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
+Axer.i("App", "Test info log")
+Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
+Axer.w("App", "Test warning log")
+Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
+Axer.v("App", "Test verbose log")
+Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
+Axer.wtf("App", "Test assert log")
+Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
+```
+
 ### Exception Handling
 
 Axer can capture fatal crashes and manually recorded exceptions.
@@ -228,7 +260,7 @@ The only required configuration is setting the driver:
 - **iOS Limitations**:
   - Stack traces are not supported.
   - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in alpha (`1.0.0-alpha22`) and may have bugs or breaking changes in future releases.
+- **Stability**: The library is in alpha (`1.0.0-alpha23`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
 
