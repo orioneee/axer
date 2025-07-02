@@ -76,6 +76,8 @@ kotlin {
 
 
             implementation(libs.composable.table)
+
+            implementation(libs.napier)
         }
 
         val iosMain by creating {

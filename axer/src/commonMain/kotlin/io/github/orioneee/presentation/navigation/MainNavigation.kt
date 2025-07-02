@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import io.github.orioneee.presentation.screens.DatabaseEntryPoint
 import io.github.orioneee.presentation.screens.ExceptionEntryPoint
 import io.github.orioneee.presentation.screens.RequestsEntryPoint
+import io.github.orioneee.presentation.screens.logView.LogViewScreen
 
 internal class MainNavigation {
     @Composable
@@ -32,6 +33,9 @@ internal class MainNavigation {
             }
             composable(Routes.DATABASE_FLOW.route) {
                 DatabaseEntryPoint.DatabaseContent()
+            }
+            composable(Routes.LOG_VIEW.route) {
+                LogViewScreen().Screen(navController)
             }
         }
     }

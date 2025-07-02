@@ -6,7 +6,7 @@ import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.room.AxerBundledSQLiteDriver
-import io.github.orioneee.room.RoomReader
+import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow

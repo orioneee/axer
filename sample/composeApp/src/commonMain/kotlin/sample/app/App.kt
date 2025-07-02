@@ -9,8 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import io.github.aakira.napier.Napier
 import io.github.orioneee.Axer
-import io.github.orioneee.domain.requests.Request
+import io.github.orioneee.processors.AxerLogSaver
+import io.github.orioneee.processors.CleanAxerAntiLog
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -118,7 +120,7 @@ internal fun populateDatabase(database: SampleDatabase) {
 
 @Composable
 fun App() {
-    Axer.installAxerErrorHandler()
+    Axer.initializeLogger()
     handlePermissions()
     val client = HttpClient {
         install(DefaultRequest) {
@@ -231,11 +233,27 @@ fun App() {
                     database.getMovieDao().getAllMovies().let {
                         println("Movies in database: ${it.size}")
                     }
-                    println("Directors in database: ${database.getDirectorDao().getAllDirectors().size}")
+                    println(
+                        "Directors in database: ${
+                            database.getDirectorDao().getAllDirectors().size
+                        }"
+                    )
                 }
             }
         ) {
             Text("Get all movies and directors")
+        }
+        Button(
+            onClick = {
+                Axer.d(tag = "App", "Test debug log")
+                Axer.i(tag = "App", "Test info log")
+                Axer.e(tag = "App", "Test error log")
+                Axer.w(tag = "App", "Test warning log")
+                Axer.v(tag = "App", "Test verbose log")
+                Axer.wtf(tag = "App", "Test assert log")
+            }
+        ) {
+            Text("Test logs")
         }
     }
 }

@@ -7,26 +7,32 @@ import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.room.converters.ListConverter
 import io.github.orioneee.room.converters.MapConverter
 import io.github.orioneee.room.dao.RequestDao
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.room.AxerBundledSQLiteDriver
+import io.github.orioneee.room.converters.LogLevelConverter
 import io.github.orioneee.room.dao.AxerExceptionDao
+import io.github.orioneee.room.dao.LogsDAO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
     entities = [
         Transaction::class,
-        AxerException::class
+        AxerException::class,
+        LogLine::class,
     ],
-    version = 10
+    version = 14
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
-@TypeConverters(MapConverter::class, ListConverter::class)
+@TypeConverters(MapConverter::class, ListConverter::class, LogLevelConverter::class)
 internal abstract class AxerDatabase : RoomDatabase() {
     abstract fun getRequestDao(): RequestDao
     abstract fun getAxerExceptionDao(): AxerExceptionDao
+    abstract fun getLogsDao(): LogsDAO
 }
 
 // Room compiler generates the `actual` implementations

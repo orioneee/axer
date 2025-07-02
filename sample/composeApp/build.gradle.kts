@@ -46,6 +46,8 @@ kotlin {
 
             implementation(libs.androidx.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation(libs.napier)
+
 
             implementation(project(":axer"))
         }
@@ -61,7 +63,6 @@ kotlin {
             implementation(libs.androidx.activityCompose)
 
             implementation(libs.koin.android)
-
         }
 
         jvmMain.dependencies {

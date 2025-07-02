@@ -1,6 +1,6 @@
 package io.github.orioneee.domain.database
 
-import io.github.orioneee.room.RoomReader
+import io.github.orioneee.processors.RoomReader
 
 internal data class SchemaItem(
     val name: String,

@@ -4,6 +4,7 @@ import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewMo
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
 import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
+import io.github.orioneee.presentation.screens.logView.LogViewViewModel
 import io.github.orioneee.presentation.screens.requests.RequestViewModel
 import io.github.orioneee.room.AxerDatabase
 import org.koin.core.module.Module
@@ -25,6 +26,10 @@ internal object Modules {
         single {
             val database: AxerDatabase = get()
             database.getAxerExceptionDao()
+        }
+        single {
+            val database: AxerDatabase = get()
+            database.getLogsDao()
         }
     }
 
@@ -49,6 +54,9 @@ internal object Modules {
         }
         viewModel {
             AllQueriesViewModel()
+        }
+        viewModel {
+            LogViewViewModel()
         }
     }
 }

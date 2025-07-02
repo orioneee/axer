@@ -37,8 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.orioneee.domain.database.RowItem
-import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
 import com.sunnychung.lib.android.composabletable.ux.Table
 import io.github.orioneee.extentions.formate
@@ -49,7 +47,7 @@ internal fun HeaderCell(
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onClick: (() -> Unit)? = null,
     isSortColumn: Boolean,
-    isDescending: Boolean
+    isDescending: Boolean = false
 ) {
     if (text != null) {
         Box(
@@ -267,26 +265,27 @@ internal fun PaginationUI(
 }
 
 @Composable
-internal fun ViewSQLTable(
-    headers: List<SchemaItem>,
-    row: List<RowItem>,
+internal fun <T, R> ViewTable(
+    headers: List<T>,
+    rows: List<R>,
     withDeleteButton: Boolean,
-    headerUI: @Composable (SchemaItem, Int, Int) -> Unit,
-    cellUI: @Composable (RowItem, SchemaItem, Int, Int) -> Unit,
-    deleteButtonUI: @Composable (RowItem, Int) -> Unit,
-    deleteButtonHeaderUI: @Composable () -> Unit,
+    headerUI: @Composable (T, Int, Int) -> Unit,
+    cellUI: @Composable (R, T, Int, Int) -> Unit,
+    deleteButtonUI: (@Composable (R, Int) -> Unit)? = null,
+    deleteButtonHeaderUI: (@Composable () -> Unit)? = null,
     stickyRowCount: Int = 1,
     stickyColumnCount: Int = 1,
+    modifier: Modifier = Modifier
+        .clip(RoundedCornerShape(8.dp))
+        .border(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline,
+            shape = RoundedCornerShape(8.dp)
+        ),
 ) {
     Table(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(8.dp)
-            ),
-        rowCount = row.size + 1,
+        modifier = modifier,
+        rowCount = rows.size + 1,
         columnCount = headers.size.let {
             if (withDeleteButton) {
                 it + 1
@@ -304,18 +303,18 @@ internal fun ViewSQLTable(
                 columnIndex
             )
         } else if (rowIndex == 0 && columnIndex == headers.size && withDeleteButton) {
-            deleteButtonHeaderUI.invoke()
+            deleteButtonHeaderUI?.invoke()
         } else if (rowIndex > 0 && columnIndex < headers.size) {
             cellUI.invoke(
-                row[rowIndex - 1],
+                rows[rowIndex - 1],
                 headers[columnIndex],
                 rowIndex,
                 columnIndex
             )
         } else {
             if (withDeleteButton) {
-                deleteButtonUI.invoke(
-                    row[rowIndex - 1],
+                deleteButtonUI?.invoke(
+                    rows[rowIndex - 1],
                     rowIndex - 1
                 )
             } else {

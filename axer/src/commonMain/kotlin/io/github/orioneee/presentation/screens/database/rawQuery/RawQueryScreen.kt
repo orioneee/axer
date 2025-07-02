@@ -46,7 +46,7 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
-import io.github.orioneee.presentation.components.ViewSQLTable
+import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -87,7 +87,8 @@ internal class RawQueryScreen {
                             onClick = onBack,
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back"
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
                             )
                         }
                     },
@@ -173,9 +174,9 @@ internal class RawQueryScreen {
                         CircularProgressIndicator()
                     }
                 } else {
-                    ViewSQLTable(
+                    ViewTable(
                         headers = schema,
-                        row = currentItems,
+                        rows = currentItems,
                         withDeleteButton = false,
                         headerUI = { item, rowIndex, columnIndex ->
                             HeaderCell(
@@ -219,9 +220,7 @@ internal class RawQueryScreen {
                                 },
                             )
                         },
-                        deleteButtonUI = { line, rowIndex ->
-                        },
-                        deleteButtonHeaderUI = {})
+                    )
                 }
             }
         }

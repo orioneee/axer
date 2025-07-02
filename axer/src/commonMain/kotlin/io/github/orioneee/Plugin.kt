@@ -4,7 +4,7 @@ import io.github.orioneee.config.AxerConfig
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.extentions.getPlatformStackTrace
 import io.github.orioneee.extentions.isValidImage
-import io.github.orioneee.requestProcessor.RequestProcessor
+import io.github.orioneee.processors.RequestProcessor
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin

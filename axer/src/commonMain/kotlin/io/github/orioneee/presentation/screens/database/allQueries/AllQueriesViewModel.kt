@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dev.snipme.highlights.Highlights
 import generateAnnotatedString
 import io.github.orioneee.room.AxerBundledSQLiteDriver
-import io.github.orioneee.room.RoomReader
+import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

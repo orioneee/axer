@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.presentation.clickableWithoutRipple
 import io.github.orioneee.extentions.formateAsTime
+import io.github.orioneee.presentation.components.FilterRow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -108,53 +109,7 @@ internal class RequestListScreen() {
         )
     }
 
-    @Composable
-    fun <T> FilterRow(
-        items: List<T>,
-        selectedItems: List<T>,
-        onItemClicked: (T) -> Unit,
-        onClear: () -> Unit,
-        getItemString: (T) -> String,
-        withClearButton: Boolean = true
-    ) {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (withClearButton) {
-                item {
-                    IconButton(
-                        onClick = onClear,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Clear,
-                            contentDescription = "Clear Filters"
-                        )
-                    }
-                }
-            } else {
-                item {
-                    Spacer(Modifier.width(8.dp))
-                }
-            }
-            items(items) {
-                val isSelected = selectedItems.contains(it)
-                val itemString = getItemString(it)
-                InputChip(
-                    label = {
-                        Text(itemString)
-                    },
-                    selected = isSelected,
-                    onClick = {
-                        onItemClicked(it)
-                    },
-                )
-            }
-        }
-    }
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable

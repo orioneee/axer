@@ -1,4 +1,4 @@
-package io.github.orioneee.requestProcessor
+package io.github.orioneee.processors
 
 import io.github.orioneee.Axer
 import io.github.orioneee.domain.requests.Transaction

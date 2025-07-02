@@ -2,7 +2,7 @@ package io.github.orioneee.room
 
 import androidx.sqlite.SQLiteStatement
 
-class AxerSqlStatement(
+internal class AxerSqlStatement(
     private val originalStatement: SQLiteStatement,
     query: String,
     private val onStep: (String) -> Unit,

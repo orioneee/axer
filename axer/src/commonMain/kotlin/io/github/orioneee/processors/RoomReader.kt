@@ -1,4 +1,4 @@
-package io.github.orioneee.room
+package io.github.orioneee.processors
 
 import androidx.sqlite.SQLiteStatement
 import io.github.orioneee.domain.database.EditableRowItem
@@ -7,6 +7,7 @@ import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.Table
+import io.github.orioneee.room.AxerBundledSQLiteDriver
 
 internal class RoomReader(
     val axerDriver: AxerBundledSQLiteDriver

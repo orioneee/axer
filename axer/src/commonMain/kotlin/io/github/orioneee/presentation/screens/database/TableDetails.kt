@@ -35,7 +35,7 @@ import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.DeleteButton
 import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
-import io.github.orioneee.presentation.components.ViewSQLTable
+import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.presentation.navigation.Routes
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -178,9 +178,9 @@ internal class TableDetails {
                     },
                     currentItemsSize = currentItems.value.size,
                 )
-                ViewSQLTable(
+                ViewTable(
                     headers = schema,
-                    row = currentItems.value,
+                    rows = currentItems.value,
                     withDeleteButton = true,
                     headerUI = { item, rowIndex, columnIndex ->
                         HeaderCell(

@@ -1,7 +1,9 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 
-package io.github.orioneee.requestProcessor
+package io.github.orioneee.processors
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -15,12 +17,12 @@ import io.github.orioneee.koin.IsolatedContext
 internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val context: Context = IsolatedContext.koinApp.koin.get()
     val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    val channel = android.app.NotificationChannel(
+    val channel = NotificationChannel(
         NotificationInfo.CHANNEL_ID,
         NotificationInfo.CHANNEL_NAME,
-        android.app.NotificationManager.IMPORTANCE_LOW
+        NotificationManager.IMPORTANCE_LOW
     )
     notificationManager.createNotificationChannel(channel)
 

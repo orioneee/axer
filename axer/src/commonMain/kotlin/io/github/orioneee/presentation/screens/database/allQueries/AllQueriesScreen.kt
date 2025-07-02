@@ -11,7 +11,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,11 +19,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.room.AxerBundledSQLiteDriver
 import org.koin.compose.viewmodel.koinViewModel
 
 class AllQueriesScreen {
@@ -82,7 +79,9 @@ class AllQueriesScreen {
                 } else {
                     SelectionContainer {
                         LazyColumn(
-                            modifier = Modifier.horizontalScroll(rememberScrollState())
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .horizontalScroll(rememberScrollState())
                         ) {
                             items(queries.value) {
                                 Text(it)
