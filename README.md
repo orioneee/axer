@@ -179,26 +179,28 @@ Napier.base(AxerLogSaver())
 
 and simply log with napier as before, all logs will be saved and displayed
 
+
+
 **if you dont use Napier**
 You need initialize logger, this will apply base to Napier
 ```kotlin
 Axer.initializeLogger()
 ```
-and after that you can log just as in android but calling axer
-```kotlin
-Axer.d("App", "Test debug log")
-Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
-Axer.e("App", "Test error log")
-Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
-Axer.i("App", "Test info log")
-Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
-Axer.w("App", "Test warning log")
-Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
-Axer.v("App", "Test verbose log")
-Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
-Axer.wtf("App", "Test assert log")
-Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
-```
+<div style="display: flex; justify-content: center; margin-top: 20px;">
+  <table style="border-collapse: collapse; text-align: center;">
+    <tr>
+      <td>
+        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_ide.png" alt="Logs Screenshot" width="500px" style="margin: 10px;" />
+        <div>In IDE</div>
+      </td>
+      <td>
+        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs.png" alt="IDE Logs Screenshot" width="500px" style="margin: 10px;" />
+        <div>In Axer</div>
+      </td>
+    </tr>
+  </table>
+</div>
+
 
 ### Exception Handling
 
