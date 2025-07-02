@@ -1,3 +1,5 @@
+import org.jetbrains.compose.internal.utils.getLocalProperty
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
@@ -146,9 +148,13 @@ android {
     }
 }
 
+val isLocal = project.getLocalProperty("isLocal") == "true"
+
 mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
+    if (!isLocal) {
+        publishToMavenCentral()
+        signAllPublications()
+    }
 
     coordinates(
         groupId = "io.github.orioneee",
@@ -180,6 +186,22 @@ mavenPublishing {
             connection = "scm:git:git://github.com/orioneee/Axer.git"
             developerConnection = "scm:git:ssh://git@github.com/orioneee/Axer.git"
         }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("kmpLibrary") {
+            from(components["kotlin"])
+
+            groupId = "io.github.orioneee"
+            artifactId = "axer"
+            version = libraryVersion
+        }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }
 

@@ -5,4 +5,4 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 
 @Composable
-expect fun BoxScope.PlatfromScrollBar(state: LazyListState)
+expect fun BoxScope.PlatformScrollBar(state: LazyListState)

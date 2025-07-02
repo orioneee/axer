@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-actual fun BoxScope.PlatfromScrollBar(state: LazyListState) {
+actual fun BoxScope.PlatformScrollBar(state: LazyListState) {
     VerticalScrollbar(
         modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
         adapter = rememberScrollbarAdapter(

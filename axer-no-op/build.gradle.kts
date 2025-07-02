@@ -1,3 +1,5 @@
+import org.jetbrains.compose.internal.utils.getLocalProperty
+
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
@@ -100,9 +102,14 @@ android {
     }
 }
 
+val isLocal = project.getLocalProperty("isLocal") == "true"
+
+
 mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
+    if (!isLocal) {
+        publishToMavenCentral()
+        signAllPublications()
+    }
 
     coordinates(
         groupId = "io.github.orioneee",
@@ -112,7 +119,8 @@ mavenPublishing {
 
     pom {
         name = "Axer no-op"
-        description = "A no-op implementation of Axer, which do nothing which can be used in production without any changes to the codebase."
+        description =
+            "A no-op implementation of Axer, which do nothing which can be used in production without any changes to the codebase."
         inceptionYear = "2025"
         url = "https://github.com/orioneee/Axer"
         licenses {
@@ -134,5 +142,21 @@ mavenPublishing {
             connection = "scm:git:git://github.com/orioneee/Axer.git"
             developerConnection = "scm:git:ssh://git@github.com/orioneee/Axer.git"
         }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("kmpLibrary") {
+            from(components["kotlin"])
+
+            groupId = "io.github.orioneee"
+            artifactId = "axer-no-op"
+            version = libraryVersion
+        }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }

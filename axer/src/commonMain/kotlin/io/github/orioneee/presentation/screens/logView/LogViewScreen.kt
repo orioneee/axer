@@ -5,9 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,11 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.extentions.formateAsDate
-import io.github.orioneee.extentions.formateAsTime
 import io.github.orioneee.presentation.components.FilterRow
-import io.github.orioneee.presentation.components.HeaderCell
-import io.github.orioneee.presentation.components.PlatfromScrollBar
-import io.github.orioneee.presentation.components.ViewTable
+import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.warning
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -173,7 +167,7 @@ class LogViewScreen {
                                         }
                                     }
                                 }
-                                PlatfromScrollBar(listState)
+                                PlatformScrollBar(listState)
                             }
                         }
                     }
