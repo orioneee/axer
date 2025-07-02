@@ -147,7 +147,7 @@ mavenPublishing {
 
 publishing {
     publications {
-        create<MavenPublication>("kmpLibrary") {
+        create<MavenPublication>("kmpLibrary-no-op") {
             from(components["kotlin"])
 
             groupId = "io.github.orioneee"

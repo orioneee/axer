@@ -5,6 +5,7 @@ package io.github.orioneee
 import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import io.github.orioneee.domain.logs.LogProcessor
+import io.github.orioneee.processors.AxerLogSaver
 import io.github.orioneee.processors.CleanAxerAntiLog
 import io.github.orioneee.processors.ExceptionProcessor
 import kotlin.time.Clock
@@ -41,7 +42,7 @@ object Axer {
     }
 
     fun initializeLogger() {
-        Napier.base(CleanAxerAntiLog())
+        Napier.base(AxerLogSaver())
     }
 
     @OptIn(ExperimentalTime::class)
@@ -66,12 +67,7 @@ object Axer {
     }
 
     @OptIn(ExperimentalTime::class)
-    fun e(
-        tag: String? = null,
-        message: String,
-        throwable: Throwable? = null,
-        record: Boolean = true
-    ) {
+    fun e(tag: String? = null, message: String, throwable: Throwable? = null, record: Boolean = true) {
         if (record) {
             val time = Clock.System.now().toEpochMilliseconds()
             val processor = LogProcessor()
@@ -87,12 +83,7 @@ object Axer {
     }
 
     @OptIn(ExperimentalTime::class)
-    fun i(
-        tag: String? = null,
-        message: String,
-        throwable: Throwable? = null,
-        record: Boolean = true
-    ) {
+    fun i(tag: String? = null, message: String, throwable: Throwable? = null, record: Boolean = true) {
         if (record) {
             val time = Clock.System.now().toEpochMilliseconds()
             val processor = LogProcessor()
@@ -108,12 +99,7 @@ object Axer {
     }
 
     @OptIn(ExperimentalTime::class)
-    fun v(
-        tag: String? = null,
-        message: String,
-        throwable: Throwable? = null,
-        record: Boolean = true
-    ) {
+    fun v(tag: String? = null, message: String, throwable: Throwable? = null, record: Boolean = true) {
         if (record) {
             val time = Clock.System.now().toEpochMilliseconds()
             val processor = LogProcessor()
@@ -129,12 +115,7 @@ object Axer {
     }
 
     @OptIn(ExperimentalTime::class)
-    fun w(
-        tag: String? = null,
-        message: String,
-        throwable: Throwable? = null,
-        record: Boolean = true
-    ) {
+    fun w(tag: String? = null, message: String, throwable: Throwable? = null, record: Boolean = true) {
         if (record) {
             val processor = LogProcessor()
             processor.onLog(
@@ -149,12 +130,7 @@ object Axer {
     }
 
     @OptIn(ExperimentalTime::class)
-    fun wtf(
-        tag: String? = null,
-        message: String,
-        throwable: Throwable? = null,
-        record: Boolean = true
-    ) {
+    fun wtf(tag: String? = null, message: String, throwable: Throwable? = null, record: Boolean = true) {
         if (record) {
             val time = Clock.System.now().toEpochMilliseconds()
             val processor = LogProcessor()

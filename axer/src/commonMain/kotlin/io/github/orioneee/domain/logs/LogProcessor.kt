@@ -8,7 +8,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class LogProcessor {
@@ -26,7 +25,9 @@ class LogProcessor {
                 (throwable?.let { "\n${it.getPlatformStackTrace()}" } ?: "")
         val line = LogLine(
             tag = tag,
-            message = newMessage,
+            message = newMessage.let {
+                if (it.length > 2000) it.take(2000) + "... (truncated)" else it
+            },
             level = level,
             time = time
         )
