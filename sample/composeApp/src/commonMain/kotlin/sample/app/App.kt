@@ -246,19 +246,19 @@ fun App() {
         Button(
             onClick = {
                 Axer.d("App", "Test debug log")
-                Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
+//                Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
 
                 Axer.e("App", "Test error log")
-                Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
+//                Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
 
                 Axer.i("App", "Test info log")
-                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
+//                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
 
                 Axer.w("App", "Test warning log")
-                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
+//                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
 
                 Axer.v("App", "Test verbose log")
-                Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
+//                Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
 
                 Axer.wtf("App", "Test assert log")
                 Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))

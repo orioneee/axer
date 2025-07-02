@@ -42,7 +42,7 @@ object Axer {
     }
 
     fun initializeLogger() {
-        Napier.base(AxerLogSaver())
+        Napier.base(CleanAxerAntiLog())
     }
 
     @OptIn(ExperimentalTime::class)
