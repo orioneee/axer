@@ -33,11 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.logs
+import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.warning
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 class LogViewScreen {
@@ -59,7 +63,7 @@ class LogViewScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Logs") },
+                    title = { Text(stringResource(Res.string.logs)) },
                     actions = {
                         IconButton(
                             onClick = {
@@ -88,7 +92,7 @@ class LogViewScreen {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = androidx.compose.ui.Alignment.Center
                     ) {
-                        Text("No logs found")
+                        Text(stringResource(Res.string.nothing_found))
                     }
                 } else {
                     Column {

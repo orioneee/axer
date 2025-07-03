@@ -30,6 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.action
+import io.github.orioneee.axer.generated.resources.clear
+import io.github.orioneee.axer.generated.resources.close
+import io.github.orioneee.axer.generated.resources.table
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.DeleteButton
@@ -37,6 +42,7 @@ import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
 import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.presentation.navigation.Routes
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -82,7 +88,11 @@ internal class TableDetails {
             },
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Table - $tableName") },
+                    title = {
+                        Text(
+                            stringResource(Res.string.table, tableName)
+                        )
+                    },
                     navigationIcon = {
                         IconButton(
                             onClick = {
@@ -112,7 +122,7 @@ internal class TableDetails {
                                 viewModel.clearTable()
                             }
                         ) {
-                            Text("Clear")
+                            Text(stringResource(Res.string.clear))
                         }
                     }
                 )
@@ -150,7 +160,8 @@ internal class TableDetails {
                         value = selectedItem?.editedValue?.value ?: "",
                         onValueChange = {
                             val newCell =
-                                selectedItem?.editedValue?.copy(value = it) ?: return@TextField
+                                selectedItem?.editedValue?.copy(value = it)
+                                    ?: return@TextField
                             viewModel.onEditableItemChanged(selectedItem?.copy(editedValue = newCell))
                         },
                         leadingIcon = if (selectedItem?.schemaItem?.isNullable == true) {
@@ -237,7 +248,7 @@ internal class TableDetails {
                     },
                     deleteButtonHeaderUI = {
                         HeaderCell(
-                            text = "Action",
+                            text = stringResource(Res.string.action),
                             isSortColumn = false,
                             isDescending = false,
                         )

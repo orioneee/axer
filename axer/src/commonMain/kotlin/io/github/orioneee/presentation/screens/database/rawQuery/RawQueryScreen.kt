@@ -42,12 +42,15 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.execute_query
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
 import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.extentions.sortBySortingItemAndChunck
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 internal class RawQueryScreen {
@@ -81,7 +84,7 @@ internal class RawQueryScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Raw query") },
+                    title = { Text(stringResource(Res.string.execute_query)) },
                     navigationIcon = {
                         IconButton(
                             onClick = onBack,

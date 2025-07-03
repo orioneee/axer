@@ -2,6 +2,7 @@ package io.github.orioneee.presentation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import io.github.orioneee.extentions.navigateSaveState
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
 
 class AxerUIEntryPoint {
@@ -30,26 +32,28 @@ class AxerUIEntryPoint {
                 val navController = rememberNavController()
                 val currentBackStack by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStack?.destination?.route
-                NavigationSuiteScaffold(
-                    navigationSuiteItems = {
-                        FlowDestinations.entries.forEach {
-                            item(
-                                icon = {
-                                    Icon(
-                                        it.icon,
-                                        contentDescription = null
-                                    )
-                                },
-                                label = { Text(it.label) },
-                                selected = it.route.route == currentRoute,
-                                onClick = {
-                                    navController.navigateSaveState(it.route.route)
-                                }
-                            )
+                Surface {
+                    NavigationSuiteScaffold(
+                        navigationSuiteItems = {
+                            FlowDestinations.entries.forEach {
+                                item(
+                                    icon = {
+                                        Icon(
+                                            it.icon,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    label = { Text(stringResource(it.label)) },
+                                    selected = it.route == currentRoute,
+                                    onClick = {
+                                        navController.navigateSaveState(it.route)
+                                    }
+                                )
+                            }
                         }
+                    ) {
+                        MainNavigation().Host(navController)
                     }
-                ) {
-                    MainNavigation().Host(navController)
                 }
             }
         }

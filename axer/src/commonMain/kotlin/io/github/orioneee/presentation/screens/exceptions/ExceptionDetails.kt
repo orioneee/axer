@@ -26,9 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.message
+import io.github.orioneee.axer.generated.resources.name
+import io.github.orioneee.axer.generated.resources.no_exception_found_with_id
+import io.github.orioneee.axer.generated.resources.stack_trace
+import io.github.orioneee.axer.generated.resources.time
+import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.buildStringSection
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -48,7 +56,7 @@ internal class ExceptionDetails {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No exception found with ID: $exceptionID")
+                Text(stringResource(Res.string.no_exception_found_with_id, exceptionID))
             }
         } else {
             Scaffold(
@@ -89,7 +97,7 @@ internal class ExceptionDetails {
                     SelectionContainer {
                         Text(
                             buildStringSection(
-                                "Name",
+                                stringResource(Res.string.name),
                                 exception!!.shortName,
                             )
                         )
@@ -97,7 +105,7 @@ internal class ExceptionDetails {
                     SelectionContainer {
                         Text(
                             buildStringSection(
-                                "Message",
+                                stringResource(Res.string.message),
                                 exception!!.message,
                             )
                         )
@@ -105,15 +113,15 @@ internal class ExceptionDetails {
                     SelectionContainer {
                         Text(
                             buildStringSection(
-                                "Time",
-                                exception!!.time.formateAsTime(),
+                                stringResource(Res.string.time),
+                                exception!!.time.formateAsDate(),
                             )
                         )
                     }
                     if (exception!!.stackTrace.isNotBlank()) {
                         Spacer(Modifier.height(16.dp))
                         BodySection(
-                            title = "Stack Trace"
+                            title = stringResource(Res.string.stack_trace)
                         ) {
                             Box(
                                 modifier = Modifier

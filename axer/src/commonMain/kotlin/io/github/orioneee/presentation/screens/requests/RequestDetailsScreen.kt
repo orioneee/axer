@@ -52,12 +52,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.close
+import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
+import io.github.orioneee.axer.generated.resources.duration
+import io.github.orioneee.axer.generated.resources.error
+import io.github.orioneee.axer.generated.resources.headers
+import io.github.orioneee.axer.generated.resources.important
+import io.github.orioneee.axer.generated.resources.method
+import io.github.orioneee.axer.generated.resources.no_request_found_with_id
+import io.github.orioneee.axer.generated.resources.request_failed
+import io.github.orioneee.axer.generated.resources.request_size
+import io.github.orioneee.axer.generated.resources.request_tab
+import io.github.orioneee.axer.generated.resources.requests
+import io.github.orioneee.axer.generated.resources.response_size
+import io.github.orioneee.axer.generated.resources.response_tab
+import io.github.orioneee.axer.generated.resources.status
+import io.github.orioneee.axer.generated.resources.unknown
+import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.domain.requests.HighlightedBodyWrapper
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.CustomAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.max
@@ -89,7 +108,7 @@ internal class RequestDetailsScreen {
                     ) {
                         Text(
                             buildStringSection(
-                                title = "Important",
+                                title = stringResource(Res.string.important),
                                 content = "",
                                 separator = ""
                             )
@@ -150,7 +169,7 @@ internal class RequestDetailsScreen {
                     modifier = Modifier
                         .padding(16.dp),
                 ) {
-                    Text("Developer mark this as important")
+                    Text(stringResource(Res.string.developer_mark_this_as_important))
                     Spacer(Modifier.height(16.dp))
                     Row(
                         modifier = Modifier
@@ -164,7 +183,7 @@ internal class RequestDetailsScreen {
                                 isVisibleInfoDialog = false
                             }
                         ) {
-                            Text("Close")
+                            Text(stringResource(Res.string.close))
                         }
                     }
                 }
@@ -191,7 +210,7 @@ internal class RequestDetailsScreen {
                 ) {
                     Text(
                         buildStringSection(
-                            title = "Headers",
+                            title = stringResource(Res.string.headers),
                             content = ""
                         )
                     )
@@ -259,21 +278,21 @@ internal class RequestDetailsScreen {
                 Spacer(Modifier.height(16.dp))
             }
             SelectionContainer {
-                Text(buildStringSection("Url", request.fullUrl))
+                Text(buildStringSection(stringResource(Res.string.url), request.fullUrl))
             }
             SelectionContainer {
-                Text(buildStringSection("Method", request.method))
+                Text(buildStringSection(stringResource(Res.string.method), request.method))
             }
             Text(
                 buildStringSection(
-                    "Duration",
+                    stringResource(Res.string.duration),
                     if (request.responseTime != null) "${request.totalTime} ms" else ""
                 )
             )
             if ((request.requestBody?.toByteArray()?.size ?: 0) > 0) {
                 Text(
                     buildStringSection(
-                        "Request size",
+                        stringResource(Res.string.request_size),
                         getSizeText(request.requestBody?.toByteArray()?.size?.toLong() ?: 0L)
                     ),
                 )
@@ -326,16 +345,18 @@ internal class RequestDetailsScreen {
 
             Text(
                 buildStringSection(
-                    title = "Response size",
+                    title = stringResource(Res.string.response_size),
                     content = getSizeText(size)
                 )
             )
 
             Text(
                 buildStringSection(
-                    title = "Status",
+                    title = stringResource(Res.string.status),
                     content = request.responseStatus?.toString()
-                        ?: if (request.error != null) "Request failed" else "Unknown"
+                        ?: if (request.error != null) stringResource(Res.string.request_failed) else stringResource(
+                            Res.string.unknown
+                        )
                 )
             )
             if (request.responseHeaders.isNotEmpty()) {
@@ -365,7 +386,7 @@ internal class RequestDetailsScreen {
                             ) {
                                 SelectionContainer {
                                     Text(
-                                        "Error: ${request.error}",
+                                        stringResource(Res.string.error, request.error),
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 }
@@ -414,7 +435,7 @@ internal class RequestDetailsScreen {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No request found with ID: $requestId")
+                Text(stringResource(Res.string.no_request_found_with_id, requestId))
             }
         } else {
             Scaffold(
@@ -477,7 +498,7 @@ internal class RequestDetailsScreen {
                                     pager.animateScrollToPage(0)
                                 }
                             },
-                            text = { Text("Request") }
+                            text = { Text(stringResource(Res.string.request_tab)) }
                         )
                         Tab(
                             modifier = Modifier.clip(
@@ -492,7 +513,7 @@ internal class RequestDetailsScreen {
                                     pager.animateScrollToPage(1)
                                 }
                             },
-                            text = { Text("Response") }
+                            text = { Text(stringResource(Res.string.response_tab)) }
                         )
                     }
                     HorizontalPager(

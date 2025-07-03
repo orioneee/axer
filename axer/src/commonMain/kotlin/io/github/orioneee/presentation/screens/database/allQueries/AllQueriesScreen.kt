@@ -22,6 +22,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.all_queries
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 class AllQueriesScreen {
@@ -35,7 +38,7 @@ class AllQueriesScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("All queries") },
+                    title = { Text(stringResource(Res.string.all_queries)) },
                     navigationIcon = {
                         IconButton(
                             onClick = {

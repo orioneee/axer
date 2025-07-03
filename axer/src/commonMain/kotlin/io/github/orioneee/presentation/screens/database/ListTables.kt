@@ -43,11 +43,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.all_queries
+import io.github.orioneee.axer.generated.resources.database
+import io.github.orioneee.axer.generated.resources.driver_not_connected
+import io.github.orioneee.axer.generated.resources.nothing_found
+import io.github.orioneee.axer.generated.resources.rows_columns
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.formate
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.navigation.Routes
 import io.github.orioneee.room.AxerBundledSQLiteDriver
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -77,7 +84,11 @@ internal class ListTables {
                     },
                     supportingContent = {
                         Text(
-                            text = "Rows: ${animatedRowCount.value.formate()}, Columns: ${it.columnCount}",
+                            text = stringResource(
+                                Res.string.rows_columns,
+                                animatedRowCount.value.formate(),
+                                it.columnCount
+                            ),
                             maxLines = 1
                         )
                     },
@@ -108,7 +119,7 @@ internal class ListTables {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Database") },
+                    title = { Text(stringResource(Res.string.database)) },
                     actions = {
                         IconButton(
                             enabled = isInitialized,
@@ -133,7 +144,10 @@ internal class ListTables {
                         navController.navigate(Routes.ALL_QUERIES.route)
                     }
                 ) {
-                    Text("All Queries", Modifier.padding(4.dp))
+                    Text(
+                        stringResource(Res.string.all_queries),
+                        Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    )
                 }
             }
         ) { contentPadding ->
@@ -148,7 +162,7 @@ internal class ListTables {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Driver is not connected to database")
+                        Text(stringResource(Res.string.driver_not_connected))
                     }
                 } else {
                     LaunchedEffect(Unit) {
@@ -160,7 +174,7 @@ internal class ListTables {
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("No tables found")
+                            Text(stringResource(Res.string.nothing_found))
                         }
                     } else {
                         ListTableContent(
