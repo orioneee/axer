@@ -1,8 +1,9 @@
 name: Publish to MavenCentral
 
 on:
-  release:
-    types: [released, prereleased]
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
