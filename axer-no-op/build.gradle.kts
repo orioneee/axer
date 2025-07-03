@@ -37,11 +37,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.ktor.client.core)
+            api(libs.ktor.client.core)
             implementation(compose.material3)
             implementation(libs.sqlite.bundled)
             implementation(libs.napier)
-            implementation(project(":logger"))
+            api(project(":logger"))
         }
 
         val iosMain by creating {
@@ -53,7 +53,7 @@ kotlin {
         val jvmAndAndroid by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(libs.okhttp)
+                api(libs.okhttp)
             }
         }
 

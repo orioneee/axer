@@ -51,11 +51,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
 
             implementation(libs.kotlinx.datetime)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.serialization)
-            implementation(libs.ktor.serialization.json)
-            implementation(libs.ktor.client.logging)
+            api(libs.ktor.client.core)
+            api(libs.ktor.client.content.negotiation)
+            api(libs.ktor.client.serialization)
+            api(libs.ktor.serialization.json)
+            api(libs.ktor.client.logging)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -80,21 +80,21 @@ kotlin {
             implementation(libs.composable.table)
 
             implementation(libs.napier)
-            implementation(project(":logger"))
+            api(project(":logger"))
         }
 
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(libs.ktor.client.darwin)
+                api(libs.ktor.client.darwin)
             }
         }
 
         val jvmAndAndroid by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(libs.ktor.client.okhttp)
-                implementation(libs.okhttp)
+                api(libs.ktor.client.okhttp)
+                api(libs.okhttp)
             }
         }
 
@@ -113,7 +113,7 @@ kotlin {
             dependsOn(jvmAndAndroid)
             dependencies {
                 implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.ktor.client.okhttp)
+                api(libs.ktor.client.okhttp)
                 implementation(libs.koin.android)
             }
         }
