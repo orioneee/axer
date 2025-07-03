@@ -39,7 +39,6 @@ internal class ListDatabaseViewModel : ViewModel() {
         reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
-                Axer.d("ListDatabaseViewModel", "Database change detected: $it", record = false)
                 loadDatabases()
             }
             .launchIn(viewModelScope)
