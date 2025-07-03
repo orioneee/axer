@@ -19,4 +19,4 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
     }
 }
 
-expect fun logAboutException(exception: Throwable, exit: Boolean)
+internal expect fun logAboutException(exception: Throwable, exit: Boolean)
