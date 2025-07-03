@@ -41,7 +41,6 @@ kotlin {
             implementation(compose.material3)
             implementation(libs.sqlite.bundled)
             implementation(libs.napier)
-            api(project(":logger"))
         }
 
         val iosMain by creating {

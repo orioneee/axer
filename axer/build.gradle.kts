@@ -80,7 +80,6 @@ kotlin {
             implementation(libs.composable.table)
 
             implementation(libs.napier)
-            api(project(":logger"))
         }
 
         val iosMain by creating {
