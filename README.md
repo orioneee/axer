@@ -38,7 +38,7 @@ edit values in table. Also library provide **logging** functional. It is inspire
 the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like
 Room database inspection.
 
-**Note**: Axer is currently in alpha (`1.0.0-beta03`) and is not considered stable. It supports
+**Note**: Axer is currently in alpha (`1.0.0-beta04`) and is not considered stable. It supports
 Android, JVM, and iOS platforms. However, iOS has limitations: stack traces and fatal crash
 capturing via `installAxerErrorHandler` are not supported.
 
@@ -47,14 +47,14 @@ capturing via `installAxerErrorHandler` are not supported.
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-beta03")
+implementation("io.github.orioneee:axer:1.0.0-beta04")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code
 changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-beta03")
+implementation("io.github.orioneee:axer-no-op:1.0.0-beta04")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in
@@ -316,7 +316,7 @@ The only required configuration is setting the driver:
 - **iOS Limitations**:
     - Stack traces are not supported.
     - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in beta (`1.0.0-beta03`) and may have bugs or breaking changes
+- **Stability**: The library is in beta (`1.0.0-beta04`) and may have bugs or breaking changes
   in future releases.
 
 ## Inspiration
