@@ -251,7 +251,7 @@ fun App() {
                 Axer.i("App", "Test info log")
 //                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
 
-                Axer.w("Tag2", "Test warning log")
+                Axer.w("Tag2", "Test warning log", record = false) // This will not be recorded in Axer but will be logged
 //                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
 
                 Axer.v("Tag2", "Test verbose log")
