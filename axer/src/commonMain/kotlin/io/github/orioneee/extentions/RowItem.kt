@@ -2,12 +2,12 @@ package io.github.orioneee.extentions
 
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SortColumn
-import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
+import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.processors.RoomReader
 
 internal fun List<RowItem>.sortBySortingItemAndChunck(
     sortColumn: SortColumn?,
-    pageSize: Int = DatabaseInspectionViewModel.PAGE_SIZE
+    pageSize: Int = TableDetailsViewModel.PAGE_SIZE
 ) = sortBySortingItem(sortColumn).chunked(pageSize)
 
 

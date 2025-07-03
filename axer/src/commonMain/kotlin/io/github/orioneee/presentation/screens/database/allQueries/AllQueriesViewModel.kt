@@ -11,8 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class AllQueriesViewModel : ViewModel() {
-    private val reader = RoomReader(AxerBundledSQLiteDriver.instance)
+class AllQueriesViewModel(
+): ViewModel() {
+    private val reader = RoomReader()
     val allQueryFlow = MutableStateFlow<List<String>>(listOf())
 
     init {

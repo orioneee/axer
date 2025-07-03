@@ -77,8 +77,6 @@ kotlin {
             implementation(libs.kodeview)
 
 
-            implementation(libs.composable.table)
-
             implementation(libs.napier)
         }
 

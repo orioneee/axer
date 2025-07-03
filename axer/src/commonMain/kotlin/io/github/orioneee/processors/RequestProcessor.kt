@@ -2,6 +2,8 @@
 
 package io.github.orioneee.processors
 
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.name
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.RequestDao

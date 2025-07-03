@@ -11,8 +11,11 @@ import androidx.core.app.NotificationCompat
 import io.github.orioneee.ClearAllRequestBroadcastReceiver
 import io.github.orioneee.NotificationInfo
 import io.github.orioneee.axer.R
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.clear
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.koin.IsolatedContext
+import org.jetbrains.compose.resources.getString
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val context: Context = IsolatedContext.koinApp.koin.get()
@@ -26,7 +29,6 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
     )
     notificationManager.createNotificationChannel(channel)
 
-    // PendingIntent to open app
     val pendingIntent = PendingIntent.getActivity(
         context,
         0,
@@ -34,7 +36,6 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    // Clear action
     val clearIntent = Intent(context, ClearAllRequestBroadcastReceiver::class.java)
     val clearPendingIntent = PendingIntent.getBroadcast(
         context,
@@ -42,13 +43,13 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         clearIntent,
         PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
     )
+
     val action = NotificationCompat.Action(
         R.drawable.ic_exception_short_cut,
-        "Clear",
+        getString(Res.string.clear),
         clearPendingIntent
     )
 
-    // Compose notification content and inbox style
     val inboxStyle = NotificationCompat.InboxStyle()
     val lines = requests.map {
         val statusCode = it.responseStatus ?: "..."
@@ -59,7 +60,6 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
 
     lines.forEach { inboxStyle.addLine(it) }
 
-    // Optional: set summary text (collapsed version)
     if (lines.isNotEmpty()) {
         inboxStyle.setSummaryText("${lines.size} request${if (lines.size > 1) "s" else ""}")
     }

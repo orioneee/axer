@@ -1,8 +1,9 @@
 package io.github.orioneee.koin
 
-import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
+import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
+import io.github.orioneee.presentation.screens.database.tableList.ListDatabaseViewModel
 import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
 import io.github.orioneee.presentation.screens.logView.LogViewViewModel
 import io.github.orioneee.presentation.screens.requests.RequestViewModel
@@ -46,17 +47,20 @@ internal object Modules {
                 exceptionID = exceptionID
             )
         }
-        viewModel { (tableName: String?) ->
-            DatabaseInspectionViewModel(tableName)
+        viewModel { (file: String, tableName: String) ->
+            TableDetailsViewModel(file, tableName)
         }
-        viewModel {
-            RawQueryViewModel()
+        viewModel { (file: String) ->
+            RawQueryViewModel(file)
         }
         viewModel {
             AllQueriesViewModel()
         }
         viewModel {
             LogViewViewModel()
+        }
+        viewModel {
+            ListDatabaseViewModel()
         }
     }
 }

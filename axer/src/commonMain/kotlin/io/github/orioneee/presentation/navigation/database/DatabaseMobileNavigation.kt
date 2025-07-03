@@ -7,10 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.presentation.screens.database.ListTables
 import io.github.orioneee.presentation.screens.database.TableDetails
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesScreen
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryScreen
+import io.github.orioneee.presentation.screens.database.tableList.ListTables
 
 internal class DatabaseMobileNavigation {
     @Composable
@@ -30,28 +30,31 @@ internal class DatabaseMobileNavigation {
             ) {
                 ListTables().Screen(
                     navController = navController,
-                    onClickToTable = {
-                        navController.navigate(
-                            Routes.TABLE_DETAILS.route + "/${it.name}",
-                        )
-                    },
                 )
             }
             composable(
-                Routes.TABLE_DETAILS.route + "/{tableName}",
+                Routes.TABLE_DETAILS.route + "/{name}/{tableName}",
             ) {
                 val tableName = it.arguments?.read {
                     getString("tableName")
                 }
+                val file = it.arguments?.read {
+                    getString("name")
+                }
                 TableDetails().Screen(
+                    name = file ?: "",
                     navController = navController,
                     tableName = tableName ?: "",
                 )
             }
             composable(
-                Routes.RAW_QUERY.route,
+                Routes.RAW_QUERY.route + "/{name}",
             ) {
+                val name = it.arguments?.read {
+                    getString("name")
+                } ?: return@composable
                 RawQueryScreen().Screen(
+                    name = name,
                     onBack = {
                         navController.popBackStack()
                     }

@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.RawOn
@@ -33,8 +35,6 @@ import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.action
 import io.github.orioneee.axer.generated.resources.clear
-import io.github.orioneee.axer.generated.resources.close
-import io.github.orioneee.axer.generated.resources.table
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.DeleteButton
@@ -51,11 +51,12 @@ internal class TableDetails {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
+        name: String,
         tableName: String,
         navController: NavHostController,
     ) {
-        val viewModel: DatabaseInspectionViewModel = koinViewModel {
-            parametersOf(tableName)
+        val viewModel: TableDetailsViewModel = koinViewModel {
+            parametersOf(name, tableName)
         }
         LaunchedEffect(Unit) {
             viewModel.getTableContent()
@@ -90,7 +91,7 @@ internal class TableDetails {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            stringResource(Res.string.table, tableName)
+                            "$name - $tableName"
                         )
                     },
                     navigationIcon = {
@@ -108,7 +109,7 @@ internal class TableDetails {
                     actions = {
                         IconButton(
                             onClick = {
-                                navController.navigate(Routes.RAW_QUERY.route)
+                                navController.navigate(Routes.RAW_QUERY.route + "/$name")
                             }
                         ) {
                             Icon(
@@ -132,7 +133,9 @@ internal class TableDetails {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .verticalScroll(rememberScrollState())
+                ,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 AnimatedVisibility(

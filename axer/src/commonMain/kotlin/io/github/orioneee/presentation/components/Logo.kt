@@ -16,6 +16,7 @@ fun AxerLogo(){
         painter = painterResource(Res.drawable.ic_logo),
         contentDescription = "Logo",
         tint = Color.Unspecified,
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier
+            .padding(12.dp)
     )
 }

@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 
 class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     val driver = BundledSQLiteDriver()
-    lateinit var fileName: String
+    val dbFiles = mutableSetOf<String>()
 
 
     fun isSqlQueryChangeData(sql: String): Boolean {
@@ -31,15 +31,19 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     )
     val changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
+    fun onDataUpdate(){
+        changeDataFlow.tryEmit("onDataUpdate")
+    }
+
 
     init {
         Axer.initIfCan()
     }
 
     override fun open(fileName: String): SQLiteConnection {
-        if (!::fileName.isInitialized || this.fileName != fileName) {
+        if (!dbFiles.contains(fileName)){
+            dbFiles.add(fileName)
             changeDataFlow.tryEmit(fileName)
-            this.fileName = fileName
         }
         val connection = driver.open(fileName)
         return object : SQLiteConnection {

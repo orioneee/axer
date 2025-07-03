@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -52,14 +54,18 @@ import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 internal class RawQueryScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
+        name: String,
         onBack: () -> Unit,
     ) {
-        val viewModel: RawQueryViewModel = koinViewModel()
+        val viewModel: RawQueryViewModel = koinViewModel {
+            parametersOf(name)
+        }
         val queryResponse by viewModel.queryResponse.collectAsState()
         val sortingColumn by viewModel.sortColumn.collectAsState()
         val schema = remember(queryResponse) {
@@ -84,7 +90,7 @@ internal class RawQueryScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.execute_query)) },
+                    title = { Text(name) },
                     navigationIcon = {
                         IconButton(
                             onClick = onBack,
@@ -98,7 +104,12 @@ internal class RawQueryScreen {
                 )
             }) { contentPadding ->
             Column(
-                modifier = Modifier.Companion.fillMaxSize().padding(contentPadding).padding(8.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+                    .padding(8.dp)
+                    .verticalScroll(rememberScrollState())
+                ,
                 horizontalAlignment = Alignment.Companion.CenterHorizontally,
             ) {
                 OutlinedTextField(

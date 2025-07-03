@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
-import io.github.orioneee.room.AxerBundledSQLiteDriver
 import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +16,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
-internal class RawQueryViewModel : ViewModel() {
-    private val reader = RoomReader(AxerBundledSQLiteDriver.instance)
+internal class RawQueryViewModel(
+    private val name: String,
+) : ViewModel() {
+    private val reader = RoomReader()
 
     private val _currentQuery = MutableStateFlow("")
     val currentQuery = _currentQuery
@@ -49,7 +50,7 @@ internal class RawQueryViewModel : ViewModel() {
                 schema = emptyList()
             )
             try {
-                val response = reader.executeRawQuery(_currentQuery.value)
+                val response = reader.executeRawQuery(name, _currentQuery.value)
                 _queryResponse.value = response
             } catch (e: Exception) {
             } finally {
@@ -79,7 +80,9 @@ internal class RawQueryViewModel : ViewModel() {
         reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
-                executeQuery()
+                if(_currentQuery.value.startsWith("SELECT", ignoreCase = true)) {
+                    executeQuery()
+                }
             }
             .launchIn(viewModelScope)
     }

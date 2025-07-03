@@ -27,19 +27,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.orioneee.presentation.screens.database.DatabaseInspectionViewModel
-import com.sunnychung.lib.android.composabletable.ux.Table
 import io.github.orioneee.extentions.formate
+import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 
 @Composable
 internal fun HeaderCell(
@@ -167,7 +172,7 @@ internal fun PaginationUI(
     onSetPage: (Int) -> Unit
 ) {
     val firstVisibleItemIndex = remember(page) {
-        page * DatabaseInspectionViewModel.PAGE_SIZE
+        page * TableDetailsViewModel.PAGE_SIZE
     }
     val lastVisibleItemIndex = remember(firstVisibleItemIndex, currentItemsSize) {
         firstVisibleItemIndex + currentItemsSize - 1
@@ -176,7 +181,7 @@ internal fun PaginationUI(
         page > 0
     }
     val canPlusPage = remember(page, totalItems) {
-        (page + 1) * DatabaseInspectionViewModel.PAGE_SIZE < totalItems
+        (page + 1) * TableDetailsViewModel.PAGE_SIZE < totalItems
     }
 //    if (totalItems > 1) {
     Row(
@@ -239,7 +244,7 @@ internal fun PaginationUI(
         IconButton(
             enabled = canPlusPage,
             onClick = {
-                val lastPage = totalItems.toFloat().div(DatabaseInspectionViewModel.PAGE_SIZE)
+                val lastPage = totalItems.toFloat().div(TableDetailsViewModel.PAGE_SIZE)
                 //round to biggest integer
                 onSetPage(
                     if (lastPage % 1 == 0f) {
@@ -265,6 +270,171 @@ internal fun PaginationUI(
 }
 
 @Composable
+fun Table(
+    modifier: Modifier = Modifier,
+    rowCount: Int,
+    columnCount: Int,
+    maxCellWidthDp: Dp = Dp.Infinity,
+    maxCellHeightDp: Dp = Dp.Infinity,
+    cellContent: @Composable (rowIndex: Int, columnIndex: Int) -> Unit
+) {
+    val columnWidths = remember { mutableStateMapOf<Int, Int>() }
+    val rowHeights = remember { mutableStateMapOf<Int, Int>() }
+
+    if (columnCount != columnWidths.size || rowCount != rowHeights.size) {
+        columnWidths.clear()
+        rowHeights.clear()
+    }
+
+    val maxCellWidth = if (listOf(Dp.Infinity, Dp.Unspecified).contains(maxCellWidthDp)) {
+        Constraints.Infinity
+    } else {
+        with(LocalDensity.current) { maxCellWidthDp.toPx() }.toInt()
+    }
+    val maxCellHeight = if (listOf(Dp.Infinity, Dp.Unspecified).contains(maxCellHeightDp)) {
+        Constraints.Infinity
+    } else {
+        with(LocalDensity.current) { maxCellHeightDp.toPx() }.toInt()
+    }
+
+    // not using mutableStateListOf because the list is entirely replaced on mutations
+    var accumWidths by remember { mutableStateOf(listOf<Int>()) }
+    var accumHeights by remember { mutableStateOf(listOf<Int>()) }
+
+    @Composable
+    fun StickyCells(modifier: Modifier = Modifier, rowCount: Int, columnCount: Int) {
+        if (rowCount > 0 && columnCount > 0) {
+            Box(modifier = modifier) {
+                Layout(
+                    content = {
+                        (0 until rowCount).forEach { rowIndex ->
+                            (0 until columnCount).forEach { columnIndex ->
+                                cellContent(rowIndex, columnIndex)
+                            }
+                        }
+                    },
+                ) { measurables, constraints ->
+                    val placeables = measurables.mapIndexed { index, it ->
+                        val columnIndex = index % columnCount
+                        val rowIndex = index / columnCount
+                        it.measure(
+                            Constraints(
+                                minWidth = columnWidths[columnIndex] ?: 0,
+                                minHeight = rowHeights[rowIndex] ?: 0,
+                                maxWidth = columnWidths[columnIndex] ?: 0,
+                                maxHeight = rowHeights[rowIndex] ?: 0
+                            )
+                        )
+                    }
+
+                    val totalWidth = accumWidths[columnCount]
+                    val totalHeight = accumHeights[rowCount]
+
+                    layout(width = totalWidth, height = totalHeight) {
+                        placeables.forEachIndexed { index, placeable ->
+                            val columnIndex = index % columnCount
+                            val rowIndex = index / columnCount
+
+                            placeable.placeRelative(
+                                accumWidths[columnIndex],
+                                accumHeights[rowIndex]
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Box(modifier = modifier) {
+        Box(
+        ) {
+            Layout(
+                content = {
+                    (0 until rowCount).forEach { rowIndex ->
+                        (0 until columnCount).forEach { columnIndex ->
+                            cellContent(rowIndex, columnIndex)
+                        }
+                    }
+                },
+            ) { measurables, constraints ->
+                val placeables = measurables.mapIndexed { index, it ->
+                    val columnIndex = index % columnCount
+                    val rowIndex = index / columnCount
+                    it.measure(
+                        Constraints(
+                            minWidth = columnWidths[columnIndex] ?: 0,
+                            minHeight = rowHeights[rowIndex] ?: 0,
+                            maxWidth = maxCellWidth,
+                            maxHeight = maxCellHeight
+                        )
+                    )
+                }
+
+                placeables.forEachIndexed { index, placeable ->
+                    val columnIndex = index % columnCount
+                    val rowIndex = index / columnCount
+
+                    val existingWidth = columnWidths[columnIndex] ?: 0
+                    val maxWidth = maxOf(existingWidth, placeable.width)
+                    if (maxWidth > existingWidth || (existingWidth == 0 && maxWidth == existingWidth)) {
+                        columnWidths[columnIndex] = maxWidth
+                    }
+
+                    val existingHeight = rowHeights[rowIndex] ?: 0
+                    val maxHeight = maxOf(existingHeight, placeable.height)
+                    if (maxHeight > existingHeight || (existingHeight == 0 && maxHeight == existingHeight)) {
+                        rowHeights[rowIndex] = maxHeight
+                    }
+                }
+
+                accumWidths = mutableListOf(0).apply {
+                    (1..columnWidths.size).forEach { i ->
+                        this += this.last() + columnWidths[i - 1]!!
+                    }
+                }
+                accumHeights = mutableListOf(0).apply {
+                    (1..rowHeights.size).forEach { i ->
+                        this += this.last() + rowHeights[i - 1]!!
+                    }
+                }
+
+                val totalWidth = accumWidths.last()
+                val totalHeight = accumHeights.last()
+
+                layout(width = totalWidth, height = totalHeight) {
+                    placeables.forEachIndexed { index, placeable ->
+                        val columnIndex = index % columnCount
+                        val rowIndex = index / columnCount
+
+                        placeable.placeRelative(accumWidths[columnIndex], accumHeights[rowIndex])
+                    }
+                }
+            }
+        }
+
+        if (columnWidths.isEmpty() || rowHeights.isEmpty()) {
+            return@Box
+        }
+
+        StickyCells(
+            rowCount = 0,
+            columnCount = columnCount
+        )
+
+        StickyCells(
+            rowCount = rowCount,
+            columnCount = 0
+        )
+
+        StickyCells(
+            rowCount = 0,
+            columnCount = 0
+        )
+    }
+}
+
+@Composable
 internal fun <T, R> ViewTable(
     headers: List<T>,
     rows: List<R>,
@@ -273,8 +443,6 @@ internal fun <T, R> ViewTable(
     cellUI: @Composable (R, T, Int, Int) -> Unit,
     deleteButtonUI: (@Composable (R, Int) -> Unit)? = null,
     deleteButtonHeaderUI: (@Composable () -> Unit)? = null,
-    stickyRowCount: Int = 1,
-    stickyColumnCount: Int = 1,
     modifier: Modifier = Modifier
         .clip(RoundedCornerShape(8.dp))
         .border(
@@ -293,8 +461,6 @@ internal fun <T, R> ViewTable(
                 it
             }
         },
-        stickyRowCount = stickyRowCount,
-        stickyColumnCount = stickyColumnCount
     ) { rowIndex, columnIndex ->
         if (rowIndex == 0 && columnIndex < headers.size) {
             headerUI.invoke(

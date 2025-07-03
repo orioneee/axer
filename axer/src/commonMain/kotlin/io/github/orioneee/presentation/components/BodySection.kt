@@ -29,18 +29,28 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun BodySection(
     title: String = "Body",
+    modifier: Modifier = Modifier,
+    separator: String = ": ",
+    isExandable: Boolean = true,
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(true) }
     val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
-    Card {
+    Card(
+        modifier = modifier
+    ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        isExpanded = !isExpanded
+                        if (isExandable) {
+                            isExpanded = !isExpanded
+                        } else {
+                            onClick?.invoke()
+                        }
                     }
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -49,14 +59,17 @@ internal fun BodySection(
                 Text(
                     buildStringSection(
                         title = title,
-                        content = ""
+                        content = "",
+                        separator = separator
                     )
                 )
-                Image(
-                    modifier = Modifier.rotate(animatedRotation),
-                    imageVector = Icons.Outlined.KeyboardArrowDown,
-                    contentDescription = null
-                )
+                if (isExandable) {
+                    Image(
+                        modifier = Modifier.rotate(animatedRotation),
+                        imageVector = Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = null
+                    )
+                }
             }
             AnimatedVisibility(
                 visible = isExpanded

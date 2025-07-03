@@ -7,11 +7,9 @@ import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
-import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.sortBySortingItem
 import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.processors.RoomReader
-import io.github.orioneee.room.AxerBundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
@@ -25,17 +23,15 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
-internal class DatabaseInspectionViewModel(
-    private val tableName: String?,
+internal class TableDetailsViewModel(
+    private val file: String,
+    private val tableName: String,
 ) : ViewModel() {
     companion object {
         const val PAGE_SIZE = 20
     }
 
-    private val reader = RoomReader(AxerBundledSQLiteDriver.instance)
-
-    private val _tables = MutableStateFlow<List<Table>>(emptyList())
-    val tables = _tables.asStateFlow()
+    private val reader = RoomReader()
 
     private val _tableSchema = MutableStateFlow<List<SchemaItem>>(emptyList())
     val tableSchema = _tableSchema.asStateFlow()
@@ -77,53 +73,40 @@ internal class DatabaseInspectionViewModel(
     val message = _message.asStateFlow()
 
 
-    fun loadTables() {
-        viewModelScope.launch {
-            try {
-                val tableList = reader.getAllTables()
-                _tables.value = tableList
-            } catch (e: Exception) {
-                _tables.value = emptyList()
-            }
-        }
-    }
-
     fun getSchema() {
-        if (tableName == null) return
         viewModelScope.launch {
             try {
-                val schema = reader.getTableSchema(tableName)
+                val schema = reader.getTableSchema(file, tableName)
                 _tableSchema.value = schema
                 schema
             } catch (e: Exception) {
-                null
             }
         }
     }
 
     fun getTableContent() {
-        if (tableName != null) {
-            viewModelScope.launch {
-                launch {
-                    try {
-                        val content = reader.getTableContent(
-                            tableName,
-                            page = _currentPage.value,
-                            pageSize = PAGE_SIZE
-                        )
-                        _itemsOnPage.value = content
+        viewModelScope.launch {
+            launch {
+                try {
+                    val content = reader.getTableContent(
+                        file = file,
+                        tableName = tableName,
+                        page = _currentPage.value,
+                        pageSize = PAGE_SIZE
+                    )
+                    _itemsOnPage.value = content
 
-                    } catch (e: Exception) {
-                    }
+                } catch (e: Exception) {
                 }
-                launch {
-                    try {
-                        val size = reader.getTableSize(
-                            tableName,
-                        )
-                        _totalTotalItems.value = size
-                    } catch (e: Exception) {
-                    }
+            }
+            launch {
+                try {
+                    val size = reader.getTableSize(
+                        file = file,
+                        tableName = tableName,
+                    )
+                    _totalTotalItems.value = size
+                } catch (e: Exception) {
                 }
             }
         }
@@ -133,7 +116,10 @@ internal class DatabaseInspectionViewModel(
         viewModelScope.launch {
             try {
                 _editableRowItem.value = null
-                reader.clearTable(tableName ?: "")
+                reader.clearTable(
+                    file = file,
+                    tableName = tableName
+                )
                 getTableContent()
             } catch (e: Exception) {
             }
@@ -145,11 +131,7 @@ internal class DatabaseInspectionViewModel(
         reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
-                if (tableName == null) {
-                    loadTables()
-                } else {
-                    getTableContent()
-                }
+                getTableContent()
             }
             .launchIn(viewModelScope)
     }
@@ -157,11 +139,11 @@ internal class DatabaseInspectionViewModel(
     fun updateCell(
         editableItem: EditableRowItem
     ) {
-        if (tableName == null) return
         viewModelScope.launch(Dispatchers.IO) {
             _isUpdatingCell.value = true
             try {
                 reader.updateCell(
+                    file = file,
                     tableName = tableName,
                     editableItem = editableItem
                 )
@@ -191,7 +173,6 @@ internal class DatabaseInspectionViewModel(
     fun deleteRow(
         rowItem: RowItem
     ) {
-        if (tableName == null) return
         viewModelScope.launch {
             try {
                 _editableRowItem.value?.let {
@@ -200,7 +181,8 @@ internal class DatabaseInspectionViewModel(
                     }
                 }
                 reader.deleteRow(
-                    tableName,
+                    file = file,
+                    tableName = tableName,
                     row = rowItem
                 )
                 getTableContent()
@@ -232,7 +214,7 @@ internal class DatabaseInspectionViewModel(
     fun setPage(
         page: Int
     ) {
-        if(page != _currentPage.value) {
+        if (page != _currentPage.value) {
             _currentPage.value = page
             getTableContent()
         }

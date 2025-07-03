@@ -1,6 +1,10 @@
 package io.github.orioneee.processors
 
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.orioneee.domain.database.DatabaseEntity
+import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RoomCell
@@ -9,11 +13,31 @@ import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.room.AxerBundledSQLiteDriver
 
-internal class RoomReader(
-    val axerDriver: AxerBundledSQLiteDriver
-) {
-    val connection by lazy {
-        axerDriver.driver.open(axerDriver.fileName)
+internal class RoomReader {
+    val axerDriver = AxerBundledSQLiteDriver.instance
+    val connections = mutableListOf<DatabaseEntity>()
+
+    fun updateConnections() {
+        val dbFiles = axerDriver.dbFiles
+        dbFiles.forEach { file ->
+            if (connections.none { it.file == file }) {
+                val conn = axerDriver.open(file)
+                connections.add(DatabaseEntity(file, conn))
+            }
+        }
+    }
+
+    fun release(){
+        connections.forEach { it.connection.close() }
+        connections.clear()
+        axerDriver.dbFiles.clear()
+    }
+
+    fun getConnection(
+        file: String
+    ): SQLiteConnection {
+        updateConnections()
+        return connections.first { it.file.indexOf(file) != -1 }.connection
     }
 
     enum class SQLiteColumnType(
@@ -37,7 +61,11 @@ internal class RoomReader(
         }
     }
 
-    suspend fun getTableSize(tableName: String): Int {
+    suspend fun getTableSize(
+        file: String,
+        tableName: String
+    ): Int {
+        val connection = getConnection(file)
         val stmt = connection.prepare("SELECT COUNT(*) FROM $tableName")
         return try {
             if (stmt.step()) {
@@ -51,28 +79,44 @@ internal class RoomReader(
     }
 
 
-    suspend fun getAllTables(): List<Table> {
+    suspend fun getAllTables(
+        file: String
+    ): List<Table> {
+        val connection = getConnection(file)
         val tables = mutableListOf<String>()
-        val stmt = connection.prepare("SELECT name FROM sqlite_master WHERE type='table'")
+        val stmt =
+            connection.prepare("SELECT name FROM sqlite_master WHERE type='table'")
         while (stmt.step()) {
             val name = stmt.getText(0)
             tables.add(name)
         }
         stmt.close()
-        return tables/*.filter {
-            it != "sqlite_sequence" && it != "android_metadata" && it != "room_master_table"
-        }*/.map {
-            val rowCount = getTableSize(it)
-            val columnCount = getColumnCount(it)
+        return tables.map {
+            val rowCount = getTableSize(file, it)
+            val columnCount = getColumnCount(file, it)
             Table(
                 name = it,
                 rowCount = rowCount,
-                columnCount = columnCount
+                columnCount = columnCount,
             )
         }
     }
 
-    suspend fun getColumnCount(tableName: String): Int {
+    suspend fun getTablesFromAllDatabase(): List<DatabaseWrapped> {
+        updateConnections()
+        return connections.map {
+            DatabaseWrapped(
+                tables = getAllTables(it.file),
+                name = it.file.substringAfterLast("/").replace(".db", ""),
+            )
+        }
+    }
+
+    suspend fun getColumnCount(
+        file: String,
+        tableName: String
+    ): Int {
+        val connection = getConnection(file)
         val stmt = connection.prepare("PRAGMA table_info($tableName)")
         var count = 0
         while (stmt.step()) {
@@ -82,7 +126,11 @@ internal class RoomReader(
         return count
     }
 
-    suspend fun getTableSchema(tableName: String): List<SchemaItem> {
+    suspend fun getTableSchema(
+        file: String,
+        tableName: String
+    ): List<SchemaItem> {
+        val connection = getConnection(file)
         val stmt = connection.prepare("PRAGMA table_info($tableName)")
         val schema = mutableListOf<SchemaItem>()
         while (stmt.step()) {
@@ -109,10 +157,12 @@ internal class RoomReader(
     }
 
     suspend fun getTableContent(
+        file: String,
         tableName: String,
         page: Int?,
         pageSize: Int?,
     ): List<List<RoomCell?>> {
+        val connection = getConnection(file)
         val result = mutableListOf<List<RoomCell?>>()
         val statement = if (
             page != null && pageSize != null
@@ -168,32 +218,17 @@ internal class RoomReader(
         return result
     }
 
-    suspend fun clearTable(tableName: String) {
+    suspend fun clearTable(
+        file: String,
+        tableName: String
+    ) {
+        val connection = getConnection(file)
         val stmt = connection.prepare("DELETE FROM $tableName")
         try {
             stmt.step()
         } finally {
             stmt.close()
         }
-    }
-
-    private var lastDataVersion = -1
-
-    suspend fun hasTableChanged(): Boolean {
-        val stmt = connection.prepare("PRAGMA data_version")
-        val changed = try {
-            stmt.step()
-            val currentVersion = stmt.getInt(0) ?: -1
-            if (currentVersion != lastDataVersion) {
-                lastDataVersion = currentVersion
-                true
-            } else {
-                false
-            }
-        } finally {
-            stmt.close()
-        }
-        return changed
     }
 
     fun SQLiteStatement.bindCell(
@@ -215,6 +250,7 @@ internal class RoomReader(
     }
 
     suspend fun updateCell(
+        file: String,
         tableName: String,
         editableItem: EditableRowItem
     ) {
@@ -228,7 +264,7 @@ internal class RoomReader(
 
         val primarySchemaItem = editableItem.item.schema[indexOfPrimaryKey]
         val primaryKeyValue = editableItem.item.cells[indexOfPrimaryKey]
-
+        val connection = getConnection(file)
         val stmt = connection.prepare(
             "UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?"
         )
@@ -244,6 +280,7 @@ internal class RoomReader(
     }
 
     suspend fun deleteRow(
+        file: String,
         tableName: String,
         row: RowItem
     ) {
@@ -255,7 +292,7 @@ internal class RoomReader(
 
         val primaryKeySchemaItem = row.schema[indexOfPrimaryKey]
         val primaryKeyValue = row.cells[indexOfPrimaryKey]
-
+        val connection = getConnection(file)
         val stmt = connection.prepare(
             "DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?"
         )
@@ -315,8 +352,10 @@ internal class RoomReader(
 
 
     suspend fun executeRawQuery(
+        file: String,
         query: String
     ): QueryResponse {
+        val connection = getConnection(file)
         val columns = mutableSetOf<SchemaItem>()
         val rows = mutableListOf<List<RoomCell?>>()
         val statement = connection.prepare(query)
@@ -392,7 +431,7 @@ internal class RoomReader(
             if (tableName == null) {
                 return originalResponse
             }
-            return executeRawQuery("SELECT * FROM $tableName")
+            return executeRawQuery(file, "SELECT * FROM $tableName")
         }
     }
 
