@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -127,29 +129,13 @@ fun App() {
                 header("Authorization", "Bearer your_token_here")
             }
         }
-        install(Axer.ktorPlugin) {
-            requestImportantSelector = { request ->
-                listOf("request-url: ${request.method} path: ${request.path}")
-            }
-            responseImportantSelector = { response ->
-                listOf("status: ${response.status}")
-            }
-            requestFilter = { request ->
-                true
-            }
-            responseFilter = { response ->
-                true
-            }
-            requestReducer = { request ->
-                request.copy(path = request.path + "?reduced=true")
-            }
-            responseReducer = { response ->
-                response.copy(body = "REDACTED")
-            }
-        }
+        install(Axer.ktorPlugin)
     }
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.White),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
     ) {
@@ -158,12 +144,12 @@ fun App() {
                 sendGetRequest(client)
             }
         ) {
-            Axer.changeLocale(SupportedLocales.ENGLISH)
+//            Axer.changeLocale(SupportedLocales.ENGLISH)
             Text("Send get request")
         }
         Button(
             onClick = {
-                Axer.changeLocale(SupportedLocales.UKRAINIAN)
+//                Axer.changeLocale(SupportedLocales.UKRAINIAN)
                 sendPost(client)
             }
         ) {
@@ -171,7 +157,7 @@ fun App() {
         }
         Button(
             onClick = {
-                Axer.changeLocale(SupportedLocales.RUSSIAN)
+//                Axer.changeLocale(SupportedLocales.RUSSIAN)
                 sedRequestForImage(client)
             }
         ) {
@@ -255,7 +241,11 @@ fun App() {
                 Axer.i("App", "Test info log")
 //                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
 
-                Axer.w("Tag2", "Test warning log", record = false) // This will not be recorded in Axer but will be logged
+                Axer.w(
+                    "Tag2",
+                    "Test warning log",
+                    record = false
+                ) // This will not be recorded in Axer but will be logged
 //                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
 
                 Axer.v("Tag2", "Test verbose log")
