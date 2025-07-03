@@ -201,7 +201,7 @@ Axer.e("App", "Test error log")
 Axer.i("App", "Test info log")
 //Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
 Axer.w("App", "Test warning log")
-//Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
+//Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"), record = false) // record = false will just log without saving to Axer
 Axer.v("App", "Test verbose log")
 //Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
 Axer.wtf("App", "Test assert log")
