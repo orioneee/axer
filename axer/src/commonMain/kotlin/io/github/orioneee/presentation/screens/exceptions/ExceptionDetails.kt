@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import io.github.orioneee.extentions.formateAsTime
+import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.buildStringSection
 import org.koin.compose.viewmodel.koinViewModel

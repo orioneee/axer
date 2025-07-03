@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.extentions.formateAsDate
+import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.warning

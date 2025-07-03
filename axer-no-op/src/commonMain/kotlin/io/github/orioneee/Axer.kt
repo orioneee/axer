@@ -4,7 +4,8 @@ package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
-import io.github.orioneee.processors.CleanAxerAntiLog
+import io.github.orioneee.logger.PlatformLogger
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
@@ -28,9 +29,8 @@ object Axer {
     fun installAxerErrorHandler() {
     }
 
-    fun initializeLogger() {
-        Napier.base(CleanAxerAntiLog())
-    }
+    @Deprecated("No need to initialize logger")
+    fun initializeLogger(){}
 
     @OptIn(ExperimentalTime::class)
     fun d(
@@ -39,7 +39,13 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.d(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.DEBUG,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 
     @OptIn(ExperimentalTime::class)
@@ -49,7 +55,13 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.e(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.ERROR,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 
     @OptIn(ExperimentalTime::class)
@@ -59,33 +71,60 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.i(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.INFO,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 
+    @OptIn(ExperimentalTime::class)
     fun v(
         tag: String? = null,
         message: String,
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.v(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.VERBOSE,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 
+    @OptIn(ExperimentalTime::class)
     fun w(
         tag: String? = null,
         message: String,
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.w(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.WARNING,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 
+    @OptIn(ExperimentalTime::class)
     fun wtf(
         tag: String? = null,
         message: String,
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        Napier.wtf(tag = tag, message = message, throwable = throwable)
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.ASSERT,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
     }
 }

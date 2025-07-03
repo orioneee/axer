@@ -1,8 +1,8 @@
 package io.github.orioneee.domain.logs
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.extentions.getPlatformStackTrace
 import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.room.dao.LogsDAO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

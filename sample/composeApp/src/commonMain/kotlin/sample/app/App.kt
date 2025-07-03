@@ -9,10 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.aakira.napier.Napier
 import io.github.orioneee.Axer
-import io.github.orioneee.processors.AxerLogSaver
-import io.github.orioneee.processors.CleanAxerAntiLog
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -254,14 +251,14 @@ fun App() {
                 Axer.i("App", "Test info log")
 //                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
 
-                Axer.w("App", "Test warning log")
+                Axer.w("Tag2", "Test warning log")
 //                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
 
-                Axer.v("App", "Test verbose log")
+                Axer.v("Tag2", "Test verbose log")
 //                Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
 
                 Axer.wtf("App", "Test assert log")
-                Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
+                Axer.wtf("Tag3", "Test assert log with throwable", Throwable("Test throwable"))
             }
         ) {
             Text("Test logs")

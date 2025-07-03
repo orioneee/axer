@@ -41,7 +41,7 @@ kotlin {
             implementation(compose.material3)
             implementation(libs.sqlite.bundled)
             implementation(libs.napier)
-            implementation(libs.kotlinx.datetime)
+            implementation(project(":logger"))
         }
 
         val iosMain by creating {

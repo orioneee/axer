@@ -1,8 +1,8 @@
 package io.github.orioneee.processors
 
 import io.github.orioneee.domain.exceptions.AxerException
-import io.github.orioneee.extentions.getPlatformStackTrace
 import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.room.dao.AxerExceptionDao
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock

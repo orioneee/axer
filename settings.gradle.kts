@@ -33,3 +33,4 @@ dependencyResolutionManagement {
 include(":axer")
 include(":axer-no-op")
 include(":sample:composeApp")
+include(":logger")
