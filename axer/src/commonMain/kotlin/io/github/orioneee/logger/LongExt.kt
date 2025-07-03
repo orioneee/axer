@@ -10,7 +10,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(FormatStringsInDatetimeFormats::class, ExperimentalTime::class)
-fun Long.formateAsTime(): String {
+internal fun Long.formateAsTime(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val timeZone = TimeZone.currentSystemDefault()
     val dateTime = instant.toLocalDateTime(timeZone)
@@ -23,7 +23,7 @@ fun Long.formateAsTime(): String {
 }
 
 @OptIn(FormatStringsInDatetimeFormats::class, ExperimentalTime::class)
-fun Long.formateAsDate(): String {
+internal fun Long.formateAsDate(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val timeZone = TimeZone.currentSystemDefault()
     val dateTime = instant.toLocalDateTime(timeZone)
