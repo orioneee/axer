@@ -59,18 +59,6 @@ class LogViewScreen {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Logs") },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ArrowBackIosNew,
-                                contentDescription = "Raw Query"
-                            )
-                        }
-                    },
                     actions = {
                         IconButton(
                             onClick = {
