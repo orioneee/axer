@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.clickableWithoutRipple
+import io.github.orioneee.presentation.components.AxerLogo
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -66,7 +67,8 @@ internal class ExceptionsList {
                 )
             },
             supportingContent = {
-                Text(exception.time.formateAsTime() + " ${exception.message}",
+                Text(
+                    exception.time.formateAsTime() + " ${exception.message}",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -105,8 +107,10 @@ internal class ExceptionsList {
                             )
                         }
                     },
-
-                    )
+                    navigationIcon = {
+                        AxerLogo()
+                    }
+                )
             }
         ) { contentPadding ->
             Box(

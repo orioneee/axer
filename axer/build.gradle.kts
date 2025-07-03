@@ -219,3 +219,6 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+compose.resources{
+    packageOfResClass = "io.github.orioneee.axer.generated.resources"
+}

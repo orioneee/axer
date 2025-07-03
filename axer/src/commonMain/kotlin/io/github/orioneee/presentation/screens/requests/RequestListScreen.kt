@@ -35,10 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.ic_logo
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.clickableWithoutRipple
+import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -104,7 +108,6 @@ internal class RequestListScreen() {
     }
 
 
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
@@ -137,6 +140,9 @@ internal class RequestListScreen() {
                             )
                         }
                     },
+                    navigationIcon = {
+                        AxerLogo()
+                    }
                 )
             }
         ) { contentPadding ->

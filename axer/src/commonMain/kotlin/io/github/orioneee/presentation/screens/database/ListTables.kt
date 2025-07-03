@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.formate
+import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.navigation.Routes
 import io.github.orioneee.room.AxerBundledSQLiteDriver
 import org.koin.compose.viewmodel.koinViewModel
@@ -120,6 +121,9 @@ internal class ListTables {
                                 null,
                             )
                         }
+                    },
+                    navigationIcon = {
+                        AxerLogo()
                     }
                 )
             },
