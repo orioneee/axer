@@ -182,22 +182,23 @@ and simply log with napier as before, all logs will be saved and displayed
 
 
 **if you dont use Napier**
-You need initialize logger, this will apply base to Napier
-```kotlin
-Axer.initializeLogger()
-```
-than you can log just like in android but call Axer
+You can simply use loggin functional as in android 
 ```kotlin
 Axer.d("App", "Test debug log")
 //Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
+
 Axer.e("App", "Test error log")
 //Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
+
 Axer.i("App", "Test info log")
 //Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
-Axer.w("App", "Test warning log")
+
+Axer.w("App", "Test warning log", record = false) // This will not be recorded in Axer but will be logged
 //Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
+
 Axer.v("App", "Test verbose log")
 //Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
+
 Axer.wtf("App", "Test assert log")
 Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
 ```
