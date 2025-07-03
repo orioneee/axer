@@ -4,8 +4,8 @@ on:
   push:
     paths:
       - 'axer/template/**'
-    tags:
-      - '*'
+  release:
+    types: [published, prereleased]
   workflow_dispatch:
 
 jobs:
@@ -55,8 +55,7 @@ jobs:
           git add README.md
           if ! git diff --cached --quiet; then
             git commit -m "update version in README.md to ${{ steps.get_tag.outputs.tag }}"
-            git push origin HEAD:refs/heads/${{ steps.extract_branch.outputs.branch }}
+            git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
           else
             echo "No changes to commit"
           fi
-      
