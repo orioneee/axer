@@ -4,6 +4,7 @@ package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
+import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.logger.PlatformLogger
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -30,7 +31,8 @@ object Axer {
     }
 
     @Deprecated("No need to initialize logger")
-    fun initializeLogger(){}
+    fun initializeLogger() {
+    }
 
     @OptIn(ExperimentalTime::class)
     fun d(
@@ -126,5 +128,8 @@ object Axer {
             priority = LogLevel.ASSERT,
             time = Clock.System.now().toEpochMilliseconds()
         )
+    }
+
+    fun changeLocale(supportedLocale: SupportedLocales) {
     }
 }

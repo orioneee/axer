@@ -34,7 +34,7 @@ expect object LocalAppLocale {
 class AxerUIEntryPoint {
     companion object {
         private var customAppLocale by mutableStateOf<String?>(null)
-        fun changeLocale(locale: SupportedLocales) {
+        internal fun changeLocale(locale: SupportedLocales) {
             customAppLocale = locale.stringCode
         }
     }
