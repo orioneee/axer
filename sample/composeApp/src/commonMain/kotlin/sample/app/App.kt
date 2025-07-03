@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.orioneee.Axer
+import io.github.orioneee.domain.SupportedLocales
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -157,10 +158,12 @@ fun App() {
                 sendGetRequest(client)
             }
         ) {
+            Axer.changeLocale(SupportedLocales.ENGLISH)
             Text("Send get request")
         }
         Button(
             onClick = {
+                Axer.changeLocale(SupportedLocales.UKRAINIAN)
                 sendPost(client)
             }
         ) {
@@ -168,6 +171,7 @@ fun App() {
         }
         Button(
             onClick = {
+                Axer.changeLocale(SupportedLocales.RUSSIAN)
                 sedRequestForImage(client)
             }
         ) {
