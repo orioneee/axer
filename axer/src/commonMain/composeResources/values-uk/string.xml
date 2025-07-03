@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_name">Axer</string>
+    <string name="requests">Запити</string>
+    <string name="nothing_found">Нічого не знайдено</string>
+
+    <string name="exceptions">Краші</string>
+    <string name="logs">Логи</string>
+    <string name="database">БД</string>
+
+    <string name="important">Важливо</string>
+    <string name="developer_mark_this_as_important">Розробник позначив це як важливе</string>
+    <string name="close">Закрити</string>
+    <string name="headers">Заголовки</string>
+    <string name="bytes">байт</string>
+    <string name="kb">КБ</string>
+    <string name="mb">МБ</string>
+    <string name="url">URL</string>
+    <string name="method">Метод</string>
+    <string name="duration">Тривалість</string>
+    <string name="ms">мс</string>
+    <string name="request_size">Розмір запиту</string>
+    <string name="response_size">Розмір відповіді</string>
+    <string name="status">Статус</string>
+    <string name="request_failed">Запит не вдався</string>
+    <string name="unknown">Невідомо</string>
+    <string name="response_image">Зображення</string>
+    <string name="no_request_found_with_id">Запит з ID: %1$s не знайдено</string>
+    <string name="back">Назад</string>
+    <string name="request_tab">Запит</string>
+    <string name="response_tab">Відповідь</string>
+    <string name="error">Помилка: %1$s</string>
+
+    <string name="no_exception_found_with_id">Краш з ID: %1$s не знайдено</string>
+    <string name="exception_details_title">%1$s - %2$s</string>
+    <string name="name">Ім\'я</string>
+    <string name="message">Меседж</string>
+    <string name="time">Час</string>
+    <string name="stack_trace">Стактрейс</string>
+
+    <string name="rows_columns">Рядків: %1$s, Стовпців: %2$s</string>
+    <string name="all_queries">Журнал</string>
+    <string name="driver_not_connected">Драйвер не підключений до бази даних</string>
+    <string name="no_tables_found">Таблиць не знайдено</string>
+    <string name="table">Таблиця - %1$s</string>
+    <string name="clear">Очистити</string>
+    <string name="action">Дія</string>
+    <string name="execute_query">Виконати запит</string>
+</resources>
