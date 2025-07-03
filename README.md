@@ -260,7 +260,7 @@ Axer.recordAsFatal(Exception("Test fatal exception"))
 
 ### Room Database Inspection
 
-Axer supports live inspection of Room databases and execution of custom queries. Only one database can be monitored at a time.
+Axer supports live inspection of Room databases and execution of custom queries. Now multiple databases are supported.
 
 #### Example Configuration
 
@@ -284,7 +284,7 @@ The only required configuration is setting the driver:
 - **iOS Limitations**:
   - Stack traces are not supported.
   - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in alpha (`1.0.0-beta02`) and may have bugs or breaking changes in future releases.
+- **Stability**: The library is in beta (`1.0.0-beta02`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
 
