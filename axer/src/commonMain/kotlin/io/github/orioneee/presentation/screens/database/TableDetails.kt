@@ -71,9 +71,6 @@ internal class TableDetails {
         val sortColumn by viewModel.sortColumn.collectAsState()
         val totalItems = viewModel.totalItems.collectAsState()
 
-
-
-
         LaunchedEffect(message) {
             message?.let {
                 snackbarHostState.showSnackbar(it)
@@ -133,7 +130,7 @@ internal class TableDetails {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .verticalScroll(rememberScrollState())
                 ,
                 horizontalAlignment = Alignment.CenterHorizontally,

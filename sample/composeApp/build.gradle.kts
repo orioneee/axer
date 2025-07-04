@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
@@ -49,7 +50,7 @@ kotlin {
             implementation(libs.napier)
 
 
-            implementation(project(":axer-no-op"))
+            implementation(project(":axer"))
         }
 
         commonTest.dependencies {

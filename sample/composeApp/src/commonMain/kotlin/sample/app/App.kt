@@ -3,28 +3,39 @@ package sample.app
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.Axer
-import io.github.orioneee.domain.SupportedLocales
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -42,9 +53,10 @@ import org.koin.compose.koinInject
 import sample.app.room.SampleDatabase
 import sample.app.room.entity.Director
 import sample.app.room.entity.Movie
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
-
 
 fun sendGetRequest(client: HttpClient) {
     CoroutineScope(Dispatchers.IO).launch {
@@ -89,6 +101,7 @@ fun sedRequestForImage(client: HttpClient) {
     }
 }
 
+@OptIn(ExperimentalTime::class)
 internal fun populateDatabase(database: SampleDatabase) {
     CoroutineScope(Dispatchers.IO).launch {
         val nameList = listOf(
@@ -101,7 +114,7 @@ internal fun populateDatabase(database: SampleDatabase) {
             "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White",
             "Harris", "Martin", "Thompson", "Garcia", "Martinez"
         )
-        val directors = List(100_000) {
+        val directors = List(10_000_000) {
             val name = nameList.random()
             val surname = surnameList.random()
             Director(
@@ -110,7 +123,13 @@ internal fun populateDatabase(database: SampleDatabase) {
             )
         }
         val directorsDao = database.getDirectorDao()
-        directorsDao.upsertDirectors(directors)
+        val startTime = Clock.System.now().toEpochMilliseconds()
+        directors.chunked(50_000).forEachIndexed { index, it ->
+            directorsDao.upsertDirectors(it)
+            Axer.d("Sample", "Inserted page ${index + 1} of directors")
+        }
+        val endTime = Clock.System.now().toEpochMilliseconds()
+        Axer.d("Sample", "Directors inserted in ${(endTime - startTime).div(1000.0)} seconds")
         val directorsFromDB = directorsDao.getAllDirectors()
         val movies = List(25) {
             val name = "Movie ${it + 1}"
@@ -162,180 +181,186 @@ fun App() {
                 header("Authorization", "Bearer your_token_here")
             }
         }
-        install(Axer.ktorPlugin){
+        install(Axer.ktorPlugin) {
             retentionPeriodInSeconds = 60 * 60 * 1
         }
     }
     val database: SampleDatabase = koinInject()
-    Surface {
-        LazyVerticalGrid(
+    App(
+        client = client,
+        database = database,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@Composable
+internal fun App(
+    client: HttpClient,
+    database: SampleDatabase,
+    onOpenAxerUi: () -> Unit = { Axer.openAxerUI() }
+) {
+    val scope = rememberCoroutineScope()
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Axer Sample") },
+                actions = {
+                    IconButton(onClick = onOpenAxerUi) {
+                        Icon(Icons.Default.BugReport, contentDescription = "Open Axer UI")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            columns = GridCells.Adaptive(minSize = 200.dp)
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             item {
-                Button(
-                    onClick = {
-                        sendGetRequest(client)
+                ActionCard("Network") {
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sendGetRequest(client) }) {
+                        Text("GET")
                     }
-                ) {
-                    Text("Send get request")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
-                        sendPost(client)
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sendPost(client) }) {
+                        Text("POST")
                     }
-                ) {
-                    Text("Send post request")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
-                        sedRequestForImage(client)
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sedRequestForImage(client) }) {
+                        Text("Image")
                     }
-                ) {
-                    Text("Send request for image")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
                         sendGetRequest(client)
                         sendPost(client)
                         sedRequestForImage(client)
+                    }) {
+                        Text("All")
                     }
-                ) {
-                    Text("Send all requests")
                 }
             }
+
+            /** ─── Exceptions ─────────────────────────────────────────────── **/
             item {
-                Button(
-                    onClick = {
-                        Axer.recordException(Exception("Test non-fatal exception"))
+                ActionCard("Exceptions") {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { Axer.recordException(Exception("Test non‑fatal")) }
+                    ) { Text("Record Non‑Fatal") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { throw Exception("Test fatal") }) {
+                        Text("Throw Fatal")
                     }
-                ) {
-                    Text("Record non fatal exception")
                 }
             }
+
+            /** ─── Database ─────────────────────────────────────────────── **/
             item {
-                Button(
-                    onClick = {
-                        throw Exception("Test fatal exception")
+                ActionCard("Database") {
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { populateDatabase(database) }) {
+                        Text("Populate")
                     }
-                ) {
-                    Text("Throw fatal exception")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
-                        Axer.openAxerUI()
-                    }
-                ) {
-                    Text("Open Axer UI")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
-                        populateDatabase(database)
-                    }
-                ) {
-                    Text("Populate database")
-                }
-            }
-            item {
-                Button(
-                    onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        scope.launch(Dispatchers.IO) {
                             database.getMovieDao().deleteAll()
                             database.getDirectorDao().deleteAll()
                         }
-                    }
-                ) {
-                    Text("Clear database")
+                    }) { Text("Clear") }
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            val movies = database.getMovieDao().getAllMovies().size
+                            val directors = database.getDirectorDao().getAllDirectors().size
+                            Axer.d("Sample", "movies=$movies directors=$directors")
+                        }
+                    }) { Text("Counts") }
                 }
             }
+
+            /** ─── Logs ─────────────────────────────────────────────── **/
             item {
-                Button(
-                    onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            database.getMovieDao().getAllMovies().let {
-                                println("Movies in database: ${it.size}")
-                            }
-                            println(
-                                "Directors in database: ${
-                                    database.getDirectorDao().getAllDirectors().size
-                                }"
-                            )
-                        }
-                    }
-                ) {
-                    Text("Get all movies and directors")
+                ActionCard("Logs") {
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.d("App", "Debug")
+                    }) { Text("Debug") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.i("App", "Info")
+                    }) { Text("Info") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.w("App", "Warn")
+                    }) { Text("Warn") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.e("App", "Error")
+                    }) { Text("Error") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.v("App", "Verbose")
+                    }) { Text("Verbose") }
+
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                        Axer.wtf("App", "Assert", Exception("Assert"))
+                    }) { Text("Assert") }
                 }
             }
-            item {
-                Button(
-                    onClick = {
-                        Axer.d("App", "Test debug log")
-                        Axer.e("App", "Test error log")
-                        Axer.i("App", "Test info log")
-                        Axer.w(
-                            "Tag2",
-                            "Test warning log",
-                            record = false
-                        )
-                        Axer.v("Tag2", "Test verbose log")
-                        Axer.wtf("App", "Test assert log", Exception("Test assert exception"))
-                    }
-                ) {
-                    Text("Test logs")
-                }
-            }
-            item {
-                SwitchItem(
-                    text = "Enable requests",
-                    onCheckedChange = {
-                        Axer.configure {
-                            enableRequestMonitor = it
-                        }
-                    }
-                )
-            }
-            item {
-                SwitchItem(
-                    text = "Enable exceptions",
-                    onCheckedChange = {
-                        Axer.configure {
-                            enableExceptionMonitor = it
-                        }
-                    }
-                )
-            }
-            item {
-                SwitchItem(
-                    text = "Enable logs",
-                    onCheckedChange = {
-                        Axer.configure {
-                            enableLogMonitor = it
-                        }
-                    }
-                )
-            }
-            item {
-                SwitchItem(
-                    text = "Enable database",
-                    onCheckedChange = {
-                        Axer.configure {
-                            enableDatabaseMonitor = it
-                        }
-                    }
-                )
-            }
+
+            item { MonitorToggles() }
         }
+    }
+}
+
+@Composable
+private fun ActionCard(
+    title: String,
+    content: @Composable () -> Unit
+) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) { content() }
+        }
+    }
+}
+
+@Composable
+private fun MonitorToggles() {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Monitors", style = MaterialTheme.typography.titleMedium)
+            SettingSwitch("Requests") { Axer.configure { enableRequestMonitor = it } }
+            SettingSwitch("Exceptions") { Axer.configure { enableExceptionMonitor = it } }
+            SettingSwitch("Logs") { Axer.configure { enableLogMonitor = it } }
+            SettingSwitch("Database") { Axer.configure { enableDatabaseMonitor = it } }
+        }
+    }
+}
+
+@Composable
+private fun SettingSwitch(label: String, onCheckedChange: (Boolean) -> Unit) {
+    var checked by remember { mutableStateOf(true) }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, Modifier.weight(1f))
+        Switch(
+            checked = checked,
+            onCheckedChange = { checked = it; onCheckedChange(it) }
+        )
     }
 }

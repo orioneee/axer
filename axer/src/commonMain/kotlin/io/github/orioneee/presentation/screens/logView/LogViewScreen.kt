@@ -30,10 +30,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.courier
 import io.github.orioneee.axer.generated.resources.logs
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.logger.formateAsDate
@@ -41,6 +43,7 @@ import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.warning
+import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -162,11 +165,15 @@ class LogViewScreen {
                                                     "${it.time.formateAsDate()} - ${it.level.name} - ${it.tag} - "
                                                 val spacesString =
                                                     List(infoString.length) { " " }.joinToString(" ")
-                                                val formatedSMessage = it.message.replace("\n", "\n$spacesString")
+                                                val formatedSMessage =
+                                                    it.message.replace("\n", "\n$spacesString")
                                                 Text(
                                                     text = infoString + formatedSMessage,
                                                     color = color,
-                                                    modifier = Modifier.padding(start = 8.dp)
+                                                    modifier = Modifier.padding(start = 8.dp),
+                                                    fontFamily = FontFamily(
+                                                        Font(Res.font.courier)
+                                                    )
                                                 )
                                             }
                                         }

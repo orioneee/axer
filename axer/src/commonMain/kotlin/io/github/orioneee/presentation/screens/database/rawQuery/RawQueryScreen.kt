@@ -107,7 +107,7 @@ internal class RawQueryScreen {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .verticalScroll(rememberScrollState())
                 ,
                 horizontalAlignment = Alignment.Companion.CenterHorizontally,
@@ -165,7 +165,7 @@ internal class RawQueryScreen {
                     SelectionContainer {
                         Box(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(horizontal = 8.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 .border(
                                     width = 1.dp,
