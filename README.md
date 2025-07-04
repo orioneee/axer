@@ -40,13 +40,13 @@ Axer is a library designed to monitor **HTTP requests**, record **exceptions** (
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-beta04")
+implementation("io.github.orioneee:axer:1.0.0-beta05")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-beta04")
+implementation("io.github.orioneee:axer-no-op:1.0.0-beta05")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -286,13 +286,25 @@ The only required configuration is setting the driver:
 .setDriver(AxerBundledSQLiteDriver.getInstance())
 ```
 
+## Configuratuin
+You can configure available options for monitoring in runtime(by default all enabled)
+
+```kotlin
+Axer.configure {
+    enableRequestMonitor = true
+    enableExceptionMonitor = true
+    enableLogMonitor = true
+    enableDatabaseMonitor = true
+}
+```
+
 ## Limitations
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
   - Stack traces are not supported.
   - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in beta (`1.0.0-beta04`) and may have bugs or breaking changes in future releases.
+- **Stability**: The library is in beta (`1.0.0-beta05`) and may have bugs or breaking changes in future releases.
 
 ## Inspiration
 
