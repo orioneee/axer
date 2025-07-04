@@ -300,7 +300,6 @@ Axer.configure {
 
 ## Limitations
 
-- **Single Database Monitoring**: Axer can only monitor one Room database at a time.
 - **iOS Limitations**:
   - Stack traces are not supported.
   - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
