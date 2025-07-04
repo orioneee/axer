@@ -15,4 +15,9 @@ import org.koin.dsl.koinApplication
 
 @Deprecated("No need to call this function anymore, Axer is initialized automatically")
 fun Axer.initialize(applicationContext: Context) {
+    val koinApplication = koinApplication {
+        androidContext(applicationContext.applicationContext)
+        modules(Modules.getModules())
+    }
+    IsolatedContext.initIfNotInited(koinApplication)
 }
