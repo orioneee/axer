@@ -95,76 +95,85 @@ class LogViewScreen {
                         Text(stringResource(Res.string.nothing_found))
                     }
                 } else {
-                    Column {
-                        FilterRow(
-                            items = tags.value,
-                            selectedItems = selectedTags.value,
-                            onItemClicked = { tag ->
-                                viewModel.toggleTag(tag)
-                            },
-                            onClear = {
-                                viewModel.clearTags()
-                            },
-                            getItemString = {
-                                it
-                            }
-                        )
-                        FilterRow(
-                            items = levels.value,
-                            selectedItems = selectedLevels.value,
-                            onItemClicked = { level ->
-                                viewModel.toggleLevel(level)
-                            },
-                            onClear = {
-                                viewModel.clearLevels()
-                            },
-                            getItemString = {
-                                it.name
-                            }
-                        )
-                        val listState = rememberLazyListState()
-                        SelectionContainer {
-                            Box {
-                                Column {
-                                    LazyColumn(
-                                        state = listState,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 4.dp)
-                                            .horizontalScroll(rememberScrollState())
+                    val listState = rememberLazyListState()
+                    SelectionContainer {
+                        Box {
+                            Column {
+                                LazyColumn(
+                                    state = listState,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 4.dp)
+                                        .horizontalScroll(rememberScrollState())
+                                ) {
+                                    item {
+                                        FilterRow(
+                                            items = tags.value,
+                                            selectedItems = selectedTags.value,
+                                            onItemClicked = { tag ->
+                                                viewModel.toggleTag(tag)
+                                            },
+                                            onClear = {
+                                                viewModel.clearTags()
+                                            },
+                                            getItemString = {
+                                                it
+                                            },
+                                            scrolable = false
+                                        )
+                                    }
+                                    item {
+                                        FilterRow(
+                                            items = levels.value,
+                                            selectedItems = selectedLevels.value,
+                                            onItemClicked = { level ->
+                                                viewModel.toggleLevel(level)
+                                            },
+                                            onClear = {
+                                                viewModel.clearLevels()
+                                            },
+                                            getItemString = {
+                                                it.name
+                                            },
+                                            scrolable = false
+                                        )
+                                    }
+                                    items(
+                                        items = logs.value,
+                                        key = {
+                                            it.id
+                                        }
                                     ) {
-                                        items(
-                                            items = logs.value,
-                                            key = {
-                                                it.id
-                                            }
+                                        AnimatedVisibility(
+                                            visible = filtredLogs.value.contains(it),
+                                            enter = fadeIn() + expandVertically(),
+                                            exit = fadeOut() + shrinkVertically(),
                                         ) {
-                                            AnimatedVisibility(
-                                                visible = filtredLogs.value.contains(it),
-                                                enter = fadeIn() + expandVertically(),
-                                                exit = fadeOut() + shrinkVertically(),
-                                            ) {
-                                                Row {
-                                                    val color =
-                                                        if (it.level == LogLevel.ERROR || it.level == LogLevel.ASSERT) {
-                                                            MaterialTheme.colorScheme.error
-                                                        } else if (it.level == LogLevel.WARNING) {
-                                                            MaterialTheme.colorScheme.warning
-                                                        } else {
-                                                            MaterialTheme.colorScheme.onSurface
-                                                        }
-                                                    Text(
-                                                        "${it.time.formateAsDate()} - ${it.level.name} - ${it.tag} - ",
-                                                        color = color
-                                                    )
-                                                    Text(it.message, color = color)
-                                                }
+                                            Row {
+                                                val color =
+                                                    if (it.level == LogLevel.ERROR || it.level == LogLevel.ASSERT) {
+                                                        MaterialTheme.colorScheme.error
+                                                    } else if (it.level == LogLevel.WARNING) {
+                                                        MaterialTheme.colorScheme.warning
+                                                    } else {
+                                                        MaterialTheme.colorScheme.onSurface
+                                                    }
+                                                val infoString =
+                                                    "${it.time.formateAsDate()} - ${it.level.name} - ${it.tag} - "
+                                                val spacesString =
+                                                    List(infoString.length) { " " }.joinToString(" ")
+                                                val formatedSMessage = it.message.replace("\n", "\n$spacesString")
+                                                Text(
+                                                    text = infoString + formatedSMessage,
+                                                    color = color,
+                                                    modifier = Modifier.padding(start = 8.dp)
+                                                )
                                             }
                                         }
                                     }
                                 }
-                                PlatformScrollBar(listState)
                             }
+                            PlatformScrollBar(listState)
                         }
                     }
                 }

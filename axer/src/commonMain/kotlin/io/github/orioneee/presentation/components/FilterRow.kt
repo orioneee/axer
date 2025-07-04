@@ -1,6 +1,7 @@
 package io.github.orioneee.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,15 +25,53 @@ fun <T> FilterRow(
     onItemClicked: (T) -> Unit,
     onClear: () -> Unit,
     getItemString: (T) -> String,
-    withClearButton: Boolean = true
+    withClearButton: Boolean = true,
+    scrolable: Boolean = true,
 ) {
-    LazyRow(
-        modifier = Modifier
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (withClearButton) {
-            item {
+    if (scrolable) {
+        LazyRow(
+            modifier = Modifier
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (withClearButton) {
+                item {
+                    IconButton(
+                        onClick = onClear,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Clear,
+                            contentDescription = "Clear Filters"
+                        )
+                    }
+                }
+            } else {
+                item {
+                    Spacer(Modifier.width(8.dp))
+                }
+            }
+            items(items) {
+                val isSelected = selectedItems.contains(it)
+                val itemString = getItemString(it)
+                InputChip(
+                    label = {
+                        Text(itemString)
+                    },
+                    selected = isSelected,
+                    onClick = {
+                        onItemClicked(it)
+                    },
+                )
+            }
+        }
+    } else {
+        Row(
+            modifier = Modifier
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (withClearButton) {
                 IconButton(
                     onClick = onClear,
                     modifier = Modifier.padding(end = 8.dp)
@@ -42,24 +81,22 @@ fun <T> FilterRow(
                         contentDescription = "Clear Filters"
                     )
                 }
-            }
-        } else {
-            item {
+            } else {
                 Spacer(Modifier.width(8.dp))
             }
-        }
-        items(items) {
-            val isSelected = selectedItems.contains(it)
-            val itemString = getItemString(it)
-            InputChip(
-                label = {
-                    Text(itemString)
-                },
-                selected = isSelected,
-                onClick = {
-                    onItemClicked(it)
-                },
-            )
+            items.forEach {
+                val isSelected = selectedItems.contains(it)
+                val itemString = getItemString(it)
+                InputChip(
+                    label = {
+                        Text(itemString)
+                    },
+                    selected = isSelected,
+                    onClick = {
+                        onItemClicked(it)
+                    },
+                )
+            }
         }
     }
 }

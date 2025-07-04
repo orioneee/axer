@@ -1,7 +1,7 @@
 package io.github.orioneee.presentation.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AlignVerticalCenter
+import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.outlined.Dataset
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NetworkCheck
@@ -29,7 +29,7 @@ internal enum class FlowDestinations(
         route = Routes.EXCEPTIONS_FLOW.route
     ),
     LOG_VIEW(
-        icon = Icons.Outlined.AlignVerticalCenter,
+        icon = Icons.AutoMirrored.Outlined.Article,
         label = Res.string.logs,
         route = Routes.LOG_VIEW.route
     ),

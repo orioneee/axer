@@ -287,7 +287,7 @@ fun App() {
                         record = false
                     )
                     Axer.v("Tag2", "Test verbose log")
-                    Axer.wtf("App", "Test assert log")
+                    Axer.wtf("App", "Test assert log", Exception("Test assert exception"))
                 }
             ) {
                 Text("Test logs")

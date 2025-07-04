@@ -88,9 +88,7 @@ class AxerUIEntryPoint {
                         LaunchedEffect(availableDestinations, currentRoute) {
                             if (currentRoute == null) return@LaunchedEffect
                             val isCurrentRouteAvailable = availableDestinations.any { it.route == currentRoute }
-                            println("Current route: $currentRoute, is available: $isCurrentRouteAvailable")
                             if (!isCurrentRouteAvailable) {
-                                println("Navigating to first available destination: ${availableDestinations.first().route}")
                                 val firstAvailable = availableDestinations.first()
                                 navController.navigateSaveState(firstAvailable.route)
                             }
