@@ -114,7 +114,7 @@ internal fun populateDatabase(database: SampleDatabase) {
             "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White",
             "Harris", "Martin", "Thompson", "Garcia", "Martinez"
         )
-        val directors = List(10_000_000) {
+        val directors = List(100_000) {
             val name = nameList.random()
             val surname = surnameList.random()
             Director(

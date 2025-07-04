@@ -164,7 +164,7 @@ class LogViewScreen {
                                                 val infoString =
                                                     "${it.time.formateAsDate()} - ${it.level.name} - ${it.tag} - "
                                                 val spacesString =
-                                                    List(infoString.length) { " " }.joinToString(" ")
+                                                    List(infoString.length) { " " }.joinToString("")
                                                 val formatedSMessage =
                                                     it.message.replace("\n", "\n$spacesString")
                                                 Text(
