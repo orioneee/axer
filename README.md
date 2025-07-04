@@ -286,6 +286,18 @@ The only required configuration is setting the driver:
 .setDriver(AxerBundledSQLiteDriver.getInstance())
 ```
 
+## Configuratuin
+You can configure available options for monitoring in runtime(by default all enabled)
+
+```kotlin
+Axer.configure {
+    enableRequestMonitor = true
+    enableExceptionMonitor = true
+    enableLogMonitor = true
+    enableDatabaseMonitor = true
+}
+```
+
 ## Limitations
 
 - **Single Database Monitoring**: Axer can only monitor one Room database at a time.
