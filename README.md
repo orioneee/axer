@@ -40,13 +40,13 @@ Axer is a library designed to monitor **HTTP requests**, record **exceptions** (
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-beta08")
+implementation("io.github.orioneee:axer:1.0.0-beta09")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-beta08")
+implementation("io.github.orioneee:axer-no-op:1.0.0-beta09")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -275,7 +275,7 @@ Axer.configure {
 
 **Stability**:
 
-The library is in beta (`1.0.0-beta08`) and may have bugs or breaking changes in future releases.
+The library is in beta (`1.0.0-beta09`) and may have bugs or breaking changes in future releases.
 
 ## iOS Limitations
 - Stack traces are not supported.
