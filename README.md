@@ -51,34 +51,6 @@ implementation("io.github.orioneee:axer-no-op:1.0.0-beta06")
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
 
-## Initialization
-
-You must initialize Axer **once** before any recording or monitoring on each platform. This is typically done in the `Application` class for Android, or in the main function for JVM applications.
-
-Also don't forget about permissions for notification on android and ios
-
-### Android
-
-In your `Application` class:
-
-```kotlin
-class SampleApplication : Application() {
-  //dont forget to register your application in AndroidManifest.xml
-  override fun onCreate() {
-    super.onCreate()
-    Axer.initialize(this)
-  }
-}
-```
-
-```xml
-<application
-        android:name=".SampleApplication" // add this
-        android:icon="@android:mipmap/sym_def_app_icon"
-        android:label="sample"
-        android:theme="@android:style/Theme.Material.NoActionBar">
-```
-
 ## Usage
 
 ### HTTP Request Monitoring
@@ -118,6 +90,7 @@ val client = HttpClient {
     responseImportantSelector = { response ->
       listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
     }
+    retentionPeriodInSeconds = 60 * 60 * 1
   }
 }
 ```
@@ -147,6 +120,7 @@ val client = OkHttpClient.Builder()
       .setResponseImportantSelector { response ->
         listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
       }
+      .setRetentionTime(60 * 60 * 1)
       .build()
   )
   .build()
