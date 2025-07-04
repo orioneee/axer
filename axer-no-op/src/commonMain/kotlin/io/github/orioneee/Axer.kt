@@ -130,6 +130,11 @@ object Axer {
         )
     }
 
+    private val config = AxerConfig()
+
+    fun configure(block: AxerConfig.() -> Unit) {
+    }
+
     fun changeLocale(supportedLocale: SupportedLocales) {
     }
 }

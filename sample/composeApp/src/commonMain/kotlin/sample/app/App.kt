@@ -3,14 +3,25 @@ package sample.app
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import io.github.orioneee.Axer
 import io.github.orioneee.domain.SupportedLocales
 import io.ktor.client.HttpClient
@@ -119,6 +130,28 @@ internal fun populateDatabase(database: SampleDatabase) {
 }
 
 @Composable
+fun SwitchItem(
+    text: String,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    var checked by remember { mutableStateOf(true) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(text = text, modifier = Modifier.align(Alignment.CenterVertically))
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                checked = it
+                onCheckedChange(it)
+            },
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
+
+@Composable
 fun App() {
     Axer.initializeLogger()
     handlePermissions()
@@ -131,131 +164,174 @@ fun App() {
         }
         install(Axer.ktorPlugin)
     }
-    Column(
+    val database: SampleDatabase = koinInject()
+    LazyVerticalGrid(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+        columns = GridCells.Adaptive(minSize = 200.dp)
     ) {
-        Button(
-            onClick = {
-                sendGetRequest(client)
-            }
-        ) {
-//            Axer.changeLocale(SupportedLocales.ENGLISH)
-            Text("Send get request")
-        }
-        Button(
-            onClick = {
-//                Axer.changeLocale(SupportedLocales.UKRAINIAN)
-                sendPost(client)
-            }
-        ) {
-            Text("Send post request")
-        }
-        Button(
-            onClick = {
-//                Axer.changeLocale(SupportedLocales.RUSSIAN)
-                sedRequestForImage(client)
-            }
-        ) {
-            Text("Send request for image")
-        }
-
-        Button(
-            onClick = {
-                sendGetRequest(client)
-                sendPost(client)
-                sedRequestForImage(client)
-            }
-        ) {
-            Text("Send all requests")
-        }
-
-        Button(
-            onClick = {
-                Axer.recordException(Exception("Test non-fatal exception"))
-            }
-        ) {
-            Text("Record non fatal exception")
-        }
-
-        Button(
-            onClick = {
-                throw Exception("Test fatal exception")
-            }
-        ) {
-            Text("Throw fatal exception")
-        }
-        Button(
-            onClick = {
-                Axer.openAxerUI()
-            }
-        ) {
-            Text("Open Axer UI")
-        }
-        val database: SampleDatabase = koinInject()
-        Button(
-            onClick = {
-                populateDatabase(database)
-            }
-        ) {
-            Text("Populate database")
-        }
-        Button(
-            onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    database.getMovieDao().deleteAll()
-                    database.getDirectorDao().deleteAll()
+        item {
+            Button(
+                onClick = {
+                    sendGetRequest(client)
                 }
+            ) {
+                Text("Send get request")
             }
-        ) {
-            Text("Clear database")
         }
-        Button(
-            onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    database.getMovieDao().getAllMovies().let {
-                        println("Movies in database: ${it.size}")
+        item {
+            Button(
+                onClick = {
+                    sendPost(client)
+                }
+            ) {
+                Text("Send post request")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    sedRequestForImage(client)
+                }
+            ) {
+                Text("Send request for image")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    sendGetRequest(client)
+                    sendPost(client)
+                    sedRequestForImage(client)
+                }
+            ) {
+                Text("Send all requests")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    Axer.recordException(Exception("Test non-fatal exception"))
+                }
+            ) {
+                Text("Record non fatal exception")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    throw Exception("Test fatal exception")
+                }
+            ) {
+                Text("Throw fatal exception")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    Axer.openAxerUI()
+                }
+            ) {
+                Text("Open Axer UI")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    populateDatabase(database)
+                }
+            ) {
+                Text("Populate database")
+            }
+        }
+        item {
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        database.getMovieDao().deleteAll()
+                        database.getDirectorDao().deleteAll()
                     }
-                    println(
-                        "Directors in database: ${
-                            database.getDirectorDao().getAllDirectors().size
-                        }"
-                    )
                 }
+            ) {
+                Text("Clear database")
             }
-        ) {
-            Text("Get all movies and directors")
         }
-        Button(
-            onClick = {
-                Axer.d("App", "Test debug log")
-//                Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
-
-                Axer.e("App", "Test error log")
-//                Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
-
-                Axer.i("App", "Test info log")
-//                Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
-
-                Axer.w(
-                    "Tag2",
-                    "Test warning log",
-                    record = false
-                ) // This will not be recorded in Axer but will be logged
-//                Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"))
-
-                Axer.v("Tag2", "Test verbose log")
-//                Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
-
-                Axer.wtf("App", "Test assert log")
-                Axer.wtf("Tag3", "Test assert log with throwable", Throwable("Test throwable"))
+        item {
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        database.getMovieDao().getAllMovies().let {
+                            println("Movies in database: ${it.size}")
+                        }
+                        println(
+                            "Directors in database: ${
+                                database.getDirectorDao().getAllDirectors().size
+                            }"
+                        )
+                    }
+                }
+            ) {
+                Text("Get all movies and directors")
             }
-        ) {
-            Text("Test logs")
+        }
+        item {
+            Button(
+                onClick = {
+                    Axer.d("App", "Test debug log")
+                    Axer.e("App", "Test error log")
+                    Axer.i("App", "Test info log")
+                    Axer.w(
+                        "Tag2",
+                        "Test warning log",
+                        record = false
+                    )
+                    Axer.v("Tag2", "Test verbose log")
+                    Axer.wtf("App", "Test assert log")
+                }
+            ) {
+                Text("Test logs")
+            }
+        }
+        item {
+            SwitchItem(
+                text = "Enable requests",
+                onCheckedChange = {
+                    Axer.configure {
+                        enableRequestMonitor = it
+                    }
+                }
+            )
+        }
+        item {
+            SwitchItem(
+                text = "Enable exceptions",
+                onCheckedChange = {
+                    Axer.configure {
+                        enableExceptionMonitor = it
+                    }
+                }
+            )
+        }
+        item {
+            SwitchItem(
+                text = "Enable logs",
+                onCheckedChange = {
+                    Axer.configure {
+                        enableLogMonitor = it
+                    }
+                }
+            )
+        }
+        item {
+            SwitchItem(
+                text = "Enable database",
+                onCheckedChange = {
+                    Axer.configure {
+                        enableDatabaseMonitor = it
+                    }
+                }
+            )
         }
     }
 }

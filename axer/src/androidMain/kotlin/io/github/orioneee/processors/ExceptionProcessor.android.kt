@@ -9,8 +9,14 @@ import io.github.orioneee.NotificationInfo
 import io.github.orioneee.axer.R
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.presentation.navigation.FlowDestinations
 
 internal actual fun notifyAboutException(exception: AxerException) {
+    val isEnabledRequests = AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.EXCEPTIONS_FLOW)
+    if (!isEnabledRequests) {
+        return
+    }
     val context: Context by IsolatedContext.koin.inject()
 
     val notificationManager =

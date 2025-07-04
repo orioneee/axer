@@ -6,7 +6,7 @@ import io.github.orioneee.logger.PlatformLogger
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-class AxerLogSaver() : Antilog() {
+open class AxerLogSaver() : Antilog() {
     @OptIn(ExperimentalTime::class)
     override fun performLog(
         priority: LogLevel,

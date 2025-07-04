@@ -1,6 +1,6 @@
 package io.github.orioneee
 
-import io.github.orioneee.config.AxerConfig
+import io.github.orioneee.config.AxerKtorPluginConfig
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.logger.getPlatformStackTrace
@@ -17,7 +17,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
-internal val AxerPlugin: ClientPlugin<AxerConfig> = createClientPlugin("Axer", ::AxerConfig) {
+internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> = createClientPlugin("Axer", ::AxerKtorPluginConfig) {
     on(Send) {
         Axer.initIfCan()
         val sendTime = Clock.System.now().toEpochMilliseconds()

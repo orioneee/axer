@@ -48,4 +48,8 @@
     <string name="clear">Clear</string>
     <string name="action">Action</string>
     <string name="execute_query">Execute Query</string>
+
+
+
+    <string name="no_available_options">No available options</string>
 </resources>

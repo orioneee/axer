@@ -4,7 +4,7 @@ import io.github.orioneee.domain.requests.Request
 import io.github.orioneee.domain.requests.Response
 
 
-class AxerConfig(){
+class AxerKtorPluginConfig(){
     var requestImportantSelector: (Request) -> List<String> = { request ->
         emptyList()
     }

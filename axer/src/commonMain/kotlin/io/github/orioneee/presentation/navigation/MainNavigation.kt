@@ -17,11 +17,12 @@ import io.github.orioneee.presentation.screens.logView.LogViewScreen
 internal class MainNavigation {
     @Composable
     fun Host(
+        startRoute: FlowDestinations,
         navController: NavHostController,
     ) {
         NavHost(
             navController = navController,
-            startDestination = Routes.REQUESTS_FLOW.route,
+            startDestination = startRoute.route,
             exitTransition = { fadeOut(tween(300)) },
             popEnterTransition = { fadeIn(tween(300)) },
             enterTransition = { fadeIn(tween(300)) },

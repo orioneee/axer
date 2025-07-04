@@ -3,7 +3,8 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.aakira.napier.Napier
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.logo_circle
 import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.domain.logs.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
@@ -207,6 +208,21 @@ object Axer {
         )
     }
 
+    private val config = AxerConfig()
+
+    fun configure(block: AxerConfig.() -> Unit) {
+        config.block()
+        applyConfig()
+    }
+    private fun applyConfig() {
+        AxerUIEntryPoint.configureDestinations(
+            isEnabledRequests = config.enableRequestMonitor,
+            isEnableExceptions = config.enableExceptionMonitor,
+            isEnabledLogs = config.enableLogMonitor,
+            isEnableDatabase = config.enableDatabaseMonitor,
+        )
+    }
+
     fun changeLocale(supportedLocale: SupportedLocales) {
         AxerUIEntryPoint.changeLocale(supportedLocale)
     }
@@ -215,4 +231,3 @@ object Axer {
 internal expect fun openAxer()
 internal expect fun installErrorHandler()
 internal expect fun initializeIfCan()
-
