@@ -30,7 +30,6 @@ internal class RoomReader {
     fun release(){
         connections.forEach { it.connection.close() }
         connections.clear()
-        axerDriver.dbFiles.clear()
     }
 
     fun getConnection(
@@ -105,6 +104,7 @@ internal class RoomReader {
     suspend fun getTablesFromAllDatabase(): List<DatabaseWrapped> {
         updateConnections()
         return connections.map {
+            println("Processing database: ${it.file}")
             DatabaseWrapped(
                 tables = getAllTables(it.file),
                 name = it.file.substringAfterLast("/").replace(".db", ""),
