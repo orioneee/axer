@@ -61,37 +61,37 @@ Axer can monitor HTTP requests and extract important data using selectors. It su
 
 ```kotlin
 val client = HttpClient {
-  install(DefaultRequest) {
-    contentType(ContentType.Application.Json)
-    if (!headers.contains("Authorization")) {
-      header("Authorization", "Bearer your_token_here")
-    }
-  }
-  install(Axer.ktorPlugin) {
-    requestReducer = { request ->
-      val redactedHeaders = request.headers.mapValues { (key, value) ->
-        if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
-      }
-      request.copy(headers = redactedHeaders) // this will present in request but not in UI
-    }
-
-    responseReducer = { response ->
-      response.copy(
-        headers = response.headers.mapValues { (key, value) ->
-          if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+    install(DefaultRequest) {
+        contentType(ContentType.Application.Json)
+        if (!headers.contains("Authorization")) {
+            header("Authorization", "Bearer your_token_here")
         }
-      ) // this will change content type which display only in UI
     }
+    install(Axer.ktorPlugin) {
+        requestReducer = { request ->
+            val redactedHeaders = request.headers.mapValues { (key, value) ->
+                if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
+            }
+            request.copy(headers = redactedHeaders) // this will present in request but not in UI
+        }
 
-    requestImportantSelector = { request ->
-      listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
-    }
+        responseReducer = { response ->
+            response.copy(
+                headers = response.headers.mapValues { (key, value) ->
+                    if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+                }
+            ) // this will change content type which display only in UI
+        }
 
-    responseImportantSelector = { response ->
-      listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+        requestImportantSelector = { request ->
+            listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
+        }
+
+        responseImportantSelector = { response ->
+            listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+        }
+        retentionPeriodInSeconds = 60 * 60 * 1
     }
-    retentionPeriodInSeconds = 60 * 60 * 1
-  }
 }
 ```
 
@@ -99,31 +99,31 @@ val client = HttpClient {
 
 ```kotlin
 val client = OkHttpClient.Builder()
-  .addInterceptor(
-    AxerOkhttpInterceptor.Builder()
-      .setRequestReducer { request ->
-        val redactedHeaders = request.headers.mapValues { (key, value) ->
-          if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
-        }
-        request.copy(headers = redactedHeaders)
-      } // this will present in request but not in UI
-      .setResponseReducer { response ->
-        response.copy(
-          headers = response.headers.mapValues { (key, value) ->
-            if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
-          }
-        )
-      } // this will change content type which display only in UI
-      .setRequestImportantSelector { request ->
-        listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
-      } // if you want highlight any important data in request
-      .setResponseImportantSelector { response ->
-        listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
-      }
-      .setRetentionTime(60 * 60 * 1)
-      .build()
-  )
-  .build()
+    .addInterceptor(
+        AxerOkhttpInterceptor.Builder()
+            .setRequestReducer { request ->
+                val redactedHeaders = request.headers.mapValues { (key, value) ->
+                    if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
+                }
+                request.copy(headers = redactedHeaders)
+            } // this will present in request but not in UI
+            .setResponseReducer { response ->
+                response.copy(
+                    headers = response.headers.mapValues { (key, value) ->
+                        if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+                    }
+                )
+            } // this will change content type which display only in UI
+            .setRequestImportantSelector { request ->
+                listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
+            } // if you want highlight any important data in request
+            .setResponseImportantSelector { response ->
+                listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+            }
+            .setRetentionTime(60 * 60 * 1)
+            .build()
+    )
+    .build()
 
 ```
 
@@ -133,8 +133,8 @@ To display the Axer UI in a JVM environment:
 
 ```kotlin
 fun main() = application {
-  AxerWindows()
-  ...
+    AxerWindows()
+    ...
 }
 ```
 
@@ -222,7 +222,7 @@ You can customize the crash at jvm and android by overriding the open class Axer
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
-  // Custom implementation
+    // Custom implementation
 }
 ...
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
@@ -248,10 +248,10 @@ Axer supports live inspection of Room databases and execution of custom queries.
 
 ```kotlin
 builder
-  .setDriver(AxerBundledSQLiteDriver.getInstance())
-  .setQueryCoroutineContext(Dispatchers.IO)
-  .fallbackToDestructiveMigration(false)
-  .build()
+    .setDriver(AxerBundledSQLiteDriver.getInstance())
+    .setQueryCoroutineContext(Dispatchers.IO)
+    .fallbackToDestructiveMigration(false)
+    .build()
 ```
 
 The only required configuration is setting the driver:
@@ -260,7 +260,7 @@ The only required configuration is setting the driver:
 .setDriver(AxerBundledSQLiteDriver.getInstance())
 ```
 
-## Configuratuin
+## Configuration
 You can configure available options for monitoring in runtime(by default all enabled)
 
 ```kotlin
@@ -272,12 +272,15 @@ Axer.configure {
 }
 ```
 
-## Limitations
 
-- **iOS Limitations**:
-  - Stack traces are not supported.
-  - Fatal crash capturing via `installAxerErrorHandler` may work incorrectly.
-- **Stability**: The library is in beta (`1.0.0-beta07`) and may have bugs or breaking changes in future releases.
+**Stability**:
+
+The library is in beta (`1.0.0-beta07`) and may have bugs or breaking changes in future releases.
+
+## iOS Limitations
+- Stack traces are not supported.
+- Fatal crash capturing via `installAxerErrorHandler` currently not working.
+
 
 ## Inspiration
 
