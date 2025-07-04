@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
         <activity
             android:name="io.github.orioneee.AxerActivity"
+            android:exported="true"
             android:label="Axer"
             android:launchMode="singleTask"
-            android:taskAffinity="io.github.orioneee.axer"
-            android:exported="true" />
+            android:taskAffinity="io.github.orioneee.axer" />
 
         <receiver
             android:name="io.github.orioneee.ClearAllRequestBroadcastReceiver"
             android:exported="false" />
-    </application>
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="io.github.orioneee.koin.KoinInitializer"
+                android:value="androidx.startup" />
+        </provider>
+    </application>
 </manifest>

@@ -10,7 +10,6 @@ import sample.app.koin.KoinModules
 class SampleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        Axer.initialize(this)
         startKoin {
             androidContext(this@SampleApplication)
             modules(KoinModules.module)

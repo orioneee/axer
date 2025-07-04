@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 internal class ClearAllRequestBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) return
-        Axer.initialize(context.applicationContext)
         val dao: RequestDao by IsolatedContext.koin.inject()
         CoroutineScope(Dispatchers.IO).launch {
             dao.deleteAll()

@@ -12,6 +12,7 @@ import org.koin.core.context.startKoin
 import sample.app.App
 import sample.app.koin.KoinModules
 import java.awt.Dimension
+import java.util.concurrent.TimeUnit
 
 val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 
@@ -34,26 +35,28 @@ fun main() = application {
 
             chain.proceed(requestBuilder.build())
         }
-        .addInterceptor(AxerOkhttpInterceptor.Builder()
-            .setRequestImportantSelector { request ->
-                listOf("request-url: ${request.method} path: ${request.path}")
-            }
-            .setResponseImportantSelector { response ->
-                listOf("status: ${response.status}")
-            }
-            .setRequestFilter { request ->
-                true
-            }
-            .setResponseFilter { response ->
-                true
-            }
-            .setRequestReducer { request ->
-                request.copy(path = "${request.path}?reduced=true")
-            }
-            .setResponseReducer { response ->
-                response.copy(body = "REDACTED")
-            }
-            .build()
+        .addInterceptor(
+            AxerOkhttpInterceptor.Builder()
+                .setRequestImportantSelector { request ->
+                    listOf("request-url: ${request.method} path: ${request.path}")
+                }
+                .setResponseImportantSelector { response ->
+                    listOf("status: ${response.status}")
+                }
+                .setRequestFilter { request ->
+                    true
+                }
+                .setResponseFilter { response ->
+                    true
+                }
+                .setRequestReducer { request ->
+                    request.copy(path = "${request.path}?reduced=true")
+                }
+                .setResponseReducer { response ->
+                    response.copy(body = "REDACTED")
+                }
+                .setRetentionTime(60 * 60 * 1)
+                .build()
         )
         .build()
 

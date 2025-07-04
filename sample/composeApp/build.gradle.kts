@@ -49,7 +49,7 @@ kotlin {
             implementation(libs.napier)
 
 
-            implementation(project(":axer"))
+            implementation(project(":axer-no-op"))
         }
 
         commonTest.dependencies {

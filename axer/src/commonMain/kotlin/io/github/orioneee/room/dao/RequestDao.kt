@@ -6,6 +6,8 @@ import androidx.room.Query
 import androidx.room.Upsert
 import io.github.orioneee.domain.requests.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Dao
 internal interface RequestDao {
@@ -22,9 +24,6 @@ internal interface RequestDao {
     @Query("DELETE FROM Transactions WHERE id = :id")
     suspend fun deleteById(id: Long)
 
-//    suspend fun update(request: Request){
-//    }
-
     @Query("SELECT * FROM Transactions WHERE isViewed = 0 ORDER BY id DESC LIMIT 5")
     suspend fun getFirstFiveNotReaded(): List<Transaction>
 
@@ -37,4 +36,16 @@ internal interface RequestDao {
 
     @Query("UPDATE Transactions SET isViewed = :isViewed WHERE id = :id")
     suspend fun updateViewed(id: Long, isViewed: Boolean)
+
+    @Query("DELETE FROM Transactions WHERE sendTime < :thresholdTime")
+    suspend fun deleteOlderThan(thresholdTime: Long)
+
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun deleteAllWhichOlderThan(timestampInSeconds: Long) {
+        val miliseconds = timestampInSeconds * 1000
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        val thresholdTime = currentTime - miliseconds
+        deleteOlderThan(thresholdTime)
+    }
 }

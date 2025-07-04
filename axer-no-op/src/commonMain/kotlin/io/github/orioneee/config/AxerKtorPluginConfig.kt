@@ -23,4 +23,7 @@ class AxerKtorPluginConfig(){
     var responseReducer : (Response) -> Response = { response ->
         response
     }
+
+    var retentionPeriodInSeconds: Long = 60 * 60 * 1
 }
+

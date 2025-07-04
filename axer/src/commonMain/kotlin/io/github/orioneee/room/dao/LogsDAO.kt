@@ -6,6 +6,8 @@ import androidx.room.Upsert
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.domain.logs.LogLine
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Dao
 internal interface LogsDAO {
@@ -24,4 +26,15 @@ internal interface LogsDAO {
 
     @Query("DELETE FROM LogLine")
     suspend fun clear()
+
+    @Query("DELETE FROM LogLine WHERE time < :thresholdTime")
+    suspend fun deleteOlderThan(thresholdTime: Long)
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun deleteAllWhichOlderThan(timestampInSeconds: Long = 60 * 60 * 1) {
+        val miliseconds = timestampInSeconds * 1000
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        val thresholdTime = currentTime - miliseconds
+        deleteOlderThan(thresholdTime)
+    }
 }

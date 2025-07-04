@@ -2,21 +2,22 @@
 
 package io.github.orioneee.processors
 
-import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.name
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.RequestDao
 
 
-internal class RequestProcessor() {
+internal class RequestProcessor(
+    private val requestMaxAge: Long,
+) {
     private val dao: RequestDao by IsolatedContext.koin.inject()
 
-    suspend fun deleteRequestIfNotFiltred(id: Long){
+    suspend fun deleteRequestIfNotFiltred(id: Long) {
         dao.deleteById(id)
     }
 
     suspend fun onSend(request: Transaction): Long {
+        dao.deleteAllWhichOlderThan(requestMaxAge)
         val id = dao.upsert(request)
         val firstFive = dao.getFirstFiveNotReaded()
         updateNotification(firstFive)

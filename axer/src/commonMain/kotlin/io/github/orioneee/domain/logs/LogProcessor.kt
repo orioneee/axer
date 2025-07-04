@@ -33,6 +33,7 @@ class LogProcessor {
         )
         CoroutineScope(Dispatchers.IO).launch {
             logsDAO.upsert(line)
+            logsDAO.deleteAllWhichOlderThan()
         }
     }
 }

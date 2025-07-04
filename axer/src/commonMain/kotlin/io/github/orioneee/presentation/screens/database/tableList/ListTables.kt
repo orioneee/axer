@@ -9,22 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.RawOn
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import io.github.orioneee.Axer
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.all_queries
 import io.github.orioneee.axer.generated.resources.database
@@ -87,7 +78,7 @@ internal class ListTables {
                 )
             },
             modifier = Modifier.Companion
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .clickable { onClickToTable(table) },
         )
     }
@@ -102,7 +93,7 @@ internal class ListTables {
         LazyVerticalStaggeredGrid(
             modifier = Modifier.Companion
                 .fillMaxSize()
-                .padding(4.dp),
+                .padding(horizontal = 4.dp),
             columns = StaggeredGridCells.Adaptive(minSize = 300.dp),
             horizontalArrangement = Arrangement.Center
         ) {
@@ -110,7 +101,7 @@ internal class ListTables {
                 BodySection(
                     database.name,
                     separator = "",
-                    isExandable = false,
+                    isExpandable = false,
                     onClick = {
                         navController.navigate(Routes.RAW_QUERY.route + "/${database.name}")
                     },

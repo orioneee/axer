@@ -10,34 +10,25 @@ class AxerOkhttpInterceptor private constructor(
     private val requestFilter: (Request) -> Boolean,
     private val responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean,
     private val requestReducer: (Request) -> Request = { request -> request },
-    private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response
+    private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response,
+    private val requestMaxAgeInSeconds: Long
 ) : Interceptor {
-
     class Builder() {
-        private var requestImportantSelector: (Request) -> List<String> = { request ->
-            emptyList()
-        }
-
+        private var requestImportantSelector: (Request) -> List<String> = { emptyList() }
         private var responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String> =
-            { response ->
-                emptyList()
-            }
-
-        private var requestFilter: (Request) -> Boolean = { request ->
-            true
-        }
+            { emptyList() }
+        private var requestFilter: (Request) -> Boolean = { true }
+        private var requestReducer: (Request) -> Request = { it }
+        private var responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean =
+            { true }
+        private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
+            { it }
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 1
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
             this.requestImportantSelector = selector
         }
 
-        private var requestReducer: (Request) -> Request = { request ->
-            request
-        }
-        private var responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean =
-            { response ->
-                true
-            }
 
         fun setRequestReducer(reducer: (Request) -> Request) = apply {
             this.requestReducer = reducer
@@ -57,15 +48,15 @@ class AxerOkhttpInterceptor private constructor(
             this.requestFilter = filter
         }
 
-        private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
-            { response ->
-                response
-            }
 
         fun setResponseReducer(reducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response) =
             apply {
                 this.responseReducer = reducer
             }
+
+        fun setRetentionTime(seconds: Long) = apply {
+            this.requestMaxAgeInSeconds = seconds
+        }
 
         fun build() = AxerOkhttpInterceptor(
             requestImportantSelector = requestImportantSelector,
@@ -73,7 +64,8 @@ class AxerOkhttpInterceptor private constructor(
             requestFilter = requestFilter,
             responseFilter = responseFilter,
             requestReducer = requestReducer,
-            responseReducer = responseReducer
+            responseReducer = responseReducer,
+            requestMaxAgeInSeconds = requestMaxAgeInSeconds
         )
     }
 

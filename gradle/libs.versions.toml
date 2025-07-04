@@ -32,10 +32,12 @@ kotlinTest = "2.2.0"
 runner = "1.6.2"
 core = "1.6.1"
 junit = "1.2.1"
+startupRuntime = "1.2.0"
 
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 composable-table = { module = "io.github.sunny-chung:composable-table", version.ref = "composableTable" }
 kodeview = { module = "dev.snipme:kodeview", version.ref = "kodeview" }
