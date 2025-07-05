@@ -40,13 +40,13 @@ Axer is a library designed to monitor **HTTP requests**, record **exceptions** (
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-beta10")
+implementation("io.github.orioneee:axer:1.0.0-beta11")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-beta10")
+implementation("io.github.orioneee:axer-no-op:1.0.0-beta11")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -214,35 +214,8 @@ Axer can capture fatal crashes and manually recorded exceptions.
 
 Install the error handler on the main thread:
 
-**Android:**
-
 ```kotlin
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Axer.installErrorHandler()
-        ...
-        ...
-    }
-}
-```
-
-**Jvm**
-```kotlin
-fun main() = application {
-    Axer.installErrorHandler()
-    ...
-    ...
-}
-```
-
-**IOS**
-```kotlin
-fun MainViewController(): UIViewController {
-    Axer.installErrorHandler()
-    ...
-    ...
-}
+Axer.installAxerErrorHandler()
 ```
 
 You can customize the crash at jvm and android by overriding the open class AxerUncaughtExceptionHandler and settings it like:
@@ -302,10 +275,11 @@ Axer.configure {
 
 **Stability**:
 
-The library is in beta (`1.0.0-beta10`) and may have bugs or breaking changes in future releases.
+The library is in beta (`1.0.0-beta11`) and may have bugs or breaking changes in future releases.
 
 ## iOS Limitations
 - Stack traces are not supported.
+- Fatal crash capturing via `installAxerErrorHandler` currently not working.
 
 
 ## Inspiration
