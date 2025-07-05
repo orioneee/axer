@@ -32,6 +32,10 @@ internal data class Transaction(
     val isViewed: Boolean = false
 ) {
 
+    fun isErrorByStatusCode(): Boolean {
+        return responseStatus != null && responseStatus in 400..599
+    }
+
     fun updateToError(error: String): Transaction {
         return this.copy(
             error = error,
@@ -61,7 +65,7 @@ internal data class Transaction(
     }
 
     fun isFinished(): Boolean {
-        return responseStatus != null || error == null
+        return responseStatus != null || error != null
     }
 
     @get:Ignore

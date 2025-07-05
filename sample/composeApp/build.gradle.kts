@@ -57,19 +57,30 @@ kotlin {
             implementation(kotlin("test"))
         }
 
-        androidMain.dependencies {
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.accompanist.permissions)
-            implementation(libs.androidx.activityCompose)
-
-            implementation(libs.koin.android)
+        val androidAndJvm by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.okhttp)
+        val androidMain by getting {
+            dependsOn(androidAndJvm)
+            dependencies {
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.accompanist.permissions)
+                implementation(libs.androidx.activityCompose)
+
+                implementation(libs.koin.android)
+            }
+        }
+
+        val jvmMain by getting {
+            dependsOn(androidAndJvm)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+            }
         }
 
         val iosMain by creating {
@@ -86,6 +97,9 @@ kotlin {
             dependsOn(iosMain)
         }
         val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosX64Main by getting {
             dependsOn(iosMain)
         }
     }

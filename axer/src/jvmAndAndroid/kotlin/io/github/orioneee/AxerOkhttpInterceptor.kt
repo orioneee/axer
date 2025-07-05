@@ -62,6 +62,7 @@ class AxerOkhttpInterceptor private constructor(
             apply {
                 this.responseReducer = reducer
             }
+
         fun setRetentionTime(seconds: Long) = apply {
             this.requestMaxAgeInSeconds = seconds
         }
@@ -127,8 +128,14 @@ class AxerOkhttpInterceptor private constructor(
 
                 val responseHeaders =
                     response.headers.toMultimap().mapValues { it.value.joinToString(", ") }
-                val responseBodyBytes = response.body?.bytes() ?: ByteArray(0)
-                val isImage = responseBodyBytes.isValidImage()
+                val responseBodyBytes = response.body.bytes()
+                val contentType = response.body.contentType()
+                val isImageContentType = contentType?.let {
+                    it.type == "image" || it.subtype in listOf(
+                        "jpeg", "png", "gif", "webp", "svg+xml"
+                    )
+                } == true
+                val isImage = isImageContentType || responseBodyBytes.isValidImage()
 
                 val finishedTransaction = transaction.updateToFinished(
                     responseBody = if (isImage) null else responseBodyBytes.decodeToString(),

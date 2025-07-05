@@ -255,7 +255,74 @@ internal fun App(
                 }
             }
 
-            /** ─── Exceptions ─────────────────────────────────────────────── **/
+            item {
+                ActionCard("Spam Ktor") {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch { spamKtorMethods(client) }
+                        }
+                    ) { Text("Spam Methods") }
+
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch { spamKtorMedia(client) }
+                        }
+                    ) { Text("Spam Media") }
+
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch { spamKtorFormatsAndErrors(client) }
+                        }
+                    ) { Text("Spam Formats") }
+
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch { spamKtor(client) }
+                        }
+                    ) { Text("Spam All") }
+                }
+            }
+
+            item {
+                if (isSupportOkhttp()) {
+                    ActionCard("Spam OkHttp") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch { spamOkHttpMethods() }
+                            }
+                        ) { Text("Spam Methods") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch { spamOkHttpMedia() }
+                            }
+                        ) { Text("Spam Media") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch { spamOkHttpFormatsAndErrors() }
+                            }
+                        ) { Text("Spam Formats") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch { spamOkHttp(client) }
+                            }
+                        ) { Text("Spam All") }
+                    }
+                }
+            }
+
+
+
             item {
                 ActionCard("Exceptions") {
                     FilledTonalButton(

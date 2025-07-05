@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -85,8 +86,7 @@ internal class RequestListScreen() {
                     annotatedString,
                     color = if (
                         request.error != null ||
-                        (request.responseStatus != null && !request.responseStatus.toString()
-                            .startsWith("2"))
+                        (request.responseStatus != null && request.isErrorByStatusCode())
                     ) MaterialTheme.colorScheme.error else Color.Unspecified,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -100,7 +100,11 @@ internal class RequestListScreen() {
             },
             trailingContent = {
                 if (request.isInProgress()) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
                 } else {
                     Text(request.responseStatus?.toString() ?: "")
                 }
