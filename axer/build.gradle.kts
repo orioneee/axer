@@ -15,8 +15,7 @@ plugins {
 fun getLatestGitTag() = providers.exec {
     commandLine("git", "describe", "--tags", "--abbrev=0")
     isIgnoreExitValue = true
-}.standardOutput
-    .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
+}.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
 val libraryVersion = getLatestGitTag()
 
@@ -25,18 +24,23 @@ println("Library version: $libraryVersion")
 version = libraryVersion
 
 kotlin {
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     jvmToolchain(21)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
     listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+        iosArm64(), iosSimulatorArm64()
     ).forEach {
         it.binaries.framework {
             baseName = "Axer"
             isStatic = false
         }
+        it.binaries.all { freeCompilerArgs += "-Xadd-light-debug=enable" }
+
     }
 
 
@@ -126,17 +130,6 @@ kotlin {
         }
 
     }
-
-    //https://kotlinlang.org/docs/native-objc-interop.html#export-of-kdoc-comments-to-generated-objective-c-headers
-    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
-        compilations["main"].compileTaskProvider.configure {
-            compilerOptions {
-                freeCompilerArgs.add("-Xexport-kdoc")
-                freeCompilerArgs.add("-Xexpect-actual-classes")
-            }
-        }
-    }
-
 }
 
 android {

@@ -104,7 +104,6 @@ internal class RoomReader {
     suspend fun getTablesFromAllDatabase(): List<DatabaseWrapped> {
         updateConnections()
         return connections.map {
-            println("Processing database: ${it.file}")
             DatabaseWrapped(
                 tables = getAllTables(it.file),
                 name = it.file.substringAfterLast("/").replace(".db", ""),

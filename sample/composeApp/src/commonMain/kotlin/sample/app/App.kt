@@ -145,7 +145,10 @@ internal fun populateDatabase(database: SampleDatabase) {
         }
         val moviesDao = database.getMovieDao()
         moviesDao.upsertMovies(movies)
-        println("Database populated with ${directors.size} directors and ${movies.size} movies.")
+        Axer.d(
+            "App",
+            "Database populated with ${directors.size} directors and ${movies.size} movies."
+        )
     }
 }
 
@@ -224,13 +227,19 @@ internal fun App(
 
             item {
                 ActionCard("Network") {
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sendGetRequest(client) }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { sendGetRequest(client) }) {
                         Text("GET")
                     }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sendPost(client) }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { sendPost(client) }) {
                         Text("POST")
                     }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { sedRequestForImage(client) }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { sedRequestForImage(client) }) {
                         Text("Image")
                     }
                     FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
@@ -251,7 +260,9 @@ internal fun App(
                         onClick = { Axer.recordException(Exception("Test non‑fatal")) }
                     ) { Text("Record Non‑Fatal") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { throw Exception("Test fatal") }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { throw Exception("Test fatal") }) {
                         Text("Throw Fatal")
                     }
                 }
@@ -260,7 +271,9 @@ internal fun App(
             /** ─── Database ─────────────────────────────────────────────── **/
             item {
                 ActionCard("Database") {
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = { populateDatabase(database) }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { populateDatabase(database) }) {
                         Text("Populate")
                     }
                     FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
