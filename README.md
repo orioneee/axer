@@ -167,14 +167,8 @@ Napier.base(AxerLogSaver())
 
 and simply log with napier as before, all logs will be saved and displayed
 
-
-
 **if you dont use Napier**
-You need initialize logger, this will apply base to Napier
-```kotlin
-Axer.initializeLogger()
-```
-than you can log just like in android but call Axer
+You can simply use Axer logger without any additional setup:
 ```kotlin
 Axer.d("App", "Test debug log")
 //Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
@@ -214,8 +208,35 @@ Axer can capture fatal crashes and manually recorded exceptions.
 
 Install the error handler on the main thread:
 
+**Android:**
+
 ```kotlin
-Axer.installAxerErrorHandler()
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Axer.installErrorHandler()
+        ...
+        ...
+    }
+}
+```
+
+**Jvm**
+```kotlin
+fun main() = application {
+    Axer.installErrorHandler()
+    ...
+    ...
+}
+```
+
+**IOS**
+```kotlin
+fun MainViewController(): UIViewController {
+    Axer.installErrorHandler()
+    ...
+    ...
+}
 ```
 
 You can customize the crash at jvm and android by overriding the open class AxerUncaughtExceptionHandler and settings it like:
@@ -228,8 +249,6 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
 
 ```
-
-**Note**: Fatal crash handling on IOS may work incorrectly
 
 #### Manual Exception Recording
 
@@ -279,7 +298,6 @@ The library is in beta (`1.0.0-beta11`) and may have bugs or breaking changes in
 
 ## iOS Limitations
 - Stack traces are not supported.
-- Fatal crash capturing via `installAxerErrorHandler` currently not working.
 
 
 ## Inspiration
