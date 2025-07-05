@@ -35,9 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.ic_github
-import io.github.orioneee.axer.generated.resources.ic_logo
+import io.github.orioneee.axer.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AxerLogo() {
@@ -47,7 +47,7 @@ fun AxerLogo() {
     IconButton(onClick = { isShowInfoDialog.value = true }) {
         Icon(
             painter = painterResource(Res.drawable.ic_logo),
-            contentDescription = "Logo",
+            contentDescription = stringResource(Res.string.logo_description),
             tint = Color.Unspecified
         )
     }
@@ -61,7 +61,7 @@ fun AxerLogo() {
             ) {
                 Icon(
                     painterResource(Res.drawable.ic_logo),
-                    contentDescription = "Logo",
+                    contentDescription = stringResource(Res.string.logo_description),
                     tint = Color.Unspecified,
                     modifier = Modifier.size(80.dp)
                 )
@@ -76,11 +76,14 @@ fun AxerLogo() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Description
                 Text(
-                    text = "Axer is a lightweight Kotlin Multiplatform debugging library that provides real‑time HTTP monitoring (Ktor & OkHttp), crash and exception capturing, live Room database inspection, and built‑in logging—all in one.",
+                    text = stringResource(Res.string.axer_description),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )
+
+                // Links & buttons
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(
                         space = 8.dp,
@@ -88,13 +91,12 @@ fun AxerLogo() {
                     ),
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 ) {
+                    // GitHub pill
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .clickable {
-                                uriHandler.openUri(
-                                    "https://github.com/orioneee/Axer"
-                                )
+                                uriHandler.openUri("https://github.com/orioneee/Axer")
                             }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -102,30 +104,36 @@ fun AxerLogo() {
                     ) {
                         Icon(
                             painterResource(Res.drawable.ic_github),
-                            contentDescription = "GitHub",
+                            contentDescription = stringResource(Res.string.github_icon_description),
                             tint = Color.Unspecified,
                             modifier = Modifier.size(24.dp)
                         )
-                        Text("GitHub", style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            text = stringResource(Res.string.github),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
 
+                    // “Report a bug” button
                     Button(
                         onClick = {
-                            uriHandler.openUri(
-                                "https://github.com/orioneee/Axer/issues"
-                            )
+                            uriHandler.openUri("https://github.com/orioneee/Axer/issues")
                         }
                     ) {
                         Icon(Icons.Default.BugReport, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Report a bug")
+                        Text(stringResource(Res.string.report_bug))
                     }
                 }
 
                 HorizontalDivider(Modifier.padding(top = 4.dp))
 
+                // Version line with placeholder
                 Text(
-                    text = "Version: ${BuildKonfig.VERSION_NAME}",
+                    text = stringResource(
+                        Res.string.version_format,
+                        BuildKonfig.VERSION_NAME
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -133,4 +141,3 @@ fun AxerLogo() {
         }
     )
 }
-

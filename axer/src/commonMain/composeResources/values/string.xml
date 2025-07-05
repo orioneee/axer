@@ -33,7 +33,6 @@
     <string name="error">Error: %1$s</string>
 
 
-
     <string name="no_exception_found_with_id">No exception found with ID: %1$s</string>
     <string name="exception_details_title">%1$s - %2$s</string>
     <string name="name">Name</string>
@@ -51,7 +50,16 @@
     <string name="execute_query">Execute Query</string>
 
 
-
     <string name="no_available_options">No available options</string>
     <string name="info">Information</string>
+
+    <string name="logo_description">Logo</string>
+    <string name="github_icon_description">GitHub</string>
+
+    <string name="axer_description">Axer is a lightweight Kotlin Multiplatform debugging library that provides real‑time HTTP monitoring (Ktor &amp; OkHttp), crash and exception capturing, live Room database inspection, and built‑in logging —all in one.</string>
+
+    <string name="github">GitHub</string>
+    <string name="report_bug">Report a bug</string>
+
+    <string name="version_format">Version: %1$s</string>
 </resources>
