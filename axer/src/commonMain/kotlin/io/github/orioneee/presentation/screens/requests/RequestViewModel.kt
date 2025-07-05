@@ -8,6 +8,7 @@ import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.room.dao.RequestDao
 import dev.snipme.highlights.Highlights
 import generateAnnotatedString
+import io.github.orioneee.extentions.formatJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +24,11 @@ internal class RequestViewModel(
 ) : ViewModel() {
 
     suspend fun getHighlights(code: String): AnnotatedString {
-        return Highlights
-            .Builder(code = code)
-            .build()
-            .getHighlights()
-            .generateAnnotatedString(code)
+        return try{
+            formatJson(code)
+        } catch (e: Exception) {
+            AnnotatedString(code)
+        }
     }
 
     val json = Json {

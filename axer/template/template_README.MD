@@ -302,4 +302,4 @@ The library is in beta (`{{AXER_VERSION}}`) and may have bugs or breaking change
 
 ## Inspiration
 
-Axer was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending its capabilities with Room database inspection and cross-platform support.
+Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects. It was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending it with Room database inspection and multiplatform support. Additionally, Axer incorporates ideas and formatting techniques from [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/) to improve the readability of HTTP request and response logs.
