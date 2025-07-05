@@ -1,6 +1,7 @@
 package io.github.orioneee.presentation.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -102,10 +103,11 @@ fun AxerLogo() {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        val isDark = isSystemInDarkTheme()
                         Icon(
                             painterResource(Res.drawable.ic_github),
                             contentDescription = stringResource(Res.string.github_icon_description),
-                            tint = Color.Unspecified,
+                            tint = if (isDark) Color.White else Color.Black,
                             modifier = Modifier.size(24.dp)
                         )
                         Text(

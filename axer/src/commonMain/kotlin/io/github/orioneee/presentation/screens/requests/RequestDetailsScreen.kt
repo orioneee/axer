@@ -1,9 +1,5 @@
 package io.github.orioneee.presentation.screens.requests
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,20 +18,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,13 +38,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.close
 import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
 import io.github.orioneee.axer.generated.resources.duration
 import io.github.orioneee.axer.generated.resources.error
@@ -82,78 +71,63 @@ import org.koin.core.parameter.parametersOf
 import kotlin.math.max
 
 internal class RequestDetailsScreen {
+    fun getSizeText(size: Long): String {
+        return if (
+            size < 1024
+        ) {
+            "$size bytes"
+        } else if (size < 1024 * 1024) {
+            "${size / 1024} KB"
+        } else {
+            "${size / (1024 * 1024)} MB"
+        }
+    }
 
     @Composable
     fun DisplayImportantSection(
         data: List<String>
     ) {
-        var isExpanded by remember { mutableStateOf(true) }
-        val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
         var isVisibleInfoDialog by remember { mutableStateOf(false) }
-        Card {
-            Column {
+
+        BodySection(
+            titleContent = {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            isExpanded = !isExpanded
-                        }
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            buildStringSection(
-                                title = stringResource(Res.string.important),
-                                content = "",
-                                separator = ""
-                            )
+                    Text(
+                        buildStringSection(
+                            title = stringResource(Res.string.important),
+                            content = "",
+                            separator = ""
                         )
-                        IconButton(
-                            onClick = {
-                                isVisibleInfoDialog = true
-                            }
-                        ) {
-                            Image(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                    Image(
-                        modifier = Modifier.rotate(animatedRotation),
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null
                     )
-                }
-                AnimatedVisibility(
-                    visible = isExpanded
-                ) {
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        SelectionContainer {
-                            Column(
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .fillMaxWidth(),
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                data.forEach {
-                                    Text(it)
-                                }
-                            }
+                    IconButton(
+                        onClick = {
+                            isVisibleInfoDialog = true
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = null,
+                        )
+                    }
+                }
+            }
+        ) {
+            SelectionContainer {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    data.forEach {
+                        Text(it)
                     }
                 }
             }
         }
+
         MultiplatformAlertDialog(
             isShowDialog = isVisibleInfoDialog,
             onDismiss = {
@@ -166,75 +140,6 @@ internal class RequestDetailsScreen {
                 Text(stringResource(Res.string.developer_mark_this_as_important))
             }
         )
-    }
-
-    @Composable
-    fun HeaderSection(headers: Map<String, String>) {
-        var isExpanded by remember { mutableStateOf(false) }
-        val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
-        Card {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            isExpanded = !isExpanded
-                        }
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        buildStringSection(
-                            title = stringResource(Res.string.headers),
-                            content = ""
-                        )
-                    )
-                    Image(
-                        modifier = Modifier.rotate(animatedRotation),
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null
-                    )
-                }
-                AnimatedVisibility(
-                    visible = isExpanded
-                ) {
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        SelectionContainer {
-                            Column(
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .fillMaxWidth(),
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                headers.entries.forEach {
-                                    Text(
-                                        buildStringSection(it.key, it.value),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun getSizeText(size: Long): String {
-        return if (
-            size < 1024
-        ) {
-            "$size bytes"
-        } else if (size < 1024 * 1024) {
-            "${size / 1024} KB"
-        } else {
-            "${size / (1024 * 1024)} MB"
-        }
     }
 
     @Composable
@@ -277,7 +182,24 @@ internal class RequestDetailsScreen {
 
             if (request.requestHeaders.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
-                HeaderSection(request.requestHeaders)
+                BodySection(
+                    title = stringResource(Res.string.headers)
+                ) {
+                    SelectionContainer {
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            request.requestHeaders.entries.forEach {
+                                Text(
+                                    buildStringSection(it.key, it.value),
+                                )
+                            }
+                        }
+                    }
+                }
 
             }
             if (!request.requestBody.isNullOrBlank()) {
@@ -338,7 +260,25 @@ internal class RequestDetailsScreen {
             )
             if (request.responseHeaders.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
-                HeaderSection(request.responseHeaders)
+                BodySection(
+                    defaultExpanded = false,
+                    title = stringResource(Res.string.headers),
+                ) {
+                    SelectionContainer {
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            request.responseHeaders.entries.forEach {
+                                Text(
+                                    buildStringSection(it.key, it.value),
+                                )
+                            }
+                        }
+                    }
+                }
             }
             Spacer(Modifier.height(16.dp))
             if (request.responseBody?.isNotBlank() == true || request.imageBytes?.isNotEmpty() == true || !request.error.isNullOrBlank()) {

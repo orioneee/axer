@@ -2,8 +2,6 @@ package io.github.orioneee.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +30,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun BodySection(
     title: String = "Body",
+    titleContent: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     separator: String = ": ",
+    defaultExpanded: Boolean = true,
     isExpandable: Boolean = true,
     onClick: (() -> Unit)? = null,
 
@@ -45,7 +44,7 @@ internal fun BodySection(
 ) {
     val outerRadius = innerRadius + thickness
 
-    var isExpanded by remember { mutableStateOf(true) }
+    var isExpanded by remember { mutableStateOf(defaultExpanded) }
     val animatedRotation by animateFloatAsState(if (isExpanded) 180f else 0f)
 
     val outerShape = RoundedCornerShape(outerRadius)
@@ -74,14 +73,18 @@ internal fun BodySection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    buildStringSection(
-                        title = title,
-                        content = "",
-                        separator = separator
-                    ),
-                    modifier = Modifier.padding(8.dp)
-                )
+                if (titleContent != null) {
+                    titleContent()
+                } else {
+                    Text(
+                        buildStringSection(
+                            title = title,
+                            content = "",
+                            separator = separator
+                        ),
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
                 if (isExpandable) {
                     androidx.compose.material3.Icon(
                         imageVector = Icons.Outlined.KeyboardArrowDown,

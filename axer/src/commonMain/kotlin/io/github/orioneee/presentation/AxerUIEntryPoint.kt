@@ -1,5 +1,6 @@
 package io.github.orioneee.presentation
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
@@ -76,7 +77,11 @@ class AxerUIEntryPoint {
 
     @Composable
     fun Content() {
-        MaterialTheme(BlueTheme) {
+        val isDark = isSystemInDarkTheme()
+        MaterialTheme(
+            if (isDark) Theme.dark
+            else Theme.light
+        ) {
             KoinIsolatedContext(
                 IsolatedContext.koinApp
             ) {
@@ -87,7 +92,8 @@ class AxerUIEntryPoint {
                     if (availableDestinations.isNotEmpty()) {
                         LaunchedEffect(availableDestinations, currentRoute) {
                             if (currentRoute == null) return@LaunchedEffect
-                            val isCurrentRouteAvailable = availableDestinations.any { it.route == currentRoute }
+                            val isCurrentRouteAvailable =
+                                availableDestinations.any { it.route == currentRoute }
                             if (!isCurrentRouteAvailable) {
                                 val firstAvailable = availableDestinations.first()
                                 navController.navigateSaveState(firstAvailable.route)
