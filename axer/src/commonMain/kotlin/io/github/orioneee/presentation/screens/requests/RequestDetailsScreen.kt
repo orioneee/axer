@@ -64,15 +64,15 @@ import io.github.orioneee.axer.generated.resources.no_request_found_with_id
 import io.github.orioneee.axer.generated.resources.request_failed
 import io.github.orioneee.axer.generated.resources.request_size
 import io.github.orioneee.axer.generated.resources.request_tab
-import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.axer.generated.resources.response_size
 import io.github.orioneee.axer.generated.resources.response_tab
 import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
+import io.github.orioneee.axer.generated.resources.what_is_important
 import io.github.orioneee.domain.requests.HighlightedBodyWrapper
 import io.github.orioneee.presentation.components.BodySection
-import io.github.orioneee.presentation.components.CustomAlertDialog
+import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
@@ -154,41 +154,18 @@ internal class RequestDetailsScreen {
                 }
             }
         }
-        CustomAlertDialog(
+        MultiplatformAlertDialog(
             isShowDialog = isVisibleInfoDialog,
             onDismiss = {
                 isVisibleInfoDialog = false
+            },
+            title = {
+                Text(stringResource(Res.string.what_is_important))
+            },
+            content = {
+                Text(stringResource(Res.string.developer_mark_this_as_important))
             }
-        ) {
-            Surface(
-                modifier = Modifier,
-//                    .width(450.dp)
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp),
-                ) {
-                    Text(stringResource(Res.string.developer_mark_this_as_important))
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(
-                            onClick = {
-                                isVisibleInfoDialog = false
-                            }
-                        ) {
-                            Text(stringResource(Res.string.close))
-                        }
-                    }
-                }
-            }
-        }
+        )
     }
 
     @Composable

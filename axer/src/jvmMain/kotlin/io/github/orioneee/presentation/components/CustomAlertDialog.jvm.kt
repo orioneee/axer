@@ -3,6 +3,7 @@ package io.github.orioneee.presentation.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -17,12 +18,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@OptIn(markerClass = [ExperimentalMaterial3Api::class])
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun CustomAlertDialog(
+internal actual fun MultiplatformAlertDialog(
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
-    content: @Composable (() -> Unit)
+    title: @Composable (() -> Unit),
+    confirmButton: @Composable (() -> Unit),
+    content: @Composable () -> Unit,
 ) {
     var visible by remember { mutableStateOf(isShowDialog) }
     val density = LocalDensity.current
@@ -37,7 +40,8 @@ actual fun CustomAlertDialog(
             launch { offsetFraction.animateTo(0f, animationSpec = tween(300)) }
             launch { alpha.animateTo(1f, animationSpec = tween(300)) }
         } else {
-            val offsetAnimation = launch { offsetFraction.animateTo(-.5f, animationSpec = tween(300)) }
+            val offsetAnimation =
+                launch { offsetFraction.animateTo(-.5f, animationSpec = tween(300)) }
             val alphaAnimation = launch { alpha.animateTo(0f, animationSpec = tween(300)) }
             offsetAnimation.join()
             alphaAnimation.join()
@@ -47,22 +51,18 @@ actual fun CustomAlertDialog(
     }
 
     if (visible) {
-        BasicAlertDialog(
-            onDismissRequest = {
-                onDismiss()
-            }
-        ) {
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        translationY = with(density) {
-                            offsetFraction.value * maxOffsetDp.toPx()
-                        }
-                        this.alpha = alpha.value
+        AlertDialog(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationY = with(density) {
+                        offsetFraction.value * maxOffsetDp.toPx()
                     }
-            ) {
-                content()
-            }
-        }
+                    this.alpha = alpha.value
+                },
+            onDismissRequest = onDismiss,
+            title = title,
+            text = content,
+            confirmButton = confirmButton,
+        )
     }
 }

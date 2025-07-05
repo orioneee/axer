@@ -1,26 +1,23 @@
 package io.github.orioneee.presentation.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 
-@OptIn(markerClass = [ExperimentalMaterial3Api::class])
 @Composable
-actual fun CustomAlertDialog(
+actual fun MultiplatformAlertDialog(
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
-    content: @Composable (() -> Unit)
+    title: @Composable (() -> Unit),
+    confirmButton: @Composable (() -> Unit),
+    content: @Composable (() -> Unit),
 ) {
     if (isShowDialog) {
-        BasicAlertDialog(
-            onDismissRequest = {
-                onDismiss()
-            }
-        ) {
-            Box {
-                content()
-            }
-        }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = title,
+            text = content,
+            confirmButton = confirmButton,
+        )
     }
 }

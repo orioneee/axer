@@ -1,22 +1,136 @@
 package io.github.orioneee.presentation.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.ic_github
 import io.github.orioneee.axer.generated.resources.ic_logo
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun AxerLogo(){
-    Icon(
-        painter = painterResource(Res.drawable.ic_logo),
-        contentDescription = "Logo",
-        tint = Color.Unspecified,
-        modifier = Modifier
-            .padding(12.dp)
+fun AxerLogo() {
+    val isShowInfoDialog = remember { mutableStateOf(false) }
+    val uriHandler = LocalUriHandler.current
+
+    IconButton(onClick = { isShowInfoDialog.value = true }) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_logo),
+            contentDescription = "Logo",
+            tint = Color.Unspecified
+        )
+    }
+
+    MultiplatformAlertDialog(
+        state = isShowInfoDialog,
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painterResource(Res.drawable.ic_logo),
+                    contentDescription = "Logo",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(80.dp)
+                )
+            }
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Axer is a lightweight Kotlin Multiplatform debugging library that provides real‑time HTTP monitoring (Ktor & OkHttp), crash and exception capturing, live Room database inspection, and built‑in logging—all in one.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space = 8.dp,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .clickable {
+                                uriHandler.openUri(
+                                    "https://github.com/orioneee/Axer"
+                                )
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            painterResource(Res.drawable.ic_github),
+                            contentDescription = "GitHub",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text("GitHub", style = MaterialTheme.typography.labelLarge)
+                    }
+
+                    Button(
+                        onClick = {
+                            uriHandler.openUri(
+                                "https://github.com/orioneee/Axer/issues"
+                            )
+                        }
+                    ) {
+                        Icon(Icons.Default.BugReport, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Report a bug")
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(top = 4.dp))
+
+                Text(
+                    text = "Version: ${BuildKonfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     )
 }
+

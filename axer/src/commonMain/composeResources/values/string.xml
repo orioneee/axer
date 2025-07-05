@@ -9,6 +9,7 @@
     <string name="database">Database</string>
 
     <string name="important">Important</string>
+    <string name="what_is_important">Why this is important?</string>
     <string name="developer_mark_this_as_important">Developer mark this as important</string>
     <string name="close">Close</string>
     <string name="headers">Headers</string>

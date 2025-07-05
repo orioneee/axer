@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.internal.utils.getLocalProperty
 
 plugins {
@@ -10,6 +11,8 @@ plugins {
 
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+
+    id("com.codingfeline.buildkonfig") version "+"
 }
 
 fun getLatestGitTag() = providers.exec {
@@ -213,4 +216,12 @@ room {
 
 compose.resources {
     packageOfResClass = "io.github.orioneee.axer.generated.resources"
+}
+
+buildkonfig {
+    packageName = "io.github.orioneee.axer.generated.configs"
+
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", libraryVersion)
+    }
 }
