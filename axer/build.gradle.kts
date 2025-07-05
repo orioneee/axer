@@ -112,6 +112,10 @@ kotlin {
             dependsOn(iosMain)
         }
 
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
