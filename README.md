@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img width="200px" alt="Axer logo" src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/cropped_circle_image.png">
+    <img width="200px" alt="Axer logo" src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logo.svg">
   </picture>
 </div>
 
