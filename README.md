@@ -40,13 +40,13 @@ Axer is a library designed to monitor **HTTP requests**, record **exceptions** (
 Add the following dependencies to your project:
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.0.0-beta14")
+implementation("io.github.orioneee:axer:1.0.0-beta15")
 ```
 
 For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.0.0-beta14")
+implementation("io.github.orioneee:axer-no-op:1.0.0-beta15")
 ```
 
 The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
@@ -294,7 +294,7 @@ Axer.configure {
 
 **Stability**:
 
-The library is in beta (`1.0.0-beta14`) and may have bugs or breaking changes in future releases.
+The library is in beta (`1.0.0-beta15`) and may have bugs or breaking changes in future releases.
 
 ## iOS Limitations
 - Stack traces are not supported.
@@ -302,4 +302,4 @@ The library is in beta (`1.0.0-beta14`) and may have bugs or breaking changes in
 
 ## Inspiration
 
-Axer was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending its capabilities with Room database inspection and cross-platform support.
+Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects. It was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending it with Room database inspection and multiplatform support. Additionally, Axer incorporates ideas and formatting techniques from [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/) to improve the readability of HTTP request and response logs.
