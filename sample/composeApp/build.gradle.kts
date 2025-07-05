@@ -16,7 +16,7 @@ kotlin {
     androidTarget()
     jvm()
     listOf(
-//        iosX64(),
+        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
@@ -50,7 +50,7 @@ kotlin {
             implementation(libs.napier)
 
 
-            implementation(project(":axer"))
+            implementation(project(":axer-no-op"))
         }
 
         commonTest.dependencies {
@@ -128,7 +128,7 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspJvm", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-//    add("kspIosX64", libs.androidx.room.compiler)
+    add("kspIosX64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
 }
 
