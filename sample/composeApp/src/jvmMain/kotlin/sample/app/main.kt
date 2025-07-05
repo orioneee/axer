@@ -7,6 +7,7 @@ import androidx.compose.ui.window.rememberWindowState
 import io.github.orioneee.Axer
 import io.github.orioneee.AxerOkhttpInterceptor
 import io.github.orioneee.AxerWindows
+import io.github.orioneee.installErrorHandler
 import okhttp3.OkHttpClient
 import org.koin.core.context.startKoin
 import sample.app.App
@@ -18,7 +19,7 @@ val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 
 
 fun main() = application {
-    Axer.installAxerErrorHandler()
+    Axer.installErrorHandler()
     AxerWindows()
     startKoin {
         modules(KoinModules.module)

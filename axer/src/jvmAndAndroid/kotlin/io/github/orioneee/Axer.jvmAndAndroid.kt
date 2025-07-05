@@ -1,5 +1,9 @@
 package io.github.orioneee
 
-actual fun installErrorHandler() {
+fun Axer.installErrorHandler() {
     Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
+}
+
+actual fun installErrorHandler() {
+    Axer.installErrorHandler()
 }

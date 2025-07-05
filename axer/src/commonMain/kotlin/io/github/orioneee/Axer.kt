@@ -3,8 +3,6 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.logo_circle
 import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.domain.logs.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
@@ -26,6 +24,7 @@ object Axer {
     fun recordAsFatal(
         throwable: Throwable,
         simpleName: String = throwable::class.simpleName ?: "UnknownException",
+        onRecorded: () -> Unit = {}
     ) {
         val processor = ExceptionProcessor()
         processor.onException(throwable, simpleName, true)
@@ -35,6 +34,7 @@ object Axer {
         openAxer()
     }
 
+    @Deprecated("Use Axer.installErrorHandler(), in your platform module")
     fun installAxerErrorHandler() {
         installErrorHandler()
     }

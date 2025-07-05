@@ -16,6 +16,7 @@ internal class ExceptionProcessor() {
         exception: Throwable,
         simpleName: String,
         isFatal: Boolean,
+        onRecorded: () -> Unit = {}
     ) = runBlocking {
         val exception = AxerException(
             message = exception.message ?: "Unknown message",
@@ -26,6 +27,7 @@ internal class ExceptionProcessor() {
         )
         dao.upsert(exception)
         notifyAboutException(exception)
+        onRecorded()
     }
 }
 

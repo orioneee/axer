@@ -5,5 +5,4 @@ class AxerConfig {
     var enableExceptionMonitor: Boolean = true
     var enableLogMonitor: Boolean = true
     var enableDatabaseMonitor: Boolean = true
-
 }

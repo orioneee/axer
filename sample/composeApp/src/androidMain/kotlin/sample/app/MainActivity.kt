@@ -11,12 +11,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import io.github.orioneee.Axer
+import io.github.orioneee.installErrorHandler
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Axer.installAxerErrorHandler()
+        Axer.installErrorHandler()
         enableEdgeToEdge()
         setContent {
             val notificationPermissionState =

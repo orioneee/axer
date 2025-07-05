@@ -16,6 +16,7 @@ import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
 internal actual fun notifyAboutException(exception: AxerException) {
+    println("notifyAboutException: ${exception.shortName} - ${exception.message}")
     val isEnabledRequests = AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.EXCEPTIONS_FLOW)
     if (!isEnabledRequests) {
         return

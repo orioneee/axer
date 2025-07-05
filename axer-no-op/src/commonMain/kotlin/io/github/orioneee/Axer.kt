@@ -27,6 +27,7 @@ object Axer {
     fun openAxerUI() {
     }
 
+    @Deprecated("Use Axer.installErrorHandler(), in your platform module")
     fun installAxerErrorHandler() {
     }
 

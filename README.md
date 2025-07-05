@@ -214,8 +214,35 @@ Axer can capture fatal crashes and manually recorded exceptions.
 
 Install the error handler on the main thread:
 
+**Android:**
+
 ```kotlin
-Axer.installAxerErrorHandler()
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Axer.installErrorHandler()
+        ...
+        ...
+    }
+}
+```
+
+**Jvm**
+```kotlin
+fun main() = application {
+    Axer.installErrorHandler()
+    ...
+    ...
+}
+```
+
+**IOS**
+```kotlin
+fun MainViewController(): UIViewController {
+    Axer.installErrorHandler()
+    ...
+    ...
+}
 ```
 
 You can customize the crash at jvm and android by overriding the open class AxerUncaughtExceptionHandler and settings it like:
@@ -279,7 +306,6 @@ The library is in beta (`1.0.0-beta10`) and may have bugs or breaking changes in
 
 ## iOS Limitations
 - Stack traces are not supported.
-- Fatal crash capturing via `installAxerErrorHandler` currently not working.
 
 
 ## Inspiration
