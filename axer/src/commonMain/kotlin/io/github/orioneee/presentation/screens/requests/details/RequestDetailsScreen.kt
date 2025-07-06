@@ -1,9 +1,11 @@
 package io.github.orioneee.presentation.screens.requests.details
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +21,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -103,32 +107,36 @@ internal class RequestDetailsScreen {
         onSelect: (BodyType) -> Unit,
         supportImage: Boolean = true
     ) {
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
+        val supportedFormats = BodyType.entries
+            .filter { it != BodyType.IMAGE || supportImage }
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val supportedFormats = BodyType.entries.filter {
-                it != BodyType.IMAGE || supportImage
-            }
-            supportedFormats.forEachIndexed { index, bodyType ->
-                SegmentedButton(
-                    selected = selected == bodyType,
-                    onClick = {
-                        onSelect(bodyType)
-                    },
-                    label = {
-                        Text(bodyType.name)
-                    },
-                    shape = RoundedCornerShape(
-                        topStart = if (index == 0) 16.dp else 0.dp,
-                        bottomStart = if (index == 0) 16.dp else 0.dp,
-                        topEnd = if (index == supportedFormats.lastIndex) 16.dp else 0.dp,
-                        bottomEnd = if (index == supportedFormats.lastIndex) 16.dp else 0.dp
-                    )
-                )
+            supportedFormats.forEach { bodyType ->
+                val isSelected = selected == bodyType
+                val colors = if (isSelected) {
+                    ButtonDefaults.filledTonalButtonColors()
+                } else {
+                    ButtonDefaults.outlinedButtonColors()
+                }
+
+                val border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+
+                OutlinedButton(
+                    onClick = { onSelect(bodyType) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = colors,
+                    border = border
+                ) {
+                    Text(text = bodyType.name)
+                }
             }
         }
     }
+
 
     @Composable
     fun DisplayImportantSection(
