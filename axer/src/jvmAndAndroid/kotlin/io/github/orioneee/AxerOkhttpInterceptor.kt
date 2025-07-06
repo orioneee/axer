@@ -164,6 +164,7 @@ class AxerOkhttpInterceptor private constructor(
                         responseBody = reducedResponse.body,
                         responseStatus = reducedResponse.status,
                         responseTime = reducedResponse.time,
+                        responseDefaultType = reducedResponse.bodyType
                     )
                     processor.onFinished(finishedState)
                 } else {
