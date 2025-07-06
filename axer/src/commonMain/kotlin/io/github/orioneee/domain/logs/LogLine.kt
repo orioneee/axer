@@ -3,6 +3,7 @@ package io.github.orioneee.domain.logs
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.logger.formateAsDate
 
 @Entity
 internal data class LogLine(
@@ -13,4 +14,14 @@ internal data class LogLine(
     val message: String,
     val level: LogLevel,
     val time: Long,
-)
+) {
+    override fun toString(): String {
+        val infoString =
+            "${time.formateAsDate()} - ${level.name} - ${tag} - "
+        val spacesString =
+            List(infoString.length) { " " }.joinToString("")
+        val formatedSMessage =
+            message.replace("\n", "\n$spacesString")
+        return "$infoString$formatedSMessage"
+    }
+}
