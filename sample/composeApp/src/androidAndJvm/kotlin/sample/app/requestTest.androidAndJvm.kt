@@ -11,7 +11,11 @@ import okhttp3.Response
 private const val HTTPBIN = "https://httpbin.org"
 
 val client = OkHttpClient.Builder()
-    .addInterceptor(AxerOkhttpInterceptor.Builder().build())
+    .addInterceptor(
+        AxerOkhttpInterceptor.Builder()
+            .setRetentionSize(300 * 1024) // 300 KB
+        .build()
+    )
     .build()
 
 

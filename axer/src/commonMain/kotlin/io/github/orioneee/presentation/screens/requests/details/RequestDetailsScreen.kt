@@ -97,13 +97,16 @@ internal class RequestDetailsScreen {
     @Composable
     fun ChoiceFormatButton(
         selected: BodyType,
-        onSelect: (BodyType) -> Unit
+        onSelect: (BodyType) -> Unit,
+        supportImage: Boolean = true
     ) {
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .horizontalScroll(rememberScrollState())
         ) {
-            BodyType.entries.forEachIndexed { index, bodyType ->
+            BodyType.entries.filter {
+                it != BodyType.IMAGE || supportImage
+            }.forEachIndexed { index, bodyType ->
                 SegmentedButton(
                     selected = selected == bodyType,
                     onClick = {
@@ -252,7 +255,8 @@ internal class RequestDetailsScreen {
                     selected = selected,
                     onSelect = {
                         viewModel.onRequestBodyFormatSelected(it)
-                    }
+                    },
+                    supportImage = false
                 )
                 Spacer(Modifier.height(16.dp))
                 BodySection {
@@ -330,7 +334,7 @@ internal class RequestDetailsScreen {
                     }
                 }
             }
-            Spacer(Modifier.Companion.height(16.dp))
+            Spacer(Modifier.height(16.dp))
             if (
                 request.responseBody?.isNotEmpty() == true ||
                 request.error != null
@@ -339,13 +343,15 @@ internal class RequestDetailsScreen {
                     viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
                 val selected =
                     selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
-                ChoiceFormatButton(
-                    selected = selected,
-                    onSelect = {
-                        viewModel.onResponseBodyFormatSelected(it)
-                    }
-                )
-                Spacer(Modifier.Companion.height(16.dp))
+                if (request.error == null) {
+                    ChoiceFormatButton(
+                        selected = selected,
+                        onSelect = {
+                            viewModel.onResponseBodyFormatSelected(it)
+                        }
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
                 BodySection {
                     if (selected != BodyType.IMAGE) {
                         if (request.error == null) {
