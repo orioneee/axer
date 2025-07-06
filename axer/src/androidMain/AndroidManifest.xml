@@ -27,7 +27,7 @@
         </provider>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.axerfileprovider"
+            android:authorities="${applicationId}.axer-fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
