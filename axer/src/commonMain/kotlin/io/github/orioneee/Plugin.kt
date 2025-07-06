@@ -61,7 +61,10 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                     it.body.toString().toByteArray()
                 }
             }
-            val processor = RequestProcessor(pluginConfig.retentionPeriodInSeconds)
+            val processor = RequestProcessor(
+                pluginConfig.retentionPeriodInSeconds,
+                pluginConfig.retentionSizeInBytes,
+            )
             var state = Transaction(
                 sendTime = sendTime,
                 method = method,

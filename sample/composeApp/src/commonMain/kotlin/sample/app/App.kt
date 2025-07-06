@@ -189,6 +189,7 @@ fun App() {
             requestImportantSelector = {
                 listOfNotNull(it.headers["Authorization"])
             }
+            retentionSizeInBytes = 10 * 1024
         }
     }
     val database: SampleDatabase = koinInject()

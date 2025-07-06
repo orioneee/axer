@@ -31,7 +31,9 @@ internal data class Transaction(
     val importantInRequest: List<String> = emptyList(),
     val importantInResponse: List<String> = emptyList(),
 
-    val isViewed: Boolean = false
+    val isViewed: Boolean = false,
+
+    val size: Long = 0
 ) {
 
     fun isErrorByStatusCode(): Boolean {
@@ -100,5 +102,11 @@ internal data class Transaction(
             status = responseStatus!!,
             bodyType = responseDefaultType!!
         )
+    }
+
+    fun calculateSizeInBytes(): Long {
+        val requestSize = requestBody?.size?.toLong() ?: 0L
+        val responseSize = responseBody?.size?.toLong() ?: 0L
+        return requestSize + responseSize + (requestHeaders.size * 100) + (responseHeaders.size * 100)
     }
 }

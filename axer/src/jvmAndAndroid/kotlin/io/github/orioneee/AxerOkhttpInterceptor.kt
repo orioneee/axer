@@ -19,7 +19,8 @@ class AxerOkhttpInterceptor private constructor(
     private val responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean,
     private val requestReducer: (Request) -> Request = { request -> request },
     private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response,
-    private val requestMaxAgeInSeconds: Long
+    private val requestMaxAgeInSeconds: Long,
+    private val retentionSizeInBytes: Long
 ) : Interceptor {
     init {
         Axer.initIfCan()
@@ -35,7 +36,8 @@ class AxerOkhttpInterceptor private constructor(
             { true }
         private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
             { it }
-        private var requestMaxAgeInSeconds: Long = 60 * 60 * 1
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 1 // 1 hour
+        private var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
             this.requestImportantSelector = selector
@@ -70,6 +72,10 @@ class AxerOkhttpInterceptor private constructor(
             this.requestMaxAgeInSeconds = seconds
         }
 
+        fun setRetentionSize(sizeInBytes: Long) = apply {
+            this.retentionSizeInBytes = sizeInBytes
+        }
+
         fun build() = AxerOkhttpInterceptor(
             requestImportantSelector = requestImportantSelector,
             responseImportantSelector = responseImportantSelector,
@@ -77,13 +83,14 @@ class AxerOkhttpInterceptor private constructor(
             responseFilter = responseFilter,
             requestReducer = requestReducer,
             responseReducer = responseReducer,
-            requestMaxAgeInSeconds = requestMaxAgeInSeconds
+            requestMaxAgeInSeconds = requestMaxAgeInSeconds,
+            retentionSizeInBytes = retentionSizeInBytes
         )
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         return runBlocking {
-            val processor = RequestProcessor(requestMaxAgeInSeconds)
+            val processor = RequestProcessor(requestMaxAgeInSeconds, retentionSizeInBytes)
             val request = chain.request()
             val sendTime = System.currentTimeMillis()
             val method = request.method

@@ -25,7 +25,7 @@ import kotlinx.coroutines.IO
         AxerException::class,
         LogLine::class,
     ],
-    version = 16
+    version = 17
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class, LogLevelConverter::class)
@@ -44,7 +44,7 @@ internal expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDat
 internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())
-//        .setDriver(AxerBundledSQLiteDriver.getInstance())
+        .setDriver(AxerBundledSQLiteDriver.getInstance())
         .setQueryCoroutineContext(Dispatchers.IO)
         .fallbackToDestructiveMigration(false)
         .build()

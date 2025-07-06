@@ -5,6 +5,8 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.TrimItem
+import io.github.orioneee.logger.formateAsTime
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -47,5 +49,29 @@ internal interface RequestDao {
         val currentTime = Clock.System.now().toEpochMilliseconds()
         val thresholdTime = currentTime - miliseconds
         deleteOlderThan(thresholdTime)
+    }
+
+    @Query("SELECT id, size, sendTime FROM Transactions ORDER BY sendTime DESC")
+    suspend fun getAllForTrim(): List<TrimItem>
+
+    @Query("DELETE FROM Transactions WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
+
+
+    suspend fun trimToMaxSize(maxSizeBytes: Long) {
+        val rows = getAllForTrim()
+
+        var total = 0L
+        val toDelete = mutableListOf<Long>()
+
+        for (row in rows) {
+            total += row.size
+            if (total > maxSizeBytes) {
+                toDelete.add(row.id)
+            }
+        }
+        if (toDelete.isNotEmpty()) {
+            deleteByIds(toDelete)
+        }
     }
 }

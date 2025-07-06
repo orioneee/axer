@@ -31,7 +31,7 @@ internal interface LogsDAO {
     suspend fun deleteOlderThan(thresholdTime: Long)
 
     @OptIn(ExperimentalTime::class)
-    suspend fun deleteAllWhichOlderThan(timestampInSeconds: Long = 60 * 60 * 1) {
+    suspend fun deleteAllWhichOlderThan(timestampInSeconds: Long = 60 * 60 * 6) {
         val miliseconds = timestampInSeconds * 1000
         val currentTime = Clock.System.now().toEpochMilliseconds()
         val thresholdTime = currentTime - miliseconds
