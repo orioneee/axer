@@ -91,6 +91,7 @@ val client = HttpClient {
             listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
         }
         retentionPeriodInSeconds = 60 * 60 * 1
+        retentionSizeInBytes = 10 * 1024 * 1024 // will keep only latest 10 MB of requests
     }
 }
 ```
@@ -121,6 +122,7 @@ val client = OkHttpClient.Builder()
                 listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
             }
             .setRetentionTime(60 * 60 * 1)
+            .setRetentionSize(10 * 1024 * 1024) // will keep only latest 10 MB of requests
             .build()
     )
     .build()
