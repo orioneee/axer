@@ -27,7 +27,7 @@ internal actual fun notifyAboutException(exception: AxerException) {
         /* importance = */ NotificationManager.IMPORTANCE_LOW
     )
     notificationManager.createNotificationChannel(channel)
-    val notificationText = exception.shortName
+    val notificationText = exception.error.name
 
     val pendingIntent = PendingIntent.getActivity(
         context,

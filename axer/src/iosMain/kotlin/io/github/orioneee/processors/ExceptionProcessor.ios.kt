@@ -22,7 +22,7 @@ internal actual fun notifyAboutException(exception: AxerException) {
     }
     val content = UNMutableNotificationContent().apply {
         setTitle("Exception Captured")
-        setBody("${exception.shortName}: ${exception.message}")
+        setBody("${exception.error.name}: ${exception.error.message}")
     }
 
     val uuid = NSUUID().UUIDString()
