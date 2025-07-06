@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
-import io.github.orioneee.unitls.DataExporter
+import io.github.orioneee.utils.DataExporter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine

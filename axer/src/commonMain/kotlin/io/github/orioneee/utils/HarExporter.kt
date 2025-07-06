@@ -1,4 +1,4 @@
-package io.github.orioneee.unitls
+package io.github.orioneee.utils
 
 import io.github.orioneee.domain.requests.Transaction
 import kotlinx.serialization.Serializable

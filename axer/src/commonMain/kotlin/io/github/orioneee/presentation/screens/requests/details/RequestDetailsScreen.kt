@@ -1,7 +1,6 @@
 package io.github.orioneee.presentation.screens.requests.details
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,15 +28,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,10 +56,8 @@ import io.github.orioneee.axer.generated.resources.error
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
 import io.github.orioneee.axer.generated.resources.important
-import io.github.orioneee.axer.generated.resources.json
 import io.github.orioneee.axer.generated.resources.method
 import io.github.orioneee.axer.generated.resources.no_request_found_with_id
-import io.github.orioneee.axer.generated.resources.non_formated
 import io.github.orioneee.axer.generated.resources.request_failed
 import io.github.orioneee.axer.generated.resources.request_size
 import io.github.orioneee.axer.generated.resources.request_tab
@@ -79,14 +73,11 @@ import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
-import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
-import io.github.orioneee.unitls.exportAsHar
-import io.ktor.utils.io.core.toByteArray
+import io.github.orioneee.utils.exportAsHar
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.math.max
 
 internal class RequestDetailsScreen {
     fun getSizeText(size: Long): String {

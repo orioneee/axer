@@ -1,10 +1,9 @@
-package io.github.orioneee.unitls
+package io.github.orioneee.utils
 
 import io.github.orioneee.domain.logs.LogLine
 
 import java.io.File
 import javax.swing.JFileChooser
-import javax.swing.filechooser.FileNameExtensionFilter
 
 internal actual object DataExporter {
     actual fun exportLogs(logs: List<LogLine>) {

@@ -1,4 +1,4 @@
-package io.github.orioneee.unitls
+package io.github.orioneee.utils
 
 import android.content.Context
 import android.content.Intent
@@ -10,7 +10,7 @@ import java.io.File
 internal actual object DataExporter {
 
     private fun fileProviderAuthority(context: Context): String =
-        context.packageName + ".fileprovider"
+        context.packageName + ".axer-fileprovider"
 
     actual fun exportLogs(logs: List<LogLine>) {
         val text = logs.joinToString("\n")

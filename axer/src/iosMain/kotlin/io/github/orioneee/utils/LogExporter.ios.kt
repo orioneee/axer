@@ -1,4 +1,4 @@
-package io.github.orioneee.unitls
+package io.github.orioneee.utils
 
 // iosMain
 import io.github.orioneee.domain.logs.LogLine
