@@ -51,6 +51,7 @@ kotlin {
 
 
             implementation(project(":axer"))
+
         }
 
         commonTest.dependencies {
@@ -72,6 +73,8 @@ kotlin {
                 implementation(libs.androidx.activityCompose)
 
                 implementation(libs.koin.android)
+                implementation("com.github.chuckerteam.chucker:library:4.1.0")
+
             }
         }
 

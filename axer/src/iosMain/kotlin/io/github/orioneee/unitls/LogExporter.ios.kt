@@ -1,37 +1,46 @@
 package io.github.orioneee.unitls
 
-import io.github.orioneee.domain.logs.LogLine
-
 // iosMain
-import kotlinx.cinterop.*
-import platform.Foundation.*
-import platform.UIKit.*
-import platform.darwin.*
-import kotlin.native.concurrent.freeze
+import io.github.orioneee.domain.logs.LogLine
+import platform.Foundation.NSDate
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSString
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSThread
+import platform.Foundation.NSURL
+import platform.Foundation.NSUTF8StringEncoding
+import platform.Foundation.dataUsingEncoding
+import platform.Foundation.timeIntervalSince1970
+import platform.UIKit.UIActivityViewController
+import platform.UIKit.UIApplication
+import platform.UIKit.UINavigationController
+import platform.UIKit.UITabBarController
+import platform.UIKit.UIViewController
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
-internal actual object LogExporter {
+internal actual object DataExporter {
 
     actual fun exportLogs(logs: List<LogLine>) {
-        // 🔸 1. Build the .txt content
         val textContent = logs.joinToString("\n") { it.toString() }
+        exportText(textContent, "logs_${NSDate().timeIntervalSince1970}.txt")
+    }
 
-        // 🔸 2. Persist it to a temp file
+    actual fun exportText(text: String, filename: String){
         val tempDir = NSTemporaryDirectory() ?: "/tmp/"
-        val fileName = "logs_${NSDate().timeIntervalSince1970.toLong()}.txt"
+        val fileName = filename
         val filePath = tempDir + fileName
-        val nsString: NSString = textContent as NSString
+        val nsString: NSString = text as NSString
         nsString.dataUsingEncoding(NSUTF8StringEncoding)?.let { data ->
             NSFileManager.defaultManager.createFileAtPath(filePath, data, attributes = null)
         }
 
-        // 🔸 3. Prepare a UIActivityViewController for sharing
         val fileUrl = NSURL.fileURLWithPath(filePath)
         val activityVC = UIActivityViewController(
             activityItems = listOf(fileUrl),
             applicationActivities = null
         )
 
-        // 🔸 4. Present it from the top most view controller on the main queue
         val presentBlock: () -> Unit = {
             topViewController()?.presentViewController(
                 activityVC,
@@ -46,7 +55,6 @@ internal actual object LogExporter {
         }
     }
 
-    /** Walks the view‐controller hierarchy to find the one currently visible */
     private fun topViewController(
         root: UIViewController? = UIApplication.sharedApplication.keyWindow?.rootViewController
     ): UIViewController? {

@@ -1,7 +1,9 @@
 package sample.app
+
 import io.github.orioneee.AxerOkhttpInterceptor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -10,12 +12,20 @@ import okhttp3.Response
 
 private const val HTTPBIN = "https://httpbin.org"
 
+expect fun getIntercepors(): List<Interceptor>
+
 val client = OkHttpClient.Builder()
     .addInterceptor(
         AxerOkhttpInterceptor.Builder()
             .setRetentionSize(300 * 1024) // 300 KB
-        .build()
+            .build()
     )
+    .apply {
+        getIntercepors().forEach {
+            println("Adding interceptor: $it")
+            addInterceptor(it)
+        }
+    }
     .build()
 
 

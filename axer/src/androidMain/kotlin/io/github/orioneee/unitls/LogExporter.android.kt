@@ -7,18 +7,22 @@ import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.koin.IsolatedContext
 import java.io.File
 
-internal actual object LogExporter {
+internal actual object DataExporter {
 
     private fun fileProviderAuthority(context: Context): String =
         context.packageName + ".fileprovider"
 
     actual fun exportLogs(logs: List<LogLine>) {
-        val context: Context by IsolatedContext.koin.inject()
+        val text = logs.joinToString("\n")
+        exportText(text, "logs_${System.currentTimeMillis()}.txt")
+    }
 
+    actual fun exportText(text: String, filename: String) {
+        val context: Context by IsolatedContext.koin.inject()
         val logFile = File(
             context.cacheDir,
-            "logs_${System.currentTimeMillis()}.txt"
-        ).apply { writeText(logs.joinToString("\n")) }
+            filename
+        ).apply { writeText(text) }
 
         val uri = FileProvider.getUriForFile(
             context,

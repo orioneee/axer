@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
-import io.github.orioneee.unitls.LogExporter
+import io.github.orioneee.unitls.DataExporter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -124,7 +124,7 @@ internal class LogViewViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val logs = selectedForExport.first()
-                LogExporter.exportLogs(logs)
+                DataExporter.exportLogs(logs)
             } catch (e: Exception) {
                 // Handle export error, e.g., show a message to the user
             } finally {

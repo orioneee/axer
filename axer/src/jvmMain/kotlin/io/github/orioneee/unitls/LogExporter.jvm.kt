@@ -6,25 +6,22 @@ import java.io.File
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
-internal actual object LogExporter {
+internal actual object DataExporter {
     actual fun exportLogs(logs: List<LogLine>) {
         val textContent = logs.joinToString("\n") { it.toString() }
+        exportText(textContent, "logs_${System.currentTimeMillis()}.txt")
+    }
 
+    actual fun exportText(text: String, filename: String) {
         val fileChooser = JFileChooser().apply {
-            dialogTitle = "Save Logs As"
-            fileFilter = FileNameExtensionFilter("Text Files (*.txt)", "txt")
-            selectedFile = File("logs.txt")
+            dialogTitle = "Save As"
+            selectedFile = File(filename)
         }
 
         val userSelection = fileChooser.showSaveDialog(null)
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-            var file = fileChooser.selectedFile
-
-            if (!file.name.endsWith(".txt")) {
-                file = File(file.parentFile, "${file.name}.txt")
-            }
-
-            file.writeText(textContent)
+            val file = fileChooser.selectedFile
+            file.writeText(text)
         }
     }
 }
