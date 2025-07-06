@@ -1,8 +1,15 @@
 package io.github.orioneee.presentation.screens.requests.list
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +31,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -36,13 +45,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.domain.requests.Transaction
-import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.extentions.clickableWithoutRipple
+import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
+import io.github.orioneee.unitls.exportAsHar
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -141,6 +152,23 @@ internal class RequestListScreen() {
                         )
                     },
                     actions = {
+                        AnimatedVisibility(
+                            visible = requests.value.any { it.isFinished() },
+                            enter = fadeIn() + slideInHorizontally {
+                                it
+                            },
+                            exit = fadeOut() + slideOutHorizontally {
+                                it
+                            }
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    requests.value.exportAsHar()
+                                }
+                            ) {
+                                Text(stringResource(Res.string.har))
+                            }
+                        }
                         IconButton(
                             onClick = {
                                 onClearRequests()

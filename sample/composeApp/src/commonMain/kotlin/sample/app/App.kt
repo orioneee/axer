@@ -185,11 +185,9 @@ fun App() {
             }
         }
         install(Axer.ktorPlugin) {
-            retentionPeriodInSeconds = 60 * 60 * 1
             requestImportantSelector = {
                 listOfNotNull(it.headers["Authorization"])
             }
-            retentionSizeInBytes = 10 * 1024
         }
     }
     val database: SampleDatabase = koinInject()

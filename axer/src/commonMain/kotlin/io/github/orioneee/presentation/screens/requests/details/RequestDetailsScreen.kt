@@ -30,6 +30,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -52,6 +53,7 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
 import io.github.orioneee.axer.generated.resources.duration
 import io.github.orioneee.axer.generated.resources.error
+import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
 import io.github.orioneee.axer.generated.resources.important
 import io.github.orioneee.axer.generated.resources.json
@@ -74,6 +76,7 @@ import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
 import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
+import io.github.orioneee.unitls.exportAsHar
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -104,9 +107,10 @@ internal class RequestDetailsScreen {
             modifier = Modifier
                 .horizontalScroll(rememberScrollState())
         ) {
-            BodyType.entries.filter {
+            val supportedFormats = BodyType.entries.filter {
                 it != BodyType.IMAGE || supportImage
-            }.forEachIndexed { index, bodyType ->
+            }
+            supportedFormats.forEachIndexed { index, bodyType ->
                 SegmentedButton(
                     selected = selected == bodyType,
                     onClick = {
@@ -118,8 +122,8 @@ internal class RequestDetailsScreen {
                     shape = RoundedCornerShape(
                         topStart = if (index == 0) 16.dp else 0.dp,
                         bottomStart = if (index == 0) 16.dp else 0.dp,
-                        topEnd = if (index == BodyType.entries.lastIndex) 16.dp else 0.dp,
-                        bottomEnd = if (index == BodyType.entries.lastIndex) 16.dp else 0.dp
+                        topEnd = if (index == supportedFormats.lastIndex) 16.dp else 0.dp,
+                        bottomEnd = if (index == supportedFormats.lastIndex) 16.dp else 0.dp
                     )
                 )
             }
@@ -458,6 +462,17 @@ internal class RequestDetailsScreen {
                                 )
                             }
                         },
+                        actions = {
+                            if (request?.isFinished() == true) {
+                                TextButton(
+                                    onClick = {
+                                        listOfNotNull(request).exportAsHar()
+                                    }
+                                ) {
+                                    Text(stringResource(Res.string.har))
+                                }
+                            }
+                        }
                     )
                 },
             ) {

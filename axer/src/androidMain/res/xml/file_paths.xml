@@ -1,0 +1,4 @@
+<paths>
+    <!-- Exposes *everything* in cacheDir -->
+    <cache-path name="shared_logs" path="." />
+</paths>
