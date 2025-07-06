@@ -62,4 +62,6 @@
     <string name="report_bug">Report a bug</string>
 
     <string name="version_format">Version: %1$s</string>
+    <string name="json">Json</string>
+    <string name="non_formated">Non-formatted</string>
 </resources>

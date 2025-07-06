@@ -1,4 +1,4 @@
-package io.github.orioneee.extentions
+package io.github.orioneee.domain.requests.formatters
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -7,7 +7,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-
 
 private val jsonSerializer = Json { prettyPrint = true }
 

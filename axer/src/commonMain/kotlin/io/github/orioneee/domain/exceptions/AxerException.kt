@@ -1,5 +1,6 @@
 package io.github.orioneee.domain.exceptions
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -8,8 +9,7 @@ internal data class AxerException(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val time: Long,
-    val message: String,
-    val shortName: String,
-    val stackTrace: String,
+    @Embedded
+    val error: SavableError,
     val isFatal: Boolean,
 )

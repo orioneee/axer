@@ -10,11 +10,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.read
-import io.github.orioneee.presentation.SplitScreen
+import io.github.orioneee.presentation.components.SplitScreen
 import io.github.orioneee.presentation.navigation.Routes
 import io.github.orioneee.presentation.navigation.requests.RequestsDesktopNavigation
 import io.github.orioneee.presentation.navigation.requests.RequestsMobileNavigation
-import io.github.orioneee.presentation.screens.requests.RequestListScreen
+import io.github.orioneee.presentation.screens.requests.list.RequestListScreen
 
 internal object RequestsEntryPoint {
     @Composable

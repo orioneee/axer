@@ -2,8 +2,11 @@ package io.github.orioneee
 
 import io.github.orioneee.config.AxerKtorPluginConfig
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
+import io.github.orioneee.extentions.toBodyType
 import io.github.orioneee.logger.getPlatformStackTrace
+import io.github.orioneee.logger.getSavableError
 import io.github.orioneee.processors.RequestProcessor
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
@@ -12,6 +15,8 @@ import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
 import kotlin.time.Clock
@@ -32,17 +37,16 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val requestBody = when (it.body) {
                 is OutgoingContent.ByteArrayContent -> {
                     val t = it.body as OutgoingContent.ByteArrayContent
-                    t.bytes().decodeToString()
+                    t.bytes()
                 }
 
                 is OutgoingContent.ReadChannelContent -> {
                     val channel = (it.body as OutgoingContent.ReadChannelContent).readFrom()
-                    channel.readRemaining().readByteArray().decodeToString()
+                    channel.readRemaining().readByteArray()
                 }
 
                 is OutgoingContent.WriteChannelContent -> {
-                    val channel = (it.body as OutgoingContent.WriteChannelContent).toString()
-                    channel
+                    (it.body as OutgoingContent.WriteChannelContent).toString().toByteArray()
                 }
 
                 is OutgoingContent.NoContent -> {
@@ -54,7 +58,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 }
 
                 else -> {
-                    it.body.toString()
+                    it.body.toString().toByteArray()
                 }
             }
             val processor = RequestProcessor(pluginConfig.retentionPeriodInSeconds)
@@ -87,31 +91,25 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val response = try {
                 proceed(it)
             } catch (e: Exception) {
-                val stackTrace = e.getPlatformStackTrace()
-                processor.onFailed(state.updateToError(stackTrace))
+                val error = e.getSavableError()
+                processor.onFailed(state.updateToError(error))
                 throw e
             }
             val responseTime = Clock.System.now().toEpochMilliseconds()
             val responseHeaders = response.response.headers.entries()
                 .associate { entry -> entry.key to entry.value.joinToString(", ") }
             val responseBody = response.response.bodyAsBytes()
-            val contentType = response.response.contentType()
-            val isContentTypeImage = contentType?.match("image/*") == true
-            val isImage = isContentTypeImage || responseBody.isValidImage()
+            val contentType = if (responseBody.isValidImage()) BodyType.IMAGE
+            else response.response.contentType().toBodyType()
 
 
             val responseStatus = response.response.status.value
             val finishedState = state.updateToFinished(
-                responseBody = if (isImage) null else try {
-                    response.response.bodyAsText()
-                } catch (e: Exception) {
-                    "Error reading response body: ${e.message}"
-                },
+                responseBody = responseBody,
                 responseTime = responseTime,
                 responseHeaders = responseHeaders,
                 responseStatus = responseStatus,
-                imageBytes = if (isImage) responseBody else null,
-                isImage = isImage
+                bodyType = contentType
             )
             val resp = finishedState.asResponse()
             val importantInResponse = pluginConfig.responseImportantSelector.invoke(resp)
@@ -124,8 +122,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                         responseHeaders = reducedResponse.headers,
                         responseBody = reducedResponse.body,
                         responseStatus = reducedResponse.status,
-                        imageBytes = reducedResponse.image,
-                        isImage = reducedResponse.image != null && reducedResponse.image.isNotEmpty()
+                        responseDefaultType = reducedResponse.bodyType
                     )
                 )
             } else {

@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.read
-import io.github.orioneee.presentation.SplitScreen
+import io.github.orioneee.presentation.components.SplitScreen
 import io.github.orioneee.presentation.navigation.Routes
 import io.github.orioneee.presentation.navigation.exceptions.ExceptionsDesktopNavigation
 import io.github.orioneee.presentation.navigation.exceptions.ExceptionsMobileNavigation

@@ -1,4 +1,4 @@
-package io.github.orioneee.presentation
+package io.github.orioneee.presentation.components
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme

@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 14,
-    "identityHash": "126dda5bf0afc5173f7fa3c283506593",
+    "version": 16,
+    "identityHash": "791a1597655d741331c2de31955a63d3",
     "entities": [
       {
         "tableName": "Transactions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `method` TEXT NOT NULL, `sendTime` INTEGER NOT NULL, `host` TEXT NOT NULL, `path` TEXT NOT NULL, `requestBody` TEXT, `requestHeaders` TEXT NOT NULL, `responseBody` TEXT, `responseTime` INTEGER, `responseHeaders` TEXT NOT NULL, `responseStatus` INTEGER, `imageBytes` BLOB, `isImage` INTEGER, `importantInRequest` TEXT NOT NULL, `importantInResponse` TEXT NOT NULL, `isViewed` INTEGER NOT NULL, `name` TEXT, `message` TEXT, `stackTrace` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `method` TEXT NOT NULL, `sendTime` INTEGER NOT NULL, `host` TEXT NOT NULL, `path` TEXT NOT NULL, `requestBody` BLOB, `requestHeaders` TEXT NOT NULL, `responseBody` BLOB, `responseTime` INTEGER, `responseHeaders` TEXT NOT NULL, `responseStatus` INTEGER, `responseDefaultType` TEXT, `importantInRequest` TEXT NOT NULL, `importantInResponse` TEXT NOT NULL, `isViewed` INTEGER NOT NULL, `name` TEXT, `message` TEXT, `stackTrace` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -41,7 +41,7 @@
           {
             "fieldPath": "requestBody",
             "columnName": "requestBody",
-            "affinity": "TEXT"
+            "affinity": "BLOB"
           },
           {
             "fieldPath": "requestHeaders",
@@ -52,7 +52,7 @@
           {
             "fieldPath": "responseBody",
             "columnName": "responseBody",
-            "affinity": "TEXT"
+            "affinity": "BLOB"
           },
           {
             "fieldPath": "responseTime",
@@ -71,14 +71,9 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "imageBytes",
-            "columnName": "imageBytes",
-            "affinity": "BLOB"
-          },
-          {
-            "fieldPath": "isImage",
-            "columnName": "isImage",
-            "affinity": "INTEGER"
+            "fieldPath": "responseDefaultType",
+            "columnName": "responseDefaultType",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "importantInRequest",
@@ -213,7 +208,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '126dda5bf0afc5173f7fa3c283506593')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '791a1597655d741331c2de31955a63d3')"
     ]
   }
 }

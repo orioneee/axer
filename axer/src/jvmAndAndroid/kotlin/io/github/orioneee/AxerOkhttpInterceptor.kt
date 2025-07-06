@@ -3,7 +3,10 @@ package io.github.orioneee
 import io.github.orioneee.domain.requests.Request
 import io.github.orioneee.processors.RequestProcessor
 import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
+import io.github.orioneee.extentions.toBodyType
+import io.github.orioneee.logger.getSavableError
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -92,7 +95,7 @@ class AxerOkhttpInterceptor private constructor(
             val requestBody = request.body?.let { body ->
                 val buffer = okio.Buffer()
                 body.writeTo(buffer)
-                buffer.readUtf8()
+                buffer.readByteArray()
             }
 
             var transaction = Transaction(
@@ -129,21 +132,18 @@ class AxerOkhttpInterceptor private constructor(
                 val responseHeaders =
                     response.headers.toMultimap().mapValues { it.value.joinToString(", ") }
                 val responseBodyBytes = response.body.bytes()
-                val contentType = response.body.contentType()
-                val isImageContentType = contentType?.let {
-                    it.type == "image" || it.subtype in listOf(
-                        "jpeg", "png", "gif", "webp", "svg+xml"
-                    )
-                } == true
-                val isImage = isImageContentType || responseBodyBytes.isValidImage()
+                val contentType = if (responseBodyBytes.isValidImage()) {
+                    BodyType.IMAGE
+                } else {
+                    response.body.contentType()?.toBodyType() ?: BodyType.RAW_TEXT
+                }
 
                 val finishedTransaction = transaction.updateToFinished(
-                    responseBody = if (isImage) null else responseBodyBytes.decodeToString(),
+                    responseBody = responseBodyBytes,
                     responseTime = responseTime,
                     responseHeaders = responseHeaders,
                     responseStatus = response.code,
-                    imageBytes = if (isImage) responseBodyBytes else null,
-                    isImage = isImage
+                    bodyType = contentType
                 )
 
                 val responseModel = finishedTransaction.asResponse()
@@ -157,8 +157,6 @@ class AxerOkhttpInterceptor private constructor(
                         responseBody = reducedResponse.body,
                         responseStatus = reducedResponse.status,
                         responseTime = reducedResponse.time,
-                        imageBytes = reducedResponse.image,
-                        isImage = reducedResponse.image != null && reducedResponse.image.isNotEmpty(),
                     )
                     processor.onFinished(finishedState)
                 } else {
@@ -171,7 +169,7 @@ class AxerOkhttpInterceptor private constructor(
                     .build()
 
             } catch (e: Exception) {
-                val errorState = transaction.updateToError(e.stackTraceToString())
+                val errorState = transaction.updateToError(e.getSavableError())
                 processor.onFailed(errorState)
                 throw e
             }

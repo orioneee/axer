@@ -18,6 +18,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -138,7 +139,12 @@ internal class ListTables {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.database)) },
+                    title = {
+                        Text(
+                            stringResource(Res.string.database),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
                     navigationIcon = {
                         AxerLogo()
                     }

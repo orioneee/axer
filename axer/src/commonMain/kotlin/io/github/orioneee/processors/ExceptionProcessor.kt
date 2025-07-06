@@ -2,7 +2,7 @@ package io.github.orioneee.processors
 
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.logger.getPlatformStackTrace
+import io.github.orioneee.logger.getSavableError
 import io.github.orioneee.room.dao.AxerExceptionDao
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
@@ -14,16 +14,13 @@ internal class ExceptionProcessor() {
     @OptIn(ExperimentalTime::class)
     fun onException(
         exception: Throwable,
-        simpleName: String,
         isFatal: Boolean,
         onRecorded: () -> Unit = {}
     ) = runBlocking {
         val exception = AxerException(
-            message = exception.message ?: "Unknown message",
-            stackTrace = exception.getPlatformStackTrace(),
             time = Clock.System.now().toEpochMilliseconds(),
             isFatal = isFatal,
-            shortName = simpleName,
+            error = exception.getSavableError()
         )
         dao.upsert(exception)
         notifyAboutException(exception)

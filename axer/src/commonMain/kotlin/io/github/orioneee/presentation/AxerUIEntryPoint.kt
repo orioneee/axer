@@ -26,6 +26,7 @@ import io.github.orioneee.axer.generated.resources.no_available_options
 import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.extentions.navigateSaveState
 import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.presentation.components.Theme
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
 import org.jetbrains.compose.resources.stringResource
@@ -33,11 +34,7 @@ import org.koin.compose.KoinIsolatedContext
 
 class AxerUIEntryPoint {
     companion object {
-        private var customAppLocale by mutableStateOf<String?>(null)
         internal var availableDestinations by mutableStateOf(FlowDestinations.entries.toList())
-        internal fun changeLocale(locale: SupportedLocales) {
-            customAppLocale = locale.stringCode
-        }
 
         internal fun configureDestinations(
             isEnabledRequests: Boolean,
@@ -68,11 +65,7 @@ class AxerUIEntryPoint {
 
     @Composable
     fun Screen() {
-        CompositionLocalProvider(
-            LocalAppLocale provides customAppLocale,
-        ) {
-            key(customAppLocale) { Content() }
-        }
+        Content()
     }
 
     @Composable

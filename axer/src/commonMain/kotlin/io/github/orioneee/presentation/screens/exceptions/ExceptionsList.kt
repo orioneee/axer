@@ -31,7 +31,7 @@ import io.github.orioneee.axer.generated.resources.exceptions
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.logger.formateAsTime
-import io.github.orioneee.presentation.clickableWithoutRipple
+import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.presentation.components.AxerLogo
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -64,7 +64,7 @@ internal class ExceptionsList {
                 },
             headlineContent = {
                 Text(
-                    exception.shortName,
+                    exception.error.name,
                     color = if (exception.isFatal) MaterialTheme.colorScheme.error else Color.Unspecified,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -72,7 +72,7 @@ internal class ExceptionsList {
             },
             supportingContent = {
                 Text(
-                    exception.time.formateAsTime() + " ${exception.message}",
+                    exception.time.formateAsTime() + " ${exception.error.message}",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -97,7 +97,12 @@ internal class ExceptionsList {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.exceptions)) },
+                    title = {
+                        Text(
+                            text = stringResource(Res.string.exceptions),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
                     actions = {
                         IconButton(
                             onClick = {

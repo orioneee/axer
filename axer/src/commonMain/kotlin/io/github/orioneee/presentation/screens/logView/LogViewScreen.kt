@@ -66,7 +66,12 @@ class LogViewScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.logs)) },
+                    title = {
+                        Text(
+                            stringResource(Res.string.logs),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
                     actions = {
                         IconButton(
                             onClick = {

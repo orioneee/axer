@@ -5,6 +5,6 @@ data class Request(
     val sendTime: Long,
     val host: String,
     val path: String,
-    val body: String?,
+    val body: ByteArray?,
     val headers: Map<String, String>,
 )

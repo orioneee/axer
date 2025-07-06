@@ -90,7 +90,12 @@ internal class RawQueryScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(name) },
+                    title = {
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
                     navigationIcon = {
                         IconButton(
                             onClick = onBack,
@@ -108,8 +113,7 @@ internal class RawQueryScreen {
                     .fillMaxSize()
                     .padding(contentPadding)
                     .padding(horizontal = 8.dp)
-                    .verticalScroll(rememberScrollState())
-                ,
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally,
             ) {
                 OutlinedTextField(

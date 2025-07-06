@@ -15,7 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.presentation.screens.requests.RequestDetailsScreen
+import io.github.orioneee.presentation.screens.requests.details.RequestDetailsScreen
 
 internal class RequestsDesktopNavigation {
     @Composable

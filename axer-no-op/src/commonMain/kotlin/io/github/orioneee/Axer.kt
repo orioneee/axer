@@ -15,12 +15,13 @@ object Axer {
 
     fun recordException(
         throwable: Throwable,
+        onRecorded: () -> Unit = {}
     ) {
     }
 
     fun recordAsFatal(
         throwable: Throwable,
-        simpleName: String = throwable::class.simpleName ?: "UnknownException",
+        onRecorded: () -> Unit = {}
     ) {
     }
 

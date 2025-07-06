@@ -6,7 +6,8 @@ import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewMod
 import io.github.orioneee.presentation.screens.database.tableList.ListDatabaseViewModel
 import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
 import io.github.orioneee.presentation.screens.logView.LogViewViewModel
-import io.github.orioneee.presentation.screens.requests.RequestViewModel
+import io.github.orioneee.presentation.screens.requests.details.RequestDetailsViewModel
+import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
 import io.github.orioneee.room.AxerDatabase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -35,8 +36,13 @@ internal object Modules {
     }
 
     val viewModelModule = module {
+        viewModel {
+            RequestListViewModel(
+                requestDao = get(),
+            )
+        }
         viewModel { (requestId: Long?) ->
-            RequestViewModel(
+            RequestDetailsViewModel(
                 requestDao = get(),
                 requestId = requestId
             )

@@ -88,7 +88,8 @@ internal class TableDetails {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            "$name - $tableName"
+                            "$name - $tableName",
+                            style = MaterialTheme.typography.titleSmall
                         )
                     },
                     navigationIcon = {
@@ -131,8 +132,7 @@ internal class TableDetails {
                     .fillMaxSize()
                     .padding(contentPadding)
                     .padding(horizontal = 8.dp)
-                    .verticalScroll(rememberScrollState())
-                ,
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 AnimatedVisibility(

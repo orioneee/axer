@@ -53,9 +53,6 @@ fun main() = application {
                 .setRequestReducer { request ->
                     request.copy(path = "${request.path}?reduced=true")
                 }
-                .setResponseReducer { response ->
-                    response.copy(body = "REDACTED")
-                }
                 .setRetentionTime(60 * 60 * 1)
                 .build()
         )

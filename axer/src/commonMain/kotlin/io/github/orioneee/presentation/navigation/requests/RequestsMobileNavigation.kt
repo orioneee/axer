@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.presentation.screens.requests.RequestDetailsScreen
-import io.github.orioneee.presentation.screens.requests.RequestListScreen
+import io.github.orioneee.presentation.screens.requests.details.RequestDetailsScreen
+import io.github.orioneee.presentation.screens.requests.list.RequestListScreen
 
 internal class RequestsMobileNavigation {
     @Composable

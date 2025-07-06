@@ -16,18 +16,18 @@ object Axer {
 
     fun recordException(
         throwable: Throwable,
+        onRecorded: () -> Unit = {}
     ) {
         val processor = ExceptionProcessor()
-        processor.onException(throwable, throwable::class.simpleName ?: "UnknownException", false)
+        processor.onException(throwable, false, onRecorded)
     }
 
     fun recordAsFatal(
         throwable: Throwable,
-        simpleName: String = throwable::class.simpleName ?: "UnknownException",
         onRecorded: () -> Unit = {}
     ) {
         val processor = ExceptionProcessor()
-        processor.onException(throwable, simpleName, true)
+        processor.onException(throwable, true, onRecorded)
     }
 
     fun openAxerUI() {
@@ -214,6 +214,7 @@ object Axer {
         config.block()
         applyConfig()
     }
+
     private fun applyConfig() {
         AxerUIEntryPoint.configureDestinations(
             isEnabledRequests = config.enableRequestMonitor,
@@ -224,7 +225,6 @@ object Axer {
     }
 
     fun changeLocale(supportedLocale: SupportedLocales) {
-        AxerUIEntryPoint.changeLocale(supportedLocale)
     }
 }
 

@@ -1,5 +1,6 @@
-package io.github.orioneee.presentation.screens.requests
+package io.github.orioneee.presentation.screens.requests.details
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +25,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,8 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import io.github.orioneee.axer.generated.resources.Res
@@ -48,8 +54,10 @@ import io.github.orioneee.axer.generated.resources.duration
 import io.github.orioneee.axer.generated.resources.error
 import io.github.orioneee.axer.generated.resources.headers
 import io.github.orioneee.axer.generated.resources.important
+import io.github.orioneee.axer.generated.resources.json
 import io.github.orioneee.axer.generated.resources.method
 import io.github.orioneee.axer.generated.resources.no_request_found_with_id
+import io.github.orioneee.axer.generated.resources.non_formated
 import io.github.orioneee.axer.generated.resources.request_failed
 import io.github.orioneee.axer.generated.resources.request_size
 import io.github.orioneee.axer.generated.resources.request_tab
@@ -59,10 +67,13 @@ import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
-import io.github.orioneee.domain.requests.HighlightedBodyWrapper
+import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
+import io.github.orioneee.presentation.components.canSwipePage
+import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -84,6 +95,35 @@ internal class RequestDetailsScreen {
     }
 
     @Composable
+    fun ChoiceFormatButton(
+        selected: BodyType,
+        onSelect: (BodyType) -> Unit
+    ) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+        ) {
+            BodyType.entries.forEachIndexed { index, bodyType ->
+                SegmentedButton(
+                    selected = selected == bodyType,
+                    onClick = {
+                        onSelect(bodyType)
+                    },
+                    label = {
+                        Text(bodyType.name)
+                    },
+                    shape = RoundedCornerShape(
+                        topStart = if (index == 0) 16.dp else 0.dp,
+                        bottomStart = if (index == 0) 16.dp else 0.dp,
+                        topEnd = if (index == BodyType.entries.lastIndex) 16.dp else 0.dp,
+                        bottomEnd = if (index == BodyType.entries.lastIndex) 16.dp else 0.dp
+                    )
+                )
+            }
+        }
+    }
+
+    @Composable
     fun DisplayImportantSection(
         data: List<String>
     ) {
@@ -92,7 +132,7 @@ internal class RequestDetailsScreen {
         BodySection(
             titleContent = {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Companion.CenterVertically,
                 ) {
                     Text(
                         buildStringSection(
@@ -116,10 +156,10 @@ internal class RequestDetailsScreen {
         ) {
             SelectionContainer {
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .padding(8.dp)
                         .fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start,
+                    horizontalAlignment = Alignment.Companion.Start,
                 ) {
                     data.forEach {
                         Text(it)
@@ -144,20 +184,20 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun RequestDetails(
-        wrapped: HighlightedBodyWrapper,
+        request: Transaction,
+        viewModel: RequestDetailsViewModel
     ) {
-        val request = wrapped.request
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(horizontal = 8.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.Companion.Start,
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
             if (request.importantInRequest.isNotEmpty()) {
                 DisplayImportantSection(request.importantInRequest)
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
             }
             SelectionContainer {
                 Text(buildStringSection(stringResource(Res.string.url), request.fullUrl))
@@ -171,26 +211,26 @@ internal class RequestDetailsScreen {
                     if (request.responseTime != null) "${request.totalTime} ms" else ""
                 )
             )
-            if ((request.requestBody?.toByteArray()?.size ?: 0) > 0) {
+            if ((request.requestBody?.size ?: 0) > 0) {
                 Text(
                     buildStringSection(
                         stringResource(Res.string.request_size),
-                        getSizeText(request.requestBody?.toByteArray()?.size?.toLong() ?: 0L)
+                        getSizeText(request.requestBody?.size?.toLong() ?: 0L)
                     ),
                 )
             }
 
             if (request.requestHeaders.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
                 BodySection(
                     title = stringResource(Res.string.headers)
                 ) {
                     SelectionContainer {
                         Column(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .padding(8.dp)
                                 .fillMaxWidth(),
-                            horizontalAlignment = Alignment.Start,
+                            horizontalAlignment = Alignment.Companion.Start,
                         ) {
                             request.requestHeaders.entries.forEach {
                                 Text(
@@ -202,50 +242,60 @@ internal class RequestDetailsScreen {
                 }
 
             }
-            if (!request.requestBody.isNullOrBlank()) {
+            if ((request.requestBody?.size ?: 0) > 0) {
+                Spacer(Modifier.height(16.dp))
+                val selectedFromVm =
+                    viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
+                val selected =
+                    selectedFromVm.value ?: BodyType.JSON
+                ChoiceFormatButton(
+                    selected = selected,
+                    onSelect = {
+                        viewModel.onRequestBodyFormatSelected(it)
+                    }
+                )
                 Spacer(Modifier.height(16.dp))
                 BodySection {
                     Box(
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .padding(8.dp)
 
                     ) {
                         SelectionContainer {
-                            Text(text = wrapped.highlightedRequestBody)
+                            val formatted =
+                                viewModel.formatedRequestBody.collectAsStateWithLifecycle(
+                                    AnnotatedString("")
+                                )
+                            Text(text = formatted.value ?: AnnotatedString(""))
                         }
                     }
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
         }
     }
 
     @Composable
     fun ResponseDetails(
-        wrapped: HighlightedBodyWrapper
+        request: Transaction,
+        viewModel: RequestDetailsViewModel
     ) {
-        val request = wrapped.request
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(horizontal = 8.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.Companion.Start,
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.Companion.height(8.dp))
             if (request.importantInResponse.isNotEmpty()) {
                 DisplayImportantSection(request.importantInResponse)
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
             }
-            val size = max(
-                request.responseBody?.toByteArray()?.size ?: 0,
-                request.imageBytes?.size ?: 0
-            ).toLong()
-
             Text(
                 buildStringSection(
                     title = stringResource(Res.string.response_size),
-                    content = getSizeText(size)
+                    content = getSizeText(request.responseBody?.size?.toLong() ?: 0)
                 )
             )
 
@@ -259,17 +309,17 @@ internal class RequestDetailsScreen {
                 )
             )
             if (request.responseHeaders.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
                 BodySection(
                     defaultExpanded = false,
                     title = stringResource(Res.string.headers),
                 ) {
                     SelectionContainer {
                         Column(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .padding(8.dp)
                                 .fillMaxWidth(),
-                            horizontalAlignment = Alignment.Start,
+                            horizontalAlignment = Alignment.Companion.Start,
                         ) {
                             request.responseHeaders.entries.forEach {
                                 Text(
@@ -280,26 +330,43 @@ internal class RequestDetailsScreen {
                     }
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            if (request.responseBody?.isNotBlank() == true || request.imageBytes?.isNotEmpty() == true || !request.error.isNullOrBlank()) {
+            Spacer(Modifier.Companion.height(16.dp))
+            if (
+                request.responseBody?.isNotEmpty() == true ||
+                request.error != null
+            ) {
+                val selectedFromVm =
+                    viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
+                val selected =
+                    selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
+                ChoiceFormatButton(
+                    selected = selected,
+                    onSelect = {
+                        viewModel.onResponseBodyFormatSelected(it)
+                    }
+                )
+                Spacer(Modifier.Companion.height(16.dp))
                 BodySection {
-                    if (request.isImage != true) {
+                    if (selected != BodyType.IMAGE) {
                         if (request.error == null) {
                             Box(
-                                modifier = Modifier
+                                modifier = Modifier.Companion
                                     .padding(8.dp)
-
                             ) {
+                                val formatted =
+                                    viewModel.formatedResponseBody.collectAsStateWithLifecycle(
+                                        AnnotatedString("")
+                                    )
                                 SelectionContainer {
-                                    Text(wrapped.highlightedResponseBody)
+                                    Text(formatted.value ?: AnnotatedString(""))
                                 }
                             }
                         } else {
                             Box(
-                                modifier = Modifier
+                                modifier = Modifier.Companion
                                     .fillMaxWidth()
                                     .padding(8.dp),
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.Companion.Center
                             ) {
                                 SelectionContainer {
                                     Text(
@@ -311,22 +378,22 @@ internal class RequestDetailsScreen {
                         }
                     } else {
                         Box(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .fillMaxWidth()
                                 .padding(8.dp),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Companion.Center
                         ) {
                             AsyncImage(
-                                model = request.imageBytes,
+                                model = request.responseBody,
                                 contentDescription = "Response Image",
-                                modifier = Modifier
+                                modifier = Modifier.Companion
                                     .height(300.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
                             )
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.Companion.height(8.dp))
             }
         }
     }
@@ -338,19 +405,19 @@ internal class RequestDetailsScreen {
         navController: NavHostController,
         requestId: Long,
     ) {
-        val viewModel: RequestViewModel = koinViewModel {
+        val viewModel: RequestDetailsViewModel = koinViewModel {
             parametersOf(requestId)
         }
-        val wrappped by viewModel.requestByID.collectAsState(initial = null)
-        LaunchedEffect(wrappped) {
-            if (wrappped != null && !wrappped!!.request.isViewed) {
-                viewModel.onViewed(wrappped!!.request)
+        val request by viewModel.requestByID.collectAsState(initial = null)
+        LaunchedEffect(request) {
+            if (request != null && request?.isViewed != true) {
+                viewModel.onViewed(request!!)
             }
         }
-        if (wrappped == null) {
+        if (request == null) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.Companion.fillMaxSize(),
+                contentAlignment = Alignment.Companion.Center
             ) {
                 Text(stringResource(Res.string.no_request_found_with_id, requestId))
             }
@@ -359,14 +426,18 @@ internal class RequestDetailsScreen {
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = {
+                            val title = StringBuilder()
+                            if (!request!!.path.contains("/")) title.append("/")
+                            title.append(request!!.path)
+                            if (request!!.responseStatus != null) {
+                                title.append(" - ${request!!.responseStatus}")
+                            }
+
                             Text(
-                                wrappped!!.request.path + if (wrappped!!.request.responseStatus != null) {
-                                    " - ${wrappped!!.request.responseStatus}"
-                                } else {
-                                    ""
-                                },
+                                title.toString(),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.titleSmall
                             )
                         },
                         navigationIcon = {
@@ -385,10 +456,10 @@ internal class RequestDetailsScreen {
                 },
             ) {
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .padding(it)
                         .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.Companion.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
                     val scope = rememberCoroutineScope()
@@ -400,10 +471,10 @@ internal class RequestDetailsScreen {
                     )
                     TabRow(
                         selectedTabIndex = pager.currentPage,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.Companion.fillMaxWidth()
                     ) {
                         Tab(
-                            modifier = Modifier.clip(
+                            modifier = Modifier.Companion.clip(
                                 RoundedCornerShape(
                                     topStart = 16.dp,
                                     topEnd = 16.dp
@@ -418,7 +489,7 @@ internal class RequestDetailsScreen {
                             text = { Text(stringResource(Res.string.request_tab)) }
                         )
                         Tab(
-                            modifier = Modifier.clip(
+                            modifier = Modifier.Companion.clip(
                                 RoundedCornerShape(
                                     topStart = 16.dp,
                                     topEnd = 16.dp
@@ -434,11 +505,12 @@ internal class RequestDetailsScreen {
                         )
                     }
                     HorizontalPager(
+                        userScrollEnabled = canSwipePage,
                         state = pager
                     ) {
                         when (it) {
-                            0 -> RequestDetails(wrappped!!)
-                            1 -> ResponseDetails(wrappped!!)
+                            0 -> RequestDetails(request!!, viewModel)
+                            1 -> ResponseDetails(request!!, viewModel)
                         }
                     }
                 }

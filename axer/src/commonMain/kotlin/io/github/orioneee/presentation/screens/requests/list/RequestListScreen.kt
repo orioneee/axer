@@ -1,4 +1,4 @@
-package io.github.orioneee.presentation.screens.requests
+package io.github.orioneee.presentation.screens.requests.list
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -25,7 +25,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,12 +40,11 @@ import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.logger.formateAsTime
-import io.github.orioneee.presentation.clickableWithoutRipple
+import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 internal class RequestListScreen() {
     @Composable
@@ -55,7 +53,7 @@ internal class RequestListScreen() {
         request: Transaction,
         onClick: () -> Unit,
     ) {
-        val animatedContainerColor by animateColorAsState(
+        val animatedContainerColor = animateColorAsState(
             targetValue = if (isSelected) {
                 MaterialTheme.colorScheme.primaryContainer
             } else {
@@ -63,10 +61,10 @@ internal class RequestListScreen() {
             },
             label = "RequestCardColorAnimation"
         )
-        val animatedFontWeight by animateIntAsState(if (request.isViewed) 400 else 700)
+        val animatedFontWeight = animateIntAsState(if (request.isViewed) 400 else 700)
         ListItem(
-            colors = ListItemDefaults.colors(containerColor = animatedContainerColor),
-            modifier = Modifier
+            colors = ListItemDefaults.colors(containerColor = animatedContainerColor.value),
+            modifier = Modifier.Companion
                 .clip(RoundedCornerShape(16.dp))
                 .clickableWithoutRipple {
                     onClick()
@@ -75,7 +73,7 @@ internal class RequestListScreen() {
                 val annotatedString = buildAnnotatedString {
                     withStyle(
                         style = SpanStyle(
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Companion.Bold
                         )
                     ) {
                         append(request.method)
@@ -87,21 +85,28 @@ internal class RequestListScreen() {
                     color = if (
                         request.error != null ||
                         (request.responseStatus != null && request.isErrorByStatusCode())
-                    ) MaterialTheme.colorScheme.error else Color.Unspecified,
+                    ) MaterialTheme.colorScheme.error else Color.Companion.Unspecified,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight(animatedFontWeight)
+                    overflow = TextOverflow.Companion.Ellipsis,
+                    fontWeight = FontWeight(animatedFontWeight.value)
                 )
             },
             supportingContent = {
-                val text =
-                    "${request.host} ${request.sendTime.formateAsTime()} " + if (request.isFinished()) "${request.totalTime}ms" else ""
-                Text(text)
+                val string = StringBuilder()
+                string.append("${request.host} ${request.sendTime.formateAsTime()} ")
+                if (request.error != null) {
+                    string.append(request.error.name)
+                }
+                if (request.isFinished()) {
+                    string.append("${request.totalTime}ms")
+                }
+
+                Text(string.toString())
             },
             trailingContent = {
                 if (request.isInProgress()) {
                     CircularProgressIndicator(
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .size(24.dp),
                         strokeWidth = 2.dp,
                     )
@@ -120,18 +125,21 @@ internal class RequestListScreen() {
         onClickToRequestDetails: (Transaction) -> Unit,
         onClearRequests: () -> Unit,
     ) {
-        val viewModel: RequestViewModel = koinViewModel {
-            parametersOf(null)
-        }
-        val requests by viewModel.filteredRequests.collectAsState(emptyList())
+        val viewModel: RequestListViewModel = koinViewModel()
+        val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
-        val imageFilters = viewModel.imageFilters.collectAsState(emptyList())
-        val selectedMethods by viewModel.selectedMethods.collectAsState(emptyList())
-        val selectedImageFilter by viewModel.selectedImageFilter.collectAsState(emptyList())
+        val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())
+        val selectedMethods = viewModel.selectedMethods.collectAsState(emptyList())
+        val selectedBodyTypes = viewModel.selectedBodyType.collectAsState(emptyList())
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.requests)) },
+                    title = {
+                        Text(
+                            stringResource(Res.string.requests),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
                     actions = {
                         IconButton(
                             onClick = {
@@ -152,16 +160,16 @@ internal class RequestListScreen() {
             }
         ) { contentPadding ->
             Box(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxSize()
                     .padding(contentPadding),
 
                 ) {
-                if (requests.isEmpty()) {
+                if (requests.value.isEmpty()) {
                     Box(
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Companion.Center
 
                     ) {
                         Text(stringResource(Res.string.nothing_found))
@@ -172,7 +180,7 @@ internal class RequestListScreen() {
                             if (methodFilters.value.isNotEmpty()) {
                                 FilterRow(
                                     items = methodFilters.value,
-                                    selectedItems = selectedMethods,
+                                    selectedItems = selectedMethods.value,
                                     onItemClicked = { method ->
                                         viewModel.toggleMethodFilter(method)
                                     },
@@ -184,23 +192,23 @@ internal class RequestListScreen() {
                             }
                         }
                         item {
-                            if (imageFilters.value.isNotEmpty()) {
+                            if (typeFilters.value.isNotEmpty()) {
                                 FilterRow(
-                                    items = imageFilters.value,
-                                    selectedItems = selectedImageFilter,
+                                    items = typeFilters.value,
+                                    selectedItems = selectedBodyTypes.value,
                                     onItemClicked = { filter ->
-                                        viewModel.toggleImageFilter(filter)
+                                        viewModel.toggleTypeFilter(filter)
                                     },
                                     onClear = {
-                                        viewModel.clearImageFilters()
+                                        viewModel.clearTypeFilters()
                                     },
-                                    getItemString = { it }
+                                    getItemString = { it.name }
                                 )
                             }
                         }
-                        items(requests) { item ->
+                        items(requests.value) { item ->
                             Box(
-                                modifier = Modifier
+                                modifier = Modifier.Companion
                                     .fillMaxWidth()
                                     .animateItem(
                                         fadeInSpec = tween(300),

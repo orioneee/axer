@@ -16,6 +16,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,9 +65,10 @@ internal class ExceptionDetails {
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                "${exception!!.shortName} - ${exception!!.time.formateAsTime()}",
+                                "${exception!!.error.name} - ${exception!!.time.formateAsTime()}",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.titleSmall
                             )
                         },
                         navigationIcon = {
@@ -98,7 +100,7 @@ internal class ExceptionDetails {
                         Text(
                             buildStringSection(
                                 stringResource(Res.string.name),
-                                exception!!.shortName,
+                                exception!!.error.name,
                             )
                         )
                     }
@@ -106,7 +108,7 @@ internal class ExceptionDetails {
                         Text(
                             buildStringSection(
                                 stringResource(Res.string.message),
-                                exception!!.message,
+                                exception!!.error.message,
                             )
                         )
                     }
@@ -118,7 +120,7 @@ internal class ExceptionDetails {
                             )
                         )
                     }
-                    if (exception!!.stackTrace.isNotBlank()) {
+                    if (exception!!.error.stackTrace.isNotBlank()) {
                         Spacer(Modifier.height(16.dp))
                         BodySection(
                             title = stringResource(Res.string.stack_trace)
@@ -129,7 +131,7 @@ internal class ExceptionDetails {
 
                             ) {
                                 SelectionContainer {
-                                    Text(text = exception!!.stackTrace)
+                                    Text(text = exception!!.error.stackTrace)
                                 }
                             }
                         }

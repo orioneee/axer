@@ -1,4 +1,4 @@
-package io.github.orioneee.presentation
+package io.github.orioneee.extentions
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
