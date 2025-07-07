@@ -1,5 +1,6 @@
 package io.github.orioneee.utils
 
+import io.github.orioneee.Axer
 import io.github.orioneee.domain.requests.Transaction
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -138,8 +139,12 @@ internal fun List<Transaction>.toHarFile(): HarFile {
 
 @OptIn(ExperimentalTime::class)
 internal fun List<Transaction>.exportAsHar() {
-    val harFile = toHarFile()
-    val jsonString = Json { prettyPrint = true }.encodeToString(harFile)
-    DataExporter.exportText(jsonString, "axer_${Clock.System.now().toEpochMilliseconds()}.har")
+    try{
+        val harFile = toHarFile()
+        val jsonString = Json { prettyPrint = true }.encodeToString(harFile)
+        DataExporter.exportText(jsonString, "axer_${Clock.System.now().toEpochMilliseconds()}.har")
+    } catch (e: Exception) {
+        Axer.e("Export HAR", "Failed to export HAR file: ${e.message}")
+    }
 }
 
