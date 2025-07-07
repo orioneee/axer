@@ -10,7 +10,7 @@ import java.io.File
 internal actual object DataExporter {
 
     private fun fileProviderAuthority(context: Context): String =
-        context.packageName + ".axer-fileprovider"
+        "${context.packageName}.io.orioneee.axer.provider"
 
     actual fun exportLogs(logs: List<LogLine>) {
         val text = logs.joinToString("\n")

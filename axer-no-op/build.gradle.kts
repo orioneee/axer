@@ -149,18 +149,18 @@ mavenPublishing {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("kmpLibrary-no-op") {
-            from(components["kotlin"])
-
-            groupId = "io.github.orioneee"
-            artifactId = "axer-no-op"
-            version = libraryVersion
-        }
-    }
-
-    repositories {
-        mavenLocal()
-    }
-}
+//publishing {
+//    publications {
+//        create<MavenPublication>("kmpLibrary-no-op") {
+//            from(components["kotlin"])
+//
+//            groupId = "io.github.orioneee"
+//            artifactId = "axer-no-op"
+//            version = libraryVersion
+//        }
+//    }
+//
+//    repositories {
+//        mavenLocal()
+//    }
+//}

@@ -192,21 +192,21 @@ mavenPublishing {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("kmpLibrary") {
-            from(components["kotlin"])
-
-            groupId = "io.github.orioneee"
-            artifactId = "axer"
-            version = libraryVersion
-        }
-    }
-
-    repositories {
-        mavenLocal()
-    }
-}
+//publishing {
+//    publications {
+//        create<MavenPublication>("kmpLibrary") {
+//            from(components["kotlin"])
+//
+//            groupId = "io.github.orioneee"
+//            artifactId = "axer"
+//            version = libraryVersion
+//        }
+//    }
+//
+//    repositories {
+//        mavenLocal()
+//    }
+//}
 
 
 dependencies {
