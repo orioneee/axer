@@ -12,7 +12,7 @@ import kotlin.time.ExperimentalTime
 @Dao
 internal interface LogsDAO {
 
-    @Query("SELECT * FROM LogLine")
+    @Query("SELECT * FROM LogLine ORDER BY time DESC")
     fun getAll(): Flow<List<LogLine>>
 
     @Query("SELECT DISTINCT tag FROM LogLine")

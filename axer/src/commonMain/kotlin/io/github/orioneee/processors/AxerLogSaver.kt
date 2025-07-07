@@ -4,6 +4,7 @@ import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.domain.logs.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
+import io.github.orioneee.storage.AxerSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -33,7 +34,6 @@ open class AxerLogSaver() : Antilog() {
         message: String?
     ) {
         val time = Clock.System.now().toEpochMilliseconds()
-        saveLog(priority, tag, throwable, message, time)
         PlatformLogger.performPlatformLog(
             priority = priority,
             tag = tag,
@@ -41,5 +41,6 @@ open class AxerLogSaver() : Antilog() {
             message = message,
             time = time
         )
+        saveLog(priority, tag, throwable, message, time)
     }
 }

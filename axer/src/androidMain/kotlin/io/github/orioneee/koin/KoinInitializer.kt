@@ -48,3 +48,7 @@ class KoinInitializer : Initializer<KoinApplication> {
     }
 }
 
+internal fun IsolatedContext.getContext(): Context {
+    return koin.get()
+}
+

@@ -8,6 +8,7 @@ import io.github.orioneee.domain.logs.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.processors.ExceptionProcessor
+import io.github.orioneee.storage.AxerSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -188,6 +189,13 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.ASSERT,
+            time = Clock.System.now().toEpochMilliseconds()
+        )
         if (record) {
             val time = Clock.System.now().toEpochMilliseconds()
             val processor = LogProcessor()
@@ -199,29 +207,16 @@ object Axer {
                 time = time
             )
         }
-        PlatformLogger.performPlatformLog(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            priority = LogLevel.ASSERT,
-            time = Clock.System.now().toEpochMilliseconds()
-        )
     }
 
     private val config = AxerConfig()
 
     fun configure(block: AxerConfig.() -> Unit) {
         config.block()
-        applyConfig()
+        AxerSettings.configure(config)
     }
-
-    private fun applyConfig() {
-        AxerUIEntryPoint.configureDestinations(
-            isEnabledRequests = config.enableRequestMonitor,
-            isEnableExceptions = config.enableExceptionMonitor,
-            isEnabledLogs = config.enableLogMonitor,
-            isEnableDatabase = config.enableDatabaseMonitor,
-        )
+    fun getConfig(): AxerConfig {
+        return config
     }
 
     fun changeLocale(supportedLocale: SupportedLocales) {

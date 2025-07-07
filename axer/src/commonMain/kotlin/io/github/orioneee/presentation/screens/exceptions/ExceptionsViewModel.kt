@@ -10,7 +10,7 @@ internal class ExceptionsViewModel(
     private val exceptionDao: AxerExceptionDao,
     exceptionID: Long? = null
 ) : ViewModel() {
-    val exceptions = exceptionDao.getAll().map { it.reversed() }
+    val exceptions = exceptionDao.getAll()
 
     val exceptionByID = exceptionDao.getByID(exceptionID).map {
         if (it == null) return@map null

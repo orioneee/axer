@@ -87,7 +87,7 @@ kotlin {
 
 
             implementation(libs.napier)
-//            implementation(libs.material.kolor)
+            implementation(libs.multiplatform.settings)
         }
 
 

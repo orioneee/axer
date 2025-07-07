@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 internal interface AxerExceptionDao {
-    @Query("SELECT * FROM AxerException")
+    @Query("SELECT * FROM AxerException ORDER BY time DESC")
     fun getAll(): Flow<List<AxerException>>
 
     @Query("DELETE FROM AxerException")

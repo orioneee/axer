@@ -15,9 +15,7 @@ internal class RequestListViewModel(
 ) : ViewModel() {
 
 
-    val requests = requestDao.getAll().map {
-        it.reversed()
-    }
+    val requests = requestDao.getAll()
 
     val methodFilters = requests.map {
         it.map { it.method }

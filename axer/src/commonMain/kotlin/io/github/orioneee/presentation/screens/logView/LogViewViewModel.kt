@@ -6,9 +6,11 @@ import io.github.aakira.napier.LogLevel
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.utils.DataExporter
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -31,7 +33,8 @@ internal class LogViewViewModel : ViewModel() {
     val lastExportPointId = _lastExportPointId.asStateFlow()
 
 
-    val logs = dao.getAll().map { it.reversed() }
+    @OptIn(FlowPreview::class)
+    val logs = dao.getAll().debounce(100)
     val filtredLogs = combine(
         logs,
         _selectedTags,

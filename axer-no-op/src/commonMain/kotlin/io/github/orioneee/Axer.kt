@@ -137,6 +137,10 @@ object Axer {
     fun configure(block: AxerConfig.() -> Unit) {
     }
 
+    fun getConfig(): AxerConfig {
+        return config
+    }
+
     fun changeLocale(supportedLocale: SupportedLocales) {
     }
 }

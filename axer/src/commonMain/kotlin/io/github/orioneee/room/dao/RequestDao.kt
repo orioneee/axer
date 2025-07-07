@@ -13,7 +13,7 @@ import kotlin.time.ExperimentalTime
 
 @Dao
 internal interface RequestDao {
-    @Query("SELECT * FROM Transactions")
+    @Query("SELECT * FROM Transactions ORDER BY sendTime DESC")
     fun getAll(): Flow<List<Transaction>>
 
 

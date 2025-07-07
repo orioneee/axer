@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.Axer
 import io.ktor.client.HttpClient
@@ -387,6 +389,22 @@ internal fun App(
                     FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
                         Axer.wtf("App", "Assert", Exception("Assert"))
                     }) { Text("Assert") }
+                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
+                       CoroutineScope(Dispatchers.IO).launch {
+                           val messages = List(500) {
+                               "Log message number $it"
+                           }
+                           messages.forEach {
+                               Axer.d("App", it)
+                               Axer.i("App", it)
+                               Axer.w("App", it)
+                               Axer.e("App", it)
+                               Axer.v("App", it)
+                               Axer.wtf("App", it)
+                               Axer.d("App", "--------------------------")
+                           }
+                       }
+                    }) { Text("Spam logs") }
                 }
             }
 
@@ -413,36 +431,79 @@ private fun ActionCard(
 
 @Composable
 private fun MonitorToggles() {
+    val config = remember { Axer.getConfig() }
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(
-            Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Monitors", style = MaterialTheme.typography.titleMedium)
-            SettingSwitch("Requests") { Axer.configure { enableRequestMonitor = it } }
-            SettingSwitch("Exceptions") { Axer.configure { enableExceptionMonitor = it } }
-            SettingSwitch("Logs") { Axer.configure { enableLogMonitor = it } }
-            SettingSwitch("Database") { Axer.configure { enableDatabaseMonitor = it } }
+            Text(
+                text = "Monitors",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            SettingSwitch(
+                label = "Requests",
+                initialChecked = config.enableRequestMonitor
+            ) { Axer.configure { enableRequestMonitor = it } }
+
+            SettingSwitch(
+                label = "Exceptions",
+                initialChecked = config.enableExceptionMonitor
+            ) { Axer.configure { enableExceptionMonitor = it } }
+
+            SettingSwitch(
+                label = "Logs",
+                initialChecked = config.enableLogMonitor
+            ) { Axer.configure { enableLogMonitor = it } }
+
+            SettingSwitch(
+                label = "Database",
+                initialChecked = config.enableDatabaseMonitor
+            ) { Axer.configure { enableDatabaseMonitor = it } }
+
+            SettingSwitch(
+                label = "Record Logs",
+                initialChecked = config.isRecordingLogs
+            ) { Axer.configure { isRecordingLogs = it } }
         }
     }
 }
 
+
 @Composable
-private fun SettingSwitch(label: String, onCheckedChange: (Boolean) -> Unit) {
-    var checked by remember { mutableStateOf(true) }
+private fun SettingSwitch(
+    label: String,
+    initialChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    var checked by remember { mutableStateOf(initialChecked) }
 
     Row(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            //‑‑ makes the whole row behave like a Switch
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = { isChecked ->
+                    checked = isChecked
+                    onCheckedChange(isChecked)
+                }
+            )
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, Modifier.weight(1f))
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f)
+        )
+
         Switch(
             checked = checked,
-            onCheckedChange = { checked = it; onCheckedChange(it) }
+            onCheckedChange = null
         )
     }
 }
