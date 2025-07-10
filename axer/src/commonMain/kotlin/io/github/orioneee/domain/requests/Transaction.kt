@@ -109,4 +109,5 @@ internal data class Transaction(
         val responseSize = responseBody?.size?.toLong() ?: 0L
         return requestSize + responseSize + (requestHeaders.size * 100) + (responseHeaders.size * 100)
     }
+
 }

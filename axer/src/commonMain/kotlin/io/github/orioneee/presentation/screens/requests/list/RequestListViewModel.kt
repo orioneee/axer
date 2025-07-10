@@ -14,6 +14,11 @@ internal class RequestListViewModel(
     private val requestDao: RequestDao,
 ) : ViewModel() {
 
+    private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
+    private val _selectedBodyType = MutableStateFlow<List<BodyType>>(emptyList())
+    private val _isSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
+
 
     val requests = requestDao.getAll()
 
@@ -32,31 +37,28 @@ internal class RequestListViewModel(
             ?: emptyList()
     }
 
-
-    private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
-    private val _selectedBodyType = MutableStateFlow<List<BodyType>>(emptyList())
-
     val selectedMethods = _selectedMethods.asStateFlow()
     val selectedBodyType = _selectedBodyType.asStateFlow()
 
     val filteredRequests = combine(
         requests,
         _selectedMethods,
-        selectedBodyType,
-    ) { requests, selectedMethods, selectedBodyType ->
-        val filterdByMethod = if (selectedMethods.isEmpty()) {
+        _selectedBodyType,
+        _searchQuery,
+    ) { requests, selectedMethods, selectedBodyType, searchQuery ->
+        val filteredByMethod = if (selectedMethods.isEmpty()) {
             requests
         } else {
             requests.filter { selectedMethods.contains(it.method) }
         }
-        val filterdByType = if (selectedBodyType.isEmpty()) {
-            filterdByMethod
+        val filteredByType = if (selectedBodyType.isEmpty()) {
+            filteredByMethod
         } else {
-            filterdByMethod.filter {
+            filteredByMethod.filter {
                 selectedBodyType.contains(it.responseDefaultType)
             }
         }
-        filterdByType
+        filteredByType
     }
 
 

@@ -135,10 +135,20 @@ To display the Axer UI in a JVM environment:
 
 ```kotlin
 fun main() = application {
+    AxerTrayWindow()
+    ...
+}
+```
+
+Or if you want manualy control the window:
+
+```kotlin
+fun main() = application {
     AxerWindows()
     ...
 }
 ```
+
 
 #### Call UI
 

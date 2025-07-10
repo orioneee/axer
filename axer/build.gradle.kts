@@ -134,6 +134,7 @@ kotlin {
         jvmMain {
             dependsOn(jvmAndAndroid)
             dependencies {
+                implementation(compose.desktop.currentOs)
                 implementation(libs.kotlinx.coroutines.swing)
                 implementation(libs.ktor.client.okhttp)
             }
@@ -191,22 +192,6 @@ mavenPublishing {
         }
     }
 }
-
-//publishing {
-//    publications {
-//        create<MavenPublication>("kmpLibrary") {
-//            from(components["kotlin"])
-//
-//            groupId = "io.github.orioneee"
-//            artifactId = "axer"
-//            version = libraryVersion
-//        }
-//    }
-//
-//    repositories {
-//        mavenLocal()
-//    }
-//}
 
 
 dependencies {
