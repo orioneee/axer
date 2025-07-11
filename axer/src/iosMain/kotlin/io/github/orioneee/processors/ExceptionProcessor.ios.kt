@@ -4,6 +4,7 @@ import io.github.orioneee.Axer
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.navigation.FlowDestinations
+import io.github.orioneee.storage.AxerSettings
 import platform.Foundation.NSUUID
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
@@ -16,7 +17,7 @@ import platform.UserNotifications.UNUserNotificationCenterDelegateProtocol
 import platform.darwin.NSObject
 
 internal actual fun notifyAboutException(exception: AxerException) {
-    val isEnabledRequests = AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.EXCEPTIONS_FLOW)
+    val isEnabledRequests = AxerSettings.enableExceptionMonitor.get()
     if (!isEnabledRequests) {
         return
     }

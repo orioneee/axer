@@ -17,11 +17,11 @@ import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.navigation.FlowDestinations
+import io.github.orioneee.storage.AxerSettings
 import org.jetbrains.compose.resources.getString
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {
-    val isEnabledRequests = AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.REQUESTS_FLOW)
-    if (!isEnabledRequests) {
+    if (!AxerSettings.enableRequestMonitor.get()) {
         return
     }
     val context: Context = IsolatedContext.koinApp.koin.get()

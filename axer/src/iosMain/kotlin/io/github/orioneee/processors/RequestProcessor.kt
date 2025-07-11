@@ -4,6 +4,7 @@ import io.github.orioneee.Axer
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.navigation.FlowDestinations
+import io.github.orioneee.storage.AxerSettings
 import platform.CoreData.NSUUIDAttributeType
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotification
@@ -17,8 +18,7 @@ import platform.darwin.NSObject
 import platform.UserNotifications.UNNotificationDefaultActionIdentifier
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {
-    val isEnabledRequests =
-        AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.REQUESTS_FLOW)
+    val isEnabledRequests = AxerSettings.enableExceptionMonitor.get()
     if (!isEnabledRequests) {
         return
     }

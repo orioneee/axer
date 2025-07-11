@@ -11,9 +11,10 @@ import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.navigation.FlowDestinations
+import io.github.orioneee.storage.AxerSettings
 
 internal actual fun notifyAboutException(exception: AxerException) {
-    val isEnabledRequests = AxerUIEntryPoint.availableDestinations.contains(FlowDestinations.EXCEPTIONS_FLOW)
+    val isEnabledRequests = AxerSettings.enableExceptionMonitor.get()
     if (!isEnabledRequests) {
         return
     }
