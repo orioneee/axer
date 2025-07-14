@@ -73,7 +73,7 @@ kotlin {
                 implementation(libs.androidx.activityCompose)
 
                 implementation(libs.koin.android)
-                implementation("com.github.chuckerteam.chucker:library:4.1.0")
+                implementation("com.github.chuckerteam.chucker:library:4.2.0")
 
             }
         }
