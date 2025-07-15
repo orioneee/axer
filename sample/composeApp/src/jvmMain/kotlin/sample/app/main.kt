@@ -21,9 +21,7 @@ val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 
 fun main() = application {
     Axer.installErrorHandler()
-    AxerTrayWindow(
-
-    )
+    AxerTrayWindow()
     startKoin {
         modules(KoinModules.module)
     }

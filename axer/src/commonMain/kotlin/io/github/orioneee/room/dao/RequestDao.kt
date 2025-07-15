@@ -16,6 +16,9 @@ internal interface RequestDao {
     @Query("SELECT * FROM Transactions ORDER BY sendTime DESC")
     fun getAll(): Flow<List<Transaction>>
 
+    @Query("SELECT * FROM Transactions ORDER BY sendTime DESC")
+    suspend fun getAllSync(): List<Transaction>
+
 
     @Upsert
     suspend fun upsert(request: Transaction): Long
@@ -35,6 +38,9 @@ internal interface RequestDao {
 
     @Query("SELECT * FROM Transactions WHERE id = :id")
     fun getById(id: Long?): Flow<Transaction?>
+
+    @Query("SELECT * FROM Transactions WHERE id = :id")
+    suspend fun getByIdSync(id: Long?): Transaction?
 
     @Query("UPDATE Transactions SET isViewed = :isViewed WHERE id = :id")
     suspend fun updateViewed(id: Long, isViewed: Boolean)

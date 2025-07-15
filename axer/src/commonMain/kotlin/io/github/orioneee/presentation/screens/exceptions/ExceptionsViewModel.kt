@@ -2,24 +2,30 @@ package io.github.orioneee.presentation.screens.exceptions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.provider.AxerDataProvider
 import io.github.orioneee.room.dao.AxerExceptionDao
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 internal class ExceptionsViewModel(
-    private val exceptionDao: AxerExceptionDao,
+    private val dataProvider: AxerDataProvider,
     exceptionID: Long? = null
 ) : ViewModel() {
-    val exceptions = exceptionDao.getAll()
+    val exceptions = dataProvider.getAllExceptions()
 
-    val exceptionByID = exceptionDao.getByID(exceptionID).map {
-        if (it == null) return@map null
-        it
+    val exceptionByID = if (exceptionID != null) {
+        dataProvider.getExceptionById(exceptionID).map {
+            if (it == null) return@map null
+            it
+        }
+    } else {
+        flowOf()
     }
 
     fun deleteAll() {
         viewModelScope.launch {
-            exceptionDao.deleteAll()
+            dataProvider.deleteAllExceptions()
         }
     }
 }

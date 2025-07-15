@@ -9,6 +9,7 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
+import io.github.orioneee.domain.database.SQLiteColumnType
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.room.AxerBundledSQLiteDriver
@@ -39,26 +40,7 @@ internal class RoomReader {
         return connections.first { it.file.indexOf(file) != -1 }.connection
     }
 
-    enum class SQLiteColumnType(
-        val code: Int,
-        val textName: String,
-    ) {
-        INTEGER(1, "INTEGER"),
-        FLOAT(2, "FLOAT"),
-        TEXT(3, "TEXT"),
-        BLOB(4, "BLOB"),
-        NULL(5, "NULL");
 
-        companion object {
-            fun fromCode(code: Int): SQLiteColumnType {
-                return entries.find { it.code == code } ?: NULL
-            }
-
-            fun fromTextName(name: String): SQLiteColumnType {
-                return entries.find { it.textName == name } ?: NULL
-            }
-        }
-    }
 
     suspend fun getTableSize(
         file: String,

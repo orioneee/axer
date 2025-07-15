@@ -1,4 +1,4 @@
-package io.github.orioneee.logger
+package io.github.orioneee.extentions
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

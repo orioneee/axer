@@ -11,9 +11,7 @@ fun Axer.initialize() {
     IsolatedContext.initIfNotInited(
         koinApplication {
             modules(
-                getPlatformModules(),
-                Modules.daoModule,
-                Modules.viewModelModule
+                Modules.getModules()
             )
         }
     )

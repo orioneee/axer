@@ -6,8 +6,10 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import io.github.orioneee.domain.exceptions.SavableError
 import io.github.orioneee.domain.requests.formatters.BodyType
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "Transactions")
+@Serializable
 internal data class Transaction(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L,

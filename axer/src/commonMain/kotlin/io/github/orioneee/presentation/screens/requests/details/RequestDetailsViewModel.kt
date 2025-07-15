@@ -15,13 +15,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml
+import io.github.orioneee.provider.AxerDataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 
 internal class RequestDetailsViewModel(
-    private val requestDao: RequestDao,
-    requestId: Long?
+    private val dataProvider: AxerDataProvider,
+    requestId: Long
 ) : ViewModel() {
     val json = Json {
         prettyPrint = true
@@ -33,7 +34,7 @@ internal class RequestDetailsViewModel(
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
 
-    val requestByID = requestDao.getById(requestId).map {
+    val requestByID = dataProvider.getRequestById(requestId).map {
         if (it == null) return@map null
         it
     }
@@ -88,8 +89,7 @@ internal class RequestDetailsViewModel(
     fun onViewed(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
             if (transaction.isViewed) return@launch
-            requestDao.upsert(transaction.copy(isViewed = true))
+            dataProvider.markAsViewed(transaction.id)
         }
     }
-
 }

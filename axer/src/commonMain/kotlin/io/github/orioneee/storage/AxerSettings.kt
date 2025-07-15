@@ -12,6 +12,7 @@ internal object AxerSettings {
     val enableDatabaseMonitor = BooleanSettingItem(settings, "enableDatabaseMonitor")
 
     val isRecordingLogs = BooleanSettingItem(settings, "isRecordingLogs")
+    val enableRemoteMonitor = BooleanSettingItem(settings, "enableRemoteMonitor", true)
 
     fun configure(config: AxerConfig) {
         enableRequestMonitor.set(config.enableRequestMonitor)

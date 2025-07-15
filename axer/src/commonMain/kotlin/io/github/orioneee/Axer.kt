@@ -4,7 +4,7 @@ package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.domain.SupportedLocales
-import io.github.orioneee.domain.logs.LogProcessor
+import io.github.orioneee.processors.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.processors.ExceptionProcessor
