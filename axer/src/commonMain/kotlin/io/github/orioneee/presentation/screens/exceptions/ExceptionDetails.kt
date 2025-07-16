@@ -35,6 +35,7 @@ import io.github.orioneee.axer.generated.resources.stack_trace
 import io.github.orioneee.axer.generated.resources.time
 import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.logger.formateAsTime
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.buildStringSection
 import org.jetbrains.compose.resources.stringResource
@@ -48,8 +49,9 @@ internal class ExceptionDetails {
         navController: NavHostController,
         exceptionID: Long,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: ExceptionsViewModel = koinViewModel {
-            parametersOf(exceptionID)
+            parametersOf(provider, exceptionID)
         }
         val exception by viewModel.exceptionByID.collectAsState(initial = null)
         if (exception == null) {

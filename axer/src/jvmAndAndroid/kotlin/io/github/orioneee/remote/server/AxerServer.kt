@@ -1,5 +1,6 @@
 package io.github.orioneee.remote.server
 
+import io.github.orioneee.Axer
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.dao.AxerExceptionDao
@@ -23,16 +24,21 @@ import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.DefaultWebSocketSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.InetAddress
 import java.net.NetworkInterface
+import java.util.Collections
 import kotlin.time.Duration.Companion.seconds
 
 fun getLocalIpAddress(): String? {
@@ -77,22 +83,17 @@ private fun CoroutineScope.startKtorServer(
         install(DefaultHeaders) {
             header("Content-Type", "application/json")
         }
+        val activeConnections = Collections.synchronizedSet<DefaultWebSocketSession>(mutableSetOf())
         routing {
-            webSocket("/ws/requests") {
-                sendSerialized(requestDao.getAllSync())
-                launch {
-                    requestDao.getAll().collect { sendSerialized(it) }
-                }
-                for (frame in incoming) {
-                }
-            }
+
             delete("requests") {
                 requestDao.deleteAll()
+                call.respond(HttpStatusCode.OK, "All requests deleted")
             }
-            post("/requests/viewed/{id}") {
+            post("/requests/view/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 if (id != null) {
-                    requestDao.updateViewed(id.toLong(), true)
+                    requestDao.markAsViewed(id.toLong())
                     call.respond(HttpStatusCode.OK, "Request $id marked as viewed")
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID")
@@ -100,13 +101,21 @@ private fun CoroutineScope.startKtorServer(
             }
 
             webSocket("/ws/requests/{id}") {
-                val id = call.parameters["id"]?.toIntOrNull()
+                println("WebSocket connection established for request with ID: ${call.parameters["id"]}")
+                val id = call.parameters["id"]?.toLongOrNull()
                 if (id != null) {
-                    val requestFlow = requestDao.getById(id.toLong())
-                    sendSerialized(requestFlow)
+                    sendSerialized(requestDao.getByIdSync(id))
                     launch {
-                        requestFlow.collect { sendSerialized(it) }
+                        requestDao.getById(id)
+                            .collect {
+                                println("Sending request with ID $id to client")
+                                sendSerialized(it)
+                            }
                     }
+
+                    for (frame in incoming) {
+                    }
+
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID")
                 }
@@ -124,6 +133,28 @@ private fun CoroutineScope.startKtorServer(
             delete("exceptions") {
                 exceptionsDao.deleteAll()
                 call.respond(HttpStatusCode.OK, "All exceptions deleted")
+            }
+
+            webSocket("/ws/requests") {
+                sendSerialized(requestDao.getAllSync())
+                launch {
+                    requestDao.getAll().collect { sendSerialized(it) }
+                }
+                for (frame in incoming) {
+                }
+            }
+            webSocket("/ws/exceptions/{id}") {
+                val id = call.parameters["id"]?.toLongOrNull()
+                if (id != null) {
+                    sendSerialized(exceptionsDao.getByIDSync(id))
+                    launch {
+                        exceptionsDao.getByID(id).collect { sendSerialized(it) }
+                    }
+                    for (frame in incoming) {
+                    }
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID")
+                }
             }
 
             webSocket("/ws/logs") {
@@ -145,11 +176,13 @@ private fun CoroutineScope.startKtorServer(
                 sendSerialized(tables)
                 val flow = reader.axerDriver.changeDataFlow
                     .debounce(100)
-                    .map {
+                    .onEach {
                         reader.getTablesFromAllDatabase()
                     }
                 launch {
-                    flow.collect { sendSerialized(it) }
+                    flow.collect {
+                        sendSerialized(it)
+                    }
                 }
                 for (frame in incoming) {
                 }

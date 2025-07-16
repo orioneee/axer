@@ -2,8 +2,7 @@ package io.github.orioneee.presentation.screens.exceptions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.orioneee.provider.AxerDataProvider
-import io.github.orioneee.room.dao.AxerExceptionDao
+import io.github.orioneee.AxerDataProvider
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

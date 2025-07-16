@@ -3,6 +3,7 @@ package io.github.orioneee.presentation.screens.logView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.utils.DataExporter
@@ -17,9 +18,9 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
-internal class LogViewViewModel : ViewModel() {
-    private val dao: LogsDAO by IsolatedContext.koin.inject()
-
+internal class LogViewViewModel(
+    private val dataProvider: AxerDataProvider,
+) : ViewModel() {
     private val _selectedTags = MutableStateFlow<List<String>>(listOf())
     private val _selectedLevels = MutableStateFlow<List<LogLevel>>(listOf())
     private val _isExporting = MutableStateFlow(false)
@@ -34,7 +35,7 @@ internal class LogViewViewModel : ViewModel() {
 
 
     @OptIn(FlowPreview::class)
-    val logs = dao.getAll().debounce(100)
+    val logs = dataProvider.getAllLogs().debounce(100)
     val filtredLogs = combine(
         logs,
         _selectedTags,
@@ -71,8 +72,16 @@ internal class LogViewViewModel : ViewModel() {
             toIndex = (max(indexOfFirst, indexOfLast) + 1).coerceAtMost(logs.size)
         )
     }
-    val tags = dao.getUniqueTags()
-    val levels = dao.getUniqueLevels()
+    val tags = logs.map {
+        it.mapNotNull { log -> log.tag }
+            .distinct()
+            .sortedBy { it }
+    }
+    val levels = logs.map {
+        it.map { log -> log.level }
+            .distinct()
+            .sortedBy { it.ordinal }
+    }
 
     fun toggleTag(tag: String) {
         _selectedTags.value = if (_selectedTags.value.contains(tag)) {
@@ -100,7 +109,7 @@ internal class LogViewViewModel : ViewModel() {
 
     fun clear() {
         viewModelScope.launch {
-            dao.clear()
+            dataProvider.deleteAllLogs()
         }
     }
 

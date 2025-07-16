@@ -5,12 +5,9 @@ import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.processors.RoomReader
-import io.github.orioneee.provider.AxerDataProvider
 import io.github.orioneee.room.AxerDatabase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 
 internal class RoomAxerDataProvider(
     database: AxerDatabase

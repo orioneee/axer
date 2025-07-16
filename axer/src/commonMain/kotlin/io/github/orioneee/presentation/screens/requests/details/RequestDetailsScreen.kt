@@ -69,6 +69,7 @@ import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
@@ -114,7 +115,8 @@ internal class RequestDetailsScreen {
                     ButtonDefaults.outlinedButtonColors()
                 }
 
-                val border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                val border =
+                    if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
 
                 OutlinedButton(
                     onClick = { onSelect(bodyType) },
@@ -414,8 +416,9 @@ internal class RequestDetailsScreen {
         navController: NavHostController,
         requestId: Long,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: RequestDetailsViewModel = koinViewModel {
-            parametersOf(requestId)
+            parametersOf(provider, requestId)
         }
         val request by viewModel.requestByID.collectAsState(initial = null)
         LaunchedEffect(request) {

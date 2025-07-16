@@ -5,17 +5,14 @@ import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
-import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.logger.getSavableError
 import io.github.orioneee.processors.RequestProcessor
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.bodyAsBytes
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
-import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray

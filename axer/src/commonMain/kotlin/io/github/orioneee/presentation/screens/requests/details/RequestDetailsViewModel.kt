@@ -3,19 +3,18 @@ package io.github.orioneee.presentation.screens.requests.details
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.domain.requests.formatters.formatCSS
 import io.github.orioneee.domain.requests.formatters.formatJavascript
 import io.github.orioneee.extentions.formatJson
-import io.github.orioneee.room.dao.RequestDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml
-import io.github.orioneee.provider.AxerDataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,10 +33,7 @@ internal class RequestDetailsViewModel(
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
 
-    val requestByID = dataProvider.getRequestById(requestId).map {
-        if (it == null) return@map null
-        it
-    }
+    val requestByID = dataProvider.getRequestById(requestId)
 
     val formatedRequestBody = combine(
         requestByID,

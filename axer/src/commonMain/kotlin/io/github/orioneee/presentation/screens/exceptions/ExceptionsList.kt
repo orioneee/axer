@@ -32,6 +32,7 @@ import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.extentions.clickableWithoutRipple
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogo
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -88,8 +89,9 @@ internal class ExceptionsList {
         onClickToException: (AxerException) -> Unit,
         onClearRequests: () -> Unit,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: ExceptionsViewModel = koinViewModel {
-            parametersOf(null)
+            parametersOf(provider, null)
         }
 
         val exceptions by viewModel.exceptions.collectAsState(emptyList())

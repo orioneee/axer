@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Upsert
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.domain.requests.TrimItem
-import io.github.orioneee.logger.formateAsTime
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -44,6 +43,13 @@ internal interface RequestDao {
 
     @Query("UPDATE Transactions SET isViewed = :isViewed WHERE id = :id")
     suspend fun updateViewed(id: Long, isViewed: Boolean)
+
+    suspend fun markAsViewed(id: Long) {
+        val request = getByIdSync(id)
+        if (request != null) {
+            updateViewed(id, true)
+        }
+    }
 
     @Query("DELETE FROM Transactions WHERE sendTime < :thresholdTime")
     suspend fun deleteOlderThan(thresholdTime: Long)

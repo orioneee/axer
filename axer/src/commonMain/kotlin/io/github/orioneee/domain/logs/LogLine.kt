@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Entity
-internal data class LogLine(
+data class LogLine(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 

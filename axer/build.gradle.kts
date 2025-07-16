@@ -94,7 +94,6 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
             implementation("io.ktor:ktor-server-websockets:${ktor_version}")
 
-            implementation(project(":axer-ui"))
         }
 
 

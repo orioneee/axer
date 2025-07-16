@@ -1,6 +1,6 @@
 package io.github.orioneee.koin
 
-import io.github.orioneee.RoomAxerDataProvider
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
@@ -9,7 +9,6 @@ import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
 import io.github.orioneee.presentation.screens.logView.LogViewViewModel
 import io.github.orioneee.presentation.screens.requests.details.RequestDetailsViewModel
 import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
-import io.github.orioneee.provider.AxerDataProvider
 import io.github.orioneee.room.AxerDatabase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -20,7 +19,6 @@ internal object Modules {
         getPlatformModules(),
         daoModule,
         viewModelModule,
-        dataProviderModule
     )
 
     private val daoModule = module {
@@ -39,18 +37,20 @@ internal object Modules {
     }
 
     private val viewModelModule = module {
-        viewModel {
-            RequestListViewModel(get())
+        viewModel { (provider: AxerDataProvider) ->
+            RequestListViewModel(
+                dataProvider = provider
+            )
         }
-        viewModel { (requestId: Long) ->
+        viewModel { (provider: AxerDataProvider, requestId: Long) ->
             RequestDetailsViewModel(
-                get(),
+                dataProvider = provider,
                 requestId = requestId
             )
         }
-        viewModel { (exceptionID: Long?) ->
+        viewModel { (provider: AxerDataProvider, exceptionID: Long?) ->
             ExceptionsViewModel(
-                get(),
+                provider,
                 exceptionID = exceptionID
             )
         }
@@ -63,17 +63,11 @@ internal object Modules {
         viewModel {
             AllQueriesViewModel()
         }
-        viewModel {
-            LogViewViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            LogViewViewModel(provider)
         }
         viewModel {
             ListDatabaseViewModel()
-        }
-    }
-
-    private val dataProviderModule = module {
-        single<AxerDataProvider> {
-            RoomAxerDataProvider(get())
         }
     }
 }

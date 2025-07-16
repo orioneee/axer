@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Entity
 @Serializable
-internal data class AxerException(
+data class AxerException(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val time: Long,

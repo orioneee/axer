@@ -48,11 +48,13 @@ import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.logger.formateAsTime
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.utils.exportAsHar
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 internal class RequestListScreen() {
     @Composable
@@ -133,7 +135,10 @@ internal class RequestListScreen() {
         onClickToRequestDetails: (Transaction) -> Unit,
         onClearRequests: () -> Unit,
     ) {
-        val viewModel: RequestListViewModel = koinViewModel()
+        val dataProvider = LocalAxerDataProvider.current
+        val viewModel: RequestListViewModel = koinViewModel {
+            parametersOf(dataProvider)
+        }
         val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())

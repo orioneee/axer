@@ -4,7 +4,6 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SQLiteColumnType
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
-import io.github.orioneee.processors.RoomReader
 
 internal fun List<RowItem>.sortBySortingItemAndChunck(
     sortColumn: SortColumn?,

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -228,7 +229,13 @@ internal fun App(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
+            item {
+                ActionCard("Axer remote") {
+                    SelectionContainer {
+                        Text("Server runned at: ${getAxerServerIp()}")
+                    }
+                }
+            }
             item {
                 ActionCard("Network") {
                     FilledTonalButton(
@@ -246,11 +253,13 @@ internal fun App(
                         onClick = { sedRequestForImage(client) }) {
                         Text("Image")
                     }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        sendGetRequest(client)
-                        sendPost(client)
-                        sedRequestForImage(client)
-                    }) {
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            sendGetRequest(client)
+                            sendPost(client)
+                            sedRequestForImage(client)
+                        }) {
                         Text("All")
                     }
                 }
@@ -347,64 +356,82 @@ internal fun App(
                         onClick = { populateDatabase(database) }) {
                         Text("Populate")
                     }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            database.getMovieDao().deleteAll()
-                            database.getDirectorDao().deleteAll()
-                        }
-                    }) { Text("Clear") }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            val movies = database.getMovieDao().getAllMovies().size
-                            val directors = database.getDirectorDao().getAllDirectors().size
-                            Axer.d("Sample", "movies=$movies directors=$directors")
-                        }
-                    }) { Text("Counts") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                database.getMovieDao().deleteAll()
+                                database.getDirectorDao().deleteAll()
+                            }
+                        }) { Text("Clear") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                val movies = database.getMovieDao().getAllMovies().size
+                                val directors = database.getDirectorDao().getAllDirectors().size
+                                Axer.d("Sample", "movies=$movies directors=$directors")
+                            }
+                        }) { Text("Counts") }
                 }
             }
 
             /** ─── Logs ─────────────────────────────────────────────── **/
             item {
                 ActionCard("Logs") {
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.d("App", "Debug")
-                    }) { Text("Debug") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.d("App", "Debug")
+                        }) { Text("Debug") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.i("App", "Info")
-                    }) { Text("Info") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.i("App", "Info")
+                        }) { Text("Info") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.w("App", "Warn")
-                    }) { Text("Warn") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.w("App", "Warn")
+                        }) { Text("Warn") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.e("App", "Error")
-                    }) { Text("Error") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.e("App", "Error")
+                        }) { Text("Error") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.v("App", "Verbose")
-                    }) { Text("Verbose") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.v("App", "Verbose")
+                        }) { Text("Verbose") }
 
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                        Axer.wtf("App", "Assert", Exception("Assert"))
-                    }) { Text("Assert") }
-                    FilledTonalButton(modifier = Modifier.padding(horizontal = 2.dp), onClick = {
-                       CoroutineScope(Dispatchers.IO).launch {
-                           val messages = List(500) {
-                               "Log message number $it"
-                           }
-                           messages.forEach {
-                               Axer.d("App", it)
-                               Axer.i("App", it)
-                               Axer.w("App", it)
-                               Axer.e("App", it)
-                               Axer.v("App", it)
-                               Axer.wtf("App", it)
-                               Axer.d("App", "--------------------------")
-                           }
-                       }
-                    }) { Text("Spam logs") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            Axer.wtf("App", "Assert", Exception("Assert"))
+                        }) { Text("Assert") }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val messages = List(500) {
+                                    "Log message number $it"
+                                }
+                                messages.forEach {
+                                    Axer.d("App", it)
+                                    Axer.i("App", it)
+                                    Axer.w("App", it)
+                                    Axer.e("App", it)
+                                    Axer.v("App", it)
+                                    Axer.wtf("App", it)
+                                    Axer.d("App", "--------------------------")
+                                }
+                            }
+                        }) { Text("Spam logs") }
                 }
             }
 

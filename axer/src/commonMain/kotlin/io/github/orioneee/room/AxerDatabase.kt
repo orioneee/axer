@@ -12,7 +12,6 @@ import io.github.orioneee.room.converters.ListConverter
 import io.github.orioneee.room.converters.MapConverter
 import io.github.orioneee.room.dao.RequestDao
 import io.github.orioneee.domain.requests.Transaction
-import io.github.orioneee.room.AxerBundledSQLiteDriver
 import io.github.orioneee.room.converters.LogLevelConverter
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO

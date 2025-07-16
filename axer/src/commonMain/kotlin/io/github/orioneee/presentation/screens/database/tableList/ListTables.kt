@@ -169,31 +169,22 @@ internal class ListTables {
                     .padding(contentPadding),
 
                 ) {
-                if (!isInitialized.value) {
+                val databases = viewModel.databases.collectAsState()
+                if (databases.value.isEmpty()) {
                     Box(
-                        modifier = Modifier.Companion.fillMaxSize(),
-                        contentAlignment = Alignment.Companion.Center
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(Res.string.driver_not_connected))
+                        Text(stringResource(Res.string.nothing_found))
                     }
                 } else {
-                    val databases = viewModel.databases.collectAsState()
-                    if (databases.value.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(stringResource(Res.string.nothing_found))
-                        }
-                    } else {
-                        ListDatabase(
-                            databases = databases.value,
-                            onClickToTable = { table, file ->
-                                navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
-                            },
-                            navController = navController,
-                        )
-                    }
+                    ListDatabase(
+                        databases = databases.value,
+                        onClickToTable = { table, file ->
+                            navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
+                        },
+                        navController = navController,
+                    )
                 }
             }
         }

@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.room.AxerDatabase
+import org.koin.compose.koinInject
 
 internal class AxerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +33,8 @@ internal class AxerActivity : ComponentActivity() {
                         WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDark
                     }
                 }
-                AxerUIEntryPoint().Screen()
+                val database: AxerDatabase = koinInject()
+                AxerUIEntryPoint().Screen(RoomAxerDataProvider(database))
             }
         }
     }

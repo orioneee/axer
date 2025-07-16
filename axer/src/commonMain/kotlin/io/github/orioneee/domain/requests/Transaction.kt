@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 
 @Entity(tableName = "Transactions")
 @Serializable
-internal data class Transaction(
+data class Transaction(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L,
 

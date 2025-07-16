@@ -33,8 +33,7 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
 
                 implementation(compose.desktop.currentOs)
-
-                implementation(project(":axer-ui"))
+                implementation(project(":axer"))
             }
         }
     }

@@ -15,8 +15,6 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.clear
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.presentation.AxerUIEntryPoint
-import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.storage.AxerSettings
 import org.jetbrains.compose.resources.getString
 

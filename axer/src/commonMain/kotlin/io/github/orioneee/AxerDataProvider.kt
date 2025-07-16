@@ -1,4 +1,4 @@
-package io.github.orioneee.provider
+package io.github.orioneee
 
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.exceptions.AxerException

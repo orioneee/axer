@@ -16,9 +16,13 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.ic_logo
 import io.github.orioneee.axer.generated.resources.logo_circle
 import io.github.orioneee.axer.generated.resources.open_axer
+import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.room.AxerDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.KoinIsolatedContext
+import org.koin.compose.koinInject
 
 @Composable
 fun AxerWindows(
@@ -32,7 +36,12 @@ fun AxerWindows(
         icon = painter,
         onCloseRequest = onCloseWindow,
     ) {
-        AxerUIEntryPoint().Screen()
+        KoinIsolatedContext(
+            IsolatedContext.koinApp
+        ) {
+            val database: AxerDatabase = koinInject()
+            AxerUIEntryPoint().Screen(RoomAxerDataProvider(database))
+        }
     }
 }
 
