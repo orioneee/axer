@@ -54,20 +54,22 @@ internal object Modules {
                 exceptionID = exceptionID
             )
         }
-        viewModel { (file: String, tableName: String) ->
-            TableDetailsViewModel(file, tableName)
+        viewModel { (provider: AxerDataProvider, file: String, tableName: String) ->
+            TableDetailsViewModel(provider, file, tableName)
         }
-        viewModel { (file: String) ->
-            RawQueryViewModel(file)
+        viewModel { (provider: AxerDataProvider, file: String) ->
+            RawQueryViewModel(provider, file)
         }
-        viewModel {
-            AllQueriesViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            AllQueriesViewModel(provider)
         }
         viewModel { (provider: AxerDataProvider) ->
             LogViewViewModel(provider)
         }
-        viewModel {
-            ListDatabaseViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            ListDatabaseViewModel(
+                dataProvider = provider
+            )
         }
     }
 }

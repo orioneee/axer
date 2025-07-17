@@ -3,7 +3,8 @@ package io.github.orioneee.domain.database
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RowItem (
+data class DatabaseData(
     val schema: List<SchemaItem>,
-    val cells: List<RoomCell?>
+    val data: List<List<RoomCell?>>,
+    val totalItems: Int,
 )

@@ -50,6 +50,7 @@ import io.github.orioneee.presentation.components.HeaderCell
 import io.github.orioneee.presentation.components.PaginationUI
 import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.extentions.sortBySortingItemAndChunck
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -60,8 +61,9 @@ internal class RawQueryScreen {
         name: String,
         onBack: () -> Unit,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: RawQueryViewModel = koinViewModel {
-            parametersOf(name)
+            parametersOf(provider, name)
         }
         val queryResponse by viewModel.queryResponse.collectAsState()
         val sortingColumn by viewModel.sortColumn.collectAsState()

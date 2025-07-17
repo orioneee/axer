@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     val driver = BundledSQLiteDriver()
@@ -31,15 +33,11 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     )
     val changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
-    fun onDataUpdate(){
-        changeDataFlow.tryEmit("onDataUpdate")
-    }
-
-
     init {
         Axer.initIfCan()
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun open(fileName: String): SQLiteConnection {
         if (!dbFiles.contains(fileName)){
             dbFiles.add(fileName)

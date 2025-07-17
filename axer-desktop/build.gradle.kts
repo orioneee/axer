@@ -32,6 +32,10 @@ kotlin {
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktor.client.okhttp)
 
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtime.compose)
+                implementation(libs.ktor.client.content.negotiation)
+
                 implementation(compose.desktop.currentOs)
                 implementation(project(":axer"))
             }

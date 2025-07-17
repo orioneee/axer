@@ -1,6 +1,9 @@
 package io.github.orioneee.domain.database
 
-internal data class SchemaItem(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class SchemaItem(
     val name: String,
     val isPrimary: Boolean,
     val isNullable: Boolean,

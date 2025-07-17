@@ -40,7 +40,7 @@ fun AxerWindows(
             IsolatedContext.koinApp
         ) {
             val database: AxerDatabase = koinInject()
-            AxerUIEntryPoint().Screen(RoomAxerDataProvider(database))
+            AxerUIEntryPoint().Screen(LocalAxerDataProvider(database))
         }
     }
 }

@@ -27,7 +27,7 @@ internal class RoomReader {
         }
     }
 
-    fun release(){
+    fun release() {
         connections.forEach { it.connection.close() }
         connections.clear()
     }
@@ -38,7 +38,6 @@ internal class RoomReader {
         updateConnections()
         return connections.first { it.file.indexOf(file) != -1 }.connection
     }
-
 
 
     suspend fun getTableSize(
@@ -254,6 +253,7 @@ internal class RoomReader {
             stmt.bindCell(1, newValue, editableItem.schemaItem.type)
             stmt.bindCell(2, primaryKeyValue, primarySchemaItem.type)
             stmt.step()
+            axerDriver.changeDataFlow.emit("UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }
@@ -280,6 +280,7 @@ internal class RoomReader {
         try {
             stmt.bindCell(1, primaryKeyValue, primaryKeySchemaItem.type)
             stmt.step()
+            axerDriver.changeDataFlow.emit("DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }

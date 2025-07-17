@@ -2,29 +2,27 @@ package io.github.orioneee.presentation.screens.database.rawQuery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
-import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 internal class RawQueryViewModel(
+    private val provider: AxerDataProvider,
     private val name: String,
 ) : ViewModel() {
-    private val reader = RoomReader()
-
+    private var currentJob: Job? = null
     private val _currentQuery = MutableStateFlow("")
-    val currentQuery = _currentQuery
+    val currentQuery = _currentQuery.asStateFlow()
 
-    private val _queryResponse = MutableStateFlow<QueryResponse>(
+    private val _queryResponse = MutableStateFlow(
         QueryResponse(
             rows = emptyList(),
             schema = emptyList()
@@ -43,18 +41,34 @@ internal class RawQueryViewModel(
     }
 
     fun executeQuery() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _queryResponse.value = QueryResponse(
-                rows = emptyList(),
-                schema = emptyList()
-            )
-            try {
-                val response = reader.executeRawQuery(name, _currentQuery.value)
-                _queryResponse.value = response
-            } catch (e: Exception) {
-            } finally {
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            val query = _currentQuery.value
+            if (query.isBlank()) return@launch
+            else if (!query.startsWith("SELECT", ignoreCase = true)) {
+                _isLoading.value = true
+                provider.executeRawQuery(
+                    file = name,
+                    query = query
+                )
+                _queryResponse.value = QueryResponse(
+                    rows = emptyList(),
+                    schema = emptyList()
+                )
                 _isLoading.value = false
+                return@launch
+            } else {
+                _queryResponse.value = QueryResponse(
+                    rows = emptyList(),
+                    schema = emptyList()
+                )
+                provider.excecuteRawQueryAndGetUpdates(
+                    file = name,
+                    query = query
+                ).collect { response ->
+                    _queryResponse.value = response
+                }
+
             }
         }
     }
@@ -75,16 +89,4 @@ internal class RawQueryViewModel(
             )
         }
     }
-
-    init {
-        reader.axerDriver.changeDataFlow
-            .debounce(100)
-            .onEach {
-                if(_currentQuery.value.startsWith("SELECT", ignoreCase = true)) {
-                    executeQuery()
-                }
-            }
-            .launchIn(viewModelScope)
-    }
-
 }
