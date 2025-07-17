@@ -1,7 +1,5 @@
 package io.github.orioneee
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
@@ -26,24 +24,19 @@ import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
 
 class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
-    private val serverUrl: String = "http://192.168.0.165:9000",
-    private val viewModelScope: CoroutineScope = GlobalScope
+    private val serverUrl: String,
 ) : AxerDataProvider {
     private val client = HttpClient {
         install(WebSockets) {
@@ -111,7 +104,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
             println("Closing WebSocket connection at $serverUrl$path")
             job.cancel()
         }
-    }.shareIn(viewModelScope, replay = 1, started = kotlinx.coroutines.flow.SharingStarted.Lazily)
+    }
 
 
     override fun getAllRequests(): Flow<List<Transaction>> =
@@ -245,7 +238,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
         query: String
     ): Flow<QueryResponse> = callbackFlow {
         val uri = URI(serverUrl)
-        val job = viewModelScope.launch {
+        val job = launch {
             try {
                 client.webSocket(
                     method = HttpMethod.Get,
@@ -277,7 +270,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
             println("Closing WebSocket for query execution updates")
             job.cancel()
         }
-    }.shareIn(viewModelScope, replay = 1, started = SharingStarted.Lazily)
+    }
 
 
     suspend fun close() {

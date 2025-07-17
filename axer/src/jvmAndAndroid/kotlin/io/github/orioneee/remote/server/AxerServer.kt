@@ -25,6 +25,7 @@ import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
@@ -39,6 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -47,6 +50,7 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -99,7 +103,6 @@ private fun CoroutineScope.startKtorServer(
         install(DefaultHeaders) {
             header("Content-Type", "application/json")
         }
-        val activeConnections = Collections.synchronizedSet<DefaultWebSocketSession>(mutableSetOf())
         routing {
 
             delete("requests") {
@@ -391,11 +394,22 @@ private fun CoroutineScope.startKtorServer(
                     )
                 }
             }
+            get("/isAxerServer") {
+                call.respond(HttpStatusCode.OK, "Axer is running")
+            }
 
-            post("/query") {
-                val body = call.receive<String>()
-                println("Received query: $body")
-                call.respond(HttpStatusCode.OK, "Query received: $body")
+            webSocket("/ws/isAlive") {
+                println("WebSocket connection established for isAlive")
+                try {
+                    while (true) {
+                        ensureActive()
+                        delay(1000L)
+                        val time = System.currentTimeMillis()
+                        sendSerialized("ping - $time")
+                    }
+                } catch (e: Exception) {
+                    println("WebSocket connection closed: ${e.message}")
+                }
             }
         }
     }.start(wait = false)

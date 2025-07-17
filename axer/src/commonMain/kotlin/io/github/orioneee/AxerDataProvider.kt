@@ -9,6 +9,7 @@ import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 interface AxerDataProvider {

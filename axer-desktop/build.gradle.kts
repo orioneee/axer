@@ -25,7 +25,7 @@ kotlin {
 
                 implementation(compose.material3)
                 implementation(libs.kotlin.stdlib)
-
+                implementation(compose.materialIconsExtended)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.serialization)
                 implementation(libs.ktor.serialization.json)
@@ -35,6 +35,8 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.navigation.compose)
+
 
                 implementation(compose.desktop.currentOs)
                 implementation(project(":axer"))
