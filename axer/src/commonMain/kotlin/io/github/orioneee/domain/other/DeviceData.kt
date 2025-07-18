@@ -11,4 +11,17 @@ data class DeviceData(
     val deviceManufacturer: String,
     val deviceName: String,
     val ip: String? = null,
-)
+){
+    val readableDeviceName: String
+        get() {
+            val manufacturer = deviceManufacturer.orEmpty().replaceFirstChar { it.uppercase() }
+            val model = deviceModel.orEmpty().replaceFirstChar { it.uppercase() }
+
+            // Avoid Google Google Pixel 9, Apple MacBook Pro
+            return if (model.startsWith(manufacturer, ignoreCase = true)) {
+                model
+            } else {
+                "$manufacturer $model".trim()
+            }
+        }
+}

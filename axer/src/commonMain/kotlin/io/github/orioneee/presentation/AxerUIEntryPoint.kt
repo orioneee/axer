@@ -24,7 +24,7 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.no_available_options
 import io.github.orioneee.extentions.navigateSaveState
 import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.presentation.components.Theme
+import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
 import io.github.orioneee.storage.AxerSettings
@@ -53,11 +53,7 @@ class AxerUIEntryPoint {
 
     @Composable
     fun Content() {
-        val isDark = isSystemInDarkTheme()
-        MaterialTheme(
-            if (isDark) Theme.dark
-            else Theme.light
-        ) {
+        AxerTheme.ProvideTheme {
             val navController = rememberNavController()
             val currentBackStack by navController.currentBackStackEntryAsState()
             val currentRoute = currentBackStack?.destination?.route
@@ -73,16 +69,16 @@ class AxerUIEntryPoint {
                 isAvailableDatabase
             ) {
                 val destinations = mutableListOf<FlowDestinations>()
-                if (isAvailableRequests == true) {
+                if (isAvailableRequests) {
                     destinations.add(FlowDestinations.REQUESTS_FLOW)
                 }
-                if (isAvailableExceptions == true) {
+                if (isAvailableExceptions) {
                     destinations.add(FlowDestinations.EXCEPTIONS_FLOW)
                 }
-                if (isAvailableLogs == true) {
+                if (isAvailableLogs) {
                     destinations.add(FlowDestinations.LOG_VIEW)
                 }
-                if (isAvailableDatabase == true) {
+                if (isAvailableDatabase) {
                     destinations.add(FlowDestinations.DATABASE_FLOW)
                 }
                 destinations.toList()

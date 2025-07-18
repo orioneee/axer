@@ -109,8 +109,7 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.okhttp)
-
-                implementation("io.ktor:ktor-server-content-negotiation:3.2.2")
+                implementation(libs.ktor.server.content.negotiation)
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.default.headers)

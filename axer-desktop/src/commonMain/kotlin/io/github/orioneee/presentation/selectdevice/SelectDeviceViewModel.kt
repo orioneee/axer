@@ -16,19 +16,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
+import java.net.Inet4Address
 import java.net.InetAddress
+import java.net.NetworkInterface
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.CopyOnWriteArrayList
 
-// DeviceScanViewModel.kt
 
-// Модель для представления состояния экрана
+// Data class remains the same
+data class DeviceData(
+    val deviceName: String? = null,
+    val osName: String? = null,
+    val osVersion: String? = null,
+    val ip: String? = null
+)
+
 data class DeviceScanUiState(
     val devices: List<DeviceData> = emptyList(),
     val isSearching: Boolean = false,
-    val progress: Float = 0f, // Прогресс сканирования от 0.0 до 1.0
+    val progress: Float = 0f, // Scan progress from 0.0 to 1.0
 )
 
 class DeviceScanViewModel : ViewModel() {
@@ -54,86 +65,80 @@ class DeviceScanViewModel : ViewModel() {
         withContext(Dispatchers.IO) {
             val client = HttpClient {
                 install(ContentNegotiation) {
-                    json(
-                        Json {
-                            ignoreUnknownKeys = true
-                        }
-                    )
+                    json(Json { ignoreUnknownKeys = true })
                 }
             }
 
-            val reachableIps = mutableListOf<DeviceData>()
+            val reachableIps = CopyOnWriteArrayList<DeviceData>()
 
-            val subnet = try {
-                val localHost = InetAddress.getLocalHost()
-                onProgress(emptyList(), 0.1f)
-                val ipAddr = localHost.address
-                val subnetString = String.format(
-                    "%d.%d.%d",
-                    (ipAddr[0].toInt() and 0xFF),
-                    (ipAddr[1].toInt() and 0xFF),
-                    (ipAddr[2].toInt() and 0xFF)
-                )
-                onProgress(emptyList(), 0.3f)
-                subnetString
-            } catch (e: Exception) {
-                e.printStackTrace()
-                onProgress(emptyList(), 1.0f)
+            val subnets = NetworkInterface.getNetworkInterfaces().asSequence()
+                .filter { it.isUp && !it.isLoopback }
+                .flatMap { nif ->
+                    nif.inetAddresses.asSequence()
+                        .filterIsInstance<Inet4Address>()
+                        .filter { it.isSiteLocalAddress }
+                        .map { it.hostAddress.substringBeforeLast('.') }
+                }
+                .distinct()
+                .toList()
+                .sortedBy {
+                    it.substringAfterLast(".").toIntOrNull()
+                }
+
+
+            if (subnets.isEmpty()) {
+                client.close()
                 return@withContext
             }
 
-            val totalJobs = 254
+            val totalJobsPerSubnet = 254
+            val totalJobs = subnets.size * totalJobsPerSubnet
             val completedJobs = AtomicInteger(0)
 
-            val jobs = (1..totalJobs).map { i ->
-                async {
-                    val ip = "$subnet.$i"
-                    var partialProgress = 0f
+            val semaphore =
+                Semaphore(100)
 
-                    try {
-                        val inet = InetAddress.getByName(ip)
-                        if (inet.isReachable(100)) {
-                            partialProgress += 0.5f
-                            val done = completedJobs.incrementAndGet()
-                            val scanProgress = (done - 1 + partialProgress) / totalJobs
-                            val totalProgress = 0.3f + scanProgress * 0.7f
-                            onProgress(
-                                synchronized(reachableIps) { reachableIps.toList() },
-                                totalProgress
-                            )
-
-                            try {
-                                val url = "http://$ip:9000/isAxerServer"
-                                val resp = client.get(url)
-                                if (resp.status.value == 200) {
-                                    val deviceData: DeviceData = resp.body()
-                                    println("Found Axer device at $ip: $deviceData")
-                                    synchronized(reachableIps) {
-                                        reachableIps.add(deviceData.copy(ip = ip))
-                                    }
+            subnets.map { subnet ->
+                val ipJobs = (1..totalJobsPerSubnet).map { i ->
+                    async {
+                        val ip = "$subnet.$i"
+                        try {
+                            semaphore.withPermit {
+                                checkIp(ip, client)?.let { result ->
+                                    println("Found Axer server at: $ip")
+                                    reachableIps.add(result)
                                 }
-                            } catch (_: Exception) { /* Ignore */
                             }
-                            partialProgress += 0.5f
+                        } finally {
+                            val currentProgress =
+                                completedJobs.incrementAndGet().toFloat() / totalJobs
+                            onProgress(reachableIps.toList(), currentProgress)
                         }
-                    } catch (_: Exception) { /* Ignore */
                     }
-
-                    val done = completedJobs.incrementAndGet()
-                    val scanProgress = (done - 1 + partialProgress).toFloat() / totalJobs
-                    val totalProgress = 0.3f + scanProgress * 0.7f
-                    onProgress(
-                        synchronized(reachableIps) { reachableIps.toList() },
-                        totalProgress
-                    )
                 }
+                ipJobs.awaitAll()
             }
 
-
-            jobs.awaitAll()
+            client.close()
         }
 
+    private suspend fun checkIp(ip: String, client: HttpClient): DeviceData? {
+        return try {
+            if (!InetAddress.getByName(ip).isReachable(100)) {
+                return null
+            }
+            val response = client.get("http://$ip:9000/isAxerServer")
+            if (response.status.value == HttpURLConnection.HTTP_OK) {
+                response.body<DeviceData>().copy(ip = ip)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null // Catches timeouts, connection refused, etc.
+        }
+    }
 
+    // Initial scan when ViewModel is created.
     init {
         startScanning()
     }

@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -32,10 +35,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -56,7 +57,7 @@ class SelectDeviceScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        navController: NavHostController,
+        navController: NavHostController, // Assuming this is passed in
     ) {
         val viewModel: DeviceScanViewModel = viewModel(
             factory = viewModelFactory {
@@ -70,33 +71,48 @@ class SelectDeviceScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Select a Device") },
-                    actions = {
+                    title = { Text("Select a Device") }, actions = {
                         if (!uiState.isSearching) {
                             IconButton(onClick = { viewModel.startScanning() }) {
                                 Icon(Icons.Default.Refresh, contentDescription = "Rescan")
                             }
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface, // Более нейтральный цвет
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
+            }) { padding ->
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when {
-                    uiState.isSearching -> SearchingState(uiState.progress)
+                if (uiState.isSearching) {
+                    ScanningProgress(uiState.progress)
+                }
 
-                    uiState.devices.isEmpty() -> EmptyState { viewModel.startScanning() }
-
-                    else -> DeviceList(devices = uiState.devices) { ip ->
+                if (uiState.devices.isEmpty()) {
+                    if (!uiState.isSearching) {
+                        Box(
+                            modifier = Modifier.weight(1f), contentAlignment = Alignment.Center
+                        ) {
+                            EmptyState { viewModel.startScanning() }
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.weight(1f).padding(horizontal = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "Scanning for devices on your network...",
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                } else {
+                    DeviceList(devices = uiState.devices) { ip ->
                         navController.navigate("${Route.DEVICE_INSPECTION.path}/$ip")
                     }
                 }
@@ -104,35 +120,40 @@ class SelectDeviceScreen {
         }
     }
 
+    /**
+     * A composable that shows a determinate progress bar and percentage text.
+     * To be displayed at the top of the screen during a scan.
+     */
     @Composable
-    fun SearchingState(progress: Float) {
-        val animated = animateFloatAsState(
-            targetValue = progress,
-            label = "Progress Animation"
-        ).value
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    fun ScanningProgress(progress: Float) {
+        val animatedProgress by animateFloatAsState(
+            targetValue = progress, label = "ProgressAnimation"
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // The progress property makes this a determinate indicator.
             LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth(0.8f)
-            )
-            Spacer(Modifier.height(16.dp))
-            Text(
-                "Searching for devices...",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                progress = { animatedProgress }, modifier = Modifier.fillMaxWidth()
             )
             Text(
-                "${(animated * 100).toInt()}%",
+                text = "Progress: ${(animatedProgress * 100).toInt()}%",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
         }
     }
 
+
     @Composable
     fun EmptyState(onRetry: () -> Unit) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
         ) {
             Icon(
                 imageVector = Icons.Outlined.WifiOff,
@@ -142,15 +163,13 @@ class SelectDeviceScreen {
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "No Devices Found",
-                style = MaterialTheme.typography.headlineSmall
+                "No Devices Found", style = MaterialTheme.typography.headlineSmall
             )
             Text(
-                "Please check your Wi-Fi connection and try again.",
+                "Please ensure your device is on the same Wi-Fi network and try again.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(24.dp))
             Button(onClick = onRetry) {
@@ -167,14 +186,15 @@ class SelectDeviceScreen {
 
     @Composable
     fun DeviceList(devices: List<DeviceData>, onDeviceClick: (String) -> Unit) {
-        LazyColumn(
+        LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            columns = StaggeredGridCells.Adaptive(300.dp)
         ) {
-            items(devices, key = { it }) {
-                DeviceCard(it) {
-                    onDeviceClick(it.ip ?: "")
+            items(items = devices, key = { it.ip ?: it.deviceName }) { device ->
+                DeviceCard(device) {
+                    onDeviceClick(device.ip ?: "")
                 }
             }
         }
@@ -183,8 +203,7 @@ class SelectDeviceScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun DeviceCard(
-        deviceData: DeviceData,
-        onClick: () -> Unit
+        deviceData: DeviceData, onClick: () -> Unit
     ) {
         Card(
             onClick = onClick,
@@ -193,28 +212,27 @@ class SelectDeviceScreen {
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Row(
-                modifier = Modifier.padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Router,
-                    contentDescription = null,
+                    contentDescription = "Device Icon",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(40.dp)
                 )
                 Spacer(Modifier.width(20.dp))
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        text = deviceData.deviceName ?: "Unknown Device",
+                        text = deviceData.readableDeviceName ?: "Unknown Device",
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "${deviceData.osName} ${deviceData.osVersion}",
+                        text = "OS: ${deviceData.osName ?: "N/A"} ${deviceData.osVersion ?: ""}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                     Text(
-                        text = deviceData.ip ?: "No IP",
+                        text = "IP: ${deviceData.ip ?: "No IP"}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -223,5 +241,3 @@ class SelectDeviceScreen {
         }
     }
 }
-
-
