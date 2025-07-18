@@ -22,7 +22,6 @@ class KoinInitializer : Initializer<KoinApplication> {
             modules(Modules.getModules())
         }
         IsolatedContext.initIfNotInited(koinApplication)
-        runServerIfNotRunning()
         return koinApplication
     }
 

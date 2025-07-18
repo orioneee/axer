@@ -1,5 +1,6 @@
 package io.github.orioneee.remote.server
 
+import io.github.orioneee.Axer
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.RowItem
@@ -55,7 +56,7 @@ fun getLocalIpAddress(): String? {
 
 var serverJob: Job? = null
 
-fun runServerIfNotRunning() {
+fun Axer.runServerIfNotRunning() {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = CoroutineScope(Dispatchers.IO).launch {
             startKtorServer(9000)

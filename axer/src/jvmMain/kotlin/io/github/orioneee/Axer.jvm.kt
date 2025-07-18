@@ -15,5 +15,4 @@ actual fun initializeIfCan() {
             )
         }
     )
-    runServerIfNotRunning()
 }

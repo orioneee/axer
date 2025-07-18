@@ -72,6 +72,11 @@ class DeviceScanViewModel : ViewModel() {
             val reachableIps = CopyOnWriteArrayList<DeviceData>()
 
             val subnets = NetworkInterface.getNetworkInterfaces().asSequence()
+                .filter {
+                    //check not contains VMware Network
+                    !it.displayName.contains("VMware", ignoreCase = true)
+                            && !it.displayName.contains("VirtualBox", ignoreCase = true)
+                }
                 .filter { it.isUp && !it.isLoopback }
                 .flatMap { nif ->
                     nif.inetAddresses.asSequence()
@@ -95,19 +100,15 @@ class DeviceScanViewModel : ViewModel() {
             val totalJobs = subnets.size * totalJobsPerSubnet
             val completedJobs = AtomicInteger(0)
 
-            val semaphore =
-                Semaphore(100)
 
             subnets.map { subnet ->
                 val ipJobs = (1..totalJobsPerSubnet).map { i ->
                     async {
                         val ip = "$subnet.$i"
                         try {
-                            semaphore.withPermit {
-                                checkIp(ip, client)?.let { result ->
-                                    println("Found Axer server at: $ip")
-                                    reachableIps.add(result)
-                                }
+                            checkIp(ip, client)?.let { result ->
+                                println("Found Axer server at: $ip")
+                                reachableIps.add(result)
                             }
                         } finally {
                             val currentProgress =
@@ -123,17 +124,34 @@ class DeviceScanViewModel : ViewModel() {
         }
 
     private suspend fun checkIp(ip: String, client: HttpClient): DeviceData? {
+        fun doInNeededIp(action: () -> Unit) {
+            if (ip == "192.168.0.182" || ip == "192.168.0.165") {
+                action()
+            }
+        }
         return try {
-            if (!InetAddress.getByName(ip).isReachable(100)) {
+            if (!InetAddress.getByName(ip).isReachable(200)) {
+                doInNeededIp {
+                    println("Skipping unreachable IP: $ip")
+                }
                 return null
             }
             val response = client.get("http://$ip:9000/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
+                doInNeededIp {
+                    println("Axer server found at: $ip")
+                }
                 response.body<DeviceData>().copy(ip = ip)
             } else {
+                doInNeededIp {
+                    println("No Axer server at: $ip, status: ${response.status.value}")
+                }
                 null
             }
         } catch (e: Exception) {
+            doInNeededIp {
+                println("Error checking IP $ip: ${e.message}")
+            }
             null // Catches timeouts, connection refused, etc.
         }
     }

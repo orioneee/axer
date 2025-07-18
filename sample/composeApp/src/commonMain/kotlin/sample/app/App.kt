@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -180,6 +181,9 @@ fun SwitchItem(
 @Composable
 fun App() {
     handlePermissions()
+    LaunchedEffect(Unit){
+        runServerIfAvailable()
+    }
     val client = HttpClient {
         install(DefaultRequest) {
             contentType(ContentType.Application.Json)
