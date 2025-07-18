@@ -1,9 +1,10 @@
 package io.github.orioneee
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,15 +15,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Router
+import androidx.compose.material.icons.outlined.WifiOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,43 +36,51 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
+import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.navigation.Route
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.InetAddress
-import java.net.URL
-import java.net.UnknownHostException
-import java.util.function.IntFunction
-import java.util.stream.IntStream
+import io.github.orioneee.presentation.selectdevice.DeviceScanViewModel
 
 
 class SelectDeviceScreen {
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Screen(navController: NavHostController) {
-        val coroutineScope = rememberCoroutineScope()
-        var devices by remember { mutableStateOf<List<String>>(emptyList()) }
-        var isSearching by remember { mutableStateOf(true) }
+    fun Screen(
+        navController: NavHostController,
+    ) {
+        val viewModel: DeviceScanViewModel = viewModel(
+            factory = viewModelFactory {
+                initializer {
+                    DeviceScanViewModel()
+                }
+            }
+        )
+        val uiState by viewModel.uiState.collectAsState()
 
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text("Select Device") },
+                CenterAlignedTopAppBar(
+                    title = { Text("Select a Device") },
+                    actions = {
+                        if (!uiState.isSearching) {
+                            IconButton(onClick = { viewModel.startScanning() }) {
+                                Icon(Icons.Default.Refresh, contentDescription = "Rescan")
+                            }
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = MaterialTheme.colorScheme.surface, // Более нейтральный цвет
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
             }
@@ -74,134 +88,140 @@ class SelectDeviceScreen {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp)
+                    .padding(padding),
+                contentAlignment = Alignment.Center
             ) {
                 when {
-                    isSearching -> {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator()
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                "Searching for devices...",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                    uiState.isSearching -> SearchingState(uiState.progress)
 
-                    devices.isEmpty() -> {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.WifiOff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                modifier = Modifier.size(64.dp)
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                "No devices found.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
+                    uiState.devices.isEmpty() -> EmptyState { viewModel.startScanning() }
 
-                    else -> {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(devices) { ip ->
-                                ElevatedCard(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            navController.navigate("${Route.DEVICE_INSPECTION.path}/$ip")
-                                        }
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Devices,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(
-                                            text = ip,
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                    else -> DeviceList(devices = uiState.devices) { ip ->
+                        navController.navigate("${Route.DEVICE_INSPECTION.path}/$ip")
                     }
                 }
             }
-        }
-
-        LaunchedEffect(Unit) {
-            devices = scanForAxerDevices()
-            isSearching = false
         }
     }
 
-
-    suspend fun scanForAxerDevices(): List<String> = withContext(Dispatchers.IO) {
-        val reachableIps = mutableListOf<String>()
-
-        // Try to get local subnet like 192.168.1
-        val subnet = try {
-            val localHost = InetAddress.getLocalHost()
-            val ipAddr = localHost.address
-            String.format(
-                "%d.%d.%d",
-                (ipAddr[0].toInt() and 0xFF),
-                (ipAddr[1].toInt() and 0xFF),
-                (ipAddr[2].toInt() and 0xFF)
+    @Composable
+    fun SearchingState(progress: Float) {
+        val animated = animateFloatAsState(
+            targetValue = progress,
+            label = "Progress Animation"
+        ).value
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(0.8f)
             )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return@withContext emptyList()
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "Searching for devices...",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            )
+            Text(
+                "${(animated * 100).toInt()}%",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
         }
+    }
 
-        // Create and launch parallel ping + HTTP check
-        val jobs = (1..254).map { i ->
-            async {
-                val ip = "$subnet.$i"
-                try {
-                    val inet = InetAddress.getByName(ip)
-                    if (inet.isReachable(100)) {
-                        val url = "http://$ip:9000/isAxerServer"
-                        println("Checking $url")
-                        val connection = URL(url).openConnection() as HttpURLConnection
-                        connection.connectTimeout = 1000
-                        connection.readTimeout = 1000
-                        connection.requestMethod = "GET"
-                        val response = connection.inputStream.bufferedReader().readText()
-                        connection.disconnect()
-                        if (response.contains("Axer")) {
-                            synchronized(reachableIps) {
-                                reachableIps.add(ip)
-                            }
-                        }
-                    }
-                } catch (_: Exception) {
-                    // Ignore all network errors
+    @Composable
+    fun EmptyState(onRetry: () -> Unit) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.WifiOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                modifier = Modifier.size(80.dp)
+            )
+            Spacer(Modifier.height(24.dp))
+            Text(
+                "No Devices Found",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                "Please check your Wi-Fi connection and try again.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
+            Spacer(Modifier.height(24.dp))
+            Button(onClick = onRetry) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text("Try Again")
+            }
+        }
+    }
+
+    @Composable
+    fun DeviceList(devices: List<DeviceData>, onDeviceClick: (String) -> Unit) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(devices, key = { it }) {
+                DeviceCard(it) {
+                    onDeviceClick(it.ip ?: "")
                 }
             }
         }
+    }
 
-        jobs.awaitAll()
-        return@withContext reachableIps
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun DeviceCard(
+        deviceData: DeviceData,
+        onClick: () -> Unit
+    ) {
+        Card(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Router,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(Modifier.width(20.dp))
+                Column {
+                    Text(
+                        text = deviceData.deviceName ?: "Unknown Device",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "${deviceData.osName} ${deviceData.osVersion}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                    Text(
+                        text = deviceData.ip ?: "No IP",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+        }
     }
 }
+
+

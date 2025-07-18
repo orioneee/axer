@@ -219,6 +219,7 @@ room {
 
 compose.resources {
     packageOfResClass = "io.github.orioneee.axer.generated.resources"
+    publicResClass = true
 }
 
 buildkonfig {

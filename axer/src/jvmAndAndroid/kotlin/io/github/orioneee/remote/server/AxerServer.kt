@@ -395,7 +395,7 @@ private fun CoroutineScope.startKtorServer(
                 }
             }
             get("/isAxerServer") {
-                call.respond(HttpStatusCode.OK, "Axer is running")
+                call.respond(HttpStatusCode.OK, getDeviceData())
             }
 
             webSocket("/ws/isAlive") {

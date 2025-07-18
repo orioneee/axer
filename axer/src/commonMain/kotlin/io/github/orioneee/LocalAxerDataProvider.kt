@@ -14,6 +14,7 @@ import io.github.orioneee.room.AxerDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -208,5 +209,7 @@ internal class LocalAxerDataProvider(
 
         return merge(initial, updates)
     }
+
+    override fun isConnected(): Flow<Boolean> = MutableStateFlow(true)
 
 }

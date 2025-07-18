@@ -52,4 +52,6 @@ interface AxerDataProvider {
         file: String,
         query: String,
     ): Flow<QueryResponse>
+
+    fun isConnected(): Flow<Boolean>
 }

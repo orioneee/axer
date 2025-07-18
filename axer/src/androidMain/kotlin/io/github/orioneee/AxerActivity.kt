@@ -12,8 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.room.AxerDatabase
+import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.koinInject
 
 internal class AxerActivity : ComponentActivity() {
@@ -21,20 +23,28 @@ internal class AxerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Surface {
-                val view = LocalView.current
-                val isDark = isSystemInDarkTheme()
-                if (!view.isInEditMode) {
-                    SideEffect {
-                        val window = (view.context as Activity).window
-                        window.statusBarColor = Color.Transparent.toArgb()
-                        window.navigationBarColor = Color.Transparent.toArgb()
-                        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDark
-                        WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDark
+            KoinIsolatedContext(IsolatedContext.koinApp) {
+                Surface {
+                    val view = LocalView.current
+                    val isDark = isSystemInDarkTheme()
+                    if (!view.isInEditMode) {
+                        SideEffect {
+                            val window = (view.context as Activity).window
+                            window.statusBarColor = Color.Transparent.toArgb()
+                            window.navigationBarColor = Color.Transparent.toArgb()
+                            WindowCompat.getInsetsController(
+                                window,
+                                view
+                            ).isAppearanceLightStatusBars = !isDark
+                            WindowCompat.getInsetsController(
+                                window,
+                                view
+                            ).isAppearanceLightNavigationBars = !isDark
+                        }
                     }
+                    val database: AxerDatabase = koinInject()
+                    AxerUIEntryPoint().Screen(LocalAxerDataProvider(database))
                 }
-                val database: AxerDatabase = koinInject()
-                AxerUIEntryPoint().Screen(LocalAxerDataProvider(database))
             }
         }
     }

@@ -1,5 +1,6 @@
-package io.github.orioneee
+package io.github.orioneee.presentation.selectdevice
 
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
@@ -9,6 +10,7 @@ import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.requests.Transaction
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
@@ -39,7 +41,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
     private val serverUrl: String,
 ) : AxerDataProvider {
     private val client = HttpClient {
-        install(WebSockets) {
+        install(WebSockets.Plugin) {
             contentConverter = KotlinxWebsocketSerializationConverter(
                 Json {
                     ignoreUnknownKeys = true
@@ -74,7 +76,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
             while (isActive && !isClosedForSend) {
                 try {
                     client.webSocket(
-                        method = HttpMethod.Get,
+                        method = HttpMethod.Companion.Get,
                         host = uri.host,
                         port = uri.port,
                         path = path
@@ -241,7 +243,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
         val job = launch {
             try {
                 client.webSocket(
-                    method = HttpMethod.Get,
+                    method = HttpMethod.Companion.Get,
                     host = uri.host,
                     port = uri.port,
                     path = "/ws/db_queries/execute/$file"
@@ -270,6 +272,10 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
             println("Closing WebSocket for query execution updates")
             job.cancel()
         }
+    }
+
+    override fun isConnected(): Flow<Boolean> {
+        TODO("Not yet implemented")
     }
 
 

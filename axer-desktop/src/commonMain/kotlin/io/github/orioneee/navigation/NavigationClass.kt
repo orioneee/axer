@@ -6,9 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.savedstate.read
-import io.github.orioneee.RemoteAxerDataProvider
+import io.github.orioneee.presentation.selectdevice.RemoteAxerDataProvider
 import io.github.orioneee.SelectDeviceScreen
 import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.presentation.inpsection.InspectionScreen
 import io.github.orioneee.presentation.navigation.Animations
 
 class NavigationClass {
@@ -32,7 +33,7 @@ class NavigationClass {
                     getString("ip")
                 }
                 val provider = remember(ip) { RemoteAxerDataProvider("http://$ip:9000") }
-                AxerUIEntryPoint().Screen(provider)
+                InspectionScreen().Screen(navController, provider)
             }
         }
     }
