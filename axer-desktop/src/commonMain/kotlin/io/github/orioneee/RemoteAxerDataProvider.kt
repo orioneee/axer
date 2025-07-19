@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
 import kotlin.math.abs
+import kotlin.system.exitProcess
 
 class RemoteAxerDataProvider(
     private val serverUrl: String,
@@ -110,7 +111,12 @@ class RemoteAxerDataProvider(
 
     override fun getAllRequests(): Flow<List<Transaction>> =
         webSocketFlow("/ws/requests") {
-            json.decodeFromString(it)
+            val decoded = json.decodeFromString<List<String>>(it)
+            val transactions = decoded.map { str ->
+                json.decodeFromString<Transaction>(str)
+            }
+
+            transactions
         }
 
     override fun getRequestById(id: Long): Flow<Transaction?> {
