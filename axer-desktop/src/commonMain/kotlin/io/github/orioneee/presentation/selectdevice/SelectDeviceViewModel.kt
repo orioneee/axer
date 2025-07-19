@@ -3,6 +3,7 @@ package io.github.orioneee.presentation.selectdevice
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -131,12 +132,12 @@ class DeviceScanViewModel : ViewModel() {
                 }
                 return null
             }
-            val response = client.get("http://$ip:9000/isAxerServer")
+            val response = client.get("http://$ip:$AXER_SERVER_PORT/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
                 doInNeededIp {
                     println("Axer server found at: $ip")
                 }
-                response.body<DeviceData>().copy(ip = ip)
+                response.body<DeviceData>().copy(ip = ip, port = AXER_SERVER_PORT)
             } else {
                 doInNeededIp {
                     println("No Axer server at: $ip, status: ${response.status.value}")

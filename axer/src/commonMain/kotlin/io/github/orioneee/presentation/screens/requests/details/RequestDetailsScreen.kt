@@ -429,62 +429,63 @@ internal class RequestDetailsScreen {
                 viewModel.onViewed(request!!)
             }
         }
-        if (request == null) {
-            Box(
-                modifier = Modifier.Companion.fillMaxSize(),
-                contentAlignment = Alignment.Companion.Center
-            ) {
-                Text(stringResource(Res.string.no_request_found_with_id, requestId))
-            }
-        } else {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            val title = StringBuilder()
-                            if (!request!!.path.contains("/")) title.append("/")
-                            title.append(request!!.path)
-                            if (request!!.responseStatus != null) {
-                                title.append(" - ${request!!.responseStatus}")
-                            }
 
-                            Text(
-                                title.toString(),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleSmall
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        val title = StringBuilder()
+                        if (request?.path?.contains("/") == false) title.append("/")
+                        title.append(request?.path ?: "")
+                        if (request?.responseStatus != null) {
+                            title.append(" - ${request?.responseStatus ?: ""}")
+                        }
+
+                        Text(
+                            title.toString(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navController.popBackStack()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Back"
                             )
-                        },
-                        navigationIcon = {
-                            IconButton(
+                        }
+                    },
+                    actions = {
+                        if (request?.isFinished() == true) {
+                            TextButton(
                                 onClick = {
-                                    navController.popBackStack()
+                                    scope.launch(Dispatchers.IO) {
+                                        listOfNotNull(request).exportAsHar()
+                                    }
                                 }
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBackIosNew,
-                                    contentDescription = "Back"
-                                )
-                            }
-                        },
-                        actions = {
-                            if (request?.isFinished() == true) {
-                                TextButton(
-                                    onClick = {
-                                        scope.launch(Dispatchers.IO){
-                                            listOfNotNull(request).exportAsHar()
-                                        }
-                                    }
-                                ) {
-                                    Text(stringResource(Res.string.har))
-                                }
+                                Text(stringResource(Res.string.har))
                             }
                         }
-                    )
-                },
-            ) {
+                    }
+                )
+            },
+        ) {
+            if (request == null) {
+                Box(
+                    modifier = Modifier.Companion.fillMaxSize(),
+                    contentAlignment = Alignment.Companion.Center
+                ) {
+                    Text(stringResource(Res.string.no_request_found_with_id, requestId))
+                }
+            } else {
                 Column(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .padding(it)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.Companion.CenterHorizontally,

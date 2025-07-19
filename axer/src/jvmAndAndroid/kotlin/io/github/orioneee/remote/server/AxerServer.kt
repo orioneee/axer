@@ -63,23 +63,22 @@ fun getLocalIpAddress(): String? {
 
 var serverJob: Job? = null
 
-fun Axer.runServerIfNotRunning() {
+fun Axer.runServerIfNotRunning(scope: CoroutineScope) {
     if (serverJob == null || serverJob?.isCompleted == true) {
-        serverJob = CoroutineScope(Dispatchers.IO).launch {
-            startKtorServer(9000)
+        serverJob = scope.launch {
+            startKtorServer(AXER_SERVER_PORT)
         }
     }
 }
 
+const val AXER_SERVER_PORT = 55555
+
 @OptIn(FlowPreview::class)
 private fun CoroutineScope.startKtorServer(
-    port: Int = 9000
+    port: Int
 ) {
     val dbMutex = Mutex()
     val reader = RoomReader()
-    val localIp = getLocalIpAddress() ?: "localhost"
-    println("Local IP address: $localIp")
-    println("Starting Ktor server on port $port")
     val requestDao: RequestDao by IsolatedContext.koin.inject()
     val exceptionsDao: AxerExceptionDao by IsolatedContext.koin.inject()
     val logDao: LogsDAO by IsolatedContext.koin.inject()
@@ -140,7 +139,6 @@ private fun CoroutineScope.startKtorServer(
                         ) { request, isEnabled ->
                             isEnabled.to(request)
                         }.collect {
-                            println("Sending request with ID $id to client")
                             if (it.first) {
                                 sendSerialized(it.second)
                             }
@@ -168,7 +166,6 @@ private fun CoroutineScope.startKtorServer(
                         isEnabled to exceptions
                     }.collect { (isEnabled, exceptions) ->
                         if (isEnabled) {
-                            println("Sending exceptions to client")
                             sendSerialized(exceptions)
                         }
                     }
@@ -198,7 +195,6 @@ private fun CoroutineScope.startKtorServer(
                         isEnabled to requests
                     }.collect { (isEnabled, requests) ->
                         if (isEnabled) {
-                            println("Sending requests to client")
                             sendSerialized(requests)
                         }
                     }
@@ -220,7 +216,6 @@ private fun CoroutineScope.startKtorServer(
                             isEnabled to exception
                         }.collect { (isEnabled, exception) ->
                             if (isEnabled) {
-                                println("Sending exception with ID $id to client")
                                 sendSerialized(exception)
                             }
                         }
@@ -244,7 +239,6 @@ private fun CoroutineScope.startKtorServer(
                         isEnabled to logs
                     }.collect { (isEnabled, logs) ->
                         if (isEnabled) {
-                            println("Sending logs to client")
                             sendSerialized(logs)
                         }
                     }
@@ -293,7 +287,6 @@ private fun CoroutineScope.startKtorServer(
                         call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
                         return@post
                     }
-                    println("Received update cell request: $body")
                     try {
                         dbMutex.withLock {
                             reader.updateCell(
@@ -323,7 +316,6 @@ private fun CoroutineScope.startKtorServer(
                         call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
                         return@delete
                     }
-                    println("Received delete row request: $body")
                     try {
                         dbMutex.withLock {
                             reader.deleteRow(
@@ -349,7 +341,6 @@ private fun CoroutineScope.startKtorServer(
                 val page = call.parameters["page"]?.toIntOrNull() ?: 0
                 val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull()
                     ?: TableDetailsViewModel.PAGE_SIZE
-                println("WebSocket connection established for file: $file, table: $table, page: $page pageSize: $pageSize")
 
                 suspend fun getTableInfo(): DatabaseData {
                     val content = dbMutex.withLock {
@@ -370,9 +361,7 @@ private fun CoroutineScope.startKtorServer(
                         schema,
                         content,
                         size
-                    ).also {
-                        println("Try to send ${Json.encodeToString(it)}")
-                    }
+                    )
                 }
 
                 if (isEnabledDatabase.first()) {
@@ -409,7 +398,6 @@ private fun CoroutineScope.startKtorServer(
                         return@post
                     }
                     val body: String = call.receive()
-                    println("Received query: $body")
                     try {
                         dbMutex.withLock {
                             reader.executeRawQuery(
@@ -469,7 +457,6 @@ private fun CoroutineScope.startKtorServer(
                             }
                         }
                     } else if (frame is io.ktor.websocket.Frame.Close) {
-                        println("WebSocket connection closed")
                         break
                     }
                 }
@@ -500,7 +487,6 @@ private fun CoroutineScope.startKtorServer(
             }
 
             webSocket("/ws/isAlive") {
-                println("WebSocket connection established for isAlive")
                 try {
                     while (true) {
                         ensureActive()
@@ -509,7 +495,6 @@ private fun CoroutineScope.startKtorServer(
                         sendSerialized("ping - $time")
                     }
                 } catch (e: Exception) {
-                    println("WebSocket connection closed: ${e.message}")
                 }
             }
             webSocket("/ws/feathers") {

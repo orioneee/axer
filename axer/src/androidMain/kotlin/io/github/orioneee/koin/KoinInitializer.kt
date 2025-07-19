@@ -9,7 +9,6 @@ import androidx.core.content.getSystemService
 import androidx.startup.Initializer
 import io.github.orioneee.NotificationInfo
 import io.github.orioneee.axer.R
-import io.github.orioneee.remote.server.runServerIfNotRunning
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication

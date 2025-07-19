@@ -1,4 +1,4 @@
-package io.github.orioneee
+package io.github.orioneee.presentation.selectdevice
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -48,9 +46,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import io.github.orioneee.domain.other.DeviceData
-import io.github.orioneee.navigation.Route
-import io.github.orioneee.presentation.selectdevice.DeviceScanViewModel
-
 
 class SelectDeviceScreen {
 
@@ -84,8 +79,8 @@ class SelectDeviceScreen {
                 )
             }) { padding ->
             Column(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.Companion.fillMaxSize().padding(padding),
+                horizontalAlignment = Alignment.Companion.CenterHorizontally
             ) {
                 if (uiState.isSearching) {
                     ScanningProgress(uiState.progress)
@@ -94,19 +89,20 @@ class SelectDeviceScreen {
                 if (uiState.devices.isEmpty()) {
                     if (!uiState.isSearching) {
                         Box(
-                            modifier = Modifier.weight(1f), contentAlignment = Alignment.Center
+                            modifier = Modifier.Companion.weight(1f),
+                            contentAlignment = Alignment.Companion.Center
                         ) {
                             EmptyState { viewModel.startScanning() }
                         }
                     } else {
                         Box(
-                            modifier = Modifier.weight(1f).padding(horizontal = 32.dp),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.Companion.weight(1f).padding(horizontal = 32.dp),
+                            contentAlignment = Alignment.Companion.Center
                         ) {
                             Text(
                                 "Scanning for devices on your network...",
                                 style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Center,
+                                textAlign = TextAlign.Companion.Center,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
                         }
@@ -131,13 +127,14 @@ class SelectDeviceScreen {
         )
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.Companion.fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.Companion.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // The progress property makes this a determinate indicator.
             LinearProgressIndicator(
-                progress = { animatedProgress }, modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = "Progress: ${(animatedProgress * 100).toInt()}%",
@@ -151,17 +148,17 @@ class SelectDeviceScreen {
     @Composable
     fun EmptyState(onRetry: () -> Unit) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Companion.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
+            modifier = Modifier.Companion.padding(horizontal = 32.dp)
         ) {
             Icon(
                 imageVector = Icons.Outlined.WifiOff,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.Companion.size(80.dp)
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.Companion.height(24.dp))
             Text(
                 "No Devices Found", style = MaterialTheme.typography.headlineSmall
             )
@@ -169,16 +166,16 @@ class SelectDeviceScreen {
                 "Please ensure your device is on the same Wi-Fi network and try again.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Companion.Center
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.Companion.height(24.dp))
             Button(onClick = onRetry) {
                 Icon(
                     Icons.Default.Refresh,
                     contentDescription = null,
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.Companion.size(ButtonDefaults.IconSize)
                 )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Spacer(Modifier.Companion.size(ButtonDefaults.IconSpacing))
                 Text("Try Again")
             }
         }
@@ -187,7 +184,7 @@ class SelectDeviceScreen {
     @Composable
     fun DeviceList(devices: List<DeviceData>, onDeviceClick: (DeviceData) -> Unit) {
         LazyVerticalStaggeredGrid(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.Companion.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             columns = StaggeredGridCells.Adaptive(300.dp)
@@ -207,20 +204,21 @@ class SelectDeviceScreen {
     ) {
         Card(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.Companion.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Row(
-                modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.Companion.padding(20.dp),
+                verticalAlignment = Alignment.Companion.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Router,
                     contentDescription = "Device Icon",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.Companion.size(40.dp)
                 )
-                Spacer(Modifier.width(20.dp))
+                Spacer(Modifier.Companion.width(20.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = deviceData.readableDeviceName ?: "Unknown Device",

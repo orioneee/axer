@@ -181,9 +181,6 @@ fun SwitchItem(
 @Composable
 fun App() {
     handlePermissions()
-    LaunchedEffect(Unit){
-        runServerIfAvailable()
-    }
     val client = HttpClient {
         install(DefaultRequest) {
             contentType(ContentType.Application.Json)

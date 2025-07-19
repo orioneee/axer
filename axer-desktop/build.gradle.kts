@@ -39,6 +39,7 @@ kotlin {
                 implementation(libs.navigation.compose)
                 implementation(compose.components.resources)
 
+
                 implementation(compose.desktop.currentOs)
                 implementation(project(":axer"))
             }

@@ -1,6 +1,5 @@
-package io.github.orioneee.presentation.selectdevice
+package io.github.orioneee
 
-import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
@@ -11,7 +10,7 @@ import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.Transaction
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -32,10 +31,14 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
+import kotlin.math.abs
 
 class RemoteAxerDataProvider(
     private val serverUrl: String,
@@ -70,7 +73,6 @@ class RemoteAxerDataProvider(
         path: String,
         deserializer: (String) -> T
     ): Flow<T> = callbackFlow {
-        println("Connecting to WebSocket at $serverUrl$path")
         val uri = URI(serverUrl)
         val job = launch {
             while (isActive && !isClosedForSend) {
@@ -91,58 +93,49 @@ class RemoteAxerDataProvider(
                                 }
                             }
                         } catch (e: Exception) {
-                            println("Error in frame processing: ${e.message}")
                         }
                     }
                 } catch (e: Exception) {
-                    println("WebSocket connection failed: ${e.message}")
                 }
 
-                delay(300)
+                delay(1_000)
             }
         }
 
         awaitClose {
-            println("Closing WebSocket connection at $serverUrl$path")
             job.cancel()
         }
-    }
+    }.distinctUntilChanged()
 
 
     override fun getAllRequests(): Flow<List<Transaction>> =
         webSocketFlow("/ws/requests") {
-            println("Fetching all requests")
             json.decodeFromString(it)
         }
 
     override fun getRequestById(id: Long): Flow<Transaction?> {
-        println("Request flow for ID: $id")
         return webSocketFlow("/ws/requests/$id") {
             json.decodeFromString(it)
         }
     }
 
     override suspend fun markAsViewed(id: Long) {
-        println("Marking request as viewed: $id")
         val response = client.post("$serverUrl/requests/view/$id")
         if (!response.status.isSuccess()) throw Exception("Failed to mark viewed")
     }
 
     override suspend fun deleteAllRequests() {
         val response = client.delete("${serverUrl}/requests")
-        println("Delete all requests response: ${response.status}")
         if (!response.status.isSuccess()) throw Exception("Failed to delete all requests")
     }
 
     override fun getAllExceptions(): Flow<List<AxerException>> =
         webSocketFlow("/ws/exceptions") {
-            println("Fetching all exceptions")
             json.decodeFromString(it)
         }
 
     override fun getExceptionById(id: Long): Flow<AxerException?> =
         webSocketFlow("/ws/exceptions/$id") {
-            println("Fetching exception by ID: $id")
             json.decodeFromString(it)
         }
 
@@ -153,7 +146,6 @@ class RemoteAxerDataProvider(
 
     override fun getAllLogs(): Flow<List<LogLine>> =
         webSocketFlow("/ws/logs") {
-            println("Fetching all logs")
             json.decodeFromString(it)
         }
 
@@ -181,12 +173,10 @@ class RemoteAxerDataProvider(
         if (!response.status.isSuccess()) {
             throw Exception("Failed to clear table: ${response.status}")
         }
-        println("Table $tableName in file $file cleared successfully")
     }
 
     override fun getAllQueries(): Flow<String> {
         return webSocketFlow("/ws/db_queries") { data ->
-            println("Received query: $data")
             data
         }
     }
@@ -196,13 +186,10 @@ class RemoteAxerDataProvider(
         tableName: String,
         editableItem: EditableRowItem
     ) {
-        println("Updating cell in $file, table $tableName with item: $editableItem")
         val response = client.post("$serverUrl/database/cell/$file/$tableName") {
             contentType(ContentType.Application.Json)
             setBody(editableItem)
         }
-        println("Response status: ${response.status} body: ${response.body<String>()}")
-        println("Cell updated successfully in $file, table $tableName")
     }
 
     override suspend fun deleteRow(
@@ -210,7 +197,6 @@ class RemoteAxerDataProvider(
         tableName: String,
         row: RowItem
     ) {
-        println("Deleting row in $file, table $tableName with item: $row")
         val response = client.delete("$serverUrl/database/row/$file/$tableName") {
             contentType(ContentType.Application.Json)
             setBody(row)
@@ -218,7 +204,6 @@ class RemoteAxerDataProvider(
         if (!response.status.isSuccess()) {
             throw Exception("Failed to delete row: ${response.status}")
         }
-        println("Row deleted successfully in $file, table $tableName")
     }
 
     override suspend fun executeRawQuery(file: String, query: String) {
@@ -230,8 +215,6 @@ class RemoteAxerDataProvider(
         if (!response.status.isSuccess()) {
             throw Exception("Failed to execute query: ${response.status}")
         }
-
-        println("Query executed successfully for file: $file")
     }
 
 
@@ -249,34 +232,48 @@ class RemoteAxerDataProvider(
                     path = "/ws/db_queries/execute_and_get_updates/$file"
                 ) {
                     send(Frame.Text(query))
-                    println("Query sent: $query")
                     for (frame in incoming) {
                         if (frame is Frame.Text) {
                             val text = frame.readText()
-                            println("Received update: $text")
                             try {
                                 val response = json.decodeFromString<QueryResponse>(text)
                                 trySend(response).isSuccess
                             } catch (e: Exception) {
-                                println("Error decoding QueryResponse: ${e.message}")
                             }
                         }
                     }
                 }
             } catch (e: Exception) {
-                println("WebSocket connection error: ${e.message}")
             }
         }
 
         awaitClose {
-            println("Closing WebSocket for query execution updates")
             job.cancel()
         }
     }
 
     override fun isConnected(): Flow<Boolean> {
-        TODO("Not yet implemented")
+        val maxDelta = 3_000L
+
+        val serverTimeFlow = webSocketFlow("/ws/isAlive") { msg ->
+            val m = msg.substringAfter("ping - ").replace("\"", "").toLongOrNull() ?: 0L
+            m
+        }
+        val clientTimeFlow = flow {
+            while (true) {
+                emit(System.currentTimeMillis())
+                delay(1000)
+            }
+        }
+
+        return combine(
+            serverTimeFlow,
+            clientTimeFlow
+        ) { serverTime, clientTime ->
+            abs(serverTime - clientTime) < maxDelta
+        }.distinctUntilChanged()
     }
+
 
     override fun getEnabledFeatures(): Flow<EnabledFeathers> {
         return webSocketFlow("/ws/feathers") { data ->

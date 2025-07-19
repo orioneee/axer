@@ -40,7 +40,7 @@ import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.formate
 import io.github.orioneee.presentation.LocalAxerDataProvider
-import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.navigation.Routes
 import org.jetbrains.compose.resources.stringResource
@@ -148,7 +148,7 @@ internal class ListTables {
                         )
                     },
                     navigationIcon = {
-                        AxerLogo()
+                        AxerLogoDialog()
                     }
                 )
             },

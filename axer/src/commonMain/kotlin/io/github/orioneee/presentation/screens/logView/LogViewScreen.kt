@@ -48,13 +48,12 @@ import io.github.orioneee.axer.generated.resources.logs
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.presentation.LocalAxerDataProvider
-import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
 import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.warning
-import io.ktor.http.parametersOf
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -166,7 +165,7 @@ internal class LogViewScreen {
                         }
                     },
                     navigationIcon = {
-                        AxerLogo()
+                        AxerLogoDialog()
                     }
                 )
             }

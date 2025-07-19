@@ -16,11 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal actual fun MultiplatformAlertDialog(
+    canDismissByClickOutside: Boolean,
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
     title: @Composable (() -> Unit),
@@ -52,6 +54,9 @@ internal actual fun MultiplatformAlertDialog(
 
     if (visible) {
         AlertDialog(
+            properties = DialogProperties(
+                dismissOnClickOutside = canDismissByClickOutside
+            ),
             modifier = Modifier
                 .graphicsLayer {
                     translationY = with(density) {
