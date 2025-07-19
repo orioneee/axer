@@ -50,7 +50,7 @@ kotlin {
             implementation(libs.napier)
 
 
-            implementation(project(":axer"))
+            implementation(project(":axer-no-op"))
 
         }
 
@@ -129,6 +129,7 @@ android {
     }
 
 }
+
 
 compose.desktop {
     application {
