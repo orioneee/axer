@@ -75,6 +75,8 @@ import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -420,6 +422,7 @@ internal class RequestDetailsScreen {
         val viewModel: RequestDetailsViewModel = koinViewModel {
             parametersOf(provider, requestId)
         }
+        val scope = rememberCoroutineScope()
         val request by viewModel.requestByID.collectAsState(initial = null)
         LaunchedEffect(request) {
             if (request != null && request?.isViewed != true) {
@@ -468,7 +471,9 @@ internal class RequestDetailsScreen {
                             if (request?.isFinished() == true) {
                                 TextButton(
                                     onClick = {
-                                        listOfNotNull(request).exportAsHar()
+                                        scope.launch(Dispatchers.IO){
+                                            listOfNotNull(request).exportAsHar()
+                                        }
                                     }
                                 ) {
                                     Text(stringResource(Res.string.har))

@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
@@ -27,14 +25,6 @@ import java.net.NetworkInterface
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CopyOnWriteArrayList
 
-
-// Data class remains the same
-data class DeviceData(
-    val deviceName: String? = null,
-    val osName: String? = null,
-    val osVersion: String? = null,
-    val ip: String? = null
-)
 
 data class DeviceScanUiState(
     val devices: List<DeviceData> = emptyList(),
@@ -100,32 +90,37 @@ class DeviceScanViewModel : ViewModel() {
             val totalJobs = subnets.size * totalJobsPerSubnet
             val completedJobs = AtomicInteger(0)
 
-
-            subnets.map { subnet ->
-                val ipJobs = (1..totalJobsPerSubnet).map { i ->
-                    async {
-                        val ip = "$subnet.$i"
-                        try {
-                            checkIp(ip, client)?.let { result ->
-                                println("Found Axer server at: $ip")
-                                reachableIps.add(result)
-                            }
-                        } finally {
-                            val currentProgress =
-                                completedJobs.incrementAndGet().toFloat() / totalJobs
-                            onProgress(reachableIps.toList(), currentProgress)
-                        }
-                    }
+            val allIps = subnets.flatMap { subnet ->
+                (1..totalJobsPerSubnet).map { i ->
+                    "$subnet.$i"
                 }
-                ipJobs.awaitAll()
+            }.sortedBy { ip ->
+                if (uiState.value.devices.map { it.ip }.contains(ip)) {
+                    0
+                } else {
+                    1
+                }
             }
 
+            allIps.map {
+                async {
+                    try {
+                        checkIp(it, client)?.let { result ->
+                            println("Found Axer server at: $it")
+                            reachableIps.add(result)
+                        }
+                    } finally {
+                        val currentProgress = completedJobs.incrementAndGet().toFloat() / totalJobs
+                        onProgress(reachableIps.toList(), currentProgress)
+                    }
+                }
+            }.awaitAll()
             client.close()
         }
 
     private suspend fun checkIp(ip: String, client: HttpClient): DeviceData? {
         fun doInNeededIp(action: () -> Unit) {
-            if (ip == "192.168.0.182" || ip == "192.168.0.165") {
+            if (ip == "192.168.0.138" || ip == "192.168.0.165") {
                 action()
             }
         }

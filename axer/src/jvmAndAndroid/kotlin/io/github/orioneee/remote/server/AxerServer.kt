@@ -4,12 +4,14 @@ import io.github.orioneee.Axer
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.RowItem
+import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.room.dao.RequestDao
+import io.github.orioneee.storage.AxerSettings
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
@@ -29,6 +31,8 @@ import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +40,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -77,6 +84,10 @@ private fun CoroutineScope.startKtorServer(
     val exceptionsDao: AxerExceptionDao by IsolatedContext.koin.inject()
     val logDao: LogsDAO by IsolatedContext.koin.inject()
 
+    val isEnabledRequests = AxerSettings.enableRequestMonitor.asFlow()
+    val isEnabledExceptions = AxerSettings.enableExceptionMonitor.asFlow()
+    val isEnabledLogs = AxerSettings.enableLogMonitor.asFlow()
+    val isEnabledDatabase = AxerSettings.enableDatabaseMonitor.asFlow()
 
     embeddedServer(CIO, port = port) {
         install(WebSockets) {
@@ -95,30 +106,46 @@ private fun CoroutineScope.startKtorServer(
         routing {
 
             delete("requests") {
-                requestDao.deleteAll()
-                call.respond(HttpStatusCode.OK, "All requests deleted")
+                if (isEnabledRequests.first()) {
+                    requestDao.deleteAll()
+                    call.respond(HttpStatusCode.OK, "All requests deleted")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Request monitoring is disabled")
+                }
             }
             post("/requests/view/{id}") {
-                val id = call.parameters["id"]?.toIntOrNull()
-                if (id != null) {
-                    requestDao.markAsViewed(id.toLong())
-                    call.respond(HttpStatusCode.OK, "Request $id marked as viewed")
+                if (isEnabledRequests.first()) {
+                    val id = call.parameters["id"]?.toIntOrNull()
+                    if (id != null) {
+                        requestDao.markAsViewed(id.toLong())
+                        call.respond(HttpStatusCode.OK, "Request $id marked as viewed")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID")
+                    }
                 } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID")
+                    call.respond(HttpStatusCode.BadRequest, "Request monitoring is disabled")
                 }
             }
 
             webSocket("/ws/requests/{id}") {
-                println("WebSocket connection established for request with ID: ${call.parameters["id"]}")
                 val id = call.parameters["id"]?.toLongOrNull()
                 if (id != null) {
-                    sendSerialized(requestDao.getByIdSync(id))
+                    if (isEnabledRequests.first()) {
+                        sendSerialized(requestDao.getByIdSync(id))
+                    }
                     launch {
-                        requestDao.getById(id)
-                            .collect {
-                                println("Sending request with ID $id to client")
-                                sendSerialized(it)
+                        combine(
+                            requestDao.getById(id),
+                            isEnabledRequests
+                        ) { request, isEnabled ->
+                            isEnabled.to(request)
+                        }.collect {
+                            println("Sending request with ID $id to client")
+                            if (it.first) {
+                                sendSerialized(it.second)
                             }
+                        }
+
                     }
 
                     for (frame in incoming) {
@@ -130,23 +157,51 @@ private fun CoroutineScope.startKtorServer(
             }
 
             webSocket("/ws/exceptions") {
-                sendSerialized(exceptionsDao.getAllSuspend())
+                if (isEnabledExceptions.first()) {
+                    sendSerialized(exceptionsDao.getAllSuspend())
+                }
                 launch {
-                    exceptionsDao.getAll().collect { sendSerialized(it) }
+                    combine(
+                        exceptionsDao.getAll(),
+                        isEnabledExceptions
+                    ) { exceptions, isEnabled ->
+                        isEnabled to exceptions
+                    }.collect { (isEnabled, exceptions) ->
+                        if (isEnabled) {
+                            println("Sending exceptions to client")
+                            sendSerialized(exceptions)
+                        }
+                    }
                 }
                 for (frame in incoming) {
                 }
             }
 
             delete("exceptions") {
-                exceptionsDao.deleteAll()
-                call.respond(HttpStatusCode.OK, "All exceptions deleted")
+                if (isEnabledExceptions.first()) {
+                    exceptionsDao.deleteAll()
+                    call.respond(HttpStatusCode.OK, "All exceptions deleted")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Exception monitoring is disabled")
+                }
             }
 
             webSocket("/ws/requests") {
-                sendSerialized(requestDao.getAllSync())
+                if (isEnabledRequests.first()) {
+                    sendSerialized(requestDao.getAllSync())
+                }
                 launch {
-                    requestDao.getAll().collect { sendSerialized(it) }
+                    combine(
+                        requestDao.getAll(),
+                        isEnabledRequests
+                    ) { requests, isEnabled ->
+                        isEnabled to requests
+                    }.collect { (isEnabled, requests) ->
+                        if (isEnabled) {
+                            println("Sending requests to client")
+                            sendSerialized(requests)
+                        }
+                    }
                 }
                 for (frame in incoming) {
                 }
@@ -154,9 +209,21 @@ private fun CoroutineScope.startKtorServer(
             webSocket("/ws/exceptions/{id}") {
                 val id = call.parameters["id"]?.toLongOrNull()
                 if (id != null) {
-                    sendSerialized(exceptionsDao.getByIDSync(id))
+                    if (isEnabledExceptions.first()) {
+                        sendSerialized(exceptionsDao.getByIDSync(id))
+                    }
                     launch {
-                        exceptionsDao.getByID(id).collect { sendSerialized(it) }
+                        combine(
+                            exceptionsDao.getByID(id),
+                            isEnabledExceptions
+                        ) { exception, isEnabled ->
+                            isEnabled to exception
+                        }.collect { (isEnabled, exception) ->
+                            if (isEnabled) {
+                                println("Sending exception with ID $id to client")
+                                sendSerialized(exception)
+                            }
+                        }
                     }
                     for (frame in incoming) {
                     }
@@ -166,31 +233,51 @@ private fun CoroutineScope.startKtorServer(
             }
 
             webSocket("/ws/logs") {
-                sendSerialized(logDao.getAllSync())
+                if (isEnabledLogs.first()) {
+                    sendSerialized(logDao.getAllSync())
+                }
                 launch {
-                    logDao.getAll().collect { sendSerialized(it) }
+                    combine(
+                        logDao.getAll(),
+                        isEnabledLogs
+                    ) { logs, isEnabled ->
+                        isEnabled to logs
+                    }.collect { (isEnabled, logs) ->
+                        if (isEnabled) {
+                            println("Sending logs to client")
+                            sendSerialized(logs)
+                        }
+                    }
                 }
                 for (frame in incoming) {
                 }
             }
 
             delete("logs") {
-                logDao.clear()
-                call.respond(HttpStatusCode.OK, "All logs deleted")
+                if (isEnabledLogs.first()) {
+                    logDao.clear()
+                    call.respond(HttpStatusCode.OK, "All logs deleted")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Log monitoring is disabled")
+                }
             }
 
             webSocket("/ws/database") {
-                val tables = dbMutex.withLock {
-                    reader.getTablesFromAllDatabase()
+                if (isEnabledDatabase.first()) {
+                    val tables = dbMutex.withLock {
+                        reader.getTablesFromAllDatabase()
+                    }
+                    sendSerialized(tables)
                 }
-                sendSerialized(tables)
                 reader.axerDriver.changeDataFlow
                     .debounce(100)
                     .onEach {
-                        val tables = dbMutex.withLock {
-                            reader.getTablesFromAllDatabase()
+                        if (isEnabledDatabase.first()) {
+                            val tables = dbMutex.withLock {
+                                reader.getTablesFromAllDatabase()
+                            }
+                            sendSerialized(tables)
                         }
-                        sendSerialized(tables)
                     }
                     .launchIn(this)
                 for (frame in incoming) {
@@ -198,54 +285,60 @@ private fun CoroutineScope.startKtorServer(
             }
 
             post("database/cell/{file}/{table}") {
-                val file = call.parameters["file"]
-                val tableName = call.parameters["table"]
-                val body: EditableRowItem = call.receive()
-                if (file == null || tableName == null) {
-                    call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
-                    return@post
-                }
-                println("Received update cell request: $body")
-                try {
-                    dbMutex.withLock {
-                        reader.updateCell(
-                            file = file,
-                            tableName = tableName,
-                            editableItem = body
+                if (isEnabledDatabase.first()) {
+                    val file = call.parameters["file"]
+                    val tableName = call.parameters["table"]
+                    val body: EditableRowItem = call.receive()
+                    if (file == null || tableName == null) {
+                        call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
+                        return@post
+                    }
+                    println("Received update cell request: $body")
+                    try {
+                        dbMutex.withLock {
+                            reader.updateCell(
+                                file = file,
+                                tableName = tableName,
+                                editableItem = body
+                            )
+                        }
+                        call.respond(HttpStatusCode.OK, "Cell updated successfully")
+                    } catch (e: Exception) {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Error updating cell: ${e.message}"
                         )
                     }
-                    call.respond(HttpStatusCode.OK, "Cell updated successfully")
-                } catch (e: Exception) {
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        "Error updating cell: ${e.message}"
-                    )
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
                 }
             }
 
             delete("database/row/{file}/{table}") {
-                val file = call.parameters["file"]
-                val tableName = call.parameters["table"]
-                val body: RowItem = call.receive()
-                if (file == null || tableName == null) {
-                    call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
-                    return@delete
-                }
-                println("Received delete row request: $body")
-                try {
-                    dbMutex.withLock {
-                        reader.deleteRow(
-                            file = file,
-                            tableName = tableName,
-                            row = body
+                if (isEnabledDatabase.first()) {
+                    val file = call.parameters["file"]
+                    val tableName = call.parameters["table"]
+                    val body: RowItem = call.receive()
+                    if (file == null || tableName == null) {
+                        call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
+                        return@delete
+                    }
+                    println("Received delete row request: $body")
+                    try {
+                        dbMutex.withLock {
+                            reader.deleteRow(
+                                file = file,
+                                tableName = tableName,
+                                row = body
+                            )
+                        }
+                        call.respond(HttpStatusCode.OK, "Row deleted successfully")
+                    } catch (e: Exception) {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Error deleting row: ${e.message}"
                         )
                     }
-                    call.respond(HttpStatusCode.OK, "Row deleted successfully")
-                } catch (e: Exception) {
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        "Error deleting row: ${e.message}"
-                    )
                 }
             }
 
@@ -282,11 +375,15 @@ private fun CoroutineScope.startKtorServer(
                     }
                 }
 
-                sendSerialized(getTableInfo())
+                if (isEnabledDatabase.first()) {
+                    sendSerialized(getTableInfo())
+                }
                 reader.axerDriver.changeDataFlow
                     .debounce(100)
                     .onEach {
-                        sendSerialized(getTableInfo())
+                        if (isEnabledDatabase.first()) {
+                            sendSerialized(getTableInfo())
+                        }
                     }
                     .launchIn(this)
                 for (frame in incoming) {
@@ -296,54 +393,63 @@ private fun CoroutineScope.startKtorServer(
             webSocket("/ws/db_queries") {
                 reader.axerDriver.allQueryFlow
                     .onEach {
-                        sendSerialized(it)
+                        if (isEnabledDatabase.first()) {
+                            sendSerialized(it)
+                        }
                     }
                     .launchIn(this)
                 for (frame in incoming) {
                 }
             }
             post("/ws/db_queries/execute/{file}") {
-                val file = call.parameters["file"]
-                if (file == null) {
-                    call.respond(HttpStatusCode.BadRequest, "File parameter is missing")
-                    return@post
-                }
-                val body: String = call.receive()
-                println("Received query: $body")
-                try {
-                    dbMutex.withLock {
-                        reader.executeRawQuery(
-                            file = file,
-                            query = body
+                if (isEnabledDatabase.first()) {
+                    val file = call.parameters["file"]
+                    if (file == null) {
+                        call.respond(HttpStatusCode.BadRequest, "File parameter is missing")
+                        return@post
+                    }
+                    val body: String = call.receive()
+                    println("Received query: $body")
+                    try {
+                        dbMutex.withLock {
+                            reader.executeRawQuery(
+                                file = file,
+                                query = body
+                            )
+                        }
+                        call.respond(HttpStatusCode.OK, "Query executed successfully")
+                    } catch (e: Exception) {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Error executing query: ${e.message}"
                         )
                     }
-                    call.respond(HttpStatusCode.OK, "Query executed successfully")
-                } catch (e: Exception) {
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        "Error executing query: ${e.message}"
-                    )
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
                 }
             }
 
-            webSocket("/ws/db_queries/execute/{file}") {
+            webSocket("/ws/db_queries/execute_and_get_updates/{file}") {
                 val file = call.parameters["file"]
                 if (file == null) {
-                    call.respond(HttpStatusCode.BadRequest, "File parameter is missing")
+                    close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "File parameter is missing"))
                     return@webSocket
                 }
+
                 var command: String? = null
                 reader.axerDriver.changeDataFlow
                     .debounce(100)
                     .onEach {
                         command?.let {
-                            val response = dbMutex.withLock {
-                                reader.executeRawQuery(
-                                    file = file,
-                                    query = it
-                                )
+                            if (isEnabledDatabase.first()) {
+                                val response = dbMutex.withLock {
+                                    reader.executeRawQuery(
+                                        file = file,
+                                        query = it
+                                    )
+                                }
+                                sendSerialized(response)
                             }
-                            sendSerialized(response)
                         }
                     }
                     .launchIn(this)
@@ -352,13 +458,15 @@ private fun CoroutineScope.startKtorServer(
                         val text = frame.readText()
                         if (text.isNotBlank()) {
                             command = text
-                            val response = dbMutex.withLock {
-                                reader.executeRawQuery(
-                                    file = file,
-                                    query = text
-                                )
+                            if (isEnabledDatabase.first()) {
+                                val response = dbMutex.withLock {
+                                    reader.executeRawQuery(
+                                        file = file,
+                                        query = text
+                                    )
+                                }
+                                sendSerialized(response)
                             }
-                            sendSerialized(response)
                         }
                     } else if (frame is io.ktor.websocket.Frame.Close) {
                         println("WebSocket connection closed")
@@ -369,18 +477,22 @@ private fun CoroutineScope.startKtorServer(
 
 
             delete("/database/{file}/{table}") {
-                val file = call.parameters["file"] ?: return@delete
-                val table = call.parameters["table"] ?: return@delete
-                try {
-                    dbMutex.withLock {
-                        reader.clearTable(file, table)
+                if (isEnabledDatabase.first()) {
+                    val file = call.parameters["file"] ?: return@delete
+                    val table = call.parameters["table"] ?: return@delete
+                    try {
+                        dbMutex.withLock {
+                            reader.clearTable(file, table)
+                        }
+                        call.respond(HttpStatusCode.OK, "Table $table in file $file cleared")
+                    } catch (e: Exception) {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Error clearing table: ${e.message}"
+                        )
                     }
-                    call.respond(HttpStatusCode.OK, "Table $table in file $file cleared")
-                } catch (e: Exception) {
-                    call.respond(
-                        HttpStatusCode.InternalServerError,
-                        "Error clearing table: ${e.message}"
-                    )
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
                 }
             }
             get("/isAxerServer") {
@@ -398,6 +510,46 @@ private fun CoroutineScope.startKtorServer(
                     }
                 } catch (e: Exception) {
                     println("WebSocket connection closed: ${e.message}")
+                }
+            }
+            webSocket("/ws/feathers") {
+                fun getEntity(
+                    requests: Boolean,
+                    exceptions: Boolean,
+                    logs: Boolean,
+                    database: Boolean
+                ): EnabledFeathers {
+                    return EnabledFeathers(
+                        isEnabledRequests = requests,
+                        isEnabledExceptions = exceptions,
+                        isEnabledLogs = logs,
+                        isEnabledDatabase = database
+                    )
+                }
+
+                sendSerialized(
+                    getEntity(
+                        requests = isEnabledRequests.first(),
+                        exceptions = isEnabledExceptions.first(),
+                        logs = isEnabledLogs.first(),
+                        database = isEnabledDatabase.first()
+                    )
+                )
+
+                launch {
+                    combine(
+                        isEnabledRequests,
+                        isEnabledExceptions,
+                        isEnabledLogs,
+                        isEnabledDatabase
+                    ) { requests, exceptions, logs, database ->
+                        getEntity(requests, exceptions, logs, database)
+                    }.collect { feathers ->
+                        sendSerialized(feathers)
+                    }
+                }
+
+                for (frame in incoming) {
                 }
             }
         }

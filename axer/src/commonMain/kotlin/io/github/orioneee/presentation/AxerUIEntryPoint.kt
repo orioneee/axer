@@ -16,12 +16,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.orioneee.Axer
 import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.no_available_options
+import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.extentions.navigateSaveState
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.components.AxerTheme
@@ -57,28 +59,24 @@ class AxerUIEntryPoint {
             val navController = rememberNavController()
             val currentBackStack by navController.currentBackStackEntryAsState()
             val currentRoute = currentBackStack?.destination?.route
+            val dataProvider = LocalAxerDataProvider.current
+            val enabledFeathers by dataProvider.getEnabledFeatures()
+                .collectAsStateWithLifecycle(initialValue = EnabledFeathers.Default)
 
-            val isAvailableRequests by AxerSettings.enableRequestMonitor.observeAsState()
-            val isAvailableExceptions by AxerSettings.enableExceptionMonitor.observeAsState()
-            val isAvailableLogs by AxerSettings.enableLogMonitor.observeAsState()
-            val isAvailableDatabase by AxerSettings.enableDatabaseMonitor.observeAsState()
-            var availableDestinations = remember(
-                isAvailableRequests,
-                isAvailableExceptions,
-                isAvailableLogs,
-                isAvailableDatabase
+            val availableDestinations = remember(
+                enabledFeathers,
             ) {
                 val destinations = mutableListOf<FlowDestinations>()
-                if (isAvailableRequests) {
+                if (enabledFeathers.isEnabledRequests) {
                     destinations.add(FlowDestinations.REQUESTS_FLOW)
                 }
-                if (isAvailableExceptions) {
+                if (enabledFeathers.isEnabledExceptions) {
                     destinations.add(FlowDestinations.EXCEPTIONS_FLOW)
                 }
-                if (isAvailableLogs) {
+                if (enabledFeathers.isEnabledLogs) {
                     destinations.add(FlowDestinations.LOG_VIEW)
                 }
-                if (isAvailableDatabase) {
+                if (enabledFeathers.isEnabledDatabase) {
                     destinations.add(FlowDestinations.DATABASE_FLOW)
                 }
                 destinations.toList()

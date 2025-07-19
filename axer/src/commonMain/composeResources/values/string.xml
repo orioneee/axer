@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="app_name">Axer</string>
+    <string name="app_name_device">Axer %1$s</string>
     <string name="requests">Requests</string>
     <string name="nothing_found">Nothing found</string>
 

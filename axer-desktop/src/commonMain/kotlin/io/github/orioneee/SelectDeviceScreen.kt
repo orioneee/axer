@@ -112,8 +112,8 @@ class SelectDeviceScreen {
                         }
                     }
                 } else {
-                    DeviceList(devices = uiState.devices) { ip ->
-                        navController.navigate("${Route.DEVICE_INSPECTION.path}/$ip")
+                    DeviceList(devices = uiState.devices) {
+                        navController.navigate(it)
                     }
                 }
             }
@@ -185,7 +185,7 @@ class SelectDeviceScreen {
     }
 
     @Composable
-    fun DeviceList(devices: List<DeviceData>, onDeviceClick: (String) -> Unit) {
+    fun DeviceList(devices: List<DeviceData>, onDeviceClick: (DeviceData) -> Unit) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -194,7 +194,7 @@ class SelectDeviceScreen {
         ) {
             items(items = devices, key = { it.ip ?: it.deviceName }) { device ->
                 DeviceCard(device) {
-                    onDeviceClick(device.ip ?: "")
+                    onDeviceClick(device)
                 }
             }
         }

@@ -8,9 +8,9 @@ import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.Transaction
 import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
 
-class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
+class RemoteAxerDataProvider(
     private val serverUrl: String,
 ) : AxerDataProvider {
     private val client = HttpClient {
@@ -211,7 +211,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
         row: RowItem
     ) {
         println("Deleting row in $file, table $tableName with item: $row")
-        val response = client.delete("$serverUrl/database/cell/$file/$tableName") {
+        val response = client.delete("$serverUrl/database/row/$file/$tableName") {
             contentType(ContentType.Application.Json)
             setBody(row)
         }
@@ -235,7 +235,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
     }
 
 
-    override fun excecuteRawQueryAndGetUpdates(
+    override fun executeRawQueryAndGetUpdates(
         file: String,
         query: String
     ): Flow<QueryResponse> = callbackFlow {
@@ -246,7 +246,7 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
                     method = HttpMethod.Companion.Get,
                     host = uri.host,
                     port = uri.port,
-                    path = "/ws/db_queries/execute/$file"
+                    path = "/ws/db_queries/execute_and_get_updates/$file"
                 ) {
                     send(Frame.Text(query))
                     println("Query sent: $query")
@@ -276,6 +276,12 @@ class RemoteAxerDataProvider @OptIn(DelicateCoroutinesApi::class) constructor(
 
     override fun isConnected(): Flow<Boolean> {
         TODO("Not yet implemented")
+    }
+
+    override fun getEnabledFeatures(): Flow<EnabledFeathers> {
+        return webSocketFlow("/ws/feathers") { data ->
+            json.decodeFromString(data)
+        }
     }
 
 

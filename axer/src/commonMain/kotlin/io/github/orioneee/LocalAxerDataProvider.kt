@@ -1,6 +1,5 @@
 package io.github.orioneee
 
-import androidx.lifecycle.ViewModel
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
@@ -8,13 +7,16 @@ import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.Transaction
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.AxerDatabase
+import io.github.orioneee.storage.AxerSettings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -169,7 +171,7 @@ internal class LocalAxerDataProvider(
     }
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    override fun excecuteRawQueryAndGetUpdates(
+    override fun executeRawQueryAndGetUpdates(
         file: String,
         query: String
     ): Flow<QueryResponse> {
@@ -211,5 +213,21 @@ internal class LocalAxerDataProvider(
     }
 
     override fun isConnected(): Flow<Boolean> = MutableStateFlow(true)
+    override fun getEnabledFeatures(): Flow<EnabledFeathers> {
+        return combine(
+            AxerSettings.enableRequestMonitor.asFlow(),
+            AxerSettings.enableExceptionMonitor.asFlow(),
+            AxerSettings.enableLogMonitor.asFlow(),
+            AxerSettings.enableDatabaseMonitor.asFlow()
+        ) { request, exception, log, database ->
+            EnabledFeathers(
+                isEnabledRequests = request,
+                isEnabledExceptions = exception,
+                isEnabledLogs = log,
+                isEnabledDatabase = database
+            )
+
+        }
+    }
 
 }

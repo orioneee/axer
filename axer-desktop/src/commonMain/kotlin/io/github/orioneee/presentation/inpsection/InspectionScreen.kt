@@ -11,13 +11,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.AxerDataProvider
-import io.github.orioneee.axer.generated.resources.app_name
-import io.github.orioneee.axer.generated.resources.axer_description
+import io.github.orioneee.axer.generated.resources.app_name_device
+import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.presentation.selectdevice.RemoteAxerDataProvider
 import org.jetbrains.compose.resources.stringResource
 
 class InspectionScreen {
@@ -25,13 +26,15 @@ class InspectionScreen {
     @Composable
     fun Screen(
         navController: NavHostController,
-        provider: AxerDataProvider
+        deviceData: DeviceData,
     ) {
+        val provider =
+            remember(deviceData) { RemoteAxerDataProvider("http://${deviceData.ip}:9000") }
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text(stringResource(Res.string.app_name))
+                        Text(stringResource(Res.string.app_name_device, deviceData.readableDeviceName))
                     },
                     navigationIcon = {
                         IconButton(

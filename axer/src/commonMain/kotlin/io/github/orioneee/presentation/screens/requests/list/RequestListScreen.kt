@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +53,9 @@ import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -163,9 +167,12 @@ internal class RequestListScreen() {
                                 it
                             }
                         ) {
+                            val scope = rememberCoroutineScope()
                             TextButton(
                                 onClick = {
-                                    requests.value.exportAsHar()
+                                    scope.launch(Dispatchers.IO){
+                                        requests.value.exportAsHar()
+                                    }
                                 }
                             ) {
                                 Text(stringResource(Res.string.har))

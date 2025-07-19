@@ -5,13 +5,14 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import androidx.savedstate.read
-import io.github.orioneee.presentation.selectdevice.RemoteAxerDataProvider
 import io.github.orioneee.SelectDeviceScreen
-import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.presentation.inpsection.InspectionScreen
 import io.github.orioneee.presentation.navigation.Animations
+import io.github.orioneee.presentation.selectdevice.RemoteAxerDataProvider
 
 class NavigationClass {
     @Composable
@@ -30,12 +31,9 @@ class NavigationClass {
                 composable(Route.SELECT_DEVICE.path) {
                     SelectDeviceScreen().Screen(navController)
                 }
-                composable(Route.DEVICE_INSPECTION.path + "/{ip}") {
-                    val ip = it.arguments?.read {
-                        getString("ip")
-                    }
-                    val provider = remember(ip) { RemoteAxerDataProvider("http://$ip:9000") }
-                    InspectionScreen().Screen(navController, provider)
+                composable<DeviceData> {
+                    val route = it.toRoute<DeviceData>()
+                    InspectionScreen().Screen(navController, route)
                 }
             }
         }

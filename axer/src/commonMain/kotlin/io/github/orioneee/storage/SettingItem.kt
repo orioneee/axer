@@ -1,16 +1,14 @@
 package io.github.orioneee.storage
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.Flow
 
 interface SettingItem<T : Any> {
     val key: String
 
-    fun get(): T?
+    fun get(): T
     fun set(value: T)
     fun remove()
     fun clear()
 
-    @Composable
-    fun observeAsState(): State<T>
+    fun asFlow(): Flow<T>
 }

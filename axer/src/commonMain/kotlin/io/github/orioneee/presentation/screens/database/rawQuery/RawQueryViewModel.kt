@@ -62,7 +62,7 @@ internal class RawQueryViewModel(
                     rows = emptyList(),
                     schema = emptyList()
                 )
-                provider.excecuteRawQueryAndGetUpdates(
+                provider.executeRawQueryAndGetUpdates(
                     file = name,
                     query = query
                 ).collect { response ->
