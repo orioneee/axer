@@ -37,7 +37,7 @@ class AxerOkhttpInterceptor private constructor(
             { true }
         private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
             { it }
-        private var requestMaxAgeInSeconds: Long = 60 * 60 * 1 // 1 hour
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 6 // 1 hour
         private var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
