@@ -23,39 +23,39 @@ internal fun Route.requestsModule(
     isEnabledRequests: Flow<Boolean>,
     requestsDao: RequestDao,
 ) {
-    webSocket("/ws/requests") {
-        suspend fun sendInitialRequests() {
-            if (!isEnabledRequests.first()) return
-            val requests = requestsDao.getAllShortSync()
-            sendSerialized(requests)
-        }
+    reactiveUpdatesSocket(
+        path = "/ws/requests",
+        isEnabledFlow = { isEnabledRequests },
+        initialData = { requestsDao.getAllShortSync() },
+        dataFlow = { requestsDao.getAllShort() },
+        getId = { it.id }
+    )
 
-        fun collectAndSendUpdates() = launch {
-            combine(requestsDao.getAllShort(), isEnabledRequests) { requests, isEnabled ->
-                isEnabled to requests
+    webSocket("/ws/requests/{id}") {
+        val id = call.parameters["id"]?.toLongOrNull()
+        if (id != null) {
+            if (isEnabledRequests.first()) {
+                sendSerialized(requestsDao.getByIdSync(id))
             }
-                .distinctUntilChanged()
-                .collect { (isEnabled, requests) ->
-                    val startTime = System.currentTimeMillis()
-                    if (isEnabled) {
-                        sendSerialized(requests)
-                    } else {
-                        sendSerialized(emptyList<TransactionShort>())
+            launch {
+                combine(
+                    requestsDao.getById(id),
+                    isEnabledRequests
+                ) { request, isEnabled ->
+                    isEnabled.to(request)
+                }.collect {
+                    if (it.first) {
+                        sendSerialized(it.second)
                     }
-                    val elapsedTime = System.currentTimeMillis() - startTime
-                    println("Sent ${requests.size} requests in $elapsedTime ms")
                 }
-        }
 
-        try {
-            sendInitialRequests()
-            collectAndSendUpdates()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+            }
 
-        for (frame in incoming) {
-            // Handle incoming frames here if needed
+            for (frame in incoming) {
+            }
+
+        } else {
+            call.respond(HttpStatusCode.BadRequest, "Invalid ID")
         }
     }
 
@@ -90,33 +90,4 @@ internal fun Route.requestsModule(
             call.respond(HttpStatusCode.BadRequest, "Request monitoring is disabled")
         }
     }
-
-    webSocket("/ws/requests/{id}") {
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id != null) {
-            if (isEnabledRequests.first()) {
-                sendSerialized(requestsDao.getByIdSync(id))
-            }
-            launch {
-                combine(
-                    requestsDao.getById(id),
-                    isEnabledRequests
-                ) { request, isEnabled ->
-                    isEnabled.to(request)
-                }.collect {
-                    if (it.first) {
-                        sendSerialized(it.second)
-                    }
-                }
-
-            }
-
-            for (frame in incoming) {
-            }
-
-        } else {
-            call.respond(HttpStatusCode.BadRequest, "Invalid ID")
-        }
-    }
-
 }

@@ -16,25 +16,15 @@ internal fun Route.logsModule(
     logsDao: LogsDAO,
     isEnabledLogs: Flow<Boolean>
 ) {
-    webSocket("/ws/logs") {
-        if (isEnabledLogs.first()) {
-            sendSerialized(logsDao.getAllSync())
-        }
-        launch {
-            combine(
-                logsDao.getAll(),
-                isEnabledLogs
-            ) { logs, isEnabled ->
-                isEnabled to logs
-            }.collect { (isEnabled, logs) ->
-                if (isEnabled) {
-                    sendSerialized(logs)
-                }
-            }
-        }
-        for (frame in incoming) {
-        }
-    }
+    reactiveUpdatesSocket(
+        path = "/ws/logs",
+        isEnabledFlow = { isEnabledLogs },
+        initialData = { logsDao.getAllSync() },
+        dataFlow = { logsDao.getAll() },
+        getId = { it.id },
+        chunkSize = 5000
+    )
+
 
     delete("logs") {
         if (isEnabledLogs.first()) {

@@ -11,6 +11,7 @@ import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
+import io.github.orioneee.remote.server.UpdatesData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -38,6 +39,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -92,6 +94,8 @@ class RemoteAxerDataProvider(
                             for (frame in incomingFrames) {
                                 if (frame is Frame.Text) {
                                     val data = frame.readText()
+                                    val sizeInBytes = data.toByteArray().size
+                                    println("Received data from: $path, size: $sizeInBytes bytes")
                                     val obj = deserializer(data)
                                     trySend(obj).isSuccess
                                 }
@@ -111,11 +115,38 @@ class RemoteAxerDataProvider(
         }
     }.distinctUntilChanged()
 
+    private inline fun <reified T : Any> webSocketUpdatesFlow(
+        path: String,
+        crossinline getId: (T) -> Long,
+        crossinline sorter: (List<T>) -> List<T>
+    ): Flow<List<T>> {
+        val currentState = mutableListOf<T>()
+
+        return webSocketFlow(path) { data ->
+            json.decodeFromString<UpdatesData<T>>(data)
+        }.map { update ->
+            currentState.removeAll { oldItem -> update.deleted.contains(getId(oldItem)) }
+
+            update.updatedOrCreated.forEach { newItem ->
+                val index = currentState.indexOfFirst { getId(it) == getId(newItem) }
+                if (index != -1) {
+                    currentState[index] = newItem
+                } else {
+                    currentState.add(newItem)
+                }
+            }
+            sorter(currentState).toList()
+        }.distinctUntilChanged()
+    }
+
 
     override fun getAllRequests(): Flow<List<TransactionShort>> =
-        webSocketFlow("/ws/requests") {
-            json.decodeFromString(it)
-        }
+        webSocketUpdatesFlow(
+            path = "/ws/requests",
+            getId = { it.id },
+            sorter = { it.sortedByDescending { it.sendTime } }
+        )
+
 
     override suspend fun getDataForExportAsHar(): List<TransactionFull> {
         val response = client.get("$serverUrl/requests/full")
@@ -140,9 +171,12 @@ class RemoteAxerDataProvider(
     }
 
     override fun getAllExceptions(): Flow<List<AxerException>> =
-        webSocketFlow("/ws/exceptions") {
-            json.decodeFromString(it)
-        }
+        webSocketUpdatesFlow(
+            path = "/ws/exceptions",
+            getId = { it.id },
+            sorter = { it.sortedByDescending { it.time } }
+        )
+
 
     override fun getExceptionById(id: Long): Flow<AxerException?> =
         webSocketFlow("/ws/exceptions/$id") {
@@ -155,9 +189,12 @@ class RemoteAxerDataProvider(
     }
 
     override fun getAllLogs(): Flow<List<LogLine>> =
-        webSocketFlow("/ws/logs") {
-            json.decodeFromString(it)
-        }
+        webSocketUpdatesFlow(
+            path = "/ws/logs",
+            getId = { it.id },
+            sorter = { it.sortedByDescending { it.time } }
+        )
+
 
     override suspend fun deleteAllLogs() {
         val response = client.delete("$serverUrl/logs")

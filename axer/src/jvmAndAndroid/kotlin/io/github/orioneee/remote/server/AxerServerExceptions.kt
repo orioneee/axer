@@ -16,25 +16,14 @@ internal fun Route.exceptionsModule(
     exceptionsDao: AxerExceptionDao,
     isEnabledExceptions: Flow<Boolean>
 ) {
-    webSocket("/ws/exceptions") {
-        if (isEnabledExceptions.first()) {
-            sendSerialized(exceptionsDao.getAllSuspend())
-        }
-        launch {
-            combine(
-                exceptionsDao.getAll(),
-                isEnabledExceptions
-            ) { exceptions, isEnabled ->
-                isEnabled to exceptions
-            }.collect { (isEnabled, exceptions) ->
-                if (isEnabled) {
-                    sendSerialized(exceptions)
-                }
-            }
-        }
-        for (frame in incoming) {
-        }
-    }
+    reactiveUpdatesSocket(
+        path = "/ws/exceptions",
+        isEnabledFlow = { isEnabledExceptions },
+        initialData = { exceptionsDao.getAllSuspend() },
+        dataFlow = { exceptionsDao.getAll() },
+        getId = { it.id }
+    )
+
 
     delete("exceptions") {
         if (isEnabledExceptions.first()) {
