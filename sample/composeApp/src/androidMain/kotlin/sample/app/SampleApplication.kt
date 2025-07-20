@@ -1,6 +1,7 @@
 package sample.app
 
 import android.app.Application
+import android.widget.Toast
 import io.github.orioneee.Axer
 import io.github.orioneee.remote.server.runServerIfNotRunning
 import kotlinx.coroutines.CoroutineScope
@@ -17,8 +18,18 @@ class SampleApplication : Application() {
             androidContext(this@SampleApplication)
             modules(KoinModules.module)
         }
-        CoroutineScope(Dispatchers.Default).launch {
-            Axer.runServerIfNotRunning(this)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Axer.runServerIfNotRunning(this)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@SampleApplication,
+                    "Failed to start Axer server: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 }
