@@ -14,9 +14,12 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 internal class RequestDetailsViewModel(
     private val dataProvider: AxerDataProvider,
@@ -32,7 +35,7 @@ internal class RequestDetailsViewModel(
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
 
-    val requestByID = dataProvider.getRequestById(requestId)
+    val requestByID = dataProvider.getRequestById(requestId).distinctUntilChanged()
 
     val formatedRequestBody = combine(
         requestByID,
@@ -46,6 +49,7 @@ internal class RequestDetailsViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     val formatedResponseBody = combine(
         requestByID,
         _selectedResponseBodyFormat
@@ -56,7 +60,7 @@ internal class RequestDetailsViewModel(
                 bodyType ?: it.responseDefaultType ?: BodyType.RAW_TEXT
             )
         }
-    }
+    }.distinctUntilChanged()
 
 
     suspend fun formateBody(
@@ -66,7 +70,11 @@ internal class RequestDetailsViewModel(
         if (content == null) return AnnotatedString("")
         return when (bodyType) {
             BodyType.IMAGE -> AnnotatedString("")
-            BodyType.JSON -> formatJson(content)
+            BodyType.JSON -> try {
+                formatJson(content)
+            } catch (e: Exception) {
+                AnnotatedString("Invalid JSON: ${e.message}")
+            }
             BodyType.HTML, BodyType.XML -> formatXml(content)
             BodyType.CSS -> formatCSS(content)
             BodyType.JAVASCRIPT -> formatJavascript(content)

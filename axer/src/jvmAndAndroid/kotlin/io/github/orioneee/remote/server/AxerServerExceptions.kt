@@ -21,7 +21,8 @@ internal fun Route.exceptionsModule(
         isEnabledFlow = { isEnabledExceptions },
         initialData = { exceptionsDao.getAllSuspend() },
         dataFlow = { exceptionsDao.getAll() },
-        getId = { it.id }
+        getId = { it.id },
+        debounceTimeMillis = 0, // No debounce for exceptions
     )
 
 

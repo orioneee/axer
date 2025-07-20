@@ -264,7 +264,6 @@ internal class RequestDetailsScreen {
                     onSelect = {
                         viewModel.onRequestBodyFormatSelected(it)
                     },
-                    supportImage = false
                 )
                 Spacer(Modifier.height(16.dp))
                 BodySection {
@@ -273,12 +272,22 @@ internal class RequestDetailsScreen {
                             .padding(8.dp)
 
                     ) {
-                        SelectionContainer {
-                            val formatted =
-                                viewModel.formatedRequestBody.collectAsStateWithLifecycle(
-                                    AnnotatedString("")
-                                )
-                            Text(text = formatted.value ?: AnnotatedString(""))
+                        if (selected != BodyType.IMAGE) {
+                            SelectionContainer {
+                                val formatted =
+                                    viewModel.formatedRequestBody.collectAsStateWithLifecycle(
+                                        AnnotatedString("")
+                                    )
+                                Text(text = formatted.value ?: AnnotatedString(""))
+                            }
+                        } else{
+                            AsyncImage(
+                                model = request.requestBody,
+                                contentDescription = "Response Image",
+                                modifier = Modifier.Companion
+                                    .height(300.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
                         }
                     }
                 }
