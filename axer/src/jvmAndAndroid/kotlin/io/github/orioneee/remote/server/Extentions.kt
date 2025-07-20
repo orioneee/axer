@@ -4,7 +4,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.collections.chunked
+
 
 private suspend inline fun <T> sendChuncked(
     path: String,
@@ -65,6 +65,9 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
 ) {
     webSocket(path) {
         val clientState = mutableListOf<T>()
+
+
+
         if (isEnabledFlow().first()) {
             try {
                 val all = initialData()
@@ -87,50 +90,40 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
             }
         }
 
-        webSocket(path) {
-            val clientState = mutableListOf<T>()
-
-            val job = launch {
-                combine(
-                    dataFlow(), isEnabledFlow()
-                ) { data, isEnabled ->
-                    isEnabled to data
-                }
-                    .distinctUntilChanged()
-                    .debounce(debounceTimeMillis)
-                    .collect { (isEnabled, newList) ->
-                        if (!isEnabled) return@collect
-                        try {
-                            sendChuncked(
-                                path = path,
-                                newList = newList,
-                                clientState = clientState,
-                                getId = getId,
-                                chunkSize = chunkSize,
-                                sendSerialized = ::sendSerialized,
-                                onRemove = { removedIds ->
-                                    clientState.removeAll { getId(it) in removedIds }
-                                },
-                                onAdd = { addedItems ->
-                                    clientState.addAll(addedItems)
-                                }
-                            )
-                        } catch (e: Exception) {
-                            println("[$path] Send failed: ${e.message}")
-                        }
+        launch {
+            combine(
+                dataFlow(), isEnabledFlow()
+            ) { data, isEnabled ->
+                isEnabled to data
+            }
+                .distinctUntilChanged()
+                .debounce(debounceTimeMillis)
+                .collect { (isEnabled, newList) ->
+                    ensureActive()
+                    if (!isEnabled) return@collect
+                    try {
+                        sendChuncked(
+                            path = path,
+                            newList = newList,
+                            clientState = clientState,
+                            getId = getId,
+                            chunkSize = chunkSize,
+                            sendSerialized = ::sendSerialized,
+                            onRemove = { removedIds ->
+                                clientState.removeAll { getId(it) in removedIds }
+                            },
+                            onAdd = { addedItems ->
+                                clientState.addAll(addedItems)
+                            }
+                        )
+                    } catch (e: Exception) {
+                        println("[$path] Send failed: ${e.message}")
                     }
-            }
-
-            try {
-                for (frame in incoming) {
-                    // Optionally handle client messages
                 }
-            } catch (e: Exception) {
-                println("[$path] Error in incoming: ${e.message}")
-            } finally {
-                println("[$path] Socket closed, cancelling collector")
-                job.cancelAndJoin() // ❗ зупиняє збір з flow
-            }
+        }
+
+        for (frame in incoming) {
+            // Optionally handle client messages
         }
     }
 }
