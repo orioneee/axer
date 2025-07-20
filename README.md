@@ -99,7 +99,7 @@ CoroutineScope(Dispatchers.IO).launch {
 ```
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
-- **Only one server** can be runned on one device at same time (Axer uses port `53214`).
+- **Only one server** can be runned on one device at same time (Axer uses port `53214`) so if you want monitor multiple app enshure only one server runned
 
 ---
 
