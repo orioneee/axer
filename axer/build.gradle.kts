@@ -40,7 +40,7 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()

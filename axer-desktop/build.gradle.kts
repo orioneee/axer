@@ -18,6 +18,7 @@ val libraryVersion = getLatestGitTag()
 version = libraryVersion
 
 kotlin {
+    jvmToolchain(17)
     jvm()
     sourceSets {
         commonMain {
@@ -53,8 +54,23 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "axer-desktop"
-            packageVersion = libraryVersion
+            packageName = "Axer Debbugger"
+            packageVersion = libraryVersion.substringAfter('-').substringBeforeLast("-")
+
+
+            windows {
+                iconFile.set(project.file("src/commonMain/resources/icon.ico"))
+
+            }
+            macOS {
+                iconFile.set(project.file("src/commonMain/resources/icon.icns"))
+            }
+            linux {
+                iconFile.set(project.file("src/commonMain/resources/icon.png"))
+            }
+
+            windows.shortcut = true
+            windows.upgradeUuid = "904679ed-6445-4d0e-b66e-ca96688e81b3"
         }
     }
 }

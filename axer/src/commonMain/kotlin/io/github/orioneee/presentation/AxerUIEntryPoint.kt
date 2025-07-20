@@ -1,10 +1,8 @@
 package io.github.orioneee.presentation
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -21,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.orioneee.Axer
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.no_available_options
 import io.github.orioneee.domain.other.EnabledFeathers
@@ -29,9 +28,10 @@ import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
-import io.github.orioneee.storage.AxerSettings
+import io.github.orioneee.room.AxerDatabase
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
+import org.koin.compose.koinInject
 
 val LocalAxerDataProvider = compositionLocalOf<AxerDataProvider> {
     error("AxerDataProvider not provided")
@@ -50,6 +50,15 @@ class AxerUIEntryPoint {
             ) {
                 Content()
             }
+        }
+    }
+
+    @Composable
+    fun Screen() {
+        KoinIsolatedContext(IsolatedContext.koinApp) {
+            val database: AxerDatabase = koinInject()
+            val provider = LocalAxerDataProvider(database)
+            Screen(provider)
         }
     }
 

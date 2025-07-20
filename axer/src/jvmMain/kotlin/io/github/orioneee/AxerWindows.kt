@@ -13,6 +13,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.rememberWindowState
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.exit
 import io.github.orioneee.axer.generated.resources.ic_logo
 import io.github.orioneee.axer.generated.resources.logo_circle
 import io.github.orioneee.axer.generated.resources.open_axer
@@ -45,15 +46,6 @@ fun AxerWindows(
     }
 }
 
-@Composable
-fun MenuScope.AxerTrayIcon(
-    onClick: () -> Unit,
-) {
-    Item(
-        text = stringResource(Res.string.open_axer),
-        onClick = onClick,
-    )
-}
 
 @Composable
 fun ApplicationScope.AxerTrayWindow(
@@ -65,7 +57,16 @@ fun ApplicationScope.AxerTrayWindow(
     Tray(
         icon = painterResource(Res.drawable.ic_logo),
         menu = {
-            AxerTrayIcon { showAxer = true }
+            Item(
+                text = stringResource(Res.string.open_axer),
+                onClick = {
+                    showAxer = true
+                },
+            )
+            Item(
+                text = stringResource(Res.string.exit),
+                onClick = ::exitApplication
+            )
         }
     )
 
