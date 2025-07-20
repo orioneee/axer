@@ -15,6 +15,9 @@ internal interface LogsDAO {
     @Query("SELECT * FROM LogLine ORDER BY time DESC")
     fun getAll(): Flow<List<LogLine>>
 
+    @Query("SELECT * FROM LogLine ORDER BY time DESC")
+    suspend fun getAllSync(): List<LogLine>
+
     @Query("SELECT DISTINCT tag FROM LogLine")
     fun getUniqueTags(): Flow<List<String>>
 

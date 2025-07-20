@@ -1,6 +1,9 @@
 package io.github.orioneee.domain.database
 
-internal data class DatabaseWrapped(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class DatabaseWrapped(
     val tables: List<Table>,
     val name: String,
 )

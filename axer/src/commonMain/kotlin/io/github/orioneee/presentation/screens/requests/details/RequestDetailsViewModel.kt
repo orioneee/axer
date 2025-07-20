@@ -3,25 +3,27 @@ package io.github.orioneee.presentation.screens.requests.details
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.domain.requests.formatters.formatCSS
 import io.github.orioneee.domain.requests.formatters.formatJavascript
 import io.github.orioneee.extentions.formatJson
-import io.github.orioneee.room.dao.RequestDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 internal class RequestDetailsViewModel(
-    private val requestDao: RequestDao,
-    requestId: Long?
+    private val dataProvider: AxerDataProvider,
+    requestId: Long
 ) : ViewModel() {
     val json = Json {
         prettyPrint = true
@@ -33,10 +35,7 @@ internal class RequestDetailsViewModel(
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
 
-    val requestByID = requestDao.getById(requestId).map {
-        if (it == null) return@map null
-        it
-    }
+    val requestByID = dataProvider.getRequestById(requestId).distinctUntilChanged()
 
     val formatedRequestBody = combine(
         requestByID,
@@ -50,6 +49,7 @@ internal class RequestDetailsViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     val formatedResponseBody = combine(
         requestByID,
         _selectedResponseBodyFormat
@@ -60,7 +60,7 @@ internal class RequestDetailsViewModel(
                 bodyType ?: it.responseDefaultType ?: BodyType.RAW_TEXT
             )
         }
-    }
+    }.distinctUntilChanged()
 
 
     suspend fun formateBody(
@@ -70,7 +70,11 @@ internal class RequestDetailsViewModel(
         if (content == null) return AnnotatedString("")
         return when (bodyType) {
             BodyType.IMAGE -> AnnotatedString("")
-            BodyType.JSON -> formatJson(content)
+            BodyType.JSON -> try {
+                formatJson(content)
+            } catch (e: Exception) {
+                AnnotatedString("Invalid JSON: ${e.message}")
+            }
             BodyType.HTML, BodyType.XML -> formatXml(content)
             BodyType.CSS -> formatCSS(content)
             BodyType.JAVASCRIPT -> formatJavascript(content)
@@ -88,8 +92,7 @@ internal class RequestDetailsViewModel(
     fun onViewed(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
             if (transaction.isViewed) return@launch
-            requestDao.upsert(transaction.copy(isViewed = true))
+            dataProvider.markAsViewed(transaction.id)
         }
     }
-
 }

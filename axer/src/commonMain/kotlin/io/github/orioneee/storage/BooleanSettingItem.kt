@@ -1,12 +1,9 @@
 package io.github.orioneee.storage
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import com.russhwolf.settings.ObservableSettings
-import com.russhwolf.settings.SettingsListener
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 class BooleanSettingItem(
     private val settings: ObservableSettings,
@@ -28,21 +25,15 @@ class BooleanSettingItem(
         settings.clear()
     }
 
-    @Composable
-    override fun observeAsState(): State<Boolean> {
-        val state = remember { mutableStateOf(get()) }
-
-        DisposableEffect(key) {
-            val listener: SettingsListener = settings.addBooleanListener(key, default) { newValue ->
-                state.value = newValue
-            }
-
-            onDispose {
-                listener.deactivate()
-            }
+    override fun asFlow(): Flow<Boolean> = callbackFlow {
+        val listener = settings.addBooleanListener(key, default) { newValue ->
+            trySend(newValue)
         }
 
-        return state
+        trySend(get())
+
+        awaitClose { listener.deactivate() }
     }
 }
+
 

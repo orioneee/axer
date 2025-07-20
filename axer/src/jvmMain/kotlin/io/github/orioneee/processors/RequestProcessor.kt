@@ -2,6 +2,6 @@
 
 package io.github.orioneee.processors
 
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
 
 internal actual suspend fun updateNotification(requests: List<Transaction>) {}

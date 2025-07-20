@@ -36,6 +36,7 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.action
 import io.github.orioneee.axer.generated.resources.clear
 import io.github.orioneee.domain.database.EditableRowItem
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.ContentCell
 import io.github.orioneee.presentation.components.DeleteButton
 import io.github.orioneee.presentation.components.HeaderCell
@@ -55,18 +56,16 @@ internal class TableDetails {
         tableName: String,
         navController: NavHostController,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: TableDetailsViewModel = koinViewModel {
-            parametersOf(name, tableName)
-        }
-        LaunchedEffect(Unit) {
-            viewModel.getTableContent()
+            parametersOf(provider, name, tableName)
         }
         val schema by viewModel.tableSchema.collectAsState()
         val isUpdatingCell by viewModel.isUpdatingCell.collectAsState(false)
         val selectedItem by viewModel.editableRowItem.collectAsState()
         val message by viewModel.message.collectAsState()
         val snackbarHostState = remember { SnackbarHostState() }
-        var currentPage = viewModel.currentPage.collectAsState(0)
+        val currentPage = viewModel.currentPage.collectAsState(0)
         val currentItems = viewModel.tableContent.collectAsState(emptyList())
         val sortColumn by viewModel.sortColumn.collectAsState()
         val totalItems = viewModel.totalItems.collectAsState()

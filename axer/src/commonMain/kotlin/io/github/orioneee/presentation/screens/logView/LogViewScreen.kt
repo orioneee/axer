@@ -2,12 +2,10 @@ package io.github.orioneee.presentation.screens.logView
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,8 +47,8 @@ import io.github.orioneee.axer.generated.resources.ic_export_logs
 import io.github.orioneee.axer.generated.resources.logs
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.logs.LogLine
-import io.github.orioneee.logger.formateAsDate
-import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.LocalAxerDataProvider
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
@@ -62,6 +58,7 @@ import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 internal class LogViewScreen {
 
@@ -94,7 +91,10 @@ internal class LogViewScreen {
     fun Screen(
         navController: NavHostController,
     ) {
-        val viewModel: LogViewViewModel = koinViewModel()
+        val dataProvider = LocalAxerDataProvider.current
+        val viewModel: LogViewViewModel = koinViewModel {
+            parametersOf(dataProvider)
+        }
 
 
         val logs = viewModel.logs.collectAsState(listOf())
@@ -165,7 +165,7 @@ internal class LogViewScreen {
                         }
                     },
                     navigationIcon = {
-                        AxerLogo()
+                        AxerLogoDialog()
                     }
                 )
             }
@@ -252,12 +252,20 @@ internal class LogViewScreen {
                                                         if (!showLine) {
                                                             MyRatioButton(
                                                                 selected = firstExportPointId.value == line.id ||
-                                                                        lastExportPointId.value  == line.id,
-                                                                onClick  = { viewModel.onSelectPoint(line.id) }
+                                                                        lastExportPointId.value == line.id,
+                                                                onClick = {
+                                                                    viewModel.onSelectPoint(
+                                                                        line.id
+                                                                    )
+                                                                }
                                                             )
                                                         } else {
                                                             MyVerticalLine(
-                                                                onClick  = { viewModel.onSelectPoint(line.id) },
+                                                                onClick = {
+                                                                    viewModel.onSelectPoint(
+                                                                        line.id
+                                                                    )
+                                                                },
                                                                 modifier = Modifier.fillMaxHeight()
                                                             )
                                                         }

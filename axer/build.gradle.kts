@@ -4,8 +4,8 @@ import org.jetbrains.compose.internal.utils.getLocalProperty
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
-    alias(libs.plugins.maven.publish)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.maven.publish)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
 
@@ -20,7 +20,16 @@ fun getLatestGitTag() = providers.exec {
     isIgnoreExitValue = true
 }.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
-val libraryVersion = getLatestGitTag()
+fun getGitBranchPrefix(): String {
+    return providers.exec {
+        commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() }?.takeIf { it != "main" }
+        ?.plus("-")
+        ?: ""
+}
+
+val libraryVersion = getGitBranchPrefix() + getLatestGitTag()
 
 println("Library version: $libraryVersion")
 
@@ -31,7 +40,7 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
@@ -61,7 +70,6 @@ kotlin {
 
             implementation(libs.kotlinx.datetime)
             api(libs.ktor.client.core)
-            api(libs.ktor.client.content.negotiation)
             api(libs.ktor.client.serialization)
             api(libs.ktor.serialization.json)
             api(libs.ktor.client.logging)
@@ -83,26 +91,37 @@ kotlin {
 
             implementation(libs.coil.compose)
 
-            implementation(libs.kodeview)
-
 
             implementation(libs.napier)
             implementation(libs.multiplatform.settings)
+
+            val ktor_version = libs.versions.ktor.get()
+
+            implementation("io.ktor:ktor-server-core:${ktor_version}")
+            implementation("io.ktor:ktor-server-cio:${ktor_version}")
+            implementation("io.ktor:ktor-server-content-negotiation:${ktor_version}")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
+            implementation("io.ktor:ktor-server-websockets:${ktor_version}")
+
         }
 
 
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                api(libs.ktor.client.darwin)
+                implementation(libs.ktor.client.darwin)
             }
         }
 
         val jvmAndAndroid by creating {
             dependsOn(commonMain.get())
             dependencies {
-                api(libs.ktor.client.okhttp)
-                api(libs.okhttp)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.okhttp)
+                implementation(libs.ktor.server.content.negotiation)
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.cio)
+                implementation(libs.ktor.server.default.headers)
             }
         }
 
@@ -208,6 +227,7 @@ room {
 
 compose.resources {
     packageOfResClass = "io.github.orioneee.axer.generated.resources"
+    publicResClass = true
 }
 
 buildkonfig {

@@ -1,5 +1,6 @@
 package io.github.orioneee.koin
 
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
@@ -20,7 +21,7 @@ internal object Modules {
         viewModelModule,
     )
 
-    val daoModule = module {
+    private val daoModule = module {
         single {
             val database: AxerDatabase = get()
             database.getRequestDao()
@@ -35,38 +36,40 @@ internal object Modules {
         }
     }
 
-    val viewModelModule = module {
-        viewModel {
+    private val viewModelModule = module {
+        viewModel { (provider: AxerDataProvider) ->
             RequestListViewModel(
-                requestDao = get(),
+                dataProvider = provider
             )
         }
-        viewModel { (requestId: Long?) ->
+        viewModel { (provider: AxerDataProvider, requestId: Long) ->
             RequestDetailsViewModel(
-                requestDao = get(),
+                dataProvider = provider,
                 requestId = requestId
             )
         }
-        viewModel { (exceptionID: Long?) ->
+        viewModel { (provider: AxerDataProvider, exceptionID: Long?) ->
             ExceptionsViewModel(
-                exceptionDao = get(),
+                provider,
                 exceptionID = exceptionID
             )
         }
-        viewModel { (file: String, tableName: String) ->
-            TableDetailsViewModel(file, tableName)
+        viewModel { (provider: AxerDataProvider, file: String, tableName: String) ->
+            TableDetailsViewModel(provider, file, tableName)
         }
-        viewModel { (file: String) ->
-            RawQueryViewModel(file)
+        viewModel { (provider: AxerDataProvider, file: String) ->
+            RawQueryViewModel(provider, file)
         }
-        viewModel {
-            AllQueriesViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            AllQueriesViewModel(provider)
         }
-        viewModel {
-            LogViewViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            LogViewViewModel(provider)
         }
-        viewModel {
-            ListDatabaseViewModel()
+        viewModel { (provider: AxerDataProvider) ->
+            ListDatabaseViewModel(
+                dataProvider = provider
+            )
         }
     }
 }

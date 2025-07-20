@@ -2,7 +2,8 @@ package io.github.orioneee
 
 import io.github.orioneee.domain.requests.Request
 import io.github.orioneee.processors.RequestProcessor
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
@@ -36,7 +37,7 @@ class AxerOkhttpInterceptor private constructor(
             { true }
         private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
             { it }
-        private var requestMaxAgeInSeconds: Long = 60 * 60 * 1 // 1 hour
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 6 // 1 hour
         private var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
@@ -105,7 +106,7 @@ class AxerOkhttpInterceptor private constructor(
                 buffer.readByteArray()
             }
 
-            var transaction = Transaction(
+            var transaction = TransactionFull(
                 sendTime = sendTime,
                 method = method,
                 host = host,

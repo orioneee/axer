@@ -35,6 +35,7 @@ import io.github.orioneee.axer.generated.resources.stack_trace
 import io.github.orioneee.axer.generated.resources.time
 import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.logger.formateAsTime
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.buildStringSection
 import org.jetbrains.compose.resources.stringResource
@@ -48,44 +49,45 @@ internal class ExceptionDetails {
         navController: NavHostController,
         exceptionID: Long,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: ExceptionsViewModel = koinViewModel {
-            parametersOf(exceptionID)
+            parametersOf(provider, exceptionID)
         }
         val exception by viewModel.exceptionByID.collectAsState(initial = null)
-        if (exception == null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(stringResource(Res.string.no_exception_found_with_id, exceptionID))
-            }
-        } else {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Text(
-                                "${exception!!.error.name} - ${exception!!.time.formateAsTime()}",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    navController.popBackStack()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBackIosNew,
-                                    contentDescription = "Back"
-                                )
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "${exception?.error?.name ?: ""} - ${exception?.time?.formateAsTime() ?: ""}",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navController.popBackStack()
                             }
-                        },
-                    )
-                },
-            ) {
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                )
+            },
+        ) {
+            if (exception == null) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(Res.string.no_exception_found_with_id, exceptionID))
+                }
+            } else {
                 Column(
                     modifier = Modifier
                         .padding(it)

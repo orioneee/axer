@@ -2,8 +2,8 @@ package io.github.orioneee.presentation.screens.requests.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.requests.formatters.BodyType
-import io.github.orioneee.room.dao.RequestDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -11,16 +11,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 internal class RequestListViewModel(
-    private val requestDao: RequestDao,
+    private val dataProvider: AxerDataProvider
 ) : ViewModel() {
 
     private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
     private val _selectedBodyType = MutableStateFlow<List<BodyType>>(emptyList())
-    private val _isSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
 
 
-    val requests = requestDao.getAll()
+    val requests = dataProvider.getAllRequests()
 
     val methodFilters = requests.map {
         it.map { it.method }
@@ -97,9 +96,7 @@ internal class RequestListViewModel(
 
     fun clearAll() {
         viewModelScope.launch {
-            requestDao.deleteAll()
+            dataProvider.deleteAllRequests()
         }
     }
-
-
 }

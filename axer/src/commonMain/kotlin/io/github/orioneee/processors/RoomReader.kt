@@ -2,13 +2,13 @@ package io.github.orioneee.processors
 
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.domain.database.DatabaseEntity
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
+import io.github.orioneee.domain.database.SQLiteColumnType
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.room.AxerBundledSQLiteDriver
@@ -27,7 +27,7 @@ internal class RoomReader {
         }
     }
 
-    fun release(){
+    fun release() {
         connections.forEach { it.connection.close() }
         connections.clear()
     }
@@ -39,26 +39,6 @@ internal class RoomReader {
         return connections.first { it.file.indexOf(file) != -1 }.connection
     }
 
-    enum class SQLiteColumnType(
-        val code: Int,
-        val textName: String,
-    ) {
-        INTEGER(1, "INTEGER"),
-        FLOAT(2, "FLOAT"),
-        TEXT(3, "TEXT"),
-        BLOB(4, "BLOB"),
-        NULL(5, "NULL");
-
-        companion object {
-            fun fromCode(code: Int): SQLiteColumnType {
-                return entries.find { it.code == code } ?: NULL
-            }
-
-            fun fromTextName(name: String): SQLiteColumnType {
-                return entries.find { it.textName == name } ?: NULL
-            }
-        }
-    }
 
     suspend fun getTableSize(
         file: String,
@@ -273,6 +253,7 @@ internal class RoomReader {
             stmt.bindCell(1, newValue, editableItem.schemaItem.type)
             stmt.bindCell(2, primaryKeyValue, primarySchemaItem.type)
             stmt.step()
+            axerDriver.changeDataFlow.emit("UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }
@@ -299,6 +280,7 @@ internal class RoomReader {
         try {
             stmt.bindCell(1, primaryKeyValue, primaryKeySchemaItem.type)
             stmt.step()
+            axerDriver.changeDataFlow.emit("DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }

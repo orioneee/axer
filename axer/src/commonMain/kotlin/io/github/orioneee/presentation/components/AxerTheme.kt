@@ -1,10 +1,13 @@
 package io.github.orioneee.presentation.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-internal object Theme {
+object AxerTheme {
     internal val light = lightColorScheme(
         primary = Color(0xFF435E91),
         onPrimary = Color(0xFFFFFFFF),
@@ -61,4 +64,17 @@ internal object Theme {
         onSurfaceVariant = Color(0xFFC4C6D0),
         outline = Color(0xFF8E9099),
     )
+
+    @Composable
+    fun ProvideTheme(
+        content: @Composable () -> Unit
+    ) {
+        val isDark = isSystemInDarkTheme()
+        MaterialTheme(
+            if (isDark) dark
+            else light
+        ) {
+            content()
+        }
+    }
 }

@@ -1,7 +1,8 @@
 package io.github.orioneee.utils
 
 import io.github.orioneee.Axer
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -89,7 +90,7 @@ data class HarTimings(
 )
 
 @OptIn(ExperimentalTime::class)
-internal fun Transaction.toHarEntry(): HarEntry {
+internal fun TransactionFull.toHarEntry(): HarEntry {
     val started = Instant.fromEpochMilliseconds(sendTime).toString()
 
     val request = HarRequest(
@@ -129,7 +130,7 @@ internal fun Transaction.toHarEntry(): HarEntry {
     )
 }
 
-internal fun List<Transaction>.toHarFile(): HarFile {
+internal fun List<TransactionFull>.toHarFile(): HarFile {
     return HarFile(
         log = HarLog(
             entries = this.map { it.toHarEntry() }
@@ -138,7 +139,7 @@ internal fun List<Transaction>.toHarFile(): HarFile {
 }
 
 @OptIn(ExperimentalTime::class)
-internal fun List<Transaction>.exportAsHar() {
+internal fun List<TransactionFull>.exportAsHar() {
     try{
         val harFile = toHarFile()
         val jsonString = Json { prettyPrint = true }.encodeToString(harFile)

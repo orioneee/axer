@@ -10,6 +10,19 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(FormatStringsInDatetimeFormats::class, ExperimentalTime::class)
+internal fun Long.formateAsTime(): String {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val timeZone = TimeZone.currentSystemDefault()
+    val dateTime = instant.toLocalDateTime(timeZone)
+
+    val format = LocalDateTime.Format {
+        byUnicodePattern("HH:mm:ss")
+    }
+
+    return dateTime.format(format)
+}
+
+@OptIn(FormatStringsInDatetimeFormats::class, ExperimentalTime::class)
 internal fun Long.formateAsDate(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val timeZone = TimeZone.currentSystemDefault()

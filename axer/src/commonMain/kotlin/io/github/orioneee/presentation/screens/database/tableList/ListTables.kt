@@ -34,18 +34,18 @@ import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.all_queries
 import io.github.orioneee.axer.generated.resources.database
-import io.github.orioneee.axer.generated.resources.driver_not_connected
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.rows_columns
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.Table
 import io.github.orioneee.extentions.formate
-import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.LocalAxerDataProvider
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.room.AxerBundledSQLiteDriver
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 internal class ListTables {
 
@@ -134,8 +134,10 @@ internal class ListTables {
     fun Screen(
         navController: NavHostController,
     ) {
-        val viewModel: ListDatabaseViewModel = koinViewModel()
-        val isInitialized = AxerBundledSQLiteDriver.isInitialized.collectAsState(false)
+        val provider = LocalAxerDataProvider.current
+        val viewModel: ListDatabaseViewModel = koinViewModel {
+            parametersOf(provider)
+        }
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -146,7 +148,7 @@ internal class ListTables {
                         )
                     },
                     navigationIcon = {
-                        AxerLogo()
+                        AxerLogoDialog()
                     }
                 )
             },
@@ -169,31 +171,22 @@ internal class ListTables {
                     .padding(contentPadding),
 
                 ) {
-                if (!isInitialized.value) {
+                val databases = viewModel.databases.collectAsState(emptyList())
+                if (databases.value.isEmpty()) {
                     Box(
-                        modifier = Modifier.Companion.fillMaxSize(),
-                        contentAlignment = Alignment.Companion.Center
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(Res.string.driver_not_connected))
+                        Text(stringResource(Res.string.nothing_found))
                     }
                 } else {
-                    val databases = viewModel.databases.collectAsState()
-                    if (databases.value.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(stringResource(Res.string.nothing_found))
-                        }
-                    } else {
-                        ListDatabase(
-                            databases = databases.value,
-                            onClickToTable = { table, file ->
-                                navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
-                            },
-                            navController = navController,
-                        )
-                    }
+                    ListDatabase(
+                        databases = databases.value,
+                        onClickToTable = { table, file ->
+                            navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
+                        },
+                        navController = navController,
+                    )
                 }
             }
         }

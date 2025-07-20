@@ -1,9 +1,7 @@
 package io.github.orioneee.processors
 
 import io.github.orioneee.Axer
-import io.github.orioneee.domain.requests.Transaction
-import io.github.orioneee.presentation.AxerUIEntryPoint
-import io.github.orioneee.presentation.navigation.FlowDestinations
+import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.storage.AxerSettings
 import platform.CoreData.NSUUIDAttributeType
 import platform.UserNotifications.UNMutableNotificationContent

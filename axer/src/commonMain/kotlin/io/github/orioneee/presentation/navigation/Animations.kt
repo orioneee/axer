@@ -7,7 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 
-internal object Animations {
+object Animations {
     const val ANIMATION_DURATION = 300
     private const val OFFSET_MULTIPLIER = 0.3f
     

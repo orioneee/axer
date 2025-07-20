@@ -67,13 +67,17 @@ import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -114,7 +118,8 @@ internal class RequestDetailsScreen {
                     ButtonDefaults.outlinedButtonColors()
                 }
 
-                val border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                val border =
+                    if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
 
                 OutlinedButton(
                     onClick = { onSelect(bodyType) },
@@ -190,7 +195,7 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun RequestDetails(
-        request: Transaction,
+        request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
         Column(
@@ -259,7 +264,6 @@ internal class RequestDetailsScreen {
                     onSelect = {
                         viewModel.onRequestBodyFormatSelected(it)
                     },
-                    supportImage = false
                 )
                 Spacer(Modifier.height(16.dp))
                 BodySection {
@@ -268,12 +272,22 @@ internal class RequestDetailsScreen {
                             .padding(8.dp)
 
                     ) {
-                        SelectionContainer {
-                            val formatted =
-                                viewModel.formatedRequestBody.collectAsStateWithLifecycle(
-                                    AnnotatedString("")
-                                )
-                            Text(text = formatted.value ?: AnnotatedString(""))
+                        if (selected != BodyType.IMAGE) {
+                            SelectionContainer {
+                                val formatted =
+                                    viewModel.formatedRequestBody.collectAsStateWithLifecycle(
+                                        AnnotatedString("")
+                                    )
+                                Text(text = formatted.value ?: AnnotatedString(""))
+                            }
+                        } else{
+                            AsyncImage(
+                                model = request.requestBody,
+                                contentDescription = "Response Image",
+                                modifier = Modifier.Companion
+                                    .height(300.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
                         }
                     }
                 }
@@ -284,7 +298,7 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun ResponseDetails(
-        request: Transaction,
+        request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
         Column(
@@ -414,69 +428,74 @@ internal class RequestDetailsScreen {
         navController: NavHostController,
         requestId: Long,
     ) {
+        val provider = LocalAxerDataProvider.current
         val viewModel: RequestDetailsViewModel = koinViewModel {
-            parametersOf(requestId)
+            parametersOf(provider, requestId)
         }
+        val scope = rememberCoroutineScope()
         val request by viewModel.requestByID.collectAsState(initial = null)
         LaunchedEffect(request) {
             if (request != null && request?.isViewed != true) {
                 viewModel.onViewed(request!!)
             }
         }
-        if (request == null) {
-            Box(
-                modifier = Modifier.Companion.fillMaxSize(),
-                contentAlignment = Alignment.Companion.Center
-            ) {
-                Text(stringResource(Res.string.no_request_found_with_id, requestId))
-            }
-        } else {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            val title = StringBuilder()
-                            if (!request!!.path.contains("/")) title.append("/")
-                            title.append(request!!.path)
-                            if (request!!.responseStatus != null) {
-                                title.append(" - ${request!!.responseStatus}")
-                            }
 
-                            Text(
-                                title.toString(),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = {
-                                    navController.popBackStack()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBackIosNew,
-                                    contentDescription = "Back"
-                                )
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        val title = StringBuilder()
+                        if (request?.path?.contains("/") == false) title.append("/")
+                        title.append(request?.path ?: "")
+                        if (request?.responseStatus != null) {
+                            title.append(" - ${request?.responseStatus ?: ""}")
+                        }
+
+                        Text(
+                            title.toString(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navController.popBackStack()
                             }
-                        },
-                        actions = {
-                            if (request?.isFinished() == true) {
-                                TextButton(
-                                    onClick = {
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    actions = {
+                        if (request?.isFinished() == true) {
+                            TextButton(
+                                onClick = {
+                                    scope.launch(Dispatchers.IO) {
                                         listOfNotNull(request).exportAsHar()
                                     }
-                                ) {
-                                    Text(stringResource(Res.string.har))
                                 }
+                            ) {
+                                Text(stringResource(Res.string.har))
                             }
                         }
-                    )
-                },
-            ) {
+                    }
+                )
+            },
+        ) {
+            if (request == null) {
+                Box(
+                    modifier = Modifier.Companion.fillMaxSize(),
+                    contentAlignment = Alignment.Companion.Center
+                ) {
+                    Text(stringResource(Res.string.no_request_found_with_id, requestId))
+                }
+            } else {
                 Column(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .padding(it)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.Companion.CenterHorizontally,

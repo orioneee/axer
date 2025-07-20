@@ -1,5 +1,8 @@
 package io.github.orioneee.domain.database
 
-internal data class RoomCell(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class RoomCell(
     val value: String,
 )

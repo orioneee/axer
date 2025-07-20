@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.all_queries
+import io.github.orioneee.presentation.LocalAxerDataProvider
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 class AllQueriesScreen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +36,10 @@ class AllQueriesScreen {
     fun Screen(
         navController: NavHostController,
     ) {
-        val viewModel: AllQueriesViewModel = koinViewModel()
+        val provider = LocalAxerDataProvider.current
+        val viewModel: AllQueriesViewModel = koinViewModel {
+            parametersOf(provider)
+        }
         val queries = viewModel.allQueryFlow.collectAsState(listOf())
         Scaffold(
             topBar = {

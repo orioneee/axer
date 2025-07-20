@@ -8,4 +8,5 @@ class AxerConfig {
     var enableLogMonitor: Boolean = AxerSettings.enableLogMonitor.get()
     var enableDatabaseMonitor: Boolean = AxerSettings.enableDatabaseMonitor.get()
     var isRecordingLogs: Boolean = AxerSettings.isRecordingLogs.get()
+    var enableRemoteMonitor: Boolean = AxerSettings.enableRemoteMonitor.get()
 }

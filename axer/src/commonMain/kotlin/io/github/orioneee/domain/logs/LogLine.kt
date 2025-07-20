@@ -4,9 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.logger.formateAsDate
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity
-internal data class LogLine(
+data class LogLine(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 

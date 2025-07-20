@@ -2,7 +2,7 @@ package io.github.orioneee.processors
 
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.domain.logs.LogProcessor
+import io.github.orioneee.processors.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
 import io.github.orioneee.storage.AxerSettings
 import kotlin.time.Clock

@@ -1,10 +1,11 @@
 package io.github.orioneee.domain.database
 
-import io.github.orioneee.processors.RoomReader
+import kotlinx.serialization.Serializable
 
-internal data class SchemaItem(
+@Serializable
+data class SchemaItem(
     val name: String,
     val isPrimary: Boolean,
     val isNullable: Boolean,
-    val type: RoomReader.SQLiteColumnType,
+    val type: SQLiteColumnType,
 )

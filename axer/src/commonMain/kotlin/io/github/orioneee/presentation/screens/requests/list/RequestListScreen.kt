@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,14 +46,21 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.requests
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.logger.formateAsTime
-import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.logger.getPlatformStackTrace
+import io.github.orioneee.presentation.LocalAxerDataProvider
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 internal class RequestListScreen() {
     @Composable
@@ -102,8 +110,8 @@ internal class RequestListScreen() {
             supportingContent = {
                 val string = StringBuilder()
                 string.append("${request.host} ${request.sendTime.formateAsTime()} ")
-                if (request.error != null) {
-                    string.append(request.error.name)
+                request.error?.let {
+                    string.append(it.name)
                 }
                 if (request.isFinished()) {
                     string.append("${request.totalTime}ms")
@@ -133,7 +141,10 @@ internal class RequestListScreen() {
         onClickToRequestDetails: (Transaction) -> Unit,
         onClearRequests: () -> Unit,
     ) {
-        val viewModel: RequestListViewModel = koinViewModel()
+        val dataProvider = LocalAxerDataProvider.current
+        val viewModel: RequestListViewModel = koinViewModel {
+            parametersOf(dataProvider)
+        }
         val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())
@@ -158,9 +169,17 @@ internal class RequestListScreen() {
                                 it
                             }
                         ) {
+                            val scope = rememberCoroutineScope()
                             TextButton(
                                 onClick = {
-                                    requests.value.exportAsHar()
+                                    scope.launch(Dispatchers.IO) {
+                                        try {
+                                            val res = dataProvider.getDataForExportAsHar()
+                                            res.exportAsHar()
+                                        } catch (e: Exception) {
+                                            println(e.getPlatformStackTrace())
+                                        }
+                                    }
                                 }
                             ) {
                                 Text(stringResource(Res.string.har))
@@ -179,7 +198,7 @@ internal class RequestListScreen() {
                         }
                     },
                     navigationIcon = {
-                        AxerLogo()
+                        AxerLogoDialog()
                     }
                 )
             }

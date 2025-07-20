@@ -1,21 +1,19 @@
 package io.github.orioneee
 
 import io.github.orioneee.config.AxerKtorPluginConfig
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
-import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.logger.getSavableError
 import io.github.orioneee.processors.RequestProcessor
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.bodyAsBytes
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
-import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
@@ -65,7 +63,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 pluginConfig.retentionPeriodInSeconds,
                 pluginConfig.retentionSizeInBytes,
             )
-            var state = Transaction(
+            var state = TransactionFull(
                 sendTime = sendTime,
                 method = method,
                 host = host,

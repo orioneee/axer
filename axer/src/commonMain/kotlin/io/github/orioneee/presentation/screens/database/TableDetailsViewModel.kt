@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.screens.database
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.RoomCell
 import io.github.orioneee.domain.database.RowItem
@@ -9,21 +10,19 @@ import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.extentions.sortBySortingItem
 import io.github.orioneee.logger.getPlatformStackTrace
-import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 internal class TableDetailsViewModel(
+    private val dataProvider: AxerDataProvider,
     private val file: String,
     private val tableName: String,
 ) : ViewModel() {
@@ -31,7 +30,8 @@ internal class TableDetailsViewModel(
         const val PAGE_SIZE = 20
     }
 
-    private val reader = RoomReader()
+    private var currentJob: Job? = null
+
 
     private val _tableSchema = MutableStateFlow<List<SchemaItem>>(emptyList())
     val tableSchema = _tableSchema.asStateFlow()
@@ -72,42 +72,19 @@ internal class TableDetailsViewModel(
     private val _message = MutableStateFlow<String?>(null)
     val message = _message.asStateFlow()
 
-
-    fun getSchema() {
-        viewModelScope.launch {
-            try {
-                val schema = reader.getTableSchema(file, tableName)
+    fun updateFlow(){
+        currentJob?.cancel()
+        currentJob = viewModelScope.launch {
+            dataProvider.getDatabaseContent(
+                file = file,
+                tableName = tableName,
+                page = _currentPage.value,
+                pageSize = PAGE_SIZE
+            ).collect {
+                val (schema, content, totalItems) = it
                 _tableSchema.value = schema
-                schema
-            } catch (e: Exception) {
-            }
-        }
-    }
-
-    fun getTableContent() {
-        viewModelScope.launch {
-            launch {
-                try {
-                    val content = reader.getTableContent(
-                        file = file,
-                        tableName = tableName,
-                        page = _currentPage.value,
-                        pageSize = PAGE_SIZE
-                    )
-                    _itemsOnPage.value = content
-
-                } catch (e: Exception) {
-                }
-            }
-            launch {
-                try {
-                    val size = reader.getTableSize(
-                        file = file,
-                        tableName = tableName,
-                    )
-                    _totalTotalItems.value = size
-                } catch (e: Exception) {
-                }
+                _itemsOnPage.value = content
+                _totalTotalItems.value = totalItems
             }
         }
     }
@@ -116,24 +93,17 @@ internal class TableDetailsViewModel(
         viewModelScope.launch {
             try {
                 _editableRowItem.value = null
-                reader.clearTable(
+                dataProvider.clearTable(
                     file = file,
                     tableName = tableName
                 )
-                getTableContent()
             } catch (e: Exception) {
             }
         }
     }
 
     init {
-        getSchema()
-        reader.axerDriver.changeDataFlow
-            .debounce(100)
-            .onEach {
-                getTableContent()
-            }
-            .launchIn(viewModelScope)
+        updateFlow()
     }
 
     fun updateCell(
@@ -142,14 +112,14 @@ internal class TableDetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _isUpdatingCell.value = true
             try {
-                reader.updateCell(
+                dataProvider.updateCell(
                     file = file,
                     tableName = tableName,
                     editableItem = editableItem
                 )
-                getTableContent()
                 _message.value = "Cell updated successfully"
             } catch (e: Exception) {
+                throw e
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
             } finally {
                 _isUpdatingCell.value = false
@@ -180,12 +150,11 @@ internal class TableDetailsViewModel(
                         _editableRowItem.value = null
                     }
                 }
-                reader.deleteRow(
+                dataProvider.deleteRow(
                     file = file,
                     tableName = tableName,
                     row = rowItem
                 )
-                getTableContent()
                 _message.value = "Row deleted successfully"
             } catch (e: Exception) {
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
@@ -209,6 +178,7 @@ internal class TableDetailsViewModel(
                 isDescending = true
             )
         }
+        updateFlow()
     }
 
     fun setPage(
@@ -216,7 +186,7 @@ internal class TableDetailsViewModel(
     ) {
         if (page != _currentPage.value) {
             _currentPage.value = page
-            getTableContent()
+            updateFlow()
         }
     }
 }

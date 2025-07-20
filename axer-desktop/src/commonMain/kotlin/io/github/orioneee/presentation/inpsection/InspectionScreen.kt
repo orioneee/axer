@@ -1,0 +1,173 @@
+package io.github.orioneee.presentation.inpsection
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.SignalWifiOff
+import androidx.compose.material.icons.outlined.WifiOff
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.app_name_device
+import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.components.MultiplatformAlertDialog
+import io.github.orioneee.RemoteAxerDataProvider
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+
+class InspectionScreen {
+    @Composable
+    fun ConnectionLostDialog(
+        isShown: Boolean,
+        onDismiss: () -> Unit,
+    ) {
+
+
+        MultiplatformAlertDialog(
+            canDismissByClickOutside = false,
+            isShowDialog = isShown,
+            onDismiss = onDismiss,
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    AxerLogo(modifier = Modifier.size(32.dp))
+                    Text(
+                        text = "Connection Lost",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            },
+            content = {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.WifiOff,
+                        contentDescription = "Connection Lost",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "Connection Lost",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        text = "We're trying to reconnect. Please wait a moment.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+            },
+            confirmButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) {
+                        Text("Exit")
+                    }
+                }
+            }
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun Screen(
+        navController: NavHostController,
+        deviceData: DeviceData,
+    ) {
+        val provider =
+            remember(deviceData) { RemoteAxerDataProvider("http://${deviceData.ip}:${deviceData.port}") }
+        val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
+        var isDialogDismissed by remember { mutableStateOf(false) }
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            stringResource(
+                                Res.string.app_name_device,
+                                deviceData.readableDeviceName
+                            )
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                navController.popBackStack()
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.ArrowBackIosNew,
+                                null
+                            )
+                        }
+                    }
+                )
+            },
+        ) {
+            Box(
+                modifier = Modifier.padding(it),
+                contentAlignment = Alignment.Center
+            ) {
+                AxerUIEntryPoint().Screen(provider)
+                val scope = rememberCoroutineScope()
+                ConnectionLostDialog(
+                    isShown = !isConnected.value && !isDialogDismissed,
+                    onDismiss = {
+                        scope.launch {
+                            isDialogDismissed = true
+                            delay(300)
+                            navController.popBackStack()
+                        }
+                    }
+                )
+            }
+        }
+    }
+}

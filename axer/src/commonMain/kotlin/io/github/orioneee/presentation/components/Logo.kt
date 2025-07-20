@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,16 +40,27 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun AxerLogo() {
+fun AxerLogo(
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(Res.drawable.ic_logo),
+        contentDescription = stringResource(Res.string.logo_description),
+        tint = Color.Unspecified,
+        modifier = modifier
+    )
+}
+
+
+@Composable
+fun AxerLogoDialog() {
     val isShowInfoDialog = remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
-    IconButton(onClick = { isShowInfoDialog.value = true }) {
-        Icon(
-            painter = painterResource(Res.drawable.ic_logo),
-            contentDescription = stringResource(Res.string.logo_description),
-            tint = Color.Unspecified
-        )
+    IconButton(
+        onClick = { isShowInfoDialog.value = true }
+    ) {
+        AxerLogo()
     }
 
     MultiplatformAlertDialog(

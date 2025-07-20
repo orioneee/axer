@@ -20,7 +20,7 @@ val libraryVersion = getLatestGitTag()
 version = libraryVersion
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
@@ -83,7 +83,6 @@ kotlin {
             dependencies {
             }
         }
-
     }
 
     //https://kotlinlang.org/docs/native-objc-interop.html#export-of-kdoc-comments-to-generated-objective-c-headers

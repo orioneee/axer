@@ -17,6 +17,9 @@ internal interface AxerExceptionDao {
     @Query("SELECT * FROM AxerException WHERE id = :id")
     fun getByID(id: Long?): Flow<AxerException?>
 
+    @Query("SELECT * FROM AxerException WHERE id = :id")
+    suspend fun getByIDSync(id: Long?): AxerException?
+
     @Upsert
     suspend fun upsert(axerException: AxerException): Long
 

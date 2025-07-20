@@ -2,7 +2,8 @@
 
 package io.github.orioneee.processors
 
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.extentions.byteSize
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.RequestDao
@@ -18,7 +19,7 @@ internal class RequestProcessor(
         dao.deleteById(id)
     }
 
-    suspend fun onSend(request: Transaction): Long {
+    suspend fun onSend(request: TransactionFull): Long {
         dao.deleteAllWhichOlderThan(requestMaxAge)
         dao.trimToMaxSize(maxTotalRequestSize)
         val id = dao.upsert(request)
@@ -27,14 +28,14 @@ internal class RequestProcessor(
         return id
     }
 
-    suspend fun onFailed(request: Transaction) {
+    suspend fun onFailed(request: TransactionFull) {
         val requestWithSize = request.copy(size = request.byteSize())
         dao.upsert(requestWithSize)
         val firstFive = dao.getFirstFiveNotReaded()
         updateNotification(firstFive)
     }
 
-    suspend fun onFinished(request: Transaction) {
+    suspend fun onFinished(request: TransactionFull) {
         val requestWithSize = request.copy(size = request.byteSize())
         dao.upsert(requestWithSize)
         val firstFive = dao.getFirstFiveNotReaded()

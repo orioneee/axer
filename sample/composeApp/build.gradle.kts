@@ -121,6 +121,7 @@ android {
         versionName = "1.0.0"
     }
 
+
     buildTypes {
         debug {
             isDebuggable = false
@@ -128,6 +129,7 @@ android {
     }
 
 }
+
 
 compose.desktop {
     application {
