@@ -67,7 +67,8 @@ import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
@@ -194,7 +195,7 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun RequestDetails(
-        request: Transaction,
+        request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
         Column(
@@ -288,7 +289,7 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun ResponseDetails(
-        request: Transaction,
+        request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
         Column(

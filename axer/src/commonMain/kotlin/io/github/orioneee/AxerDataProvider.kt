@@ -8,13 +8,15 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import kotlinx.coroutines.flow.Flow
 
 interface AxerDataProvider {
     fun getAllRequests(): Flow<List<Transaction>>
-    fun getRequestById(id: Long): Flow<Transaction?>
+    suspend fun getDataForExportAsHar(): List<TransactionFull>
+    fun getRequestById(id: Long): Flow<TransactionFull?>
     suspend fun markAsViewed(id: Long)
     suspend fun deleteAllRequests()
 

@@ -8,15 +8,19 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.ktor.client.HttpClient
-import io.ktor.client.HttpClientConfig
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
@@ -39,7 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
 import kotlin.math.abs
-import kotlin.system.exitProcess
 
 class RemoteAxerDataProvider(
     private val serverUrl: String,
@@ -109,17 +112,18 @@ class RemoteAxerDataProvider(
     }.distinctUntilChanged()
 
 
-    override fun getAllRequests(): Flow<List<Transaction>> =
+    override fun getAllRequests(): Flow<List<TransactionShort>> =
         webSocketFlow("/ws/requests") {
-            val decoded = json.decodeFromString<List<String>>(it)
-            val transactions = decoded.map { str ->
-                json.decodeFromString<Transaction>(str)
-            }
-
-            transactions
+            json.decodeFromString(it)
         }
 
-    override fun getRequestById(id: Long): Flow<Transaction?> {
+    override suspend fun getDataForExportAsHar(): List<TransactionFull> {
+        val response = client.get("$serverUrl/requests/full")
+        if (!response.status.isSuccess()) throw Exception("Failed to get data for export as HAR")
+        return response.body()
+    }
+
+    override fun getRequestById(id: Long): Flow<TransactionFull?> {
         return webSocketFlow("/ws/requests/$id") {
             json.decodeFromString(it)
         }

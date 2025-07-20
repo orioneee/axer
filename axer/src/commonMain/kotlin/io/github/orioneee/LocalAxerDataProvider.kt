@@ -8,7 +8,8 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.AxerDatabase
 import io.github.orioneee.storage.AxerSettings
@@ -32,9 +33,10 @@ internal class LocalAxerDataProvider(
 
     private val reader = RoomReader()
 
-    override fun getAllRequests(): Flow<List<Transaction>> = requestDao.getAll()
+    override fun getAllRequests(): Flow<List<Transaction>> = requestDao.getAllShort()
+    override suspend fun getDataForExportAsHar(): List<TransactionFull> = requestDao.getAllSync()
 
-    override fun getRequestById(id: Long): Flow<Transaction?> = requestDao.getById(id)
+    override fun getRequestById(id: Long): Flow<TransactionFull?> = requestDao.getById(id)
     override suspend fun markAsViewed(id: Long) {
         try {
             val request = requestDao.getByIdSync(id)

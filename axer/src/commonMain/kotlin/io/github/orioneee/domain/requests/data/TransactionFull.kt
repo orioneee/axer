@@ -1,48 +1,44 @@
-package io.github.orioneee.domain.requests
+package io.github.orioneee.domain.requests.data
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import io.github.orioneee.domain.exceptions.SavableError
+import io.github.orioneee.domain.requests.Request
+import io.github.orioneee.domain.requests.Response
 import io.github.orioneee.domain.requests.formatters.BodyType
 import kotlinx.serialization.Serializable
 
 @Entity(tableName = "Transactions")
 @Serializable
-data class Transaction(
+data class TransactionFull(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = 0L,
+    override val id: Long = 0L,
 
-    val method: String,
-    val sendTime: Long,
-    val host: String,
-    val path: String,
+    override val method: String,
+    override val sendTime: Long,
+    override val host: String,
+    override val path: String,
     val requestBody: ByteArray? = null,
     val requestHeaders: Map<String, String> = emptyMap(),
 
     val responseBody: ByteArray? = null,
-    val responseTime: Long? = null,
+    override val responseTime: Long? = null,
     val responseHeaders: Map<String, String> = emptyMap(),
-    val responseStatus: Int? = null,
-    @Embedded
-    val error: SavableError? = null,
+    override val responseStatus: Int? = null,
+    @Embedded("error_")
+    override val error: SavableErrorFull? = null,
 
-    val responseDefaultType: BodyType? = null,
+    override val responseDefaultType: BodyType? = null,
 
     val importantInRequest: List<String> = emptyList(),
     val importantInResponse: List<String> = emptyList(),
 
-    val isViewed: Boolean = false,
+    override val isViewed: Boolean = false,
 
     val size: Long = 0
-) {
+) : Transaction {
 
-    fun isErrorByStatusCode(): Boolean {
-        return responseStatus != null && responseStatus in 400..599
-    }
-
-    fun updateToError(error: SavableError): Transaction {
+    fun updateToError(error: SavableErrorFull): TransactionFull {
         return this.copy(
             error = error,
         )
@@ -54,7 +50,7 @@ data class Transaction(
         responseHeaders: Map<String, String>,
         responseStatus: Int,
         bodyType: BodyType,
-    ): Transaction {
+    ): TransactionFull {
         return this.copy(
             responseBody = responseBody,
             responseTime = responseTime,
@@ -63,26 +59,6 @@ data class Transaction(
             responseDefaultType = bodyType,
         )
     }
-
-    fun isInProgress(): Boolean {
-        return responseStatus == null && error == null
-    }
-
-    fun isFinished(): Boolean {
-        return responseStatus != null
-    }
-
-    @get:Ignore
-    val totalTime: Long
-        get() = if (responseTime != null) {
-            responseTime - sendTime
-        } else {
-            0L
-        }
-
-    @get:Ignore
-    val fullUrl: String
-        get() = "http://${host}${path}"
 
 
     fun asRequest(): Request {
@@ -105,11 +81,4 @@ data class Transaction(
             bodyType = responseDefaultType!!
         )
     }
-
-    fun calculateSizeInBytes(): Long {
-        val requestSize = requestBody?.size?.toLong() ?: 0L
-        val responseSize = responseBody?.size?.toLong() ?: 0L
-        return requestSize + responseSize + (requestHeaders.size * 100) + (responseHeaders.size * 100)
-    }
-
 }

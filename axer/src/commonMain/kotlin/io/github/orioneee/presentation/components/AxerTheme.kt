@@ -71,8 +71,8 @@ object AxerTheme {
     ) {
         val isDark = isSystemInDarkTheme()
         MaterialTheme(
-            if (isDark) AxerTheme.dark
-            else AxerTheme.light
+            if (isDark) dark
+            else light
         ) {
             content()
         }

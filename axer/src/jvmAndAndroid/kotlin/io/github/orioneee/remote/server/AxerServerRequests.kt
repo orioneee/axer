@@ -1,16 +1,19 @@
 package io.github.orioneee.remote.server
 
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.room.dao.RequestDao
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -20,52 +23,51 @@ internal fun Route.requestsModule(
     isEnabledRequests: Flow<Boolean>,
     requestsDao: RequestDao,
 ) {
-    val cachedRequests = mutableMapOf<Long, String>()
     webSocket("/ws/requests") {
-        if (isEnabledRequests.first()) {
-            val requests = requestsDao.getAllSync()
-            requests.forEach {
-                if (it.isFinished()) {
-                    cachedRequests[it.id] =
-                        Json.encodeToString(it)
-                }
-            }
-            sendSerialized(requests.map {
-                if (cachedRequests.containsKey(it.id)) {
-                    cachedRequests[it.id] ?: Json.encodeToString(
-                        it.copy(
-                            requestBody = null,
-                            responseBody = null
-                        )
-                    )
-                } else {
-                    Json.encodeToString(it)
-                }
-            }
-            )
+        suspend fun sendInitialRequests() {
+            if (!isEnabledRequests.first()) return
+            val requests = requestsDao.getAllShortSync()
+            sendSerialized(requests)
         }
-        launch {
-            combine(
-                requestsDao.getAll(),
-                isEnabledRequests
-            ) { requests, isEnabled ->
+
+        fun collectAndSendUpdates() = launch {
+            combine(requestsDao.getAllShort(), isEnabledRequests) { requests, isEnabled ->
                 isEnabled to requests
-            }.collect { (isEnabled, requests) ->
-                if (isEnabled) {
-                    val list = requests.map {
-                        if (cachedRequests.containsKey(it.id)) {
-                            cachedRequests[it.id] ?: Json.encodeToString(it)
-                        } else {
-                            Json.encodeToString(it)
-                        }
-                    }
-                    sendSerialized(list)
-                }
             }
+                .distinctUntilChanged()
+                .collect { (isEnabled, requests) ->
+                    val startTime = System.currentTimeMillis()
+                    if (isEnabled) {
+                        sendSerialized(requests)
+                    } else {
+                        sendSerialized(emptyList<TransactionShort>())
+                    }
+                    val elapsedTime = System.currentTimeMillis() - startTime
+                    println("Sent ${requests.size} requests in $elapsedTime ms")
+                }
         }
+
+        try {
+            sendInitialRequests()
+            collectAndSendUpdates()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         for (frame in incoming) {
+            // Handle incoming frames here if needed
         }
     }
+
+    get("requests/full") {
+        if (isEnabledRequests.first()) {
+            val requests = requestsDao.getAllSync()
+            call.respond(HttpStatusCode.OK, requests)
+        } else {
+            call.respond(HttpStatusCode.BadRequest, "Request monitoring is disabled")
+        }
+    }
+
 
     delete("requests") {
         if (isEnabledRequests.first()) {

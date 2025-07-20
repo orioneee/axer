@@ -4,14 +4,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.AxerDataProvider
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.domain.requests.formatters.formatCSS
 import io.github.orioneee.domain.requests.formatters.formatJavascript
 import io.github.orioneee.extentions.formatJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml

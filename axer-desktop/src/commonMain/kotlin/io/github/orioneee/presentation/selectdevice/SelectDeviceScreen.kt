@@ -1,5 +1,6 @@
 package io.github.orioneee.presentation.selectdevice
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -52,7 +54,7 @@ class SelectDeviceScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        navController: NavHostController, // Assuming this is passed in
+        navController: NavHostController,
     ) {
         val viewModel: DeviceScanViewModel = viewModel(
             factory = viewModelFactory {
@@ -62,6 +64,9 @@ class SelectDeviceScreen {
             }
         )
         val uiState by viewModel.uiState.collectAsState()
+        LaunchedEffect(Unit) {
+            viewModel.startScanning()
+        }
 
         Scaffold(
             topBar = {
@@ -82,7 +87,9 @@ class SelectDeviceScreen {
                 modifier = Modifier.Companion.fillMaxSize().padding(padding),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally
             ) {
-                if (uiState.isSearching) {
+                AnimatedVisibility(
+                    uiState.isSearching
+                ) {
                     ScanningProgress(uiState.progress)
                 }
 

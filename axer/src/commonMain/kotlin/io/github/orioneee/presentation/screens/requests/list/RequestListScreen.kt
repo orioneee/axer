@@ -46,9 +46,11 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.requests
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.logger.formateAsTime
+import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
@@ -108,8 +110,8 @@ internal class RequestListScreen() {
             supportingContent = {
                 val string = StringBuilder()
                 string.append("${request.host} ${request.sendTime.formateAsTime()} ")
-                if (request.error != null) {
-                    string.append(request.error.name)
+                request.error?.let {
+                    string.append(it.name)
                 }
                 if (request.isFinished()) {
                     string.append("${request.totalTime}ms")
@@ -170,8 +172,13 @@ internal class RequestListScreen() {
                             val scope = rememberCoroutineScope()
                             TextButton(
                                 onClick = {
-                                    scope.launch(Dispatchers.IO){
-                                        requests.value.exportAsHar()
+                                    scope.launch(Dispatchers.IO) {
+                                        try {
+                                            val res = dataProvider.getDataForExportAsHar()
+                                            res.exportAsHar()
+                                        } catch (e: Exception) {
+                                            println(e.getPlatformStackTrace())
+                                        }
                                     }
                                 }
                             ) {

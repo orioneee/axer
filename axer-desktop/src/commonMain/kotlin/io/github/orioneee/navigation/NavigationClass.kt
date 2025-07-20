@@ -1,5 +1,6 @@
 package io.github.orioneee.navigation
 
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -19,23 +20,23 @@ class NavigationClass {
     fun Host(
         navController: NavHostController,
     ) {
-        AxerTheme.ProvideTheme {
-            NavHost(
-                navController = navController,
-                startDestination = Route.SELECT_DEVICE.path,
-                exitTransition = { Animations.exitTransition },
-                popEnterTransition = { Animations.popEnterTransition },
-                enterTransition = { Animations.enterTransition },
-                popExitTransition = { Animations.popExitTransition }
-            ) {
-                composable(Route.SELECT_DEVICE.path) {
-                    SelectDeviceScreen().Screen(navController)
-                }
-                composable<DeviceData> {
-                    val route = it.toRoute<DeviceData>()
-                    InspectionScreen().Screen(navController, route)
+            Surface {
+                NavHost(
+                    navController = navController,
+                    startDestination = Route.SELECT_DEVICE.path,
+                    exitTransition = { Animations.exitTransition },
+                    popEnterTransition = { Animations.popEnterTransition },
+                    enterTransition = { Animations.enterTransition },
+                    popExitTransition = { Animations.popExitTransition }
+                ) {
+                    composable(Route.SELECT_DEVICE.path) {
+                        SelectDeviceScreen().Screen(navController)
+                    }
+                    composable<DeviceData> {
+                        val route = it.toRoute<DeviceData>()
+                        InspectionScreen().Screen(navController, route)
+                    }
                 }
             }
-        }
     }
 }

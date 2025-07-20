@@ -1,7 +1,9 @@
 package io.github.orioneee.extentions
 
-import io.github.orioneee.domain.exceptions.SavableError
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.SavableError
+import io.github.orioneee.domain.requests.data.SavableErrorFull
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.ktor.utils.io.charsets.Charset
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.core.toByteArray
@@ -14,9 +16,9 @@ private fun String.byteLen() = this.toByteArray(UTF8).size
 private fun Map<String, String>.byteLen(): Int =
     entries.sumOf { (k, v) -> k.byteLen() + v.byteLen() }
 
-private fun SavableError.byteLen(): Int = message.byteLen() + stackTrace.byteLen() + name.byteLen()
+private fun SavableErrorFull.byteLen(): Int = message.byteLen() + stackTrace.byteLen() + name.byteLen()
 
-internal fun Transaction.byteSize(): Long {
+internal fun TransactionFull.byteSize(): Long {
     var size: Long = 0
 
     size += Long.SIZE_BYTES

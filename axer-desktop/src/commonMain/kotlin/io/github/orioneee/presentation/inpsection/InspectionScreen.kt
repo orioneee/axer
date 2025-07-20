@@ -108,7 +108,7 @@ class InspectionScreen {
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text("Exit")
                     }
                 }
             }

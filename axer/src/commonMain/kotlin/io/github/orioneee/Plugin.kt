@@ -1,7 +1,8 @@
 package io.github.orioneee
 
 import io.github.orioneee.config.AxerKtorPluginConfig
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
@@ -62,7 +63,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 pluginConfig.retentionPeriodInSeconds,
                 pluginConfig.retentionSizeInBytes,
             )
-            var state = Transaction(
+            var state = TransactionFull(
                 sendTime = sendTime,
                 method = method,
                 host = host,

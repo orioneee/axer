@@ -58,6 +58,11 @@ class DeviceScanViewModel : ViewModel() {
                 install(ContentNegotiation) {
                     json(Json { ignoreUnknownKeys = true })
                 }
+                // set timeout 200ms
+                install(io.ktor.client.plugins.HttpTimeout) {
+                    connectTimeoutMillis = 200
+                    requestTimeoutMillis = 1_500
+                }
             }
 
             val reachableIps = CopyOnWriteArrayList<DeviceData>()
@@ -126,12 +131,12 @@ class DeviceScanViewModel : ViewModel() {
             }
         }
         return try {
-            if (!InetAddress.getByName(ip).isReachable(200)) {
-                doInNeededIp {
-                    println("Skipping unreachable IP: $ip")
-                }
-                return null
-            }
+//            if (!InetAddress.getByName(ip).isReachable(200)) {
+//                doInNeededIp {
+//                    println("Skipping unreachable IP: $ip")
+//                }
+//                return null
+//            }
             val response = client.get("http://$ip:$AXER_SERVER_PORT/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
                 doInNeededIp {

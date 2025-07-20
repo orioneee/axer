@@ -11,7 +11,8 @@ import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.room.converters.ListConverter
 import io.github.orioneee.room.converters.MapConverter
 import io.github.orioneee.room.dao.RequestDao
-import io.github.orioneee.domain.requests.Transaction
+import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.room.converters.LogLevelConverter
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO
@@ -20,11 +21,11 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [
-        Transaction::class,
+        TransactionFull::class,
         AxerException::class,
         LogLine::class,
     ],
-    version = 17
+    version = 18
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class, LogLevelConverter::class)
