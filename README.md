@@ -6,6 +6,27 @@
 
 # Axer Library
 
+---
+
+## 📑 Summary
+
+- [Overview](#overview)
+- [🚀 Remote Debugger Support](#-remote-debugger-support)
+- [Installation](#installation)
+- [Features & Usage](#features--usage)
+    - [HTTP Request Monitoring](#http-request-monitoring)
+    - [Logger](#logger)
+    - [Exception Handling](#exception-handling)
+    - [Room Database Inspection](#room-database-inspection)
+- [Runtime Configuration](#runtime-configuration)
+- [Stability](#stability)
+- [iOS Limitations](#ios-limitations)
+- [Inspiration](#inspiration)
+- [💡 Tips & Extras](#-tips--extras)
+- [License](#license)
+
+---
+
 <div align="center">
   <!-- GIFs: 4 in one line -->
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
@@ -25,37 +46,87 @@
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_list.png" width="45%" />
   </div>
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_view.png" width="45%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_view.png" width="45%" />
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_query.png" width="45%" />
   </div>
 </div>
 
+---
 
+## Overview
 
-Axer is a library designed to monitor **HTTP requests**, record **exceptions** (fatal and non-fatal), **inspect Room** databases in real-time with the ability to execute custom queries and edit values in table. Also library provide **logging** functional. It is inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library but provides additional features like Room database inspection.
+**Axer** is a modern, multiplatform library for advanced runtime inspection and debugging in Kotlin/Android/JVM/iOS projects. It enables you to:
 
+- Monitor **HTTP requests** with deep inspection and redaction capabilities (Ktor/OkHttp supported)
+- Record and inspect **exceptions** (both fatal and non-fatal), and customize crash handling
+- View and edit **Room databases** in real time, run custom queries, and manage multiple DBs
+- Capture and display **logs**, powered by [Napier](https://github.com/AAkira/Napier)
+- Use all these features locally or remotely via the **Remote Debugger** app
+
+Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), but adds multiplatform support and real-time database inspection.
+
+---
+
+## 🚀 Remote Debugger Support
+
+Axer now features **remote debugging**! You can run the Axer debugger app on your desktop, discover debuggable apps (JVM or Android) on your local network, and inspect requests, exceptions, logs, databases, and more — all remotely.
+
+> ⚡️ **Download the remote debugger app in the [Releases section](https://github.com/orioneee/Axer/releases).**  
+> The standalone desktop debugger is distributed there.
+
+<div align="center" style="margin-top: 20px;">
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/device_list.png" width="45%" />
+  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/remote_debug.png" width="45%" />
+</div>
+
+### Enabling Remote Debugging
+
+On your debuggable app (JVM/Android), manually start the Axer server:
+
+```kotlin
+CoroutineScope(Dispatchers.IO).launch {
+    try {
+        Axer.runServerIfNotRunning(this)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Toast.makeText(
+            this@SampleApplication,
+            "Failed to start Axer server: ${e.message}",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+}
+```
+
+- **Note**: Both debugger and debuggable device **must be on the same network**.
+- **Only one server** can be runned on one device at same time (Axer uses port `53214`).
+
+---
 
 ## Installation
 
-Add the following dependencies to your project:
+Add the dependencies to your project (`1.1.0` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
 implementation("io.github.orioneee:axer:1.1.0")
 ```
 
-For production environments where monitoring is not needed, use the no-op variant to avoid code changes:
+For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
 implementation("io.github.orioneee:axer-no-op:1.1.0")
 ```
 
-The no-op variant does nothing but maintains the same API, ensuring seamless integration in production.
+No-op maintains the same API, so switching in/out is seamless.
 
-## Usage
+---
+
+## Features & Usage
 
 ### HTTP Request Monitoring
 
-Axer can monitor HTTP requests and extract important data using selectors. It supports both Ktor and OkHttp clients.
+Axer monitors HTTP requests and highlights important data using customizable selectors.  
+Supports **Ktor** and **OkHttp** out of the box.
 
 #### Ktor Example
 
@@ -72,26 +143,23 @@ val client = HttpClient {
             val redactedHeaders = request.headers.mapValues { (key, value) ->
                 if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
             }
-            request.copy(headers = redactedHeaders) // this will present in request but not in UI
+            request.copy(headers = redactedHeaders)
         }
-
         responseReducer = { response ->
             response.copy(
                 headers = response.headers.mapValues { (key, value) ->
                     if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
                 }
-            ) // this will change content type which display only in UI
+            )
         }
-
         requestImportantSelector = { request ->
-            listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}") // if you want highlight any important data in request
+            listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
         }
-
         responseImportantSelector = { response ->
             listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
         }
         retentionPeriodInSeconds = 60 * 60 * 1
-        retentionSizeInBytes = 10 * 1024 * 1024 // will keep only latest 10 MB of requests
+        retentionSizeInBytes = 10 * 1024 * 1024
     }
 }
 ```
@@ -107,31 +175,30 @@ val client = OkHttpClient.Builder()
                     if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
                 }
                 request.copy(headers = redactedHeaders)
-            } // this will present in request but not in UI
+            }
             .setResponseReducer { response ->
                 response.copy(
                     headers = response.headers.mapValues { (key, value) ->
                         if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
                     }
                 )
-            } // this will change content type which display only in UI
+            }
             .setRequestImportantSelector { request ->
                 listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
-            } // if you want highlight any important data in request
+            }
             .setResponseImportantSelector { response ->
                 listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
             }
             .setRetentionTime(60 * 60 * 1)
-            .setRetentionSize(10 * 1024 * 1024) // will keep only latest 10 MB of requests
+            .setRetentionSize(10 * 1024 * 1024)
             .build()
     )
     .build()
-
 ```
 
 #### JVM Window
 
-To display the Axer UI in a JVM environment:
+Display the Axer UI in your JVM app:
 
 ```kotlin
 fun main() = application {
@@ -140,7 +207,7 @@ fun main() = application {
 }
 ```
 
-Or if you want manualy control the window:
+Or manually control the window:
 
 ```kotlin
 fun main() = application {
@@ -149,52 +216,50 @@ fun main() = application {
 }
 ```
 
-
 #### Call UI
 
-To open the Axer UI programmatically:
+Programmatically open the Axer UI:
 
 ```kotlin
 Axer.openAxerUI()
 ```
 
-#### UI integration
+#### UI Integration
 
-if you want to integrate Axer UI in your app, you can use the following code:
+Integrate Axer UI directly:
 
 ```kotlin
 AxerUIEntryPoint().Screen()
 ```
 
-These configurations allow Axer to record network requests and display important data extracted by the provided selectors, which can be viewed in the UI. Also you can acces ui in android, ios by clicking on notification(**requare notification permissions**)
+Access the UI also from Android/iOS by clicking the notification (**requires notification permissions**).
+
+---
 
 ### Logger
-Logger maded by [Napier](https://github.com/AAkira/Napier)
 
-**if you already use Napier you just need install logsaver**
+Axer logging is powered by [Napier](https://github.com/AAkira/Napier).
 
-```kotlin
-Napier.base(AxerLogSaver())
-```
+- **Already use Napier?**  
+  Just install the Axer log saver:
 
-and simply log with napier as before, all logs will be saved and displayed
+  ```kotlin
+  Napier.base(AxerLogSaver())
+  ```
 
-**if you dont use Napier**
-You can simply use Axer logger without any additional setup:
-```kotlin
-Axer.d("App", "Test debug log")
-//Axer.d("App", "Test debug log with throwable", Throwable("Test throwable"))
-Axer.e("App", "Test error log")
-//Axer.e("App", "Test error log with throwable", Throwable("Test throwable"))
-Axer.i("App", "Test info log")
-//Axer.i("App", "Test info log with throwable", Throwable("Test throwable"))
-Axer.w("App", "Test warning log")
-//Axer.w("App", "Test warning log with throwable", Throwable("Test throwable"), record = false) // record = false will just log without saving to Axer
-Axer.v("App", "Test verbose log")
-//Axer.v("App", "Test verbose log with throwable", Throwable("Test throwable"))
-Axer.wtf("App", "Test assert log")
-Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
-```
+- **Don't use Napier?**  
+  Use Axer logger directly:
+
+  ```kotlin
+  Axer.d("App", "Test debug log")
+  Axer.e("App", "Test error log")
+  Axer.i("App", "Test info log")
+  Axer.w("App", "Test warning log")
+  Axer.v("App", "Test verbose log")
+  Axer.wtf("App", "Test assert log")
+  ```
+
+  > You can also log with exceptions and control saving with `record = false`.
 
 <div style="display: flex; justify-content: center; margin-top: 20px;">
   <table style="border-collapse: collapse; text-align: center;">
@@ -211,47 +276,47 @@ Axer.wtf("App", "Test assert log with throwable", Throwable("Test throwable"))
   </table>
 </div>
 
+---
 
 ### Exception Handling
 
-Axer can capture fatal crashes and manually recorded exceptions.
+Axer captures fatal crashes and manually recorded exceptions.
 
 #### Fatal Crash Handling
 
-Install the error handler on the main thread:
+Install the error handler on your main thread:
 
-**Android:**
+- **Android:**
 
-```kotlin
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Axer.installErrorHandler()
-        ...
-        ...
-    }
-}
-```
+  ```kotlin
+  class MainActivity : ComponentActivity() {
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+          Axer.installErrorHandler()
+          ...
+      }
+  }
+  ```
 
-**Jvm**
-```kotlin
-fun main() = application {
-    Axer.installErrorHandler()
-    ...
-    ...
-}
-```
+- **JVM:**
 
-**IOS**
-```kotlin
-fun MainViewController(): UIViewController {
-    Axer.installErrorHandler()
-    ...
-    ...
-}
-```
+  ```kotlin
+  fun main() = application {
+      Axer.installErrorHandler()
+      ...
+  }
+  ```
 
-You can customize the crash at jvm and android by overriding the open class AxerUncaughtExceptionHandler and settings it like:
+- **iOS:**
+
+  ```kotlin
+  fun MainViewController(): UIViewController {
+      Axer.installErrorHandler()
+      ...
+  }
+  ```
+
+Customize crash handling by overriding `AxerUncaughtExceptionHandler`:
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
@@ -259,7 +324,6 @@ open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
 }
 ...
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
-
 ```
 
 #### Manual Exception Recording
@@ -271,9 +335,11 @@ Axer.recordException(Exception("Test exception"))
 Axer.recordAsFatal(Exception("Test fatal exception"))
 ```
 
+---
+
 ### Room Database Inspection
 
-Axer supports live inspection of Room databases and execution of custom queries. Now multiple databases are supported.
+Axer supports live Room DB inspection and custom queries, with multiple DB support.
 
 #### Example Configuration
 
@@ -285,14 +351,17 @@ builder
     .build()
 ```
 
-The only required configuration is setting the driver:
+Only required setup:
 
 ```kotlin
 .setDriver(AxerBundledSQLiteDriver.getInstance())
 ```
 
-## Configuration
-You can configure available options for monitoring in runtime(by default all enabled)
+---
+
+## Runtime Configuration
+
+Enable/disable monitoring options at runtime (all enabled by default):
 
 ```kotlin
 Axer.configure {
@@ -303,15 +372,36 @@ Axer.configure {
 }
 ```
 
+---
 
-**Stability**:
+## Stability
 
-The library is in beta (`1.1.0`) and may have bugs or breaking changes in future releases.
+Axer is currently in beta (`1.1.0`).  
+Expect possible bugs and breaking changes as the library evolves.
+
+---
 
 ## iOS Limitations
+
 - Stack traces are not supported.
 
+---
 
 ## Inspiration
 
-Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects. It was inspired by the [Chucker](https://github.com/ChuckerTeam/chucker) library, extending it with Room database inspection and multiplatform support. Additionally, Axer incorporates ideas and formatting techniques from [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/) to improve the readability of HTTP request and response logs.
+Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects.  
+It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), with added multiplatform and Room DB inspection support.
+
+---
+
+## 💡 Tips & Extras
+
+- For the latest desktop remote debugger, **check [Releases](https://github.com/orioneee/Axer/releases)**.
+- You can mix and match all features or use only what you need.
+- The API is intentionally minimal and consistent across platforms.
+
+---
+
+## License
+
+MIT License
