@@ -30,10 +30,10 @@
 <div align="center">
   <!-- GIFs: 4 in one line -->
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/requests.gif" width="22%" />
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/exceptions.gif" width="22%" />
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs.gif" width="22%" />
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/room.gif" width="22%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/requests_mobile.jpg" width="22%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/exceptions_mobile.jpg" width="22%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_mobile.jpg" width="22%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_mobile.jpg" width="22%" />
   </div>
 
   <!-- Screenshots: 2 per line -->
