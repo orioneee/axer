@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.internal.utils.getLocalProperty
+import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -237,3 +238,23 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", libraryVersion)
     }
 }
+
+
+fun generateDocumentations() {
+    val version = getLatestGitTag()
+    println("Latest version: '$version'")
+
+    val templateFile = File(rootDir, "axer/template/template_README.MD")
+    println("Template exists: ${templateFile.exists()}")
+
+    val template = templateFile.readText()
+    val updated = template.replace("{{AXER_VERSION}}", version)
+
+    val outputFile = File(rootDir, "README.md")
+    println("Writing to: ${outputFile.absolutePath}")
+    outputFile.writeText(updated)
+
+    println("README.md updated with version: $version")
+}
+
+generateDocumentations()
