@@ -23,9 +23,8 @@ import java.io.File
 fun main() = application {
     Thread.setDefaultUncaughtExceptionHandler { _, e ->
         e.printStackTrace()
-        //create file with error message and open it is system
         val file = File("error.txt")
-        file.writeText(e.stackTraceToString() ?: "Unknown error")
+        file.writeText(e.stackTraceToString())
     }
     val painter = painterResource(Res.drawable.logo_circle)
     Window(
