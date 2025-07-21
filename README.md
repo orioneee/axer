@@ -404,4 +404,4 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 
 ## License
 
-MIT License
+Apache License 2.0.
