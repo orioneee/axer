@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal actual fun MultiplatformAlertDialog(
+actual fun MultiplatformAlertDialog(
     canDismissByClickOutside: Boolean,
     isShowDialog: Boolean,
     onDismiss: () -> Unit,

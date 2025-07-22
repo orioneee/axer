@@ -95,6 +95,15 @@ android {
     buildTypes {
         debug {
             isDebuggable = false
+            isMinifyEnabled = true
+        }
+        release {
+            isMinifyEnabled = true
+            isDebuggable = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
