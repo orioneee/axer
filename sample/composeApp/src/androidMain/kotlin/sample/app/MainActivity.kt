@@ -33,19 +33,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         lifecycleScope.launch {
-            try {
-                Axer.runServerIfNotRunning(this)
-            } catch (e: CancellationException) {
-                println("Axer server startup cancelled: ${e.message}")
-                throw e
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(
-                    this@MainActivity,
-                    "Failed to start Axer server: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            Axer.runServerIfNotRunning(this)
         }
         setContent {
             val theme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

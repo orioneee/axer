@@ -84,17 +84,9 @@ Axer now features **remote debugging**! You can run the Axer debugger app on you
 On your debuggable app (JVM/Android), manually start the Axer server:
 
 ```kotlin
-CoroutineScope(Dispatchers.IO).launch {
-    try {
-        Axer.runServerIfNotRunning(this)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Toast.makeText(
-            this@SampleApplication,
-            "Failed to start Axer server: ${e.message}",
-            Toast.LENGTH_LONG
-        ).show()
-    }
+val scope = // scope in which you want to run the server, e.g., lifecycleScope in Android, viewModelScope in ViewModel, etc.
+  scope.launch {
+  Axer.runServerIfNotRunning(this)
 }
 ```
 
