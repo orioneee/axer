@@ -18,18 +18,5 @@ class SampleApplication : Application() {
             androidContext(this@SampleApplication)
             modules(KoinModules.module)
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                Axer.runServerIfNotRunning(this)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(
-                    this@SampleApplication,
-                    "Failed to start Axer server: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
     }
 }

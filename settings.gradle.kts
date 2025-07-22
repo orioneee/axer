@@ -33,4 +33,4 @@ dependencyResolutionManagement {
 include(":axer")
 include(":axer-no-op")
 include(":sample:composeApp")
-include(":axer-desktop")
+include(":axer-remote-debugger")

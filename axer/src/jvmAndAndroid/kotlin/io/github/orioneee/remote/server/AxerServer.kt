@@ -17,6 +17,8 @@ import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
+import io.ktor.server.cio.CIOApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
@@ -67,7 +69,16 @@ var serverJob: Job? = null
 fun Axer.runServerIfNotRunning(scope: CoroutineScope) {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = scope.launch(Dispatchers.IO) {
-            startKtorServer(AXER_SERVER_PORT)
+            val server = startKtorServer(AXER_SERVER_PORT)
+            try {
+                server.start(wait = false)
+            } catch (e: CancellationException) {
+                println("Server was cancelled: ${e.message}")
+                server.stop()
+                throw e
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
@@ -77,7 +88,7 @@ const val AXER_SERVER_PORT = 53214
 @OptIn(FlowPreview::class)
 private fun CoroutineScope.startKtorServer(
     port: Int
-) {
+): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
     val reader = RoomReader()
     val requestDao: RequestDao by IsolatedContext.koin.inject()
     val exceptionsDao: AxerExceptionDao by IsolatedContext.koin.inject()
@@ -88,7 +99,7 @@ private fun CoroutineScope.startKtorServer(
     val isEnabledLogs = AxerSettings.enableLogMonitor.asFlow()
     val isEnabledDatabase = AxerSettings.enableDatabaseMonitor.asFlow()
 
-    val server = embeddedServer(CIO, port = port) {
+    return embeddedServer(CIO, port = port) {
         install(WebSockets) {
             pingPeriod = 15.seconds
             timeout = 15.seconds
@@ -177,14 +188,5 @@ private fun CoroutineScope.startKtorServer(
                 }
             }
         }
-    }
-    try {
-        server.start(wait = false)
-    } catch (e: CancellationException) {
-        println("Server was cancelled: ${e.message}")
-        server.stop()
-        throw e
-    } catch (e: Exception) {
-        e.printStackTrace()
     }
 }
