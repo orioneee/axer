@@ -14,10 +14,10 @@
 - [🚀 Remote Debugger Support](#-remote-debugger-support)
 - [Installation](#installation)
 - [Features & Usage](#features--usage)
-    - [HTTP Request Monitoring](#http-request-monitoring)
-    - [Logger](#logger)
-    - [Exception Handling](#exception-handling)
-    - [Room Database Inspection](#room-database-inspection)
+  - [HTTP Request Monitoring](#http-request-monitoring)
+  - [Logger](#logger)
+  - [Exception Handling](#exception-handling)
+  - [Room Database Inspection](#room-database-inspection)
 - [Runtime Configuration](#runtime-configuration)
 - [Stability](#stability)
 - [iOS Limitations](#ios-limitations)
@@ -74,10 +74,12 @@ Axer now features **remote debugging**! You can run the Axer debugger app on you
 > ⚡️ **Download the remote debugger app in the [Releases section](https://github.com/orioneee/Axer/releases).**  
 > The standalone desktop debugger is distributed there.
 
-<div align="center" style="margin-top: 20px;">
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/device_list.png" width="45%" />
-  <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/remote_debug.png" width="45%" />
-</div>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/orioneee/Axer/refs/heads/main/sample/screenshots/remote_debugger_android.jpg" width="22%" />
+  &nbsp; <!-- Optional spacing -->
+  <img src="https://raw.githubusercontent.com/orioneee/Axer/refs/heads/main/sample/screenshots/no_devices_remote.jpg" width="22%" />
+</p>
+
 
 ### Enabling Remote Debugging
 
@@ -86,8 +88,8 @@ On your debuggable app (JVM/Android), manually start the Axer server:
 ```kotlin
 val scope = // scope in which you want to run the server, e.g., lifecycleScope in Android, viewModelScope in ViewModel, etc.
   scope.launch {
-  Axer.runServerIfNotRunning(this)
-}
+    Axer.runServerIfNotRunning(this)
+  }
 ```
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
@@ -124,35 +126,35 @@ Supports **Ktor** and **OkHttp** out of the box.
 
 ```kotlin
 val client = HttpClient {
-    install(DefaultRequest) {
-        contentType(ContentType.Application.Json)
-        if (!headers.contains("Authorization")) {
-            header("Authorization", "Bearer your_token_here")
-        }
+  install(DefaultRequest) {
+    contentType(ContentType.Application.Json)
+    if (!headers.contains("Authorization")) {
+      header("Authorization", "Bearer your_token_here")
     }
-    install(Axer.ktorPlugin) {
-        requestReducer = { request ->
-            val redactedHeaders = request.headers.mapValues { (key, value) ->
-                if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
-            }
-            request.copy(headers = redactedHeaders)
-        }
-        responseReducer = { response ->
-            response.copy(
-                headers = response.headers.mapValues { (key, value) ->
-                    if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
-                }
-            )
-        }
-        requestImportantSelector = { request ->
-            listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
-        }
-        responseImportantSelector = { response ->
-            listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
-        }
-        retentionPeriodInSeconds = 60 * 60 * 1
-        retentionSizeInBytes = 10 * 1024 * 1024
+  }
+  install(Axer.ktorPlugin) {
+    requestReducer = { request ->
+      val redactedHeaders = request.headers.mapValues { (key, value) ->
+        if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
+      }
+      request.copy(headers = redactedHeaders)
     }
+    responseReducer = { response ->
+      response.copy(
+        headers = response.headers.mapValues { (key, value) ->
+          if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+        }
+      )
+    }
+    requestImportantSelector = { request ->
+      listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
+    }
+    responseImportantSelector = { response ->
+      listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+    }
+    retentionPeriodInSeconds = 60 * 60 * 1
+    retentionSizeInBytes = 10 * 1024 * 1024
+  }
 }
 ```
 
@@ -160,32 +162,32 @@ val client = HttpClient {
 
 ```kotlin
 val client = OkHttpClient.Builder()
-    .addInterceptor(
-        AxerOkhttpInterceptor.Builder()
-            .setRequestReducer { request ->
-                val redactedHeaders = request.headers.mapValues { (key, value) ->
-                    if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
-                }
-                request.copy(headers = redactedHeaders)
-            }
-            .setResponseReducer { response ->
-                response.copy(
-                    headers = response.headers.mapValues { (key, value) ->
-                        if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
-                    }
-                )
-            }
-            .setRequestImportantSelector { request ->
-                listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
-            }
-            .setResponseImportantSelector { response ->
-                listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
-            }
-            .setRetentionTime(60 * 60 * 1)
-            .setRetentionSize(10 * 1024 * 1024)
-            .build()
-    )
-    .build()
+  .addInterceptor(
+    AxerOkhttpInterceptor.Builder()
+      .setRequestReducer { request ->
+        val redactedHeaders = request.headers.mapValues { (key, value) ->
+          if (key.equals("Authorization", ignoreCase = true)) "Bearer ***" else value
+        }
+        request.copy(headers = redactedHeaders)
+      }
+      .setResponseReducer { response ->
+        response.copy(
+          headers = response.headers.mapValues { (key, value) ->
+            if (key.equals("Content-Type", ignoreCase = true)) "application/json" else value
+          }
+        )
+      }
+      .setRequestImportantSelector { request ->
+        listOf("Authorization: ${request.headers["Authorization"] ?: "Not set"}")
+      }
+      .setResponseImportantSelector { response ->
+        listOf("status: ${response.status}", "content-type: ${response.headers["Content-Type"]}")
+      }
+      .setRetentionTime(60 * 60 * 1)
+      .setRetentionSize(10 * 1024 * 1024)
+      .build()
+  )
+  .build()
 ```
 
 #### JVM Window
@@ -194,8 +196,8 @@ Display the Axer UI in your JVM app:
 
 ```kotlin
 fun main() = application {
-    AxerTrayWindow()
-    ...
+  AxerTrayWindow()
+  ...
 }
 ```
 
@@ -203,8 +205,8 @@ Or manually control the window:
 
 ```kotlin
 fun main() = application {
-    AxerWindows()
-    ...
+  AxerWindows()
+  ...
 }
 ```
 
@@ -312,7 +314,7 @@ Customize crash handling by overriding `AxerUncaughtExceptionHandler`:
 
 ```kotlin
 open class AxerUncaughtExceptionHandler : UncaughtExceptionHandler {
-    // Custom implementation
+  // Custom implementation
 }
 ...
 Thread.setDefaultUncaughtExceptionHandler(MyUncaughtExceptionHandler())
@@ -337,10 +339,10 @@ Axer supports live Room DB inspection and custom queries, with multiple DB suppo
 
 ```kotlin
 builder
-    .setDriver(AxerBundledSQLiteDriver.getInstance())
-    .setQueryCoroutineContext(Dispatchers.IO)
-    .fallbackToDestructiveMigration(false)
-    .build()
+  .setDriver(AxerBundledSQLiteDriver.getInstance())
+  .setQueryCoroutineContext(Dispatchers.IO)
+  .fallbackToDestructiveMigration(false)
+  .build()
 ```
 
 Only required setup:
@@ -357,10 +359,10 @@ Enable/disable monitoring options at runtime (all enabled by default):
 
 ```kotlin
 Axer.configure {
-    enableRequestMonitor = true
-    enableExceptionMonitor = true
-    enableLogMonitor = true
-    enableDatabaseMonitor = true
+  enableRequestMonitor = true
+  enableExceptionMonitor = true
+  enableLogMonitor = true
+  enableDatabaseMonitor = true
 }
 ```
 
