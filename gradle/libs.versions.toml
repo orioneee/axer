@@ -1,7 +1,7 @@
 [versions]
 
 accompanistPermissions = "0.37.3"
-coilCompose = "3.2.0"
+coilCompose = "3.3.0"
 composableTable = "1.3.1"
 kodeview = "0.9.0"
 kotlin = "2.2.0"
