@@ -50,8 +50,6 @@ class InspectionScreen {
         isShown: Boolean,
         onDismiss: () -> Unit,
     ) {
-
-
         MultiplatformAlertDialog(
             canDismissByClickOutside = false,
             isShowDialog = isShown,

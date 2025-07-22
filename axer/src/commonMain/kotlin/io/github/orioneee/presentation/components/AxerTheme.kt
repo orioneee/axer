@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 object AxerTheme {
-    internal val light = lightColorScheme(
+    val light = lightColorScheme(
         primary = Color(0xFF435E91),
         onPrimary = Color(0xFFFFFFFF),
         primaryContainer = Color(0xFFD8E2FF),

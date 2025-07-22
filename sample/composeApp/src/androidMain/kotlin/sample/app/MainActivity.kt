@@ -6,12 +6,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.LaunchedEffect
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import io.github.orioneee.Axer
 import io.github.orioneee.installErrorHandler
+import io.github.orioneee.presentation.components.AxerTheme
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPermissionsApi::class)
@@ -20,18 +25,37 @@ class MainActivity : ComponentActivity() {
         Axer.installErrorHandler()
         enableEdgeToEdge()
         setContent {
-            val notificationPermissionState =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+            val theme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val isDark = isSystemInDarkTheme()
+                if (isDark) {
+                    dynamicDarkColorScheme(this)
                 } else {
-                    null
+                    dynamicLightColorScheme(this)
                 }
-            LaunchedEffect(Unit) {
-                if (notificationPermissionState?.status?.isGranted == false) {
-                    notificationPermissionState.launchPermissionRequest()
+            } else {
+                val isDark = isSystemInDarkTheme()
+                if (isDark) {
+                    AxerTheme.dark
+                } else {
+                    AxerTheme.light
                 }
             }
-            App()
+            MaterialTheme(
+                colorScheme = theme
+            ) {
+                val notificationPermissionState =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        null
+                    }
+                LaunchedEffect(Unit) {
+                    if (notificationPermissionState?.status?.isGranted == false) {
+                        notificationPermissionState.launchPermissionRequest()
+                    }
+                }
+                App()
+            }
         }
     }
 }

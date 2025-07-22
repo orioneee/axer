@@ -22,8 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Router
 import androidx.compose.material.icons.outlined.WifiOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -34,7 +32,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -71,18 +68,17 @@ class SelectDeviceScreen {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Select a Device") }, actions = {
+                    title = { Text("Select a Device") },
+                    actions = {
                         if (!uiState.isSearching) {
                             IconButton(onClick = { viewModel.startScanning() }) {
                                 Icon(Icons.Default.Refresh, contentDescription = "Rescan")
                             }
                         }
-                    }, colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
-                    )
+                    },
                 )
-            }) { padding ->
+            }
+        ) { padding ->
             Column(
                 modifier = Modifier.Companion.fillMaxSize().padding(padding),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally
@@ -99,7 +95,7 @@ class SelectDeviceScreen {
                             modifier = Modifier.Companion.weight(1f),
                             contentAlignment = Alignment.Companion.Center
                         ) {
-                            EmptyState { viewModel.startScanning() }
+                            EmptyState()
                         }
                     } else {
                         Box(
@@ -153,7 +149,7 @@ class SelectDeviceScreen {
 
 
     @Composable
-    fun EmptyState(onRetry: () -> Unit) {
+    fun EmptyState() {
         Column(
             horizontalAlignment = Alignment.Companion.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -176,15 +172,6 @@ class SelectDeviceScreen {
                 textAlign = TextAlign.Companion.Center
             )
             Spacer(Modifier.Companion.height(24.dp))
-            Button(onClick = onRetry) {
-                Icon(
-                    Icons.Default.Refresh,
-                    contentDescription = null,
-                    modifier = Modifier.Companion.size(ButtonDefaults.IconSize)
-                )
-                Spacer(Modifier.Companion.size(ButtonDefaults.IconSpacing))
-                Text("Try Again")
-            }
         }
     }
 
@@ -211,7 +198,7 @@ class SelectDeviceScreen {
     ) {
         Card(
             onClick = onClick,
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {

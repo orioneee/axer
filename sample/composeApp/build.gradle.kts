@@ -11,7 +11,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 
     androidTarget()
     jvm()
@@ -68,10 +68,10 @@ kotlin {
         val androidMain by getting {
             dependsOn(androidAndJvm)
             dependencies {
-                implementation(libs.kotlinx.coroutines.android)
-                implementation(libs.accompanist.permissions)
                 implementation(libs.androidx.activityCompose)
+                implementation(libs.kotlinx.coroutines.android)
 
+                implementation(libs.accompanist.permissions)
                 implementation(libs.koin.android)
                 implementation("com.github.chuckerteam.chucker:library:4.1.0")
 
@@ -120,14 +120,11 @@ android {
         versionCode = 1
         versionName = "1.0.0"
     }
-
-
     buildTypes {
         debug {
             isDebuggable = false
         }
     }
-
 }
 
 

@@ -8,7 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -153,6 +155,7 @@ internal class RequestListScreen() {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
                     title = {
                         Text(
                             stringResource(Res.string.requests),
@@ -206,7 +209,7 @@ internal class RequestListScreen() {
             Box(
                 modifier = Modifier.Companion
                     .fillMaxSize()
-                    .padding(contentPadding),
+//                    .padding(contentPadding),
 
                 ) {
                 if (requests.value.isEmpty()) {

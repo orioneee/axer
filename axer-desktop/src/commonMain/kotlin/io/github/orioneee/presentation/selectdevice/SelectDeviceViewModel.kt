@@ -6,12 +6,15 @@ import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,12 +41,15 @@ class DeviceScanViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(DeviceScanUiState())
     val uiState = _uiState.asStateFlow()
 
+    var scanningJob: Job? = null
+
     fun startScanning() {
-        viewModelScope.launch {
+        scanningJob =  viewModelScope.launch {
             _uiState.update { it.copy(isSearching = true, devices = emptyList(), progress = 0f) }
 
             scanForAxerDevices { foundDevices, currentProgress ->
                 _uiState.update {
+                    ensureActive()
                     it.copy(devices = foundDevices, progress = currentProgress)
                 }
             }
@@ -59,9 +65,9 @@ class DeviceScanViewModel : ViewModel() {
                     json(Json { ignoreUnknownKeys = true })
                 }
                 // set timeout 200ms
-                install(io.ktor.client.plugins.HttpTimeout) {
-                    connectTimeoutMillis = 200
-                    requestTimeoutMillis = 1_500
+                install(HttpTimeout) {
+                    connectTimeoutMillis = 1000
+                    requestTimeoutMillis = 3_500
                 }
             }
 
@@ -155,10 +161,5 @@ class DeviceScanViewModel : ViewModel() {
             }
             null // Catches timeouts, connection refused, etc.
         }
-    }
-
-    // Initial scan when ViewModel is created.
-    init {
-        startScanning()
     }
 }

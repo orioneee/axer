@@ -34,6 +34,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -65,7 +66,7 @@ var serverJob: Job? = null
 
 fun Axer.runServerIfNotRunning(scope: CoroutineScope) {
     if (serverJob == null || serverJob?.isCompleted == true) {
-        serverJob = scope.launch {
+        serverJob = scope.launch(Dispatchers.IO) {
             startKtorServer(AXER_SERVER_PORT)
         }
     }
@@ -87,7 +88,7 @@ private fun CoroutineScope.startKtorServer(
     val isEnabledLogs = AxerSettings.enableLogMonitor.asFlow()
     val isEnabledDatabase = AxerSettings.enableDatabaseMonitor.asFlow()
 
-    embeddedServer(CIO, port = port) {
+    val server = embeddedServer(CIO, port = port) {
         install(WebSockets) {
             pingPeriod = 15.seconds
             timeout = 15.seconds
@@ -176,5 +177,14 @@ private fun CoroutineScope.startKtorServer(
                 }
             }
         }
-    }.start(wait = false)
+    }
+    try {
+        server.start(wait = false)
+    } catch (e: CancellationException) {
+        println("Server was cancelled: ${e.message}")
+        server.stop()
+        throw e
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }

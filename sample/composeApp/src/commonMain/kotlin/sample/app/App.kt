@@ -222,7 +222,6 @@ internal fun App(
             )
         }
     ) { innerPadding ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

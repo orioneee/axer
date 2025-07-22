@@ -3,9 +3,9 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.maven.publish)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.application)
 }
 
 fun getLatestGitTag() = providers.exec {
@@ -19,11 +19,11 @@ version = libraryVersion
 
 kotlin {
     jvmToolchain(17)
+    androidTarget()
     jvm()
     sourceSets {
         commonMain {
             dependencies {
-
                 implementation(compose.material3)
                 implementation(libs.kotlin.stdlib)
                 implementation(compose.materialIconsExtended)
@@ -39,11 +39,16 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.navigation.compose)
                 implementation(compose.components.resources)
-
-
-                implementation(compose.desktop.currentOs)
                 implementation(project(":axer"))
             }
+        }
+
+        androidMain.dependencies {
+            implementation(libs.androidx.activityCompose)
+            implementation(libs.kotlinx.coroutines.android)
+        }
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }
@@ -59,18 +64,37 @@ compose.desktop {
 
 
             windows {
-                iconFile.set(project.file("src/commonMain/resources/icon.ico"))
+                iconFile.set(project.file("src/jvmMain/resources/icon.ico"))
 
             }
             macOS {
-                iconFile.set(project.file("src/commonMain/resources/icon.icns"))
+                iconFile.set(project.file("src/jvmMain/resources/icon.icns"))
             }
             linux {
-                iconFile.set(project.file("src/commonMain/resources/icon.png"))
+                iconFile.set(project.file("src/jvmMain/resources/icon.png"))
             }
 
             windows.shortcut = true
             windows.upgradeUuid = "904679ed-6445-4d0e-b66e-ca96688e81b3"
+        }
+    }
+}
+
+android {
+    namespace = "io.orioneee.axer.debugger"
+    compileSdk = libs.versions.compileSdk.get().toInt()
+
+    defaultConfig {
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.compileSdk.get().toInt()
+
+        applicationId = "io.orioneee.axer.debugger"
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+    buildTypes {
+        debug {
+            isDebuggable = false
         }
     }
 }

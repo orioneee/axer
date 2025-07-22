@@ -1,11 +1,13 @@
 package io.github.orioneee.presentation.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -19,7 +21,8 @@ import io.github.orioneee.presentation.screens.requests.list.RequestListScreen
 internal object RequestsEntryPoint {
     @Composable
     fun RequestContent() {
-        Surface {
+        Surface (
+        ){
             val navController = rememberNavController()
             val currentBackStackEntry by navController.currentBackStackEntryAsState()
             val currentSelectedID = currentBackStackEntry?.arguments?.read {

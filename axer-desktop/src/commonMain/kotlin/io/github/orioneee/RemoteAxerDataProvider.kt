@@ -37,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -300,7 +301,7 @@ class RemoteAxerDataProvider(
     }
 
     override fun isConnected(): Flow<Boolean> {
-        val maxDelta = 3_000L
+        val maxDelta = 5_000L
 
         val serverTimeFlow = webSocketFlow("/ws/isAlive") { msg ->
             val m = msg.substringAfter("ping - ").replace("\"", "").toLongOrNull() ?: 0L
@@ -318,7 +319,7 @@ class RemoteAxerDataProvider(
             clientTimeFlow
         ) { serverTime, clientTime ->
             abs(serverTime - clientTime) < maxDelta
-        }.distinctUntilChanged()
+        }.distinctUntilChanged().debounce(500)
     }
 
 

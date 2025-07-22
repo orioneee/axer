@@ -1,5 +1,10 @@
 package io.github.orioneee
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.koin.Modules
@@ -25,10 +30,14 @@ actual fun openAxer() {
 
     topController.presentViewController(
         ComposeUIViewController {
-            KoinIsolatedContext(IsolatedContext.koinApp) {
-                val database: AxerDatabase = IsolatedContext.koinApp.koin.get()
-                val provider = LocalAxerDataProvider(database)
-                AxerUIEntryPoint().Screen(provider)
+            Scaffold {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(it)
+                ) {
+                    AxerUIEntryPoint().Screen()
+                }
             }
         },
         animated = true,

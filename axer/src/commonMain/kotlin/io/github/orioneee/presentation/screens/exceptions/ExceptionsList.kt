@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.screens.exceptions
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -97,8 +98,10 @@ internal class ExceptionsList {
         val exceptions by viewModel.exceptions.collectAsState(emptyList())
 
         Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
                 CenterAlignedTopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
                     title = {
                         Text(
                             text = stringResource(Res.string.exceptions),

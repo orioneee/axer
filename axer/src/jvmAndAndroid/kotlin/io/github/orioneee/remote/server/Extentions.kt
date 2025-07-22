@@ -66,8 +66,6 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
     webSocket(path) {
         val clientState = mutableListOf<T>()
 
-
-
         if (isEnabledFlow().first()) {
             try {
                 val all = initialData()
@@ -101,24 +99,20 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                 .collect { (isEnabled, newList) ->
                     ensureActive()
                     if (!isEnabled) return@collect
-                    try {
-                        sendChuncked(
-                            path = path,
-                            newList = newList,
-                            clientState = clientState,
-                            getId = getId,
-                            chunkSize = chunkSize,
-                            sendSerialized = ::sendSerialized,
-                            onRemove = { removedIds ->
-                                clientState.removeAll { getId(it) in removedIds }
-                            },
-                            onAdd = { addedItems ->
-                                clientState.addAll(addedItems)
-                            }
-                        )
-                    } catch (e: Exception) {
-                        println("[$path] Send failed: ${e.message}")
-                    }
+                    sendChuncked(
+                        path = path,
+                        newList = newList,
+                        clientState = clientState,
+                        getId = getId,
+                        chunkSize = chunkSize,
+                        sendSerialized = ::sendSerialized,
+                        onRemove = { removedIds ->
+                            clientState.removeAll { getId(it) in removedIds }
+                        },
+                        onAdd = { addedItems ->
+                            clientState.addAll(addedItems)
+                        }
+                    )
                 }
         }
 

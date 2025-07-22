@@ -96,6 +96,10 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.multiplatform.settings)
 
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.0.0-alpha03")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.0.0-alpha03")
+            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.0.0-alpha03")
+
             val ktor_version = libs.versions.ktor.get()
 
             implementation("io.ktor:ktor-server-core:${ktor_version}")

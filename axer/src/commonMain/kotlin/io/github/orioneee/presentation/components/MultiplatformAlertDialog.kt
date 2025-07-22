@@ -11,7 +11,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal expect fun MultiplatformAlertDialog(
+expect fun MultiplatformAlertDialog(
     canDismissByClickOutside: Boolean = true,
     isShowDialog: Boolean,
     onDismiss: () -> Unit,

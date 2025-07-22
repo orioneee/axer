@@ -34,6 +34,7 @@ runner = "1.6.2"
 core = "1.6.1"
 junit = "1.2.1"
 startupRuntime = "1.2.0"
+adaptiveDesktop = "1.0.0"
 
 
 [libraries]
@@ -88,6 +89,7 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+androidx-adaptive-desktop = { group = "androidx.compose.material3.adaptive", name = "adaptive-desktop", version.ref = "adaptiveDesktop" }
 
 
 [plugins]

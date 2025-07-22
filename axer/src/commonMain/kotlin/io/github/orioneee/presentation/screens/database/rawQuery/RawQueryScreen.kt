@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -87,8 +88,10 @@ internal class RawQueryScreen {
         val currentQuery by viewModel.currentQuery.collectAsState("")
         val sortColumn by viewModel.sortColumn.collectAsState()
         Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
                 CenterAlignedTopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
                     title = {
                         Text(
                             text = name,

@@ -1,10 +1,15 @@
 package io.github.orioneee
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.MenuScope
@@ -37,11 +42,14 @@ fun AxerWindows(
         icon = painter,
         onCloseRequest = onCloseWindow,
     ) {
-        KoinIsolatedContext(
-            IsolatedContext.koinApp
-        ) {
-            val database: AxerDatabase = koinInject()
-            AxerUIEntryPoint().Screen(LocalAxerDataProvider(database))
+        Scaffold {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+            ) {
+                AxerUIEntryPoint().Screen()
+            }
         }
     }
 }
