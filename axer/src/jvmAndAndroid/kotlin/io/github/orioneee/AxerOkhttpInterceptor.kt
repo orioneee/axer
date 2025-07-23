@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import kotlin.time.Duration.Companion.hours
 
 class AxerOkhttpInterceptor private constructor(
     private val requestImportantSelector: (Request) -> List<String>,
@@ -27,6 +28,17 @@ class AxerOkhttpInterceptor private constructor(
         Axer.initIfCan()
     }
 
+    constructor(): this(
+        requestImportantSelector = { emptyList() },
+        responseImportantSelector = { emptyList() },
+        requestFilter = { true },
+        responseFilter = { true },
+        requestReducer = { it },
+        responseReducer = { it },
+        requestMaxAgeInSeconds = 12.hours.inWholeSeconds, // 12 hour
+        retentionSizeInBytes = 1024 * 1024 * 100 // 100 MB
+    )
+
     class Builder() {
         private var requestImportantSelector: (Request) -> List<String> = { emptyList() }
         private var responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String> =
@@ -37,8 +49,8 @@ class AxerOkhttpInterceptor private constructor(
             { true }
         private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
             { it }
-        private var requestMaxAgeInSeconds: Long = 60 * 60 * 6 // 1 hour
-        private var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 12 // 1 hour
+        private var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 10 MB
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
             this.requestImportantSelector = selector

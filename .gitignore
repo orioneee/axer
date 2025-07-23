@@ -15,3 +15,5 @@ Pods/
 *.jks
 *.gpg
 *yarn.lock
+axer-remote-debugger/debug/**
+axer-remote-debugger/release/**

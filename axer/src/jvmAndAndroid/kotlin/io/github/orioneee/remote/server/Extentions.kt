@@ -85,7 +85,10 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                 )
             } catch (e: Exception) {
                 println("[$path] Initial send failed: ${e.message}")
+                throw e
             }
+        } else{
+            sendSerialized(null)
         }
 
         launch {

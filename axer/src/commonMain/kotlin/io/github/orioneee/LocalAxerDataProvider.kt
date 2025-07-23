@@ -7,9 +7,10 @@ import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.AxerDatabase
 import io.github.orioneee.storage.AxerSettings
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 
 internal class LocalAxerDataProvider(
     database: AxerDatabase
@@ -33,93 +35,145 @@ internal class LocalAxerDataProvider(
 
     private val reader = RoomReader()
 
-    override fun getAllRequests(): Flow<List<Transaction>> = requestDao.getAllShort()
-    override suspend fun getDataForExportAsHar(): List<TransactionFull> = requestDao.getAllSync()
+    override fun getAllRequests(): Flow<DataState<List<TransactionShort>>> =
+        requestDao.getAllShort().map {
+            val state: DataState<List<TransactionShort>> = DataState.Success(it)
+            state
+        }.onStart {
+            emit(DataState.Loading())
+        }
 
-    override fun getRequestById(id: Long): Flow<TransactionFull?> = requestDao.getById(id)
-    override suspend fun markAsViewed(id: Long) {
+    override suspend fun getDataForExportAsHar(): Result<List<TransactionFull>> =
+        Result.success(requestDao.getAllSync())
+
+    override fun getRequestById(id: Long): Flow<DataState<TransactionFull?>> =
+        requestDao.getById(id).map {
+            val state: DataState<TransactionFull?> = DataState.Success(it)
+            state
+        }.onStart {
+            emit(DataState.Loading())
+        }
+
+    override suspend fun markAsViewed(id: Long): Result<Unit> {
         try {
             val request = requestDao.getByIdSync(id)
             if (request != null) {
                 requestDao.updateViewed(id, true)
+                return Result.success(Unit)
+            } else {
+                return Result.failure(IllegalArgumentException("Request with id $id not found"))
             }
         } catch (e: Exception) {
-
+            return Result.failure(e)
         }
     }
 
-    override suspend fun deleteAllRequests() {
+    override suspend fun deleteAllRequests(): Result<Unit> {
         try {
             requestDao.deleteAll()
+            return Result.success(Unit)
         } catch (e: Exception) {
+            return Result.failure(e)
         }
     }
 
-    override fun getAllExceptions(): Flow<List<AxerException>> = exceptionDao.getAll()
+    override fun getAllExceptions(): Flow<DataState<List<AxerException>>> =
+        exceptionDao.getAll().map {
+            val state: DataState<List<AxerException>> = DataState.Success(it)
+            state
+        }.onStart {
+            emit(DataState.Loading())
+        }
 
-    override fun getExceptionById(id: Long): Flow<AxerException?> =
-        exceptionDao.getByID(id)
 
-    override suspend fun deleteAllExceptions() {
+    override fun getExceptionById(id: Long): Flow<DataState<AxerException?>> =
+        exceptionDao.getByID(id).map {
+            val state: DataState<AxerException?> = DataState.Success(it)
+            state
+        }.onStart {
+            emit(DataState.Loading())
+        }
+
+
+    override suspend fun deleteAllExceptions(): Result<Unit> {
         try {
             exceptionDao.deleteAll()
+            return Result.success(Unit)
         } catch (e: Exception) {
+            return Result.failure(e)
         }
     }
 
-    override fun getAllLogs(): Flow<List<LogLine>> = logDao.getAll()
-    override suspend fun deleteAllLogs() {
+    override fun getAllLogs(): Flow<DataState<List<LogLine>>> =
+        logDao.getAll().map {
+            val state: DataState<List<LogLine>> = DataState.Success(it)
+            state
+        }.onStart {
+            emit(DataState.Loading())
+        }
+
+    override suspend fun deleteAllLogs(): Result<Unit> {
         try {
             logDao.clear()
+            return Result.success(Unit)
         } catch (e: Exception) {
+            return Result.failure(e)
         }
     }
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    override fun getDatabases(): Flow<List<DatabaseWrapped>> {
+    override fun getDatabases(): Flow<DataState<List<DatabaseWrapped>>> {
         val initial = flow {
-            emit(reader.getTablesFromAllDatabase())
+            val state: DataState<List<DatabaseWrapped>> =
+                DataState.Success(reader.getTablesFromAllDatabase())
+            emit(state)
         }
 
         val updates = reader.axerDriver.changeDataFlow
             .debounce(100)
             .flatMapLatest {
                 flow {
-                    emit(reader.getTablesFromAllDatabase())
+                    val state: DataState<List<DatabaseWrapped>> =
+                        DataState.Success(reader.getTablesFromAllDatabase())
+                    emit(state)
                 }
             }
 
-        return merge(initial, updates)
+        return merge(initial, updates).onStart {
+            emit(DataState.Loading())
+        }
     }
 
 
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     override fun getDatabaseContent(
         file: String,
         tableName: String,
         page: Int,
         pageSize: Int
-    ): Flow<DatabaseData> {
+    ): Flow<DataState<DatabaseData>> {
         val initial = flow {
             val content = reader.getTableContent(file, tableName, page, pageSize)
             val schema = reader.getTableSchema(file, tableName)
             val size = reader.getTableSize(file, tableName)
-            emit(DatabaseData(schema, content, size))
+            emit(DataState.Success(DatabaseData(schema, content, size)))
         }
 
         val updates = reader.axerDriver.changeDataFlow
             .debounce(100)
             .flatMapLatest {
                 flow {
-                    println("Fetching content for table: $tableName in file: $file new query $it")
                     val content = reader.getTableContent(file, tableName, page, pageSize)
                     val schema = reader.getTableSchema(file, tableName)
                     val size = reader.getTableSize(file, tableName)
-                    emit(DatabaseData(schema, content, size))
+                    val state: DataState<DatabaseData> =
+                        DataState.Success(DatabaseData(schema, content, size))
+                    emit(state)
                 }
             }
 
-        return merge(initial, updates)
+        return merge(initial, updates).onStart {
+            emit(DataState.Loading())
+        }
     }
 
 
@@ -132,11 +186,11 @@ internal class LocalAxerDataProvider(
     }
 
     @OptIn(FlowPreview::class)
-    override fun getAllQueries(): Flow<String> {
+    override fun getAllQueries(): Flow<DataState<String>> {
         return reader.axerDriver.allQueryFlow
             .map { query ->
                 println("Received query: $query")
-                query
+                DataState.Success(query)
             }
     }
 
@@ -144,31 +198,42 @@ internal class LocalAxerDataProvider(
         file: String,
         tableName: String,
         editableItem: EditableRowItem
-    ) {
-        reader.updateCell(
-            file = file,
-            tableName = tableName,
-            editableItem = editableItem
-        )
+    ): Result<Unit> {
+        try {
+            reader.updateCell(
+                file = file,
+                tableName = tableName,
+                editableItem = editableItem
+            )
+            return Result.success(Unit)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
     }
 
     override suspend fun deleteRow(
         file: String,
         tableName: String,
         row: RowItem
-    ) {
-        reader.deleteRow(
-            file = file,
-            tableName = tableName,
-            row = row
-        )
+    ): Result<Unit> {
+        try {
+            reader.deleteRow(
+                file = file,
+                tableName = tableName,
+                row = row
+            )
+            return Result.success(Unit)
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
     }
 
-    override suspend fun executeRawQuery(file: String, query: String) {
+    override suspend fun executeRawQuery(file: String, query: String): Result<Unit> {
         try {
             reader.executeRawQuery(file, query)
+            return Result.success(Unit)
         } catch (e: Exception) {
-            // Handle exception if needed
+            return Result.failure(e)
         }
     }
 
@@ -215,7 +280,7 @@ internal class LocalAxerDataProvider(
     }
 
     override fun isConnected(): Flow<Boolean> = MutableStateFlow(true)
-    override fun getEnabledFeatures(): Flow<EnabledFeathers> {
+    override fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>> {
         return combine(
             AxerSettings.enableRequestMonitor.asFlow(),
             AxerSettings.enableExceptionMonitor.asFlow(),
@@ -228,8 +293,8 @@ internal class LocalAxerDataProvider(
                 isEnabledLogs = log,
                 isEnabledDatabase = database
             )
-
+        }.map {
+            DataState.Success(it)
         }
     }
-
 }

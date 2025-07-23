@@ -37,6 +37,8 @@ internal fun Route.databaseModule(
                 reader.getTablesFromAllDatabase()
             }
             sendSerialized(tables)
+        } else {
+            sendSerialized(null)
         }
         reader.axerDriver.changeDataFlow
             .debounce(100)
@@ -141,6 +143,8 @@ internal fun Route.databaseModule(
 
         if (isEnabledDatabase.first()) {
             sendSerialized(getTableInfo())
+        } else {
+            sendSerialized(null)
         }
         reader.axerDriver.changeDataFlow
             .debounce(100)

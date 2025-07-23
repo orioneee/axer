@@ -16,9 +16,7 @@ expect fun getIntercepors(): List<Interceptor>
 
 val client = OkHttpClient.Builder()
     .addInterceptor(
-        AxerOkhttpInterceptor.Builder()
-            .setRetentionSize(300 * 1024) // 300 KB
-            .build()
+        AxerOkhttpInterceptor()
     )
     .apply {
         getIntercepors().forEach {

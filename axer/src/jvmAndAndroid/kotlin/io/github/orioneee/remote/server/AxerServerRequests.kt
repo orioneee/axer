@@ -1,6 +1,7 @@
 package io.github.orioneee.remote.server
 
 import io.github.orioneee.domain.requests.data.Transaction
+import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.room.dao.RequestDao
 import io.ktor.http.HttpStatusCode
@@ -37,6 +38,8 @@ internal fun Route.requestsModule(
         if (id != null) {
             if (isEnabledRequests.first()) {
                 sendSerialized(requestsDao.getByIdSync(id))
+            } else{
+                sendSerialized(null)
             }
             launch {
                 combine(

@@ -7,48 +7,50 @@ import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import kotlinx.coroutines.flow.Flow
 
 interface AxerDataProvider {
-    fun getAllRequests(): Flow<List<Transaction>>
-    suspend fun getDataForExportAsHar(): List<TransactionFull>
-    fun getRequestById(id: Long): Flow<TransactionFull?>
-    suspend fun markAsViewed(id: Long)
-    suspend fun deleteAllRequests()
+    fun getAllRequests(): Flow<DataState<List<TransactionShort>>>
+    suspend fun getDataForExportAsHar(): Result<List<TransactionFull>>
+    fun getRequestById(id: Long): Flow<DataState<TransactionFull?>>
+    suspend fun markAsViewed(id: Long): Result<Unit>
+    suspend fun deleteAllRequests(): Result<Unit>
 
-    fun getAllExceptions(): Flow<List<AxerException>>
-    fun getExceptionById(id: Long): Flow<AxerException?>
-    suspend fun deleteAllExceptions()
+    fun getAllExceptions(): Flow<DataState<List<AxerException>>>
+    fun getExceptionById(id: Long): Flow<DataState<AxerException?>>
+    suspend fun deleteAllExceptions(): Result<Unit>
 
-    fun getAllLogs(): Flow<List<LogLine>>
-    suspend fun deleteAllLogs()
+    fun getAllLogs(): Flow<DataState<List<LogLine>>>
+    suspend fun deleteAllLogs(): Result<Unit>
 
-    fun getDatabases(): Flow<List<DatabaseWrapped>>
+    fun getDatabases(): Flow<DataState<List<DatabaseWrapped>>>
     fun getDatabaseContent(
         file: String,
         tableName: String,
         page: Int = 0,
         pageSize: Int = TableDetailsViewModel.PAGE_SIZE,
-    ): Flow<DatabaseData>
+    ): Flow<DataState<DatabaseData>>
 
     suspend fun clearTable(
         file: String,
         tableName: String,
     )
 
-    fun getAllQueries(): Flow<String>
+    fun getAllQueries(): Flow<DataState<String>>
 
-    suspend fun updateCell(file: String, tableName: String, editableItem: EditableRowItem)
-    suspend fun deleteRow(file: String, tableName: String, row: RowItem)
+    suspend fun updateCell(file: String, tableName: String, editableItem: EditableRowItem): Result<Unit>
+    suspend fun deleteRow(file: String, tableName: String, row: RowItem): Result<Unit>
 
     suspend fun executeRawQuery(
         file: String,
         query: String,
-    )
+    ): Result<Unit>
 
     fun executeRawQueryAndGetUpdates(
         file: String,
@@ -57,5 +59,5 @@ interface AxerDataProvider {
 
     fun isConnected(): Flow<Boolean>
 
-    fun getEnabledFeatures(): Flow<EnabledFeathers>
+    fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>>
 }

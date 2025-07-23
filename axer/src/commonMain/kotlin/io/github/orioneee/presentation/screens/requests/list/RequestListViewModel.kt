@@ -1,9 +1,10 @@
 package io.github.orioneee.presentation.screens.requests.list
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.formatters.BodyType
+import io.github.orioneee.utils.exportAsHar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -12,14 +13,15 @@ import kotlinx.coroutines.launch
 
 internal class RequestListViewModel(
     private val dataProvider: AxerDataProvider
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
     private val _selectedBodyType = MutableStateFlow<List<BodyType>>(emptyList())
     private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
 
 
-    val requests = dataProvider.getAllRequests()
+    val requestsState = dataProvider.getAllRequests()
+    val requests = requestsState.successData()
 
     val methodFilters = requests.map {
         it.map { it.method }
@@ -97,6 +99,19 @@ internal class RequestListViewModel(
     fun clearAll() {
         viewModelScope.launch {
             dataProvider.deleteAllRequests()
+        }
+    }
+
+    fun exportAsHar() {
+        viewModelScope.launch {
+            dataProvider.getDataForExportAsHar().fold(
+                onSuccess = { harData ->
+                    harData.exportAsHar()
+                },
+                onFailure = { error ->
+                    println("Error exporting to HAR: ${error.message}")
+                }
+            )
         }
     }
 }

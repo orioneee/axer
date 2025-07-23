@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,18 +46,13 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.requests
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.requests.data.Transaction
-import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.logger.formateAsTime
-import io.github.orioneee.logger.getPlatformStackTrace
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
-import io.github.orioneee.utils.exportAsHar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -147,6 +140,7 @@ internal class RequestListScreen() {
         val viewModel: RequestListViewModel = koinViewModel {
             parametersOf(dataProvider)
         }
+        val state = viewModel.requestsState.collectAsState(DataState.Loading())
         val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())
@@ -172,17 +166,9 @@ internal class RequestListScreen() {
                                 it
                             }
                         ) {
-                            val scope = rememberCoroutineScope()
                             TextButton(
                                 onClick = {
-                                    scope.launch(Dispatchers.IO) {
-                                        try {
-                                            val res = dataProvider.getDataForExportAsHar()
-                                            res.exportAsHar()
-                                        } catch (e: Exception) {
-                                            println(e.getPlatformStackTrace())
-                                        }
-                                    }
+                                    viewModel.exportAsHar()
                                 }
                             ) {
                                 Text(stringResource(Res.string.har))
@@ -207,12 +193,21 @@ internal class RequestListScreen() {
             }
         ) { contentPadding ->
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxSize()
-//                    .padding(contentPadding),
+                    .padding(contentPadding),
 
                 ) {
-                if (requests.value.isEmpty()) {
+                if (state.value is DataState.Loading) {
+                    Box(
+                        modifier = Modifier.Companion
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Companion.Center
+
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else if (requests.value.isEmpty()) {
                     Box(
                         modifier = Modifier.Companion
                             .fillMaxSize(),

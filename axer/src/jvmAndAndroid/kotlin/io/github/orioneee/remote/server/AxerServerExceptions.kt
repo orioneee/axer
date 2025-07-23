@@ -39,6 +39,8 @@ internal fun Route.exceptionsModule(
         if (id != null) {
             if (isEnabledExceptions.first()) {
                 sendSerialized(exceptionsDao.getByIDSync(id))
+            } else{
+                sendSerialized(null)
             }
             launch {
                 combine(
