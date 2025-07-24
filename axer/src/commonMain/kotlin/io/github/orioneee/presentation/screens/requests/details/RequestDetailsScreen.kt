@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,12 +69,14 @@ import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
+import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
 import io.github.orioneee.utils.exportAsHar
@@ -281,7 +284,7 @@ internal class RequestDetailsScreen {
                                     )
                                 Text(text = formatted.value ?: AnnotatedString(""))
                             }
-                        } else{
+                        } else {
                             AsyncImage(
                                 model = request.requestBody,
                                 contentDescription = "Response Image",
@@ -435,124 +438,112 @@ internal class RequestDetailsScreen {
         }
         val scope = rememberCoroutineScope()
         val request by viewModel.requestByID.collectAsState(initial = null)
+        val state by viewModel.requestByIDState.collectAsStateWithLifecycle(DataState.Loading())
         LaunchedEffect(request) {
             if (request != null && request?.isViewed != true) {
                 viewModel.onViewed(request!!)
             }
         }
-
-        Scaffold(
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        val title = StringBuilder()
-                        if (request?.path?.contains("/") == false) title.append("/")
-                        title.append(request?.path ?: "")
-                        if (request?.responseStatus != null) {
-                            title.append(" - ${request?.responseStatus ?: ""}")
-                        }
-
-                        Text(
-                            title.toString(),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = "Back"
-                            )
-                        }
-                    },
-                    actions = {
-                        if (request?.isFinished() == true) {
-                            TextButton(
-                                onClick = {
-                                    scope.launch(Dispatchers.IO) {
-                                        listOfNotNull(request).exportAsHar()
-                                    }
-                                }
-                            ) {
-                                Text(stringResource(Res.string.har))
+        val title = remember(request) {
+            val title = StringBuilder()
+            if (request?.path?.contains("/") == false) title.append("/")
+            title.append(request?.path ?: "")
+            if (request?.responseStatus != null) {
+                title.append(" - ${request?.responseStatus ?: ""}")
+            }
+            title.toString()
+        }
+        ScreenLayout(
+            state = state,
+            isEmpty = {
+                it == null
+            },
+            topAppBarTitle = title,
+            emptyContent = {
+                Text(stringResource(Res.string.no_request_found_with_id, requestId))
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        navController.popBackStack()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Back"
+                    )
+                }
+            },
+            actions = {
+                if (request?.isFinished() == true) {
+                    TextButton(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                listOfNotNull(request).exportAsHar()
                             }
                         }
+                    ) {
+                        Text(stringResource(Res.string.har))
+                    }
+                }
+            }
+        ) { request ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                val scope = rememberCoroutineScope()
+                val pager = rememberPagerState(
+                    initialPage = 1,
+                    pageCount = {
+                        2
                     }
                 )
-            },
-        ) {
-            if (request == null) {
-                Box(
-                    modifier = Modifier.Companion.fillMaxSize(),
-                    contentAlignment = Alignment.Companion.Center
+                TabRow(
+                    selectedTabIndex = pager.currentPage,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(Res.string.no_request_found_with_id, requestId))
-                }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .padding(it)
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.Companion.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    val scope = rememberCoroutineScope()
-                    val pager = rememberPagerState(
-                        initialPage = 1,
-                        pageCount = {
-                            2
-                        }
+                    Tab(
+                        modifier = Modifier.clip(
+                            RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp
+                            )
+                        ),
+                        selected = pager.currentPage == 0,
+                        onClick = {
+                            scope.launch {
+                                pager.animateScrollToPage(0)
+                            }
+                        },
+                        text = { Text(stringResource(Res.string.request_tab)) }
                     )
-                    TabRow(
-                        selectedTabIndex = pager.currentPage,
-                        modifier = Modifier.Companion.fillMaxWidth()
-                    ) {
-                        Tab(
-                            modifier = Modifier.Companion.clip(
-                                RoundedCornerShape(
-                                    topStart = 16.dp,
-                                    topEnd = 16.dp
-                                )
-                            ),
-                            selected = pager.currentPage == 0,
-                            onClick = {
-                                scope.launch {
-                                    pager.animateScrollToPage(0)
-                                }
-                            },
-                            text = { Text(stringResource(Res.string.request_tab)) }
-                        )
-                        Tab(
-                            modifier = Modifier.Companion.clip(
-                                RoundedCornerShape(
-                                    topStart = 16.dp,
-                                    topEnd = 16.dp
-                                )
-                            ),
-                            selected = pager.currentPage == 1,
-                            onClick = {
-                                scope.launch {
-                                    pager.animateScrollToPage(1)
-                                }
-                            },
-                            text = { Text(stringResource(Res.string.response_tab)) }
-                        )
-                    }
+                    Tab(
+                        modifier = Modifier.clip(
+                            RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp
+                            )
+                        ),
+                        selected = pager.currentPage == 1,
+                        onClick = {
+                            scope.launch {
+                                pager.animateScrollToPage(1)
+                            }
+                        },
+                        text = { Text(stringResource(Res.string.response_tab)) }
+                    )
+                }
+                if(request != null){
                     HorizontalPager(
                         userScrollEnabled = canSwipePage,
                         state = pager
                     ) {
                         when (it) {
-                            0 -> RequestDetails(request!!, viewModel)
-                            1 -> ResponseDetails(request!!, viewModel)
+                            0 -> RequestDetails(request, viewModel)
+                            1 -> ResponseDetails(request, viewModel)
                         }
                     }
                 }

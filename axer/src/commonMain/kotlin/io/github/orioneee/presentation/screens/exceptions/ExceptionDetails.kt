@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,10 +35,12 @@ import io.github.orioneee.axer.generated.resources.name
 import io.github.orioneee.axer.generated.resources.no_exception_found_with_id
 import io.github.orioneee.axer.generated.resources.stack_trace
 import io.github.orioneee.axer.generated.resources.time
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.logger.formateAsDate
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.BodySection
+import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.buildStringSection
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -54,95 +57,86 @@ internal class ExceptionDetails {
         val viewModel: ExceptionsViewModel = koinViewModel {
             parametersOf(provider, exceptionID)
         }
-        val exception by viewModel.exceptionByID.collectAsState(initial = null)
-        Scaffold(
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            "${exception?.error?.name ?: ""} - ${exception?.time?.formateAsTime() ?: ""}",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBackIosNew,
-                                contentDescription = "Back"
-                            )
-                        }
-                    },
-                )
-            },
-        ) {
-            if (exception == null) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(Res.string.no_exception_found_with_id, exceptionID))
-                }
+        val state by viewModel.exceptionByIDState.collectAsState(DataState.Loading())
+        val title = remember(state) {
+            val s = state
+            if (s is DataState.Success) {
+                "${s.data?.error?.name ?: ""} - ${s.data?.time?.formateAsTime() ?: ""}"
             } else {
-                Column(
-                    modifier = Modifier
-                        .padding(it)
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Top
+                ""
+            }
+        }
+        ScreenLayout(
+            state = state,
+            isEmpty = { it == null },
+            topAppBarTitle = title,
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        navController.popBackStack()
+                    }
                 ) {
-                    Spacer(Modifier.height(8.dp))
-                    SelectionContainer {
-                        Text(
-                            buildStringSection(
-                                stringResource(Res.string.name),
-                                exception!!.error.name,
-                            )
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Back"
+                    )
+                }
+            },
+            emptyContent = {
+                Text(stringResource(Res.string.no_exception_found_with_id, exceptionID))
+            }
+        ) { exception ->
+            if (exception == null) return@ScreenLayout
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(Modifier.height(8.dp))
+                SelectionContainer {
+                    Text(
+                        buildStringSection(
+                            stringResource(Res.string.name),
+                            exception.error.name,
                         )
-                    }
-                    SelectionContainer {
-                        Text(
-                            buildStringSection(
-                                stringResource(Res.string.message),
-                                exception!!.error.message,
-                            )
+                    )
+                }
+                SelectionContainer {
+                    Text(
+                        buildStringSection(
+                            stringResource(Res.string.message),
+                            exception.error.message,
                         )
-                    }
-                    SelectionContainer {
-                        Text(
-                            buildStringSection(
-                                stringResource(Res.string.time),
-                                exception!!.time.formateAsDate(),
-                            )
+                    )
+                }
+                SelectionContainer {
+                    Text(
+                        buildStringSection(
+                            stringResource(Res.string.time),
+                            exception.time.formateAsDate(),
                         )
-                    }
-                    if (exception!!.error.stackTrace.isNotBlank()) {
-                        Spacer(Modifier.height(16.dp))
-                        BodySection(
-                            title = stringResource(Res.string.stack_trace)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(8.dp)
+                    )
+                }
+                if (exception.error.stackTrace.isNotBlank()) {
+                    Spacer(Modifier.height(16.dp))
+                    BodySection(
+                        title = stringResource(Res.string.stack_trace)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
 
-                            ) {
-                                SelectionContainer {
-                                    Text(text = exception!!.error.stackTrace)
-                                }
+                        ) {
+                            SelectionContainer {
+                                Text(text = exception.error.stackTrace)
                             }
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
+                Spacer(Modifier.height(8.dp))
             }
         }
     }

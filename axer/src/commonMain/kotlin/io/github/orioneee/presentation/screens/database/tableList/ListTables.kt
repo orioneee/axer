@@ -25,12 +25,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.all_queries
@@ -39,10 +41,12 @@ import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.axer.generated.resources.rows_columns
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.Table
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.extentions.formate
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.BodySection
+import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.navigation.Routes
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -139,58 +143,25 @@ internal class ListTables {
         val viewModel: ListDatabaseViewModel = koinViewModel {
             parametersOf(provider)
         }
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            stringResource(Res.string.database),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    },
-                    navigationIcon = {
-                        AxerLogoDialog()
-                    }
-                )
+        val state by viewModel.databases.collectAsStateWithLifecycle(DataState.Loading())
+        ScreenLayout(
+            state = state,
+            isEmpty = { it.isEmpty() },
+            topAppBarTitle = stringResource(Res.string.database),
+            navigationIcon = {
+                AxerLogoDialog()
             },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(Routes.ALL_QUERIES.route)
-                    }
-                ) {
-                    Text(
-                        stringResource(Res.string.all_queries),
-                        Modifier.Companion.padding(vertical = 4.dp, horizontal = 8.dp)
-                    )
-                }
-            },
-        ) { contentPadding ->
-            Box(
-                modifier = Modifier.Companion
-                    .fillMaxSize()
-                    .padding(contentPadding),
-
-                ) {
-                val databases = viewModel.databases.collectAsState(emptyList())
-                if (databases.value.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(Res.string.nothing_found))
-                    }
-                } else {
-                    ListDatabase(
-                        databases = databases.value,
-                        onClickToTable = { table, file ->
-                            navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
-                        },
-                        navController = navController,
-                    )
-                }
+            emptyContent = {
+                Text(stringResource(Res.string.nothing_found))
             }
+        ) {
+            ListDatabase(
+                databases = it,
+                onClickToTable = { table, file ->
+                    navController.navigate(Routes.TABLE_DETAILS.route + "/$file/${table.name}")
+                },
+                navController = navController,
+            )
         }
     }
 }

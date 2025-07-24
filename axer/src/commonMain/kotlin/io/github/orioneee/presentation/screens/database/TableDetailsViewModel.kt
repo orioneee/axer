@@ -9,6 +9,7 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.extentions.sortBySortingItem
+import io.github.orioneee.extentions.successData
 import io.github.orioneee.logger.getPlatformStackTrace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -72,7 +74,7 @@ internal class TableDetailsViewModel(
     private val _message = MutableStateFlow<String?>(null)
     val message = _message.asStateFlow()
 
-    fun updateFlow(){
+    fun updateFlow() {
         currentJob?.cancel()
         currentJob = viewModelScope.launch {
             dataProvider.getDatabaseContent(
@@ -80,12 +82,14 @@ internal class TableDetailsViewModel(
                 tableName = tableName,
                 page = _currentPage.value,
                 pageSize = PAGE_SIZE
-            ).collect {
-                val (schema, content, totalItems) = it
-                _tableSchema.value = schema
-                _itemsOnPage.value = content
-                _totalTotalItems.value = totalItems
-            }
+            ).successData()
+                .filterNotNull()
+                .collect {
+                    val (schema, content, totalItems) = it
+                    _tableSchema.value = schema
+                    _itemsOnPage.value = content
+                    _totalTotalItems.value = totalItems
+                }
         }
     }
 

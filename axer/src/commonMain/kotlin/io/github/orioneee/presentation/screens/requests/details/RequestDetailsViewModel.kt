@@ -4,6 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.domain.requests.formatters.formatCSS
@@ -14,6 +15,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import io.github.orioneee.domain.requests.formatters.formatXml
+import io.github.orioneee.extentions.successData
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 internal class RequestDetailsViewModel(
     private val dataProvider: AxerDataProvider,
     requestId: Long
-) : ViewModel() {
+) : BaseViewModel() {
     val json = Json {
         prettyPrint = true
     }
@@ -35,7 +37,8 @@ internal class RequestDetailsViewModel(
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
 
-    val requestByID = dataProvider.getRequestById(requestId).distinctUntilChanged()
+    val requestByIDState = dataProvider.getRequestById(requestId).distinctUntilChanged()
+    val requestByID = requestByIDState.successData()
 
     val formatedRequestBody = combine(
         requestByID,

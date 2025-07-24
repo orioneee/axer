@@ -31,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.nothing_found
@@ -53,6 +55,8 @@ import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
+import io.github.orioneee.presentation.components.LoadingDialog
+import io.github.orioneee.presentation.components.ScreenLayout
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -140,133 +144,112 @@ internal class RequestListScreen() {
         val viewModel: RequestListViewModel = koinViewModel {
             parametersOf(dataProvider)
         }
-        val state = viewModel.requestsState.collectAsState(DataState.Loading())
+        val state = viewModel.requestsState.collectAsStateWithLifecycle(DataState.Loading())
+        val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsStateWithLifecycle(false)
+        LaunchedEffect(state) {
+            println("RequestListScreen: State changed to ${state.value}")
+        }
         val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())
         val selectedMethods = viewModel.selectedMethods.collectAsState(emptyList())
         val selectedBodyTypes = viewModel.selectedBodyType.collectAsState(emptyList())
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            stringResource(Res.string.requests),
-                            style = MaterialTheme.typography.titleSmall
-                        )
+        LoadingDialog(
+            isShow = isShowLoadingDialog.value,
+            onCancel = viewModel::cancelCurrentJob
+        )
+        ScreenLayout(
+            state = state.value,
+            isEmpty = { it.isEmpty() },
+            topAppBarTitle = stringResource(Res.string.requests),
+            actions = {
+                AnimatedVisibility(
+                    visible = requests.value.any { it.isFinished() },
+                    enter = fadeIn() + slideInHorizontally {
+                        it
                     },
-                    actions = {
-                        AnimatedVisibility(
-                            visible = requests.value.any { it.isFinished() },
-                            enter = fadeIn() + slideInHorizontally {
-                                it
-                            },
-                            exit = fadeOut() + slideOutHorizontally {
-                                it
-                            }
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    viewModel.exportAsHar()
-                                }
-                            ) {
-                                Text(stringResource(Res.string.har))
-                            }
-                        }
-                        IconButton(
-                            onClick = {
-                                onClearRequests()
-                                viewModel.clearAll()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Clear Requests"
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        AxerLogoDialog()
+                    exit = fadeOut() + slideOutHorizontally {
+                        it
                     }
-                )
+                ) {
+                    TextButton(
+                        onClick = {
+                            viewModel.exportAsHar()
+                        }
+                    ) {
+                        Text(stringResource(Res.string.har))
+                    }
+                }
+                IconButton(
+                    onClick = {
+                        onClearRequests()
+                        viewModel.clearAll()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Clear Requests"
+                    )
+                }
+            },
+            navigationIcon = {
+                AxerLogoDialog()
+            },
+            emptyContent = {
+                Text(stringResource(Res.string.nothing_found))
             }
-        ) { contentPadding ->
-            Box(
+        ) {
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(contentPadding),
-
-                ) {
-                if (state.value is DataState.Loading) {
+            ){
+                item {
+                    if (methodFilters.value.isNotEmpty()) {
+                        FilterRow(
+                            items = methodFilters.value,
+                            selectedItems = selectedMethods.value,
+                            onItemClicked = { method ->
+                                viewModel.toggleMethodFilter(method)
+                            },
+                            onClear = {
+                                viewModel.clearMethodFilters()
+                            },
+                            getItemString = { it }
+                        )
+                    }
+                }
+                item {
+                    if (typeFilters.value.isNotEmpty()) {
+                        FilterRow(
+                            items = typeFilters.value,
+                            selectedItems = selectedBodyTypes.value,
+                            onItemClicked = { filter ->
+                                viewModel.toggleTypeFilter(filter)
+                            },
+                            onClear = {
+                                viewModel.clearTypeFilters()
+                            },
+                            getItemString = { it.name }
+                        )
+                    }
+                }
+                items(requests.value) { item ->
                     Box(
                         modifier = Modifier.Companion
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Companion.Center
-
+                            .fillMaxWidth()
+                            .animateItem(
+                                fadeInSpec = tween(300),
+                                fadeOutSpec = tween(300),
+                                placementSpec = tween(300)
+                            )
                     ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (requests.value.isEmpty()) {
-                    Box(
-                        modifier = Modifier.Companion
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Companion.Center
-
-                    ) {
-                        Text(stringResource(Res.string.nothing_found))
-                    }
-                } else {
-                    LazyColumn {
-                        item {
-                            if (methodFilters.value.isNotEmpty()) {
-                                FilterRow(
-                                    items = methodFilters.value,
-                                    selectedItems = selectedMethods.value,
-                                    onItemClicked = { method ->
-                                        viewModel.toggleMethodFilter(method)
-                                    },
-                                    onClear = {
-                                        viewModel.clearMethodFilters()
-                                    },
-                                    getItemString = { it }
-                                )
+                        RequestCard(
+                            isSelected = item.id == selectedRequestId,
+                            request = item,
+                            onClick = {
+                                onClickToRequestDetails(item)
                             }
-                        }
-                        item {
-                            if (typeFilters.value.isNotEmpty()) {
-                                FilterRow(
-                                    items = typeFilters.value,
-                                    selectedItems = selectedBodyTypes.value,
-                                    onItemClicked = { filter ->
-                                        viewModel.toggleTypeFilter(filter)
-                                    },
-                                    onClear = {
-                                        viewModel.clearTypeFilters()
-                                    },
-                                    getItemString = { it.name }
-                                )
-                            }
-                        }
-                        items(requests.value) { item ->
-                            Box(
-                                modifier = Modifier.Companion
-                                    .fillMaxWidth()
-                                    .animateItem(
-                                        fadeInSpec = tween(300),
-                                        fadeOutSpec = tween(300),
-                                        placementSpec = tween(300)
-                                    )
-                            ) {
-                                RequestCard(
-                                    isSelected = item.id == selectedRequestId,
-                                    request = item,
-                                    onClick = {
-                                        onClickToRequestDetails(item)
-                                    }
-                                )
-                            }
-                        }
+                        )
                     }
                 }
             }

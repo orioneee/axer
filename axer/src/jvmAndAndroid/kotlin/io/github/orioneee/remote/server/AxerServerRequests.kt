@@ -30,7 +30,8 @@ internal fun Route.requestsModule(
         initialData = { requestsDao.getAllShortSync() },
         dataFlow = { requestsDao.getAllShort() },
         getId = { it.id },
-        debounceTimeMillis = 50
+        debounceTimeMillis = 50,
+        sendsToReplaceAll = 10,
     )
 
     webSocket("/ws/requests/{id}") {

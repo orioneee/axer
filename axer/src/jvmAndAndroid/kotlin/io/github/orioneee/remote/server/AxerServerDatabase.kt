@@ -141,16 +141,26 @@ internal fun Route.databaseModule(
             )
         }
 
-        if (isEnabledDatabase.first()) {
-            sendSerialized(getTableInfo())
-        } else {
-            sendSerialized(null)
-        }
+       try {
+           if (isEnabledDatabase.first()) {
+               sendSerialized(getTableInfo())
+           } else {
+               sendSerialized(null)
+           }
+       } catch (e: Exception) {
+           e.printStackTrace()
+           close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+         }
         reader.axerDriver.changeDataFlow
             .debounce(100)
             .onEach {
                 if (isEnabledDatabase.first()) {
-                    sendSerialized(getTableInfo())
+                    try {
+                        sendSerialized(getTableInfo())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+                    }
                 }
             }
             .launchIn(this)

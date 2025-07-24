@@ -31,10 +31,13 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.exceptions
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.logger.formateAsTime
 import io.github.orioneee.extentions.clickableWithoutRipple
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
+import io.github.orioneee.presentation.components.LoadingDialog
+import io.github.orioneee.presentation.components.ScreenLayout
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -95,65 +98,52 @@ internal class ExceptionsList {
             parametersOf(provider, null)
         }
 
-        val exceptions by viewModel.exceptions.collectAsState(emptyList())
+        val exceptions by viewModel.exceptionsState.collectAsState(DataState.Loading())
+        val isShowLoadingDialog by viewModel.isShowLoadingDialog.collectAsState()
 
-        Scaffold(
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            text = stringResource(Res.string.exceptions),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                onClearRequests()
-                                viewModel.deleteAll()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Clear Requests"
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        AxerLogoDialog()
+        LoadingDialog(
+            isShow = isShowLoadingDialog,
+            onCancel = viewModel::cancelCurrentJob
+        )
+
+        ScreenLayout(
+            state = exceptions,
+            isEmpty = {
+                it.isEmpty()
+            },
+            topAppBarTitle = stringResource(Res.string.exceptions),
+            navigationIcon = {
+                AxerLogoDialog()
+            },
+            actions = {
+                IconButton(
+                    onClick = {
+                        onClearRequests()
+                        viewModel.deleteAll()
                     }
-                )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Clear Requests"
+                    )
+                }
+            },
+            emptyContent = {
+                Text(stringResource(Res.string.nothing_found))
             }
-        ) { contentPadding ->
-            Box(
+        ) {
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(contentPadding),
-
-                ) {
-                if (exceptions.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = androidx.compose.ui.Alignment.Center
-
-                    ) {
-                        Text(stringResource(Res.string.nothing_found))
-                    }
-                } else {
-                    LazyColumn {
-                        items(exceptions) { item ->
-                            ExceptionItem(
-                                isSelected = item.id == selectedExceptionID,
-                                exception = item,
-                                onClick = {
-                                    onClickToException(item)
-                                }
-                            )
+            ) {
+                items(it) { item ->
+                    ExceptionItem(
+                        isSelected = item.id == selectedExceptionID,
+                        exception = item,
+                        onClick = {
+                            onClickToException(item)
                         }
-                    }
+                    )
                 }
             }
         }

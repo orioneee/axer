@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import io.github.orioneee.Axer
 import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.DatabaseWrapped
+import io.github.orioneee.extentions.successData
 import io.github.orioneee.processors.RoomReader
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch

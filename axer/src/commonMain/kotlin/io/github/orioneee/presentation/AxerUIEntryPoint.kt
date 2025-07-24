@@ -41,11 +41,13 @@ import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.no_available_options
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.extentions.navigateSaveState
+import io.github.orioneee.extentions.successData
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
 import io.github.orioneee.room.AxerDatabase
+import kotlinx.coroutines.flow.filterNotNull
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.koinInject
@@ -86,7 +88,8 @@ class AxerUIEntryPoint {
             val currentBackStack by navController.currentBackStackEntryAsState()
             val currentRoute = currentBackStack?.destination?.route
             val dataProvider = LocalAxerDataProvider.current
-            val enabledFeathers by dataProvider.getEnabledFeatures()
+            val enabledFeathers by dataProvider.getEnabledFeatures().successData()
+                .filterNotNull()
                 .collectAsStateWithLifecycle(initialValue = EnabledFeathers.Default)
 
             val availableDestinations = remember(

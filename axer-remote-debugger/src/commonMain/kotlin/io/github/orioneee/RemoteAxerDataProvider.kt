@@ -105,9 +105,11 @@ class RemoteAxerDataProvider(
                                 }
                             }
                         } catch (e: Exception) {
+                            println("Error processing frame: ${e.message} from path: $path")
                         }
                     }
                 } catch (e: Exception) {
+                    println("WebSocket error: ${e.message}")
                 }
 
                 delay(1_000)
@@ -126,7 +128,7 @@ class RemoteAxerDataProvider(
     ): Flow<DataState<List<T>>> {
         val currentState = mutableListOf<T>()
 
-        return webSocketFlow<T>(path) // assuming raw data is String
+        return webSocketFlow<UpdatesData<T>>(path) // assuming raw data is String
             .map { state ->
                 when (state) {
                     is DataState.Loading -> {
@@ -135,22 +137,26 @@ class RemoteAxerDataProvider(
 
                     is DataState.Success<*> -> {
                         val update = state.data as UpdatesData<T>
-
-                        // Remove deleted items
-                        currentState.removeAll { oldItem ->
-                            update.deleted.contains(getId(oldItem))
-                        }
-
-                        // Update or add new items
-                        update.updatedOrCreated.forEach { newItem ->
-                            val index = currentState.indexOfFirst { getId(it) == getId(newItem) }
-                            if (index != -1) {
-                                currentState[index] = newItem
-                            } else {
-                                currentState.add(newItem)
+                        if(update.replaceWith.isEmpty()){
+                            // Remove deleted items
+                            currentState.removeAll { oldItem ->
+                                update.deleted.contains(getId(oldItem))
                             }
-                        }
 
+                            // Update or add new items
+                            update.updatedOrCreated.forEach { newItem ->
+                                val index = currentState.indexOfFirst { getId(it) == getId(newItem) }
+                                if (index != -1) {
+                                    currentState[index] = newItem
+                                } else {
+                                    currentState.add(newItem)
+                                }
+                            }
+                        } else{
+                            // Replace all items with the new list
+                            currentState.clear()
+                            currentState.addAll(update.replaceWith)
+                        }
                         DataState.Success(sorter(currentState).toList())
                     }
                 }
@@ -183,7 +189,7 @@ class RemoteAxerDataProvider(
 
     override suspend fun getDataForExportAsHar(): Result<List<TransactionFull>> =
         safeRequest {
-            client.get("$serverUrl/requests/export/har")
+            client.get("$serverUrl/requests/full")
         }
 
     override fun getRequestById(id: Long): Flow<DataState<TransactionFull?>> {

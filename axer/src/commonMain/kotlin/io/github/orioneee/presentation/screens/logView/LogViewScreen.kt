@@ -48,12 +48,15 @@ import io.github.orioneee.axer.generated.resources.ic_export_logs
 import io.github.orioneee.axer.generated.resources.logs
 import io.github.orioneee.axer.generated.resources.nothing_found
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
+import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
 import io.github.orioneee.presentation.components.PlatformScrollBar
+import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.warning
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
@@ -98,7 +101,8 @@ internal class LogViewScreen {
         }
 
 
-        val logs = viewModel.logs.collectAsState(listOf())
+        val state = viewModel.logsState.collectAsState(DataState.Loading())
+        val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsState()
         val filtredLogs = viewModel.filtredLogs.collectAsState(listOf())
         val selectedForExport = viewModel.selectedForExport.collectAsState(listOf())
 
@@ -110,181 +114,172 @@ internal class LogViewScreen {
         val isExporting = viewModel.isExporting.collectAsState(false)
         val firstExportPointId = viewModel.firstExportPointId.collectAsState(null)
         val lastExportPointId = viewModel.lastExportPointId.collectAsState(null)
-        Scaffold(
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            stringResource(Res.string.logs),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                viewModel.onClickExport()
-                            }
-                        ) {
-                            AnimatedContent(
-                                targetState = isExporting.value
-                            ) {
-                                if (it) {
-                                    Icon(
-                                        Icons.Outlined.Close,
-                                        contentDescription = "Cancel Export",
-                                    )
-                                } else {
-                                    Icon(
-                                        painterResource(Res.drawable.ic_export_logs),
-                                        contentDescription = "Export",
-                                    )
-                                }
-                            }
-                        }
-                        AnimatedVisibility(
-                            visible = isExporting.value &&
-                                    (firstExportPointId.value != null && lastExportPointId.value != null)
-                                    && selectedForExport.value.isNotEmpty(),
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    viewModel.onExport()
-                                }
-                            ) {
-                                Text(stringResource(Res.string.export))
-                            }
-                        }
-                        IconButton(
-                            onClick = {
-                                viewModel.clear()
-                            }
-                        ) {
+
+        LoadingDialog(
+            isShow = isShowLoadingDialog.value,
+            onCancel = viewModel::cancelCurrentJob
+        )
+
+        ScreenLayout(
+            state = state.value,
+            isEmpty = { it.isEmpty() },
+            topAppBarTitle = stringResource(Res.string.logs),
+            actions = {
+                IconButton(
+                    onClick = {
+                        viewModel.onClickExport()
+                    }
+                ) {
+                    AnimatedContent(
+                        targetState = isExporting.value
+                    ) {
+                        if (it) {
                             Icon(
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Clear Queries"
+                                Icons.Outlined.Close,
+                                contentDescription = "Cancel Export",
+                            )
+                        } else {
+                            Icon(
+                                painterResource(Res.drawable.ic_export_logs),
+                                contentDescription = "Export",
                             )
                         }
-                    },
-                    navigationIcon = {
-                        AxerLogoDialog()
                     }
-                )
-            }
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-            ) {
-                if (logs.value.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                }
+                AnimatedVisibility(
+                    visible = isExporting.value &&
+                            (firstExportPointId.value != null && lastExportPointId.value != null)
+                            && selectedForExport.value.isNotEmpty(),
+                ) {
+                    TextButton(
+                        onClick = {
+                            viewModel.onExport()
+                        }
                     ) {
-                        Text(stringResource(Res.string.nothing_found))
+                        Text(stringResource(Res.string.export))
                     }
-                } else {
-                    val listState = rememberLazyListState()
-                    SelectionContainer {
-                        Box {
-                            Column {
-                                LazyColumn(
-                                    state = listState,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 4.dp)
-                                        .horizontalScroll(rememberScrollState())
+                }
+                IconButton(
+                    onClick = {
+                        viewModel.clear()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Clear Queries"
+                    )
+                }
+            },
+            navigationIcon = {
+                AxerLogoDialog()
+            },
+
+            emptyContent = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(Res.string.nothing_found))
+                }
+            },
+        ) { logs ->
+            val listState = rememberLazyListState()
+            SelectionContainer {
+                Box {
+                    Column {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                                .horizontalScroll(rememberScrollState())
+                        ) {
+                            item {
+                                FilterRow(
+                                    items = tags.value,
+                                    selectedItems = selectedTags.value,
+                                    onItemClicked = { tag ->
+                                        viewModel.toggleTag(tag)
+                                    },
+                                    onClear = {
+                                        viewModel.clearTags()
+                                    },
+                                    getItemString = {
+                                        it
+                                    },
+                                    scrolable = false
+                                )
+                            }
+                            item {
+                                FilterRow(
+                                    items = levels.value,
+                                    selectedItems = selectedLevels.value,
+                                    onItemClicked = { level ->
+                                        viewModel.toggleLevel(level)
+                                    },
+                                    onClear = {
+                                        viewModel.clearLevels()
+                                    },
+                                    getItemString = {
+                                        it.name
+                                    },
+                                    scrolable = false
+                                )
+                            }
+                            items(
+                                items = logs,
+                                key = {
+                                    it.id
+                                }
+                            ) { line ->
+                                AnimatedVisibility(
+                                    visible = filtredLogs.value.contains(line),
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically(),
                                 ) {
-                                    item {
-                                        FilterRow(
-                                            items = tags.value,
-                                            selectedItems = selectedTags.value,
-                                            onItemClicked = { tag ->
-                                                viewModel.toggleTag(tag)
-                                            },
-                                            onClear = {
-                                                viewModel.clearTags()
-                                            },
-                                            getItemString = {
-                                                it
-                                            },
-                                            scrolable = false
-                                        )
-                                    }
-                                    item {
-                                        FilterRow(
-                                            items = levels.value,
-                                            selectedItems = selectedLevels.value,
-                                            onItemClicked = { level ->
-                                                viewModel.toggleLevel(level)
-                                            },
-                                            onClear = {
-                                                viewModel.clearLevels()
-                                            },
-                                            getItemString = {
-                                                it.name
-                                            },
-                                            scrolable = false
-                                        )
-                                    }
-                                    items(
-                                        items = logs.value,
-                                        key = {
-                                            it.id
-                                        }
-                                    ) { line ->
-                                        AnimatedVisibility(
-                                            visible = filtredLogs.value.contains(line),
-                                            enter = fadeIn() + expandVertically(),
-                                            exit = fadeOut() + shrinkVertically(),
-                                        ) {
-                                            val showButtonAsLine =
-                                                line in selectedForExport.value &&
-                                                        firstExportPointId.value != line.id &&
-                                                        lastExportPointId.value != line.id
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier
-                                                    .padding(horizontal = 8.dp)
-                                                    .height(IntrinsicSize.Max)
-                                            ) {
-                                                AnimatedVisibility(visible = isExporting.value) {
-                                                    AnimatedContent(targetState = showButtonAsLine) { showLine ->
-                                                        if (!showLine) {
-                                                            MyRatioButton(
-                                                                selected = firstExportPointId.value == line.id ||
-                                                                        lastExportPointId.value == line.id,
-                                                                onClick = {
-                                                                    viewModel.onSelectPoint(
-                                                                        line.id
-                                                                    )
-                                                                }
-                                                            )
-                                                        } else {
-                                                            MyVerticalLine(
-                                                                onClick = {
-                                                                    viewModel.onSelectPoint(
-                                                                        line.id
-                                                                    )
-                                                                },
-                                                                modifier = Modifier.fillMaxHeight()
+                                    val showButtonAsLine =
+                                        line in selectedForExport.value &&
+                                                firstExportPointId.value != line.id &&
+                                                lastExportPointId.value != line.id
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .padding(horizontal = 8.dp)
+                                            .height(IntrinsicSize.Max)
+                                    ) {
+                                        AnimatedVisibility(visible = isExporting.value) {
+                                            AnimatedContent(targetState = showButtonAsLine) { showLine ->
+                                                if (!showLine) {
+                                                    MyRatioButton(
+                                                        selected = firstExportPointId.value == line.id ||
+                                                                lastExportPointId.value == line.id,
+                                                        onClick = {
+                                                            viewModel.onSelectPoint(
+                                                                line.id
                                                             )
                                                         }
-                                                    }
+                                                    )
+                                                } else {
+                                                    MyVerticalLine(
+                                                        onClick = {
+                                                            viewModel.onSelectPoint(
+                                                                line.id
+                                                            )
+                                                        },
+                                                        modifier = Modifier.fillMaxHeight()
+                                                    )
                                                 }
-
-                                                DisplayLogline(line)
                                             }
-
                                         }
+
+                                        DisplayLogline(line)
                                     }
+
                                 }
                             }
-                            PlatformScrollBar(listState)
                         }
                     }
+                    PlatformScrollBar(listState)
                 }
             }
         }

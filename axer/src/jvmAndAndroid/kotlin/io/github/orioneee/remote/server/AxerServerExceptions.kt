@@ -23,6 +23,7 @@ internal fun Route.exceptionsModule(
         dataFlow = { exceptionsDao.getAll() },
         getId = { it.id },
         debounceTimeMillis = 0, // No debounce for exceptions
+        sendsToReplaceAll = 0
     )
 
 

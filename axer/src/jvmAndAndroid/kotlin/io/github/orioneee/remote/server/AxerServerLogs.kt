@@ -23,7 +23,8 @@ internal fun Route.logsModule(
         dataFlow = { logsDao.getAll() },
         getId = { it.id },
         chunkSize = 5000,
-        debounceTimeMillis = 500
+        debounceTimeMillis = 500,
+        sendsToReplaceAll = 10
     )
 
 

@@ -4,14 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.extentions.successData
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.utils.DataExporter
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,21 +24,25 @@ import kotlin.math.min
 internal class LogViewViewModel(
     private val dataProvider: AxerDataProvider,
 ) : ViewModel() {
+    private var currentJob: Job? = null
     private val _selectedTags = MutableStateFlow<List<String>>(listOf())
     private val _selectedLevels = MutableStateFlow<List<LogLevel>>(listOf())
     private val _isExporting = MutableStateFlow(false)
     private val _firstExportPointId = MutableStateFlow<Long?>(null)
     private val _lastExportPointId = MutableStateFlow<Long?>(null)
+    private val _isShowLoadingDialog = MutableStateFlow(false)
 
     val selectedTags = _selectedTags.asStateFlow()
     val selectedLevels = _selectedLevels.asStateFlow()
     val isExporting = _isExporting.asStateFlow()
     val firstExportPointId = _firstExportPointId.asStateFlow()
     val lastExportPointId = _lastExportPointId.asStateFlow()
+    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow()
 
 
     @OptIn(FlowPreview::class)
-    val logs = dataProvider.getAllLogs().debounce(100)
+    val logsState = dataProvider.getAllLogs().debounce(100)
+    val logs = logsState.successData().filterNotNull()
     val filtredLogs = combine(
         logs,
         _selectedTags,
@@ -108,8 +115,13 @@ internal class LogViewViewModel(
     }
 
     fun clear() {
-        viewModelScope.launch {
-            dataProvider.deleteAllLogs()
+        currentJob = viewModelScope.launch {
+            try {
+                _isShowLoadingDialog.value = true
+                dataProvider.deleteAllLogs()
+            } finally {
+                _isShowLoadingDialog.value = false
+            }
         }
     }
 
@@ -133,17 +145,25 @@ internal class LogViewViewModel(
     }
 
     fun onExport() {
-        viewModelScope.launch {
+        currentJob = viewModelScope.launch {
             try {
+                _isExporting.value = true
                 val logs = selectedForExport.first()
                 DataExporter.exportLogs(logs)
             } catch (e: Exception) {
                 // Handle export error, e.g., show a message to the user
             } finally {
+                _isShowLoadingDialog.value = false
                 _isExporting.value = false
                 _firstExportPointId.value = null
                 _lastExportPointId.value = null
             }
         }
+    }
+
+    fun cancelCurrentJob() {
+        currentJob?.cancel()
+        currentJob = null
+        _isShowLoadingDialog.value = false
     }
 }

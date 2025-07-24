@@ -1,5 +1,6 @@
 package io.github.orioneee.remote.server
 
+import androidx.compose.ui.util.fastCoerceAtLeast
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
@@ -28,28 +29,28 @@ private suspend inline fun <T> sendChuncked(
     val deleted =
         (clientState.map { getId(it) } - newList.map { getId(it) }).chunked(chunkSize)
 
-    if (updatedOrCreated.isNotEmpty() || deleted.isNotEmpty()) {
-        try {
-            val totalChunks = maxOf(updatedOrCreated.size, deleted.size)
-            repeat(totalChunks) {
-                val updatedChunk = updatedOrCreated.getOrNull(it) ?: emptyList()
-                val deletedChunk = deleted.getOrNull(it) ?: emptyList()
+    try {
+        val totalChunks = maxOf(updatedOrCreated.size, deleted.size).fastCoerceAtLeast(1)
+        println("[$path] Sending ${updatedOrCreated.size} updated/created chunks and ${deleted.size} deleted chunks, total: $totalChunks")
+        repeat(totalChunks) {
+            val updatedChunk = updatedOrCreated.getOrNull(it) ?: emptyList()
+            val deletedChunk = deleted.getOrNull(it) ?: emptyList()
 
-                sendSerialized(
-                    UpdatesData(
-                        updatedOrCreated = updatedChunk,
-                        deleted = deletedChunk
-                    )
+            sendSerialized(
+                UpdatesData(
+                    updatedOrCreated = updatedChunk,
+                    deleted = deletedChunk,
+                    replaceWith = emptyList()
                 )
+            )
 
-                val removed = clientState.filter { getId(it) in deletedChunk }.map { getId(it) }
-                onRemove(removed)
-                val added = updatedChunk.filter { it !in clientState }
-                onAdd(added)
-            }
-        } catch (e: Exception) {
-            println("[$path] Send failed: ${e.message}")
+            val removed = clientState.filter { getId(it) in deletedChunk }.map { getId(it) }
+            onRemove(removed)
+            val added = updatedChunk.filter { it !in clientState }
+            onAdd(added)
         }
+    } catch (e: Exception) {
+        println("[$path] Send failed: ${e.message}")
     }
 }
 
@@ -61,33 +62,29 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
     crossinline dataFlow: () -> Flow<List<T>>,
     crossinline getId: (T) -> Long,
     debounceTimeMillis: Long = 300,
-    chunkSize: Int = 200
+    chunkSize: Int = 200,
+    sendsToReplaceAll: Int = 10
 ) {
+    var leftToReplaceAll = sendsToReplaceAll
     webSocket(path) {
         val clientState = mutableListOf<T>()
 
         if (isEnabledFlow().first()) {
             try {
                 val all = initialData()
-                sendChuncked(
-                    path = path,
-                    newList = all,
-                    clientState = clientState,
-                    getId = getId,
-                    chunkSize = chunkSize,
-                    sendSerialized = ::sendSerialized,
-                    onRemove = { removedIds ->
-                        clientState.removeAll { getId(it) in removedIds }
-                    },
-                    onAdd = { addedItems ->
-                        clientState.addAll(addedItems)
-                    }
+                sendSerialized(
+                    UpdatesData(
+                        updatedOrCreated = emptyList(),
+                        deleted = emptyList(),
+                        replaceWith = all,
+                    )
                 )
+                clientState.addAll(all)
             } catch (e: Exception) {
                 println("[$path] Initial send failed: ${e.message}")
                 throw e
             }
-        } else{
+        } else {
             sendSerialized(null)
         }
 
@@ -102,20 +99,32 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                 .collect { (isEnabled, newList) ->
                     ensureActive()
                     if (!isEnabled) return@collect
-                    sendChuncked(
-                        path = path,
-                        newList = newList,
-                        clientState = clientState,
-                        getId = getId,
-                        chunkSize = chunkSize,
-                        sendSerialized = ::sendSerialized,
-                        onRemove = { removedIds ->
-                            clientState.removeAll { getId(it) in removedIds }
-                        },
-                        onAdd = { addedItems ->
-                            clientState.addAll(addedItems)
-                        }
-                    )
+                    if (leftToReplaceAll > 0) {
+                        leftToReplaceAll--
+                        sendChuncked(
+                            path = path,
+                            newList = newList,
+                            clientState = clientState,
+                            getId = getId,
+                            chunkSize = chunkSize,
+                            sendSerialized = ::sendSerialized,
+                            onRemove = { removedIds ->
+                                clientState.removeAll { getId(it) in removedIds }
+                            },
+                            onAdd = { addedItems ->
+                                clientState.addAll(addedItems)
+                            }
+                        )
+                    } else{
+                        sendSerialized(
+                            UpdatesData(
+                                updatedOrCreated = emptyList(),
+                                deleted = emptyList(),
+                                replaceWith = newList
+                            )
+                        )
+                        leftToReplaceAll = sendsToReplaceAll
+                    }
                 }
         }
 

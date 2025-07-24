@@ -52,6 +52,7 @@ import io.github.orioneee.presentation.components.PaginationUI
 import io.github.orioneee.presentation.components.ViewTable
 import io.github.orioneee.extentions.sortBySortingItemAndChunck
 import io.github.orioneee.presentation.LocalAxerDataProvider
+import io.github.orioneee.presentation.components.LoadingDialog
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -87,6 +88,11 @@ internal class RawQueryScreen {
         val isLoading by viewModel.isLoading.collectAsState(false)
         val currentQuery by viewModel.currentQuery.collectAsState("")
         val sortColumn by viewModel.sortColumn.collectAsState()
+
+        LoadingDialog(
+            isShow = isLoading,
+            onCancel = viewModel::cancelCurrentJob
+        )
         Scaffold(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             topBar = {
@@ -187,61 +193,53 @@ internal class RawQueryScreen {
                         }
                     }
                 }
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    ViewTable(
-                        headers = schema,
-                        rows = currentItems,
-                        withDeleteButton = false,
-                        headerUI = { item, rowIndex, columnIndex ->
-                            HeaderCell(
-                                text = schema[columnIndex].name,
-                                onClick = {
-                                    viewModel.onClickSortColumn(schema[columnIndex])
-                                },
-                                isSortColumn = sortColumn?.schemaItem == schema[columnIndex],
-                                isDescending = sortColumn?.let {
-                                    it.index == columnIndex && it.isDescending
-                                } == true,
-                            )
-                        },
-                        cellUI = { line, schema, rowIndex, columnIndex ->
-                            val isPrimary = schema.isPrimary
-                            val cellData = line.cells[columnIndex]
-                            val isSelected = selectedCellForPreview?.let {
-                                it.schemaItem == schema && it.selectedColumnIndex == columnIndex && it.item == line && it.editedValue == cellData && isShowingPreview
-                            } ?: false
-                            ContentCell(
-                                text = cellData?.value ?: "NULL",
-                                alignment = Alignment.CenterStart,
-                                backgroundColor = when {
-                                    isSelected -> MaterialTheme.colorScheme.tertiaryContainer
-                                    isPrimary -> MaterialTheme.colorScheme.primaryContainer
-                                    else -> MaterialTheme.colorScheme.surface
-                                },
-                                isClickable = true,
-                                onClick = {
-                                    if (isSelected) {
-                                        isShowingPreview = false
-                                    } else {
-                                        selectedCellForPreview = EditableRowItem(
-                                            schemaItem = schema,
-                                            selectedColumnIndex = columnIndex,
-                                            item = line,
-                                            editedValue = cellData
-                                        )
-                                        isShowingPreview = true
-                                    }
-                                },
-                            )
-                        },
-                    )
-                }
+                ViewTable(
+                    headers = schema,
+                    rows = currentItems,
+                    withDeleteButton = false,
+                    headerUI = { item, rowIndex, columnIndex ->
+                        HeaderCell(
+                            text = schema[columnIndex].name,
+                            onClick = {
+                                viewModel.onClickSortColumn(schema[columnIndex])
+                            },
+                            isSortColumn = sortColumn?.schemaItem == schema[columnIndex],
+                            isDescending = sortColumn?.let {
+                                it.index == columnIndex && it.isDescending
+                            } == true,
+                        )
+                    },
+                    cellUI = { line, schema, rowIndex, columnIndex ->
+                        val isPrimary = schema.isPrimary
+                        val cellData = line.cells[columnIndex]
+                        val isSelected = selectedCellForPreview?.let {
+                            it.schemaItem == schema && it.selectedColumnIndex == columnIndex && it.item == line && it.editedValue == cellData && isShowingPreview
+                        } ?: false
+                        ContentCell(
+                            text = cellData?.value ?: "NULL",
+                            alignment = Alignment.CenterStart,
+                            backgroundColor = when {
+                                isSelected -> MaterialTheme.colorScheme.tertiaryContainer
+                                isPrimary -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.surface
+                            },
+                            isClickable = true,
+                            onClick = {
+                                if (isSelected) {
+                                    isShowingPreview = false
+                                } else {
+                                    selectedCellForPreview = EditableRowItem(
+                                        schemaItem = schema,
+                                        selectedColumnIndex = columnIndex,
+                                        item = line,
+                                        editedValue = cellData
+                                    )
+                                    isShowingPreview = true
+                                }
+                            },
+                        )
+                    },
+                )
             }
         }
     }

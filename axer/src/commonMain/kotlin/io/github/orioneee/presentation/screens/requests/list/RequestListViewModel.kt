@@ -4,24 +4,31 @@ import androidx.lifecycle.viewModelScope
 import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.formatters.BodyType
+import io.github.orioneee.extentions.successData
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 internal class RequestListViewModel(
     private val dataProvider: AxerDataProvider
 ) : BaseViewModel() {
+    private var currentRequestJob: Job? = null
 
     private val _selectedMethods = MutableStateFlow<List<String>>(emptyList())
     private val _selectedBodyType = MutableStateFlow<List<BodyType>>(emptyList())
     private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
+    private val _isShowLoadingDialog = MutableStateFlow(false)
 
 
+    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow()
     val requestsState = dataProvider.getAllRequests()
-    val requests = requestsState.successData()
+    val requests = requestsState.successData().filterNotNull()
 
     val methodFilters = requests.map {
         it.map { it.method }
@@ -97,21 +104,40 @@ internal class RequestListViewModel(
     }
 
     fun clearAll() {
-        viewModelScope.launch {
-            dataProvider.deleteAllRequests()
+        currentRequestJob = viewModelScope.launch {
+            try {
+                _isShowLoadingDialog.value = true
+                dataProvider.deleteAllRequests()
+            } finally {
+                _selectedMethods.value = emptyList()
+                _selectedBodyType.value = emptyList()
+                _searchQuery.value = ""
+                _isShowLoadingDialog.value = false
+            }
         }
     }
 
     fun exportAsHar() {
-        viewModelScope.launch {
-            dataProvider.getDataForExportAsHar().fold(
-                onSuccess = { harData ->
-                    harData.exportAsHar()
-                },
-                onFailure = { error ->
-                    println("Error exporting to HAR: ${error.message}")
-                }
-            )
+        currentRequestJob = viewModelScope.launch {
+            try {
+                _isShowLoadingDialog.value = true
+                dataProvider.getDataForExportAsHar().fold(
+                    onSuccess = { harData ->
+                        harData.exportAsHar()
+                    },
+                    onFailure = { error ->
+                        println("Error exporting to HAR: ${error.message}")
+                    }
+                )
+            } finally {
+                _isShowLoadingDialog.value = false
+            }
         }
+    }
+
+    fun cancelCurrentJob(){
+        currentRequestJob?.cancel()
+        currentRequestJob = null
+        _isShowLoadingDialog.value = false
     }
 }

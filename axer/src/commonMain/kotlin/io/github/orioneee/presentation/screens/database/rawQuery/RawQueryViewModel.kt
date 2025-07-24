@@ -8,6 +8,7 @@ import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,17 +47,20 @@ internal class RawQueryViewModel(
             val query = _currentQuery.value
             if (query.isBlank()) return@launch
             else if (!query.startsWith("SELECT", ignoreCase = true)) {
-                _isLoading.value = true
-                provider.executeRawQuery(
-                    file = name,
-                    query = query
-                )
-                _queryResponse.value = QueryResponse(
-                    rows = emptyList(),
-                    schema = emptyList()
-                )
-                _isLoading.value = false
-                return@launch
+                try {
+                    _isLoading.value = true
+                    provider.executeRawQuery(
+                        file = name,
+                        query = query
+                    )
+                    _queryResponse.value = QueryResponse(
+                        rows = emptyList(),
+                        schema = emptyList()
+                    )
+                    return@launch
+                } finally {
+                    _isLoading.value = false
+                }
             } else {
                 _queryResponse.value = QueryResponse(
                     rows = emptyList(),
@@ -88,5 +92,11 @@ internal class RawQueryViewModel(
                 isDescending = true
             )
         }
+    }
+
+    fun cancelCurrentJob() {
+        currentJob?.cancel()
+        currentJob = null
+        _isLoading.value = false
     }
 }
