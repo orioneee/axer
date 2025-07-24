@@ -57,6 +57,7 @@ import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.ScreenLayout
+import io.github.orioneee.presentation.screens.requests.RequestsEmptyScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -196,7 +197,7 @@ internal class RequestListScreen() {
                 AxerLogoDialog()
             },
             emptyContent = {
-                Text(stringResource(Res.string.nothing_found))
+                RequestsEmptyScreen().Screen()
             }
         ) {
             LazyColumn(

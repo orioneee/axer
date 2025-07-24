@@ -71,4 +71,6 @@
     <string name="exit">Exit</string>
     <string name="processing_your_request">Processing your request...</string>
     <string name="cancel">Cancel</string>
+    <string name="no_requests_desc">Do you install Axer.KtorPlugin for Ktor, or do you add AxerOkHttpInterceptor() to your OkHttpClient?</string>
+    <string name="see_docs">Docs</string>
 </resources>
