@@ -71,6 +71,9 @@
     <string name="exit">Exit</string>
     <string name="processing_your_request">Processing your request...</string>
     <string name="cancel">Cancel</string>
-    <string name="no_requests_desc">Do you install Axer.KtorPlugin for Ktor, or do you add AxerOkHttpInterceptor() to your OkHttpClient?</string>
     <string name="see_docs">Docs</string>
+    <string name="no_requests_desc">Do you install Axer.KtorPlugin for Ktor, or do you add AxerOkHttpInterceptor() to your OkHttpClient?</string>
+    <string name="no_exceptions_desc">Do you call Axer.installErrorHandler() or manually record exceptions like Axer.recordException(e)?</string>
+    <string name="no_logs_desc">Do you log anything?</string>
+    <string name="no_databases_desc">Probably database is locked(needs any operation with it) or AxerBundledSQLiteDriver in not attached to your database.</string>
 </resources>

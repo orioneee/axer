@@ -9,17 +9,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.icons.outlined.WifiTetheringOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,16 +25,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
-import io.github.orioneee.axer.generated.resources.nothing_found
+import io.github.orioneee.axer.generated.resources.no_requests_desc
 import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.requests.data.Transaction
@@ -57,7 +54,7 @@ import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.ScreenLayout
-import io.github.orioneee.presentation.screens.requests.RequestsEmptyScreen
+import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -197,13 +194,16 @@ internal class RequestListScreen() {
                 AxerLogoDialog()
             },
             emptyContent = {
-                RequestsEmptyScreen().Screen()
+                EmptyScreen().Screen(
+                    image = rememberVectorPainter(Icons.Outlined.WifiTetheringOff),
+                    description = stringResource(Res.string.no_requests_desc)
+                )
             }
         ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-            ){
+            ) {
                 item {
                     if (methodFilters.value.isNotEmpty()) {
                         FilterRow(

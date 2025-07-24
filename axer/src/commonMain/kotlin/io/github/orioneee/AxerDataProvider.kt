@@ -60,4 +60,5 @@ interface AxerDataProvider {
     fun isConnected(): Flow<Boolean>
 
     fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>>
+
 }

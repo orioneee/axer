@@ -3,10 +3,8 @@ package io.github.orioneee.presentation.screens.database.tableList
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,29 +13,23 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.all_queries
 import io.github.orioneee.axer.generated.resources.database
-import io.github.orioneee.axer.generated.resources.nothing_found
+import io.github.orioneee.axer.generated.resources.ic_database_remove
+import io.github.orioneee.axer.generated.resources.no_databases_desc
 import io.github.orioneee.axer.generated.resources.rows_columns
 import io.github.orioneee.domain.database.DatabaseWrapped
 import io.github.orioneee.domain.database.Table
@@ -48,6 +40,8 @@ import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.navigation.Routes
+import io.github.orioneee.presentation.screens.requests.EmptyScreen
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -152,7 +146,10 @@ internal class ListTables {
                 AxerLogoDialog()
             },
             emptyContent = {
-                Text(stringResource(Res.string.nothing_found))
+                EmptyScreen().Screen(
+                    image = painterResource(Res.drawable.ic_database_remove),
+                    description = stringResource(Res.string.no_databases_desc)
+                )
             }
         ) {
             ListDatabase(

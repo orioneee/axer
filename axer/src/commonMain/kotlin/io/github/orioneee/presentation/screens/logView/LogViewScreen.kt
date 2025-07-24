@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,18 +24,18 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.icons.outlined.SubtitlesOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -46,7 +45,7 @@ import io.github.orioneee.axer.generated.resources.courier
 import io.github.orioneee.axer.generated.resources.export
 import io.github.orioneee.axer.generated.resources.ic_export_logs
 import io.github.orioneee.axer.generated.resources.logs
-import io.github.orioneee.axer.generated.resources.nothing_found
+import io.github.orioneee.axer.generated.resources.no_logs_desc
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.presentation.LocalAxerDataProvider
@@ -58,6 +57,7 @@ import io.github.orioneee.presentation.components.MyVerticalLine
 import io.github.orioneee.presentation.components.PlatformScrollBar
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.warning
+import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -175,12 +175,10 @@ internal class LogViewScreen {
             },
 
             emptyContent = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(Res.string.nothing_found))
-                }
+                EmptyScreen().Screen(
+                    image = rememberVectorPainter(Icons.Outlined.SubtitlesOff),
+                    description = stringResource(Res.string.no_logs_desc)
+                )
             },
         ) { logs ->
             val listState = rememberLazyListState()
@@ -190,7 +188,7 @@ internal class LogViewScreen {
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxSize()
                                 .padding(horizontal = 4.dp)
                                 .horizontalScroll(rememberScrollState())
                         ) {

@@ -1,23 +1,19 @@
 package io.github.orioneee.presentation.screens.exceptions
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.icons.outlined.WebAssetOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,11 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.exceptions
-import io.github.orioneee.axer.generated.resources.nothing_found
+import io.github.orioneee.axer.generated.resources.no_exceptions_desc
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.logger.formateAsTime
@@ -38,6 +35,7 @@ import io.github.orioneee.presentation.LocalAxerDataProvider
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.ScreenLayout
+import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -129,7 +127,10 @@ internal class ExceptionsList {
                 }
             },
             emptyContent = {
-                Text(stringResource(Res.string.nothing_found))
+                EmptyScreen().Screen(
+                    image = rememberVectorPainter(Icons.Outlined.WebAssetOff),
+                    description = stringResource(Res.string.no_exceptions_desc)
+                )
             }
         ) {
             LazyColumn(
