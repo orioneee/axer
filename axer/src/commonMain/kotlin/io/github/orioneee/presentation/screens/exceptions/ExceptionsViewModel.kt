@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -20,7 +21,7 @@ internal class ExceptionsViewModel(
     private var currentJob: Job? = null
     private val _isShowLoadingDialog = MutableStateFlow(false)
 
-    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow()
+    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
     val exceptionsState = dataProvider.getAllExceptions()
 
     val exceptionByIDState = if (exceptionID != null) {

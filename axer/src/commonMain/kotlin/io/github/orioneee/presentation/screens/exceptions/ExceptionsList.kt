@@ -97,7 +97,7 @@ internal class ExceptionsList {
         }
 
         val exceptions by viewModel.exceptionsState.collectAsState(DataState.Loading())
-        val isShowLoadingDialog by viewModel.isShowLoadingDialog.collectAsState()
+        val isShowLoadingDialog by viewModel.isShowLoadingDialog.collectAsState(false)
 
         LoadingDialog(
             isShow = isShowLoadingDialog,

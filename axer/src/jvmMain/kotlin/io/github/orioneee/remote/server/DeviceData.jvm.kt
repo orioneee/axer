@@ -1,5 +1,6 @@
 package io.github.orioneee.remote.server
 
+import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.domain.other.DeviceData
 
 actual fun getDeviceData(): DeviceData {
@@ -33,7 +34,8 @@ fun getFallbackDeviceData(): DeviceData {
         osVersion = System.getProperty("os.version") ?: "Unknown Version",
         deviceModel = System.getProperty("os.arch") ?: "Unknown Model",
         deviceManufacturer = System.getProperty("java.vendor") ?: "Unknown Manufacturer",
-        deviceName = System.getProperty("user.name") ?: "Unknown Device"
+        deviceName = System.getProperty("user.name") ?: "Unknown Device",
+        axerVersion = BuildKonfig.VERSION_NAME,
     )
 }
 
@@ -46,7 +48,8 @@ fun getLinuxDeviceData(): DeviceData {
         osVersion = runCommand("lsb_release -r")?.split(":")?.getOrNull(1)?.trim() ?: "Unknown",
         deviceModel = model ?: "Unknown Model",
         deviceManufacturer = manufacturer ?: "Unknown Manufacturer",
-        deviceName = runCommand("hostname")?.trim() ?: "Unknown"
+        deviceName = runCommand("hostname")?.trim() ?: "Unknown",
+        axerVersion = BuildKonfig.VERSION_NAME,
     )
 }
 
@@ -54,9 +57,12 @@ fun getWindowsDeviceData(): DeviceData {
     return DeviceData(
         osName = System.getProperty("os.name") ?: "Windows",
         osVersion = System.getProperty("os.version") ?: "Unknown",
-        deviceModel = runCommand("wmic computersystem get model")?.lines()?.getOrNull(1)?.trim() ?: "Unknown Model",
-        deviceManufacturer = runCommand("wmic computersystem get manufacturer")?.lines()?.getOrNull(1)?.trim() ?: "Unknown Manufacturer",
-        deviceName = runCommand("hostname")?.trim() ?: "Unknown"
+        deviceModel = runCommand("wmic computersystem get model")?.lines()?.getOrNull(1)?.trim()
+            ?: "Unknown Model",
+        deviceManufacturer = runCommand("wmic computersystem get manufacturer")?.lines()
+            ?.getOrNull(1)?.trim() ?: "Unknown Manufacturer",
+        deviceName = runCommand("hostname")?.trim() ?: "Unknown",
+        axerVersion = BuildKonfig.VERSION_NAME,
     )
 }
 
@@ -66,6 +72,7 @@ fun getMacDeviceData(): DeviceData {
         osVersion = runCommand("sw_vers -productVersion")?.trim() ?: "Unknown",
         deviceModel = runCommand("sysctl -n hw.model")?.trim() ?: "Unknown Model",
         deviceManufacturer = "Apple Inc.",
-        deviceName = runCommand("scutil --get ComputerName")?.trim() ?: "Unknown"
+        deviceName = runCommand("scutil --get ComputerName")?.trim() ?: "Unknown",
+        axerVersion = BuildKonfig.VERSION_NAME,
     )
 }

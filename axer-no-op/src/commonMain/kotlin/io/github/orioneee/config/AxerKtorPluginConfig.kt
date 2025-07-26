@@ -24,7 +24,8 @@ class AxerKtorPluginConfig() {
         response
     }
 
-    var retentionPeriodInSeconds: Long = 60 * 60 * 1 // 1 hour
-    var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
+    var retentionPeriodInSeconds: Long = 60 * 60 * 12 // 1 hour
+    var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 10 MB
+    var maxBodySize: Long = 250_000 // ~244 KB
 }
 

@@ -36,11 +36,11 @@ import org.jetbrains.compose.resources.stringResource
 class EmptyScreen {
 
     @Composable
-    fun ModernEmptyScreen(
+    fun Screen(
         modifier: Modifier = Modifier,
         image: Painter,
-        title: String,
-        description: String,
+        title: @Composable () -> Unit,
+        description: @Composable () -> Unit,
         actionText: String? = null,
         onActionClick: (() -> Unit)? = null
     ) {
@@ -57,7 +57,6 @@ class EmptyScreen {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Softer, larger icon background
                 Box(
                     modifier = Modifier
                         .size(120.dp)
@@ -80,20 +79,8 @@ class EmptyScreen {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    title()
+                    description()
                 }
 
                 // Action button - only shown if actionText and onActionClick are provided
@@ -123,10 +110,25 @@ class EmptyScreen {
         description: String,
     ) {
         val uriHandler = LocalUriHandler.current
-        ModernEmptyScreen(
+        Screen(
             image = image,
-            title = title,
-            description = description,
+            title = {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            description = {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
             actionText = stringResource(Res.string.see_docs),
             onActionClick = {
                 uriHandler.openUri("https://github.com/orioneee/Axer")

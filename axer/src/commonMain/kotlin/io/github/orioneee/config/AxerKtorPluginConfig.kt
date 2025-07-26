@@ -2,6 +2,7 @@ package io.github.orioneee.config
 
 import io.github.orioneee.domain.requests.Request
 import io.github.orioneee.domain.requests.Response
+import kotlin.time.Duration.Companion.hours
 
 
 class AxerKtorPluginConfig() {
@@ -24,6 +25,9 @@ class AxerKtorPluginConfig() {
         response
     }
 
-    var retentionPeriodInSeconds: Long = 60 * 60 * 6 // 1 hour
-    var retentionSizeInBytes: Long = 1024 * 1024 * 10 // 10 MB
+    var retentionPeriodInSeconds: Long = 16.hours.inWholeSeconds
+    var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 100 MB
+
+
+    var maxBodySize: Long = 250_000 // ~244 KB
 }

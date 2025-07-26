@@ -58,6 +58,14 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 else -> {
                     it.body.toString().toByteArray()
                 }
+            }?.let {
+                val bodySize = it.size
+                if (bodySize > pluginConfig.maxBodySize) {
+                    "Body is to large, current max size is ${pluginConfig.maxBodySize} bytes but got $bodySize bytes"
+                        .toByteArray()
+                } else {
+                    it
+                }
             }
             val processor = RequestProcessor(
                 pluginConfig.retentionPeriodInSeconds,
@@ -99,10 +107,16 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val responseTime = Clock.System.now().toEpochMilliseconds()
             val responseHeaders = response.response.headers.entries()
                 .associate { entry -> entry.key to entry.value.joinToString(", ") }
-            val responseBody = response.response.bodyAsBytes()
-            val contentType = if (responseBody.isValidImage()) BodyType.IMAGE
-            else response.response.contentType().toBodyType()
-
+            val (responseBody, contentType) = response.response.bodyAsBytes().let {
+                val bodySize = it.size
+                if (bodySize > pluginConfig.maxBodySize) {
+                    "Body is to large, current max size is ${pluginConfig.maxBodySize} bytes but got $bodySize bytes"
+                        .toByteArray() to BodyType.RAW_TEXT
+                } else {
+                    it to if (it.isValidImage()) BodyType.IMAGE
+                    else response.response.contentType().toBodyType()
+                }
+            }
 
             val responseStatus = response.response.status.value
             val finishedState = state.updateToFinished(

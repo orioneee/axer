@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class UpdatesData<T>(
     val updatedOrCreated: List<T>,
     val deleted: List<Long>,
-    val replaceWith: List<T>
+    val replaceWith: List<T>,
+    val replaceAll: Boolean
 )

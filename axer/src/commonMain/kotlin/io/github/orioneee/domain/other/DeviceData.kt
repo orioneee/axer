@@ -10,6 +10,7 @@ data class DeviceData(
     val deviceModel: String,
     val deviceManufacturer: String,
     val deviceName: String,
+    val axerVersion: String,
     val ip: String? = null,
     val port: Int? = null,
 ){

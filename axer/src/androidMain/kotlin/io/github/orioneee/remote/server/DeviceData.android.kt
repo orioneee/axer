@@ -1,6 +1,8 @@
 package io.github.orioneee.remote.server
 
 import android.os.Build
+import com.russhwolf.settings.BuildConfig
+import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.domain.other.DeviceData
 
 actual fun getDeviceData(): DeviceData {
@@ -13,6 +15,7 @@ actual fun getDeviceData(): DeviceData {
         osVersion = osVersion,
         deviceModel = model,
         deviceManufacturer = manufacturer,
-        deviceName = "$manufacturer $model"
+        deviceName = "$manufacturer $model",
+        axerVersion = BuildKonfig.VERSION_NAME,
     )
 }

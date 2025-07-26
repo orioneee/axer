@@ -8,6 +8,8 @@ import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
 import io.github.orioneee.logger.getSavableError
+import io.ktor.http.contentType
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -22,7 +24,8 @@ class AxerOkhttpInterceptor private constructor(
     private val requestReducer: (Request) -> Request = { request -> request },
     private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response,
     private val requestMaxAgeInSeconds: Long,
-    private val retentionSizeInBytes: Long
+    private val retentionSizeInBytes: Long,
+    private val maxBodySize: Long = 250_000 // ~244 KB
 ) : Interceptor {
     init {
         Axer.initIfCan()
@@ -36,7 +39,8 @@ class AxerOkhttpInterceptor private constructor(
         requestReducer = { it },
         responseReducer = { it },
         requestMaxAgeInSeconds = 12.hours.inWholeSeconds, // 12 hour
-        retentionSizeInBytes = 1024 * 1024 * 100 // 100 MB
+        retentionSizeInBytes = 1024 * 1024 * 100, // 100 MB
+        maxBodySize = 250_000 // ~244 KB
     )
 
     class Builder() {
@@ -49,8 +53,13 @@ class AxerOkhttpInterceptor private constructor(
             { true }
         private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
             { it }
-        private var requestMaxAgeInSeconds: Long = 60 * 60 * 12 // 1 hour
-        private var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 10 MB
+        private var requestMaxAgeInSeconds: Long = 60 * 60 * 12 // 12 hour
+        private var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 100 MB
+        private var maxBodySize: Long = 250_000 // ~244 KB
+
+        fun setMaxBodySize(sizeInBytes: Long) = apply {
+            this.maxBodySize = sizeInBytes
+        }
 
         fun setRequestImportantSelector(selector: (Request) -> List<String>) = apply {
             this.requestImportantSelector = selector
@@ -116,6 +125,14 @@ class AxerOkhttpInterceptor private constructor(
                 val buffer = okio.Buffer()
                 body.writeTo(buffer)
                 buffer.readByteArray()
+            }?.let {
+                val bodySize = it.size
+                if (bodySize > maxBodySize) {
+                    "Body is to large, current max size is ${maxBodySize} bytes but got $bodySize bytes"
+                        .toByteArray()
+                } else {
+                    it
+                }
             }
 
             var transaction = TransactionFull(
@@ -151,11 +168,18 @@ class AxerOkhttpInterceptor private constructor(
 
                 val responseHeaders =
                     response.headers.toMultimap().mapValues { it.value.joinToString(", ") }
-                val responseBodyBytes = response.body.bytes()
-                val contentType = if (responseBodyBytes.isValidImage()) {
-                    BodyType.IMAGE
-                } else {
-                    response.body.contentType()?.toBodyType() ?: BodyType.RAW_TEXT
+                val (responseBodyBytes, contentType) = response.body.bytes().let {
+                    val bodySize = it.size
+                    if (bodySize > maxBodySize) {
+                        "Body is to large, current max size is ${maxBodySize} bytes but got $bodySize bytes"
+                            .toByteArray() to BodyType.RAW_TEXT
+                    } else {
+                        it to if (it.isValidImage()) {
+                            BodyType.IMAGE
+                        } else {
+                            response.body.contentType()?.toBodyType() ?: BodyType.RAW_TEXT
+                        }
+                    }
                 }
 
                 val finishedTransaction = transaction.updateToFinished(

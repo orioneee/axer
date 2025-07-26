@@ -1,8 +1,5 @@
 package io.github.orioneee.remote.server
 
-import io.github.orioneee.domain.requests.data.Transaction
-import io.github.orioneee.domain.requests.data.TransactionFull
-import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.room.dao.RequestDao
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -14,10 +11,8 @@ import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 
 internal fun Route.requestsModule(

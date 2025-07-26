@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.selectdevice
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.SupportingVersions
 import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import io.ktor.client.HttpClient
@@ -148,7 +149,16 @@ class DeviceScanViewModel : ViewModel() {
                 doInNeededIp {
                     println("Axer server found at: $ip")
                 }
-                response.body<DeviceData>().copy(ip = ip, port = AXER_SERVER_PORT)
+                response.body<DeviceData>().copy(ip = ip, port = AXER_SERVER_PORT).let {
+                    if(SupportingVersions.list.contains(it.axerVersion)){
+                        it
+                    } else{
+                        doInNeededIp {
+                            println("Unsupported Axer version at: $ip, version: ${it.axerVersion}")
+                        }
+                        null
+                    }
+                }
             } else {
                 doInNeededIp {
                     println("No Axer server at: $ip, status: ${response.status.value}")

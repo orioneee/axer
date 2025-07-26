@@ -21,16 +21,7 @@ fun getLatestGitTag() = providers.exec {
     isIgnoreExitValue = true
 }.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
-fun getGitBranchPrefix(): String {
-    return providers.exec {
-        commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
-        isIgnoreExitValue = true
-    }.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() }?.takeIf { it != "main" }
-        ?.plus("-")
-        ?: ""
-}
-
-val libraryVersion = getGitBranchPrefix() + getLatestGitTag()
+val libraryVersion =  getLatestGitTag()
 
 println("Library version: $libraryVersion")
 

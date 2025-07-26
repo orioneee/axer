@@ -6,11 +6,13 @@ import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.successData
 import io.github.orioneee.utils.exportAsHar
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -26,7 +28,8 @@ internal class RequestListViewModel(
     private val _isShowLoadingDialog = MutableStateFlow(false)
 
 
-    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow()
+    @OptIn(FlowPreview::class)
+    val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
     val requestsState = dataProvider.getAllRequests()
     val requests = requestsState.successData().filterNotNull()
 

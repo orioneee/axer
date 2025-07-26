@@ -19,7 +19,10 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.outlined.Router
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Card
@@ -38,13 +41,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
+import io.github.orioneee.SupportingVersions
 import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.presentation.screens.requests.EmptyScreen
 
 class SelectDeviceScreen {
 
@@ -147,32 +155,68 @@ class SelectDeviceScreen {
         }
     }
 
+    data class SetupStep(
+        val icon: ImageVector,
+        val text: String
+    )
+
+    // This logic remains the same
+    val lastSupportedVersion = SupportingVersions.list.lastOrNull() ?: "1.0.0"
+
+    // Populate the list using our new data class
+    val steps = listOf(
+        SetupStep(
+            icon = Icons.Default.Dns,
+            text = "Make sure axer server is running on your app."
+        ),
+        SetupStep(
+            icon = Icons.Default.Wifi,
+            text = "Ensure your device is connected to the same network as the device running the debugger."
+        ),
+        SetupStep(
+            icon = Icons.Default.SystemUpdate,
+            text = "Ensure your device is running Axer version $lastSupportedVersion or later."
+        )
+    )
 
     @Composable
     fun EmptyState() {
-        Column(
-            horizontalAlignment = Alignment.Companion.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.Companion.padding(horizontal = 32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.WifiOff,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                modifier = Modifier.Companion.size(80.dp)
-            )
-            Spacer(Modifier.Companion.height(24.dp))
-            Text(
-                "No Devices Found", style = MaterialTheme.typography.headlineSmall
-            )
-            Text(
-                "Please ensure your device is on the same Wi-Fi network and try again.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                textAlign = TextAlign.Companion.Center
-            )
-            Spacer(Modifier.Companion.height(24.dp))
-        }
+
+        EmptyScreen().Screen(
+            image = rememberVectorPainter(Icons.Outlined.WifiOff),
+            title = {
+                Text(
+                    text = "No Devices Found",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            description = {
+                Column {
+                    steps.forEachIndexed { index, it ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = it.icon,
+                                contentDescription = null,
+                                modifier = Modifier.Companion.size(24.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = it.text,
+                                textAlign = TextAlign.Start,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+            }
+        )
     }
 
     @Composable
@@ -225,6 +269,11 @@ class SelectDeviceScreen {
                     )
                     Text(
                         text = "IP: ${deviceData.ip ?: "No IP"}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    Text(
+                        text = "Version: ${deviceData.axerVersion}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )

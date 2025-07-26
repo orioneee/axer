@@ -102,7 +102,7 @@ internal class LogViewScreen {
 
 
         val state = viewModel.logsState.collectAsState(DataState.Loading())
-        val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsState()
+        val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsState(false)
         val filtredLogs = viewModel.filtredLogs.collectAsState(listOf())
         val selectedForExport = viewModel.selectedForExport.collectAsState(listOf())
 

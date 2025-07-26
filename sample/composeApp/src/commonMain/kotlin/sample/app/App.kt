@@ -105,6 +105,23 @@ fun sedRequestForImage(client: HttpClient) {
     }
 }
 
+
+fun sendLargeRequest(size: Int, client: HttpClient) {
+    val url = "http://postman-echo.com/bytes/$size/mb?type=json"
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val resp = client.get(url)
+            if (resp.status.value == 200) {
+                val responseBody = resp.bodyAsText()
+                // Handle the image data as needed
+            } else {
+                // Handle message response
+            }
+        } catch (e: Exception) {
+        }
+    }
+}
+
 @OptIn(ExperimentalTime::class)
 internal fun populateDatabase(database: SampleDatabase) {
     CoroutineScope(Dispatchers.IO).launch {
@@ -252,6 +269,16 @@ internal fun App(
                         modifier = Modifier.padding(horizontal = 2.dp),
                         onClick = { sedRequestForImage(client) }) {
                         Text("Image")
+                    }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { sendLargeRequest(4, client) }) {
+                        Text("Request 4mb json")
+                    }
+                    FilledTonalButton(
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                        onClick = { sendLargeRequest(10, client) }) {
+                        Text("Request 10mb json")
                     }
                     FilledTonalButton(
                         modifier = Modifier.padding(horizontal = 2.dp),

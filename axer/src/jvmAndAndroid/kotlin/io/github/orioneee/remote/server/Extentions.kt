@@ -40,7 +40,8 @@ private suspend inline fun <T> sendChuncked(
                 UpdatesData(
                     updatedOrCreated = updatedChunk,
                     deleted = deletedChunk,
-                    replaceWith = emptyList()
+                    replaceWith = emptyList(),
+                    replaceAll = false
                 )
             )
 
@@ -77,6 +78,7 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                         updatedOrCreated = emptyList(),
                         deleted = emptyList(),
                         replaceWith = all,
+                        replaceAll = true
                     )
                 )
                 clientState.addAll(all)
@@ -116,11 +118,13 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                             }
                         )
                     } else{
+                        println("[$path] Replacing all data with new list of size ${newList.size}")
                         sendSerialized(
                             UpdatesData(
                                 updatedOrCreated = emptyList(),
                                 deleted = emptyList(),
-                                replaceWith = newList
+                                replaceWith = newList,
+                                replaceAll = true
                             )
                         )
                         leftToReplaceAll = sendsToReplaceAll

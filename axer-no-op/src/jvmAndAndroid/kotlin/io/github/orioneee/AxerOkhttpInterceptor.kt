@@ -24,6 +24,8 @@ class AxerOkhttpInterceptor constructor() : Interceptor {
         fun setRetentionTime(seconds: Long) = apply {}
         fun setRetentionSize(sizeInBytes: Long) = apply {}
 
+        fun setMaxBodySize(sizeInBytes: Long) = apply {}
+
         fun build() = AxerOkhttpInterceptor()
     }
 

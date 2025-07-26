@@ -137,7 +137,8 @@ class RemoteAxerDataProvider(
 
                     is DataState.Success<*> -> {
                         val update = state.data as UpdatesData<T>
-                        if(update.replaceWith.isEmpty()){
+                        println("Received update: ${update.updatedOrCreated.size} updated, ${update.deleted.size} deleted, replaceWith size: ${update.replaceWith.size}")
+                        if(update.replaceWith.isEmpty() && !update.replaceAll) {
                             // Remove deleted items
                             currentState.removeAll { oldItem ->
                                 update.deleted.contains(getId(oldItem))
@@ -153,6 +154,7 @@ class RemoteAxerDataProvider(
                                 }
                             }
                         } else{
+                            println("Replacing all items with new list of size: ${update.replaceWith.size}")
                             // Replace all items with the new list
                             currentState.clear()
                             currentState.addAll(update.replaceWith)

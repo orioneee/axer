@@ -4,21 +4,22 @@ package io.github.orioneee.processors
 
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.byteSize
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.RequestDao
+import io.ktor.utils.io.core.toByteArray
 
 
 internal class RequestProcessor(
     private val requestMaxAge: Long,
-    private val maxTotalRequestSize: Long
+    private val maxTotalRequestSize: Long,
 ) {
     private val dao: RequestDao by IsolatedContext.koin.inject()
 
     suspend fun deleteRequestIfNotFiltred(id: Long) {
         dao.deleteById(id)
     }
-
     suspend fun onSend(request: TransactionFull): Long {
         dao.deleteAllWhichOlderThan(requestMaxAge)
         dao.trimToMaxSize(maxTotalRequestSize)
