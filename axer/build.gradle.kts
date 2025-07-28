@@ -260,7 +260,6 @@ generateDocumentations()
 
 
 tasks.withType<DokkaTask>().configureEach {
-    outputDirectory.set(layout.projectDirectory.dir("docs"))
-
+    outputDirectory.set(layout.settingsDirectory.dir("docs"))
 }
 
