@@ -2,6 +2,7 @@ package io.github.orioneee.utils
 
 // iosMain
 import io.github.orioneee.domain.logs.LogLine
+import kotlinx.serialization.json.Json
 import platform.Foundation.NSDate
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSString
@@ -70,4 +71,48 @@ internal actual object DataExporter {
             else -> root
         }
     }
+
+    actual fun exportHar(har: HarFile) {
+        // 1. Create temporary file path
+        val tempDir = NSTemporaryDirectory()
+        val fileName = "har_${NSDate().timeIntervalSince1970}.har"
+        val filePath = tempDir + fileName
+
+        // 2. Serialize HAR object to JSON data
+        val jsonData = try {
+            val byteArray = Json { prettyPrint = true }.encodeToString(HarFile.serializer(), har)
+            (byteArray as NSString).dataUsingEncoding(NSUTF8StringEncoding)
+        } catch (e: Exception) {
+            println("Failed to encode HAR: $e")
+            return
+        }
+
+        // 3. Write file to temporary directory
+        if (jsonData != null) {
+            NSFileManager.defaultManager.createFileAtPath(filePath, jsonData, attributes = null)
+        } else {
+            println("Failed to create HAR data")
+            return
+        }
+
+        // 4. Create NSURL for file
+        val fileUrl = NSURL.fileURLWithPath(filePath)
+
+        // 5. Create UIActivityViewController for sharing
+        val activityVC = UIActivityViewController(
+            activityItems = listOf(fileUrl),
+            applicationActivities = null
+        )
+
+        // 6. Present on main thread
+        val presentBlock: () -> Unit = {
+            topViewController()?.presentViewController(activityVC, animated = true, completion = null)
+        }
+        if (NSThread.isMainThread) {
+            presentBlock()
+        } else {
+            dispatch_async(dispatch_get_main_queue(), presentBlock)
+        }
+    }
+
 }

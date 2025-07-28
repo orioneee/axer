@@ -5,10 +5,10 @@ import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.successData
-import io.github.orioneee.utils.exportAsHar
+import io.github.orioneee.utils.DataExporter
+import io.github.orioneee.utils.toHarFile
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -126,7 +126,8 @@ internal class RequestListViewModel(
                 _isShowLoadingDialog.value = true
                 dataProvider.getDataForExportAsHar().fold(
                     onSuccess = { harData ->
-                        harData.exportAsHar()
+                        val har = harData.toHarFile()
+                        DataExporter.exportHar(har)
                     },
                     onFailure = { error ->
                         println("Error exporting to HAR: ${error.message}")

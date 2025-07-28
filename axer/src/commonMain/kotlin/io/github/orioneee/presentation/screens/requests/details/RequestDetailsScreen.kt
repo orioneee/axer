@@ -79,7 +79,8 @@ import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.buildStringSection
 import io.github.orioneee.presentation.components.canSwipePage
-import io.github.orioneee.utils.exportAsHar
+import io.github.orioneee.utils.DataExporter
+import io.github.orioneee.utils.toHarFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -479,7 +480,8 @@ internal class RequestDetailsScreen {
                     TextButton(
                         onClick = {
                             scope.launch(Dispatchers.IO) {
-                                listOfNotNull(request).exportAsHar()
+                                val har = listOfNotNull(request).toHarFile()
+                                DataExporter.exportHar(har)
                             }
                         }
                     ) {

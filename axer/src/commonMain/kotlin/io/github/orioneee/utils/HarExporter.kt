@@ -1,8 +1,11 @@
 package io.github.orioneee.utils
 
 import io.github.orioneee.Axer
+import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.domain.requests.formatters.BodyType
+import io.ktor.util.encodeBase64
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -25,7 +28,7 @@ data class HarLog(
 @Serializable
 data class HarCreator(
     val name: String = "Axer",
-    val version: String = "1.0"
+    val version: String = BuildKonfig.VERSION_NAME
 )
 
 @Serializable
@@ -112,7 +115,11 @@ internal fun TransactionFull.toHarEntry(): HarEntry {
         content = HarContent(
             size = responseBody?.size?.toLong() ?: 0L,
             mimeType = responseHeaders["Content-Type"] ?: "application/octet-stream",
-            text = responseBody?.decodeToString()
+            text = if(responseDefaultType == BodyType.IMAGE){
+                responseBody?.encodeBase64()
+            } else{
+                responseBody?.decodeToString()
+            }
         ),
         bodySize = responseBody?.size?.toLong() ?: 0L
     )
@@ -137,15 +144,3 @@ internal fun List<TransactionFull>.toHarFile(): HarFile {
         )
     )
 }
-
-@OptIn(ExperimentalTime::class)
-internal fun List<TransactionFull>.exportAsHar() {
-    try{
-        val harFile = toHarFile()
-        val jsonString = Json { prettyPrint = true }.encodeToString(harFile)
-        DataExporter.exportText(jsonString, "axer_${Clock.System.now().toEpochMilliseconds()}.har")
-    } catch (e: Exception) {
-        Axer.e("Export HAR", "Failed to export HAR file: ${e.message}")
-    }
-}
-

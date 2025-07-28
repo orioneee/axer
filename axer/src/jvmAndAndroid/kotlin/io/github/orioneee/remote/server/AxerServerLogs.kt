@@ -5,12 +5,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
-import io.ktor.server.websocket.sendSerialized
-import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 internal fun Route.logsModule(
     logsDao: LogsDAO,
@@ -23,7 +19,6 @@ internal fun Route.logsModule(
         dataFlow = { logsDao.getAll() },
         getId = { it.id },
         chunkSize = 5000,
-        debounceTimeMillis = 500,
         sendsToReplaceAll = 10
     )
 

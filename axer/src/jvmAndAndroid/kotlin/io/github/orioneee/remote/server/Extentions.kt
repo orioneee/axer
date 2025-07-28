@@ -8,7 +8,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -62,7 +61,6 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
     crossinline initialData: suspend () -> List<T>,
     crossinline dataFlow: () -> Flow<List<T>>,
     crossinline getId: (T) -> Long,
-    debounceTimeMillis: Long = 300,
     chunkSize: Int = 200,
     sendsToReplaceAll: Int = 10
 ) {
@@ -97,7 +95,6 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                 isEnabled to data
             }
                 .distinctUntilChanged()
-                .debounce(debounceTimeMillis)
                 .collect { (isEnabled, newList) ->
                     ensureActive()
                     if (!isEnabled) return@collect
