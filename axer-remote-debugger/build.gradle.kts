@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Locale
 
 plugins {
     alias(libs.plugins.multiplatform)
