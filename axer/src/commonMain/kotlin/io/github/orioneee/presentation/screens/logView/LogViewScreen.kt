@@ -52,7 +52,7 @@ import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
-import io.github.orioneee.presentation.components.PlatformScrollBar
+import io.github.orioneee.presentation.components.PlatformVerticalScrollBar
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.warning
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
@@ -192,7 +192,8 @@ internal class LogViewScreen {
                                 .fillMaxSize()
                                 .padding(horizontal = 4.dp)
                                 .horizontalScroll(rememberScrollState())
-                        ) {
+                        )
+                        {
                             item {
                                 FilterRow(
                                     items = tags.value,
@@ -277,7 +278,7 @@ internal class LogViewScreen {
                             }
                         }
                     }
-                    PlatformScrollBar(listState)
+                    PlatformVerticalScrollBar(listState)
                 }
             }
         }

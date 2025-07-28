@@ -1,5 +1,8 @@
 package io.github.orioneee.presentation.screens.exceptions.details
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,25 +12,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.outlined.Expand
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,7 +50,9 @@ import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.courier
+import io.github.orioneee.axer.generated.resources.less
 import io.github.orioneee.axer.generated.resources.message
+import io.github.orioneee.axer.generated.resources.more
 import io.github.orioneee.axer.generated.resources.name
 import io.github.orioneee.axer.generated.resources.no_exception_found_with_id
 import io.github.orioneee.axer.generated.resources.stack_trace
@@ -55,6 +67,7 @@ import io.github.orioneee.presentation.components.BodySection
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
 import io.github.orioneee.presentation.components.PhantomMyRatioButton
+import io.github.orioneee.presentation.components.PlatformHorizontalScrollBar
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.buildStringSection
 import org.jetbrains.compose.resources.Font
@@ -120,45 +133,94 @@ internal class ExceptionDetails {
 
     @Composable
     fun DisplayEvents(events: List<SessionEvent>) {
-        Column(
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            events.forEachIndexed { index, event ->
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val isFirst = index == 0
-                        val isLast = index == events.size - 1
-                        MyVerticalLine(
-                            onClick = {},
-                            modifier = Modifier.fillMaxHeight(),
-                            isFirst = isFirst,
-                            isLast = isLast,
-                        )
-                        PhantomMyRatioButton(
-                            selected = isFirst,
-                        )
-                        MyRatioButton(selected = isFirst, onClick = {})
+        var isShortView by remember { mutableStateOf(true) }
+        val rotating = animateFloatAsState(if (isShortView) 0f else 180f)
+        Column {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier.horizontalScroll(scrollState)
+            ) {
+                events.forEachIndexed { index, event ->
+                    val isVisible = remember(isShortView, event, index) {
+                        !(isShortView && index > 5)
                     }
-                    Box(
-                        modifier = Modifier.fillMaxHeight(),
-                        contentAlignment = Alignment.Center
+                    AnimatedVisibility(
+                        visible = isVisible
                     ) {
-                        Text(
-                            text = buildEventText(event),
-                            modifier = Modifier
-                                .padding(8.dp),
-                            fontFamily = FontFamily(
-                                Font(Res.font.courier)
-                            ),
-                            maxLines = 10,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodySmall
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val isFirst = index == 0
+                                val isLast = index == events.size - 1
+                                MyVerticalLine(
+                                    onClick = {},
+                                    modifier = Modifier.fillMaxHeight(),
+                                    isFirst = isFirst,
+                                    isLast = isLast,
+                                )
+                                PhantomMyRatioButton(
+                                    selected = isFirst,
+                                )
+                                MyRatioButton(selected = isFirst, onClick = {})
+                            }
+                            Box(
+                                modifier = Modifier.fillMaxHeight(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = buildEventText(event),
+                                    modifier = Modifier
+                                        .padding(8.dp),
+                                    fontFamily = FontFamily(
+                                        Font(Res.font.courier)
+                                    ),
+                                    maxLines = 10,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                ,
+                contentAlignment = Alignment.Center
+            ) {
+                PlatformHorizontalScrollBar(scrollState)
+            }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TextButton(
+                    onClick = {
+                        isShortView = !isShortView
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        AnimatedContent(isShortView) {
+                            if (it) {
+                                Text(text = stringResource(Res.string.more))
+                            } else {
+                                Text(text = stringResource(Res.string.less))
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = "Toggle View",
+                            modifier = Modifier.rotate(rotating.value)
                         )
                     }
                 }
@@ -242,7 +304,7 @@ internal class ExceptionDetails {
                         )
                     )
                 }
-                if (data?.events?.isNotEmpty() == true) {
+                if (data?.events?.isNotEmpty() == true && (data?.events?.size ?: 0) > 1) {
                     DisplayEvents(data?.events ?: emptyList())
                 }
                 if (exception.error.stackTrace.isNotBlank()) {
