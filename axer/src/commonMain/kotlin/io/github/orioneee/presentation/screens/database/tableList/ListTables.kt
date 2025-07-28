@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.all_queries
 import io.github.orioneee.axer.generated.resources.database
 import io.github.orioneee.axer.generated.resources.ic_database_remove
 import io.github.orioneee.axer.generated.resources.no_databases_desc
@@ -142,6 +144,18 @@ internal class ListTables {
             state = state,
             isEmpty = { it.isEmpty() },
             topAppBarTitle = stringResource(Res.string.database),
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(Routes.ALL_QUERIES.route)
+                    }
+                ) {
+                    Text(
+                        stringResource(Res.string.all_queries),
+                        Modifier.Companion.padding(vertical = 4.dp, horizontal = 8.dp)
+                    )
+                }
+            },
             navigationIcon = {
                 AxerLogoDialog()
             },

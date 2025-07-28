@@ -192,7 +192,6 @@ internal class LocalAxerDataProvider(
     override fun getAllQueries(): Flow<DataState<String>> {
         return reader.axerDriver.allQueryFlow
             .map { query ->
-                println("Received query: $query")
                 DataState.Success(query)
             }
     }

@@ -20,8 +20,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Expand
-import androidx.compose.material.icons.outlined.Expand
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +43,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.axer.generated.resources.Res
@@ -57,7 +54,6 @@ import io.github.orioneee.axer.generated.resources.name
 import io.github.orioneee.axer.generated.resources.no_exception_found_with_id
 import io.github.orioneee.axer.generated.resources.stack_trace
 import io.github.orioneee.axer.generated.resources.time
-import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.exceptions.SessionEvent
 import io.github.orioneee.domain.requests.ResponseShort
 import io.github.orioneee.logger.formateAsDate
@@ -274,9 +270,10 @@ internal class ExceptionDetails {
             Column(
                 modifier = Modifier.Companion
                     .padding(horizontal = 16.dp)
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.Companion.Start,
+                ,
+                horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
                 Spacer(Modifier.Companion.height(8.dp))

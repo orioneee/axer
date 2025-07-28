@@ -2,10 +2,15 @@ package io.github.orioneee.presentation.screens.logView
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,9 +36,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -52,6 +59,7 @@ import io.github.orioneee.presentation.components.FilterRow
 import io.github.orioneee.presentation.components.LoadingDialog
 import io.github.orioneee.presentation.components.MyRatioButton
 import io.github.orioneee.presentation.components.MyVerticalLine
+import io.github.orioneee.presentation.components.PhantomMyRatioButton
 import io.github.orioneee.presentation.components.PlatformVerticalScrollBar
 import io.github.orioneee.presentation.components.ScreenLayout
 import io.github.orioneee.presentation.components.warning
@@ -73,9 +81,11 @@ internal class LogViewScreen {
                 LogLevel.ERROR, LogLevel.ASSERT -> {
                     MaterialTheme.colorScheme.error
                 }
+
                 LogLevel.WARNING -> {
                     MaterialTheme.colorScheme.warning
                 }
+
                 else -> {
                     MaterialTheme.colorScheme.onSurface
                 }
@@ -237,41 +247,94 @@ internal class LogViewScreen {
                                     enter = fadeIn() + expandVertically(),
                                     exit = fadeOut() + shrinkVertically(),
                                 ) {
-                                    val showButtonAsLine =
-                                        line in selectedForExport.value &&
-                                                firstExportPointId.value != line.id &&
-                                                lastExportPointId.value != line.id
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
                                             .padding(horizontal = 8.dp)
-                                            .height(IntrinsicSize.Max)
+                                            .height(IntrinsicSize.Min)
                                     ) {
-                                        AnimatedVisibility(visible = isExporting.value) {
-                                            AnimatedContent(targetState = showButtonAsLine) { showLine ->
-                                                if (!showLine) {
-                                                    MyRatioButton(
-                                                        selected = firstExportPointId.value == line.id ||
-                                                                lastExportPointId.value == line.id,
-                                                        onClick = {
-                                                            viewModel.onSelectPoint(
-                                                                line.id
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxHeight(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            val firstSelected =
+                                                selectedForExport.value.firstOrNull { it.id == firstExportPointId.value }
+                                            val lastSelected =
+                                                selectedForExport.value.firstOrNull { it.id == lastExportPointId.value }
+                                            val list = listOfNotNull(
+                                                firstSelected,
+                                                lastSelected
+                                            ).sortedByDescending {
+                                                it.time
+                                            }
+                                            LaunchedEffect(list) {
+                                                println("list: $list, first: $firstSelected, last: $lastSelected")
+                                            }
+                                            val isFirstSelected = line == list.firstOrNull()
+                                            val isLastSelected = line == list.lastOrNull()
+
+                                            val isNeedsToShowLine = firstExportPointId.value != null
+                                                    && lastExportPointId.value != null
+                                                    && selectedForExport.value.contains(line)
+                                            val isNeedToShowButtons =
+                                                firstExportPointId.value == null
+                                                        || lastExportPointId.value == null
+                                                        || line.id == firstExportPointId.value
+                                                        || line.id == lastExportPointId.value
+                                                        || !selectedForExport.value.contains(line)
+                                            AnimatedVisibility(
+                                                visible = isExporting.value,
+                                                enter = fadeIn() + expandHorizontally(),
+                                                exit = fadeOut() + shrinkHorizontally(),
+                                                modifier = Modifier.fillMaxHeight()
+                                            ) {
+                                                AnimatedContent(
+                                                    isNeedsToShowLine to isNeedToShowButtons,
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxHeight(),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        if (it.first) {
+                                                            MyVerticalLine(
+                                                                modifier = Modifier.fillMaxHeight(),
+                                                                isFirst = isFirstSelected,
+                                                                isLast = isLastSelected,
+                                                                onClick = {
+                                                                    viewModel.onSelectPoint(
+                                                                        line.id
+                                                                    )
+                                                                },
                                                             )
                                                         }
-                                                    )
-                                                } else {
-                                                    MyVerticalLine(
-                                                        onClick = {
-                                                            viewModel.onSelectPoint(
-                                                                line.id
+                                                        if (it.second) {
+                                                            val isButtonSelected =
+                                                                line.id == firstExportPointId.value
+                                                                        || line.id == lastExportPointId.value
+                                                            PhantomMyRatioButton(
+                                                                selected = isButtonSelected,
                                                             )
-                                                        },
-                                                        modifier = Modifier.fillMaxHeight()
-                                                    )
+                                                            MyRatioButton(
+                                                                selected = isButtonSelected,
+                                                                onClick = {
+                                                                    viewModel.onSelectPoint(
+                                                                        line.id
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
-                                        DisplayLogline(line)
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxHeight()
+                                        ) {
+                                            DisplayLogline(line)
+                                        }
                                     }
 
                                 }

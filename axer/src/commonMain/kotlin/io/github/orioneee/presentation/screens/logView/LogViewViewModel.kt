@@ -134,7 +134,11 @@ internal class LogViewViewModel(
     }
 
     fun onSelectPoint(id: Long) {
-        if (_firstExportPointId.value == null) {
+        if (_firstExportPointId.value == id && _lastExportPointId.value == null) {
+            return
+        } else if (_lastExportPointId.value == id && _firstExportPointId.value == null) {
+            return
+        } else if (_firstExportPointId.value == null) {
             _firstExportPointId.value = id
         } else if (_lastExportPointId.value == null) {
             _lastExportPointId.value = id
