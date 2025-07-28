@@ -14,6 +14,7 @@ interface Transaction {
     val error: SavableError?
     val responseDefaultType: BodyType?
     val isViewed: Boolean
+    val sessionIdentifier: String
 
     fun isErrorByStatusCode(): Boolean {
         return responseStatus != null && responseStatus in 400..599

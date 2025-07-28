@@ -6,6 +6,8 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.domain.exceptions.SessionEvent
+import io.github.orioneee.domain.exceptions.SessionException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
@@ -23,7 +25,7 @@ interface AxerDataProvider {
     suspend fun deleteAllRequests(): Result<Unit>
 
     fun getAllExceptions(): Flow<DataState<List<AxerException>>>
-    fun getExceptionById(id: Long): Flow<DataState<AxerException?>>
+    suspend fun getSessionEventsByException(id: Long): Result<SessionException?>
     suspend fun deleteAllExceptions(): Result<Unit>
 
     fun getAllLogs(): Flow<DataState<List<LogLine>>>

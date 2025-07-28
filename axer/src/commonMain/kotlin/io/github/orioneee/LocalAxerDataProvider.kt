@@ -6,6 +6,8 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.domain.exceptions.SessionEvent
+import io.github.orioneee.domain.exceptions.SessionException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
@@ -85,14 +87,15 @@ internal class LocalAxerDataProvider(
             emit(DataState.Loading())
         }
 
-
-    override fun getExceptionById(id: Long): Flow<DataState<AxerException?>> =
-        exceptionDao.getByID(id).map {
-            val state: DataState<AxerException?> = DataState.Success(it)
-            state
-        }.onStart {
-            emit(DataState.Loading())
+    override suspend fun getSessionEventsByException(id: Long): Result<SessionException?> {
+        return try {
+            val events = exceptionDao.getSessionEvents(id)
+            Result.success(events)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
+
 
 
     override suspend fun deleteAllExceptions(): Result<Unit> {

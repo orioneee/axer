@@ -89,10 +89,10 @@ internal class ExceptionsList {
     fun Screen(
         selectedExceptionID: Long? = null,
         onClickToException: (AxerException) -> Unit,
-        onClearRequests: () -> Unit,
+        onClear: () -> Unit,
     ) {
         val provider = LocalAxerDataProvider.current
-        val viewModel: ExceptionsViewModel = koinViewModel {
+        val viewModel: ExceptionListViewModel = koinViewModel {
             parametersOf(provider, null)
         }
 
@@ -116,7 +116,7 @@ internal class ExceptionsList {
             actions = {
                 IconButton(
                     onClick = {
-                        onClearRequests()
+                        onClear()
                         viewModel.deleteAll()
                     }
                 ) {

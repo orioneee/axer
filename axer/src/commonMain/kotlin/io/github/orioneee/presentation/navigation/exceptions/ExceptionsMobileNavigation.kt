@@ -7,8 +7,8 @@ import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.navigation.Routes
-import io.github.orioneee.presentation.screens.exceptions.ExceptionDetails
 import io.github.orioneee.presentation.screens.exceptions.ExceptionsList
+import io.github.orioneee.presentation.screens.exceptions.details.ExceptionDetails
 
 internal class ExceptionsMobileNavigation {
     @Composable
@@ -30,7 +30,7 @@ internal class ExceptionsMobileNavigation {
                     onClickToException = {
                         navController.navigate(Routes.EXCEPTION_DETAIL.route + "/${it.id}")
                     },
-                    onClearRequests = {
+                    onClear = {
 
                     },
                 )

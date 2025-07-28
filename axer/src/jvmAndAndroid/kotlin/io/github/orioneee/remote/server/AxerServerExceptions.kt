@@ -5,12 +5,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
-import io.ktor.server.websocket.sendSerialized
-import io.ktor.server.websocket.webSocket
+import io.ktor.server.routing.get
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 internal fun Route.exceptionsModule(
     exceptionsDao: AxerExceptionDao,
@@ -35,30 +32,20 @@ internal fun Route.exceptionsModule(
             call.respond(HttpStatusCode.BadRequest, "Exception monitoring is disabled")
         }
     }
-    webSocket("/ws/exceptions/{id}") {
-        val id = call.parameters["id"]?.toLongOrNull()
-        if (id != null) {
-            if (isEnabledExceptions.first()) {
-                sendSerialized(exceptionsDao.getByIDSync(id))
-            } else{
-                sendSerialized(null)
-            }
-            launch {
-                combine(
-                    exceptionsDao.getByID(id),
-                    isEnabledExceptions
-                ) { exception, isEnabled ->
-                    isEnabled to exception
-                }.collect { (isEnabled, exception) ->
-                    if (isEnabled) {
-                        sendSerialized(exception)
-                    }
+    get("/exceptions/{id}") {
+        try {
+            val id = call.parameters["id"]?.toLongOrNull()
+            if (id != null) {
+                if (isEnabledExceptions.first()) {
+                    val data = exceptionsDao.getSessionEvents(id)
+                    call.respond(HttpStatusCode.OK, message = data ?: "No data found for id $id")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Exception monitoring is disabled")
                 }
             }
-            for (frame in incoming) {
-            }
-        } else {
-            call.respond(HttpStatusCode.BadRequest, "Invalid ID")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            call.respond(HttpStatusCode.BadRequest, "Invalid id format")
         }
     }
 }

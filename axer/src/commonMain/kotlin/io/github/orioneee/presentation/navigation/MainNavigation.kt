@@ -3,7 +3,6 @@ package io.github.orioneee.presentation.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -35,7 +34,7 @@ internal class MainNavigation {
                 ExceptionEntryPoint.ExceptionsContent()
             }
             composable(Routes.LOG_VIEW.route) {
-                LogViewScreen().Screen(navController)
+                LogViewScreen().Screen()
             }
             composable(Routes.DATABASE_FLOW.route) {
                 DatabaseMobileNavigation().Host(rememberNavController())

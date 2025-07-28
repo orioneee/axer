@@ -16,4 +16,6 @@ data class AxerException(
     @Embedded
     val error: SavableErrorFull,
     val isFatal: Boolean,
+
+    val sessionIdentifier: String
 )

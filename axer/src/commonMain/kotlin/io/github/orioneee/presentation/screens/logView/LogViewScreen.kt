@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.courier
@@ -71,12 +69,16 @@ internal class LogViewScreen {
         log: LogLine,
     ) {
         val color =
-            if (log.level == LogLevel.ERROR || log.level == LogLevel.ASSERT) {
-                MaterialTheme.colorScheme.error
-            } else if (log.level == LogLevel.WARNING) {
-                MaterialTheme.colorScheme.warning
-            } else {
-                MaterialTheme.colorScheme.onSurface
+            when (log.level) {
+                LogLevel.ERROR, LogLevel.ASSERT -> {
+                    MaterialTheme.colorScheme.error
+                }
+                LogLevel.WARNING -> {
+                    MaterialTheme.colorScheme.warning
+                }
+                else -> {
+                    MaterialTheme.colorScheme.onSurface
+                }
             }
 
         Text(
@@ -93,7 +95,6 @@ internal class LogViewScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
-        navController: NavHostController,
     ) {
         val dataProvider = LocalAxerDataProvider.current
         val viewModel: LogViewViewModel = koinViewModel {
@@ -269,7 +270,6 @@ internal class LogViewScreen {
                                                 }
                                             }
                                         }
-
                                         DisplayLogline(line)
                                     }
 

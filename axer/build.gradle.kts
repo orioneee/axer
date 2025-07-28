@@ -87,18 +87,16 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.multiplatform.settings)
 
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.0.0-alpha03")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-layout:1.0.0-alpha03")
-            implementation("org.jetbrains.compose.material3.adaptive:adaptive-navigation:1.0.0-alpha03")
-
             val ktor_version = libs.versions.ktor.get()
-
             implementation("io.ktor:ktor-server-core:${ktor_version}")
             implementation("io.ktor:ktor-server-cio:${ktor_version}")
             implementation("io.ktor:ktor-server-content-negotiation:${ktor_version}")
             implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
             implementation("io.ktor:ktor-server-websockets:${ktor_version}")
 
+            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0")
+            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0-shaded-core")
+            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0-shaded")
         }
 
 
@@ -143,6 +141,10 @@ kotlin {
                 api(libs.ktor.client.okhttp)
                 implementation(libs.koin.android)
                 implementation(libs.androidx.startup.runtime)
+                implementation("androidx.lifecycle:lifecycle-process:2.9.2")
+
+
+
             }
         }
 

@@ -8,13 +8,16 @@ import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
 import io.github.orioneee.logger.getSavableError
+import io.github.orioneee.processors.SessionManager
 import io.ktor.http.contentType
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.ExperimentalTime
 
 class AxerOkhttpInterceptor private constructor(
     private val requestImportantSelector: (Request) -> List<String>,
@@ -31,7 +34,7 @@ class AxerOkhttpInterceptor private constructor(
         Axer.initIfCan()
     }
 
-    constructor(): this(
+    constructor() : this(
         requestImportantSelector = { emptyList() },
         responseImportantSelector = { emptyList() },
         requestFilter = { true },
@@ -110,6 +113,7 @@ class AxerOkhttpInterceptor private constructor(
         )
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         return runBlocking {
             val processor = RequestProcessor(requestMaxAgeInSeconds, retentionSizeInBytes)
@@ -141,7 +145,8 @@ class AxerOkhttpInterceptor private constructor(
                 host = host,
                 path = path + if (query != null) "?$query" else "",
                 requestHeaders = requestHeaders,
-                requestBody = requestBody
+                requestBody = requestBody,
+                sessionIdentifier = SessionManager.sessionId
             )
 
             val requestModel = transaction.asRequest()
@@ -214,7 +219,10 @@ class AxerOkhttpInterceptor private constructor(
                     .build()
 
             } catch (e: Exception) {
-                val errorState = transaction.updateToError(e.getSavableError())
+                val errorState = transaction.updateToError(
+                    e.getSavableError(),
+                    Clock.System.now().toEpochMilliseconds()
+                )
                 processor.onFailed(errorState)
                 throw e
             }

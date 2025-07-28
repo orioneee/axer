@@ -35,12 +35,19 @@ data class TransactionFull(
 
     override val isViewed: Boolean = false,
 
-    val size: Long = 0
+    val size: Long = 0,
+
+
+    override val sessionIdentifier: String
 ) : Transaction {
 
-    fun updateToError(error: SavableErrorFull): TransactionFull {
+    fun updateToError(
+        error: SavableErrorFull,
+        time: Long,
+    ): TransactionFull {
         return this.copy(
             error = error,
+            responseTime = time,
         )
     }
 

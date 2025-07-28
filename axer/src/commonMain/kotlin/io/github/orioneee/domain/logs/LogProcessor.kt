@@ -3,6 +3,7 @@ package io.github.orioneee.domain.logs
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.logger.getPlatformStackTrace
+import io.github.orioneee.processors.SessionManager
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.storage.AxerSettings
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +34,8 @@ class LogProcessor {
                         if (it.length > 2000) it.take(2000) + "... (truncated)" else it
                     },
                     level = level,
-                    time = time
+                    time = time,
+                    sessionIdentifier = SessionManager.sessionId
                 )
                 try {
                     logsDAO.deleteAllWhichOlderThan()

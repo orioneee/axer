@@ -8,6 +8,7 @@ import io.github.orioneee.extentions.isValidImage
 import io.github.orioneee.extentions.toBodyType
 import io.github.orioneee.logger.getSavableError
 import io.github.orioneee.processors.RequestProcessor
+import io.github.orioneee.processors.SessionManager
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
@@ -78,6 +79,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 path = path,
                 requestHeaders = requestHeaders,
                 requestBody = requestBody,
+                sessionIdentifier = SessionManager.sessionId
             )
             val request = state.asRequest()
             if (!pluginConfig.requestFilter.invoke(request)) {
@@ -101,7 +103,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
                 proceed(it)
             } catch (e: Exception) {
                 val error = e.getSavableError()
-                processor.onFailed(state.updateToError(error))
+                processor.onFailed(state.updateToError(error, Clock.System.now().toEpochMilliseconds()))
                 throw e
             }
             val responseTime = Clock.System.now().toEpochMilliseconds()

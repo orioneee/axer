@@ -25,7 +25,7 @@ import kotlinx.coroutines.IO
         AxerException::class,
         LogLine::class,
     ],
-    version = 18
+    version = 19
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class, LogLevelConverter::class)

@@ -1,6 +1,8 @@
 package io.github.orioneee.domain.requests.data
 
 import androidx.room.Embedded
+import io.github.orioneee.domain.requests.RequestShort
+import io.github.orioneee.domain.requests.ResponseShort
 import io.github.orioneee.domain.requests.formatters.BodyType
 import kotlinx.serialization.Serializable
 
@@ -20,5 +22,35 @@ data class TransactionShort(
     override val responseDefaultType: BodyType? = null,
 
     override val isViewed: Boolean,
-) : Transaction
+
+    override val sessionIdentifier: String
+) : Transaction {
+    fun asRequest(): RequestShort {
+        return RequestShort(
+            method = method,
+            sendTime = sendTime,
+            path = path,
+        )
+    }
+
+    fun asResponse(): ResponseShort? {
+        return if (error?.name != null) {
+            ResponseShort.Error(
+                name = error.name,
+                _time = responseTime ?: 0L,
+                path = path,
+                method = method,
+            )
+        } else if (isFinished()) {
+            ResponseShort.Success(
+                _time = responseTime ?: 0L,
+                status = responseStatus ?: 0,
+                path = path,
+                method = method,
+            )
+        } else {
+            null
+        }
+    }
+}
 

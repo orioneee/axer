@@ -34,7 +34,8 @@ class LogProcessor {
                         if (it.length > 2000) it.take(2000) + "... (truncated)" else it
                     },
                     level = level,
-                    time = time
+                    time = time,
+                    sessionIdentifier = SessionManager.sessionId
                 )
                 try {
                     logsDAO.deleteAllWhichOlderThan()

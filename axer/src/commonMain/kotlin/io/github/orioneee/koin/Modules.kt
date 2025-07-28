@@ -1,11 +1,14 @@
 package io.github.orioneee.koin
 
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.presentation.navigation.exceptions.ExceptionsDesktopNavigation
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
 import io.github.orioneee.presentation.screens.database.tableList.ListDatabaseViewModel
-import io.github.orioneee.presentation.screens.exceptions.ExceptionsViewModel
+import io.github.orioneee.presentation.screens.exceptions.ExceptionListViewModel
+import io.github.orioneee.presentation.screens.exceptions.details.ExceptionDetailsViewModel
 import io.github.orioneee.presentation.screens.logView.LogViewViewModel
 import io.github.orioneee.presentation.screens.requests.details.RequestDetailsViewModel
 import io.github.orioneee.presentation.screens.requests.list.RequestListViewModel
@@ -48,11 +51,11 @@ internal object Modules {
                 requestId = requestId
             )
         }
+        viewModel { (provider: AxerDataProvider) ->
+            ExceptionListViewModel(provider)
+        }
         viewModel { (provider: AxerDataProvider, exceptionID: Long?) ->
-            ExceptionsViewModel(
-                provider,
-                exceptionID = exceptionID
-            )
+            ExceptionDetailsViewModel(provider, exceptionID)
         }
         viewModel { (provider: AxerDataProvider, file: String, tableName: String) ->
             TableDetailsViewModel(provider, file, tableName)

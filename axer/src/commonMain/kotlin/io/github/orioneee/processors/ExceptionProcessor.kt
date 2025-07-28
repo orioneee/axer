@@ -20,7 +20,8 @@ internal class ExceptionProcessor() {
         val exception = AxerException(
             time = Clock.System.now().toEpochMilliseconds(),
             isFatal = isFatal,
-            error = exception.getSavableError()
+            error = exception.getSavableError(),
+            sessionIdentifier = SessionManager.sessionId
         )
         dao.upsert(exception)
         notifyAboutException(exception)

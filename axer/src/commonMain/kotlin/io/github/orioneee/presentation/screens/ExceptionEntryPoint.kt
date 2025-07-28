@@ -33,7 +33,7 @@ internal object ExceptionEntryPoint {
                         first = {
                             ExceptionsList().Screen(
                                 selectedExceptionID = currentSelectedID,
-                                onClearRequests = {
+                                onClear = {
                                     val currentRoute =
                                         navController.currentBackStackEntry?.destination?.route
                                     if (currentRoute != Routes.EXCEPTION_DETAIL.route) {

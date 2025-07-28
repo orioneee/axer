@@ -6,6 +6,7 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
+import io.github.orioneee.domain.exceptions.SessionException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
@@ -138,7 +139,7 @@ class RemoteAxerDataProvider(
                     is DataState.Success<*> -> {
                         val update = state.data as UpdatesData<T>
                         println("Received update: ${update.updatedOrCreated.size} updated, ${update.deleted.size} deleted, replaceWith size: ${update.replaceWith.size}")
-                        if(update.replaceWith.isEmpty() && !update.replaceAll) {
+                        if (update.replaceWith.isEmpty() && !update.replaceAll) {
                             // Remove deleted items
                             currentState.removeAll { oldItem ->
                                 update.deleted.contains(getId(oldItem))
@@ -146,14 +147,15 @@ class RemoteAxerDataProvider(
 
                             // Update or add new items
                             update.updatedOrCreated.forEach { newItem ->
-                                val index = currentState.indexOfFirst { getId(it) == getId(newItem) }
+                                val index =
+                                    currentState.indexOfFirst { getId(it) == getId(newItem) }
                                 if (index != -1) {
                                     currentState[index] = newItem
                                 } else {
                                     currentState.add(newItem)
                                 }
                             }
-                        } else{
+                        } else {
                             println("Replacing all items with new list of size: ${update.replaceWith.size}")
                             // Replace all items with the new list
                             currentState.clear()
@@ -217,9 +219,12 @@ class RemoteAxerDataProvider(
             sorter = { it.sortedByDescending { it.time } }
         )
 
+    override suspend fun getSessionEventsByException(id: Long): Result<SessionException?> {
+        return safeRequest {
+            client.get("$serverUrl/exceptions/$id")
+        }
+    }
 
-    override fun getExceptionById(id: Long): Flow<DataState<AxerException?>> =
-        webSocketFlow("/ws/exceptions/$id")
 
     override suspend fun deleteAllExceptions(): Result<Unit> {
         return safeRequest {

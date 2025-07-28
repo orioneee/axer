@@ -21,13 +21,13 @@ internal interface RequestDao {
     suspend fun getAllSync(): List<TransactionFull>
 
     @Query(
-        "SELECT id, method, sendTime, host, path, responseTime, responseStatus, error_name, error_message, responseDefaultType, isViewed " +
+        "SELECT id, method, sendTime, host, path, responseTime, responseStatus, error_name, error_message, responseDefaultType, isViewed, sessionIdentifier " +
                 "FROM Transactions ORDER BY sendTime DESC"
     )
     fun getAllShort(): Flow<List<TransactionShort>>
 
     @Query(
-        "SELECT id, method, sendTime, host, path, responseTime, responseStatus, error_name, error_message, responseDefaultType, isViewed " +
+        "SELECT id, method, sendTime, host, path, responseTime, responseStatus, error_name, error_message, responseDefaultType, isViewed, sessionIdentifier " +
                 "FROM Transactions ORDER BY sendTime DESC"
     )
     suspend fun getAllShortSync(): List<TransactionShort>

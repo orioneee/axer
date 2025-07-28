@@ -16,6 +16,8 @@ data class LogLine(
     val message: String,
     val level: LogLevel,
     val time: Long,
+
+    val sessionIdentifier: String
 ) {
     override fun toString(): String {
         val infoString =

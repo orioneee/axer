@@ -43,6 +43,36 @@ fun <T> ScreenLayout(
     emptyContent: @Composable BoxScope.() -> Unit,
     content: @Composable (T) -> Unit,
 ) {
+    val isLoading = state is DataState.Loading<T>
+    val isEmptyState = when (state) {
+        is DataState.Success -> isEmpty(state.data) || state.data == null
+        else -> false
+    }
+
+    ScreenLayout(
+        isLoading = isLoading,
+        isEmpty = isEmptyState,
+        topAppBarTitle = topAppBarTitle,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        floatingActionButton = floatingActionButton,
+        emptyContent = emptyContent,
+        content = { if (state is DataState.Success) content(state.data) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScreenLayout(
+    isLoading: Boolean,
+    isEmpty: Boolean,
+    topAppBarTitle: String,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    emptyContent: @Composable BoxScope.() -> Unit,
+    content: @Composable () -> Unit,
+) {
     Scaffold(
         floatingActionButton = {
             floatingActionButton()
@@ -62,22 +92,17 @@ fun <T> ScreenLayout(
                 navigationIcon = navigationIcon,
             )
         }
-    ) {
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it),
+                .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            if (state is DataState.Loading<T>) {
-                LoadingContent
-            } else if (state is DataState.Success) {
-                val data = state.data
-                if (isEmpty(data) || data == null) {
-                    emptyContent()
-                } else {
-                    content(data)
-                }
+            when {
+                isLoading -> LoadingContent
+                isEmpty -> emptyContent()
+                else -> content()
             }
         }
     }
