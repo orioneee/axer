@@ -268,9 +268,6 @@ internal class LogViewScreen {
                                             ).sortedByDescending {
                                                 it.time
                                             }
-                                            LaunchedEffect(list) {
-                                                println("list: $list, first: $firstSelected, last: $lastSelected")
-                                            }
                                             val isFirstSelected = line == list.firstOrNull()
                                             val isLastSelected = line == list.lastOrNull()
 
