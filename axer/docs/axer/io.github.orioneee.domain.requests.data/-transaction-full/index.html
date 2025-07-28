@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>TransactionFull</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../../index.html">
+                    axer
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+1.1.2        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active=""
+                        data-filter=":axer:dokkaHtml/jvmAndAndroid">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":axer:dokkaHtml/jvmAndAndroid"
+                                       data-filter=":axer:dokkaHtml/jvmAndAndroid"/>
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </div>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    axer
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="axer::io.github.orioneee.domain.requests.data/TransactionFull///PointingToDeclaration//1712931223">
+  <div class="breadcrumbs"><a href="../../../index.html">axer</a><span class="delimiter">/</span><a href="../index.html">io.github.orioneee.domain.requests.data</a><span class="delimiter">/</span><span class="current">TransactionFull</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Transaction</span><wbr></wbr><span><span>Full</span></span></h1>
+    <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="kotlinx.serialization/Serializable///PointingToDeclaration/"><span class="token annotation builtin">Serializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">TransactionFull</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>method<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>sendTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>host<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>path<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requestBody<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requestHeaders<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyMap()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>responseBody<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>responseTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>responseHeaders<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyMap()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>responseStatus<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>error<span class="token operator">: </span><a href="../-savable-error-full/index.html">SavableErrorFull</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>responseDefaultType<span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests.formatters/-body-type/index.html">BodyType</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>importantInRequest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>importantInResponse<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>isViewed<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>size<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>sessionIdentifier<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span> : <a href="../-transaction/index.html">Transaction</a></div></div>    </div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="195130414%2FConstructors%2F1712931223" anchor-label="TransactionFull" id="195130414%2FConstructors%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-transaction-full.html"><span>Transaction</span><wbr></wbr><span><span>Full</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="195130414%2FConstructors%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter ">method<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">sendTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter ">host<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">path<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">requestBody<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">requestHeaders<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyMap()<span class="token punctuation">, </span></span><span class="parameter ">responseBody<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">responseTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">responseHeaders<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyMap()<span class="token punctuation">, </span></span><span class="parameter ">responseStatus<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">error<span class="token operator">: </span><a href="../-savable-error-full/index.html">SavableErrorFull</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">responseDefaultType<span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests.formatters/-body-type/index.html">BodyType</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">importantInRequest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter ">importantInResponse<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter ">isViewed<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">size<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span><span class="token punctuation">, </span></span><span class="parameter ">sessionIdentifier<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="2037007921%2FProperties%2F1712931223" anchor-label="error" id="2037007921%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="error.html"><span><span>error</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2037007921%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="error.html">error</a><span class="token operator">: </span><a href="../-savable-error-full/index.html">SavableErrorFull</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1611645608%2FProperties%2F1712931223" anchor-label="fullUrl" id="1611645608%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-transaction/full-url.html"><span>full</span><wbr></wbr><span><span>Url</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1611645608%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="../-transaction/full-url.html">fullUrl</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1149837287%2FProperties%2F1712931223" anchor-label="host" id="-1149837287%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="host.html"><span><span>host</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1149837287%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="host.html">host</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-769298170%2FProperties%2F1712931223" anchor-label="id" id="-769298170%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="id.html"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-769298170%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-269310183%2FProperties%2F1712931223" anchor-label="importantInRequest" id="-269310183%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="important-in-request.html"><span>important</span><wbr></wbr><span>In</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-269310183%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="important-in-request.html">importantInRequest</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="671466737%2FProperties%2F1712931223" anchor-label="importantInResponse" id="671466737%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="important-in-response.html"><span>important</span><wbr></wbr><span>In</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="671466737%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="important-in-response.html">importantInResponse</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-219699533%2FProperties%2F1712931223" anchor-label="isViewed" id="-219699533%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-viewed.html"><span>is</span><wbr></wbr><span><span>Viewed</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-219699533%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="is-viewed.html">isViewed</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1527466496%2FProperties%2F1712931223" anchor-label="method" id="-1527466496%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="method.html"><span><span>method</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1527466496%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="method.html">method</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-39270340%2FProperties%2F1712931223" anchor-label="path" id="-39270340%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="path.html"><span><span>path</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-39270340%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="path.html">path</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="785960584%2FProperties%2F1712931223" anchor-label="requestBody" id="785960584%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="request-body.html"><span>request</span><wbr></wbr><span><span>Body</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="785960584%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="request-body.html">requestBody</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1414668714%2FProperties%2F1712931223" anchor-label="requestHeaders" id="1414668714%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="request-headers.html"><span>request</span><wbr></wbr><span><span>Headers</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1414668714%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="request-headers.html">requestHeaders</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1463768222%2FProperties%2F1712931223" anchor-label="responseBody" id="1463768222%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="response-body.html"><span>response</span><wbr></wbr><span><span>Body</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1463768222%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="response-body.html">responseBody</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="370623839%2FProperties%2F1712931223" anchor-label="responseDefaultType" id="370623839%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="response-default-type.html"><span>response</span><wbr></wbr><span>Default</span><wbr></wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="370623839%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="response-default-type.html">responseDefaultType</a><span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests.formatters/-body-type/index.html">BodyType</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-954213420%2FProperties%2F1712931223" anchor-label="responseHeaders" id="-954213420%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="response-headers.html"><span>response</span><wbr></wbr><span><span>Headers</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-954213420%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="response-headers.html">responseHeaders</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-644648050%2FProperties%2F1712931223" anchor-label="responseStatus" id="-644648050%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="response-status.html"><span>response</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-644648050%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="response-status.html">responseStatus</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2027311571%2FProperties%2F1712931223" anchor-label="responseTime" id="2027311571%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="response-time.html"><span>response</span><wbr></wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2027311571%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="response-time.html">responseTime</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1070215660%2FProperties%2F1712931223" anchor-label="sendTime" id="1070215660%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="send-time.html"><span>send</span><wbr></wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1070215660%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="send-time.html">sendTime</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1109845562%2FProperties%2F1712931223" anchor-label="sessionIdentifier" id="1109845562%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="session-identifier.html"><span>session</span><wbr></wbr><span><span>Identifier</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1109845562%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="session-identifier.html">sessionIdentifier</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1383799776%2FProperties%2F1712931223" anchor-label="size" id="1383799776%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="size.html"><span><span>size</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1383799776%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">val </span><a href="size.html">size</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator"> = </span><span class="token constant">0</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-89594569%2FProperties%2F1712931223" anchor-label="totalTime" id="-89594569%2FProperties%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-transaction/total-time.html"><span>total</span><wbr></wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-89594569%2FProperties%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="../-transaction/total-time.html">totalTime</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="2098701788%2FFunctions%2F1712931223" anchor-label="asRequest" id="2098701788%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="as-request.html"><span>as</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2098701788%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">fun </span><a href="as-request.html"><span class="token function">asRequest</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests/-request/index.html">Request</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1065393806%2FFunctions%2F1712931223" anchor-label="asResponse" id="1065393806%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="as-response.html"><span>as</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1065393806%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">fun </span><a href="as-response.html"><span class="token function">asResponse</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests/-response/index.html">Response</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="894921268%2FFunctions%2F1712931223" anchor-label="isErrorByStatusCode" id="894921268%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-transaction/is-error-by-status-code.html"><span>is</span><wbr></wbr><span>Error</span><wbr></wbr><span>By</span><wbr></wbr><span>Status</span><wbr></wbr><span><span>Code</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="894921268%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../-transaction/is-error-by-status-code.html"><span class="token function">isErrorByStatusCode</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-351961002%2FFunctions%2F1712931223" anchor-label="isFinished" id="-351961002%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-transaction/is-finished.html"><span>is</span><wbr></wbr><span><span>Finished</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-351961002%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../-transaction/is-finished.html"><span class="token function">isFinished</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="288275350%2FFunctions%2F1712931223" anchor-label="isInProgress" id="288275350%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-transaction/is-in-progress.html"><span>is</span><wbr></wbr><span>In</span><wbr></wbr><span><span>Progress</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="288275350%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../-transaction/is-in-progress.html"><span class="token function">isInProgress</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1375267647%2FFunctions%2F1712931223" anchor-label="updateToError" id="-1375267647%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="update-to-error.html"><span>update</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Error</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1375267647%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">fun </span><a href="update-to-error.html"><span class="token function">updateToError</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">error<span class="token operator">: </span><a href="../-savable-error-full/index.html">SavableErrorFull</a><span class="token punctuation">, </span></span><span class="parameter ">time<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">TransactionFull</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1114963181%2FFunctions%2F1712931223" anchor-label="updateToFinished" id="-1114963181%2FFunctions%2F1712931223" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid"></a>
+          <div class="table-row" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="update-to-finished.html"><span>update</span><wbr></wbr><span>To</span><wbr></wbr><span><span>Finished</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1114963181%2FFunctions%2F1712931223"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":axer:dokkaHtml/jvmAndAndroid" data-filterable-set=":axer:dokkaHtml/jvmAndAndroid" data-active="" data-toggle=":axer:dokkaHtml/jvmAndAndroid">common</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":axer:dokkaHtml/jvmAndAndroid"><div class="symbol monospace"><span class="token keyword">fun </span><a href="update-to-finished.html"><span class="token function">updateToFinished</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">responseBody<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">responseTime<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token punctuation">, </span></span><span class="parameter ">responseHeaders<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">responseStatus<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">bodyType<span class="token operator">: </span><a href="../../io.github.orioneee.domain.requests.formatters/-body-type/index.html">BodyType</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">TransactionFull</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

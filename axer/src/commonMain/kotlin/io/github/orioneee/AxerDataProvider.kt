@@ -6,16 +6,16 @@ import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
-import io.github.orioneee.domain.exceptions.SessionEvent
 import io.github.orioneee.domain.exceptions.SessionException
 import io.github.orioneee.domain.logs.LogLine
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import kotlinx.coroutines.flow.Flow
+
+@Suppress("Dokka")
 
 interface AxerDataProvider {
     fun getAllRequests(): Flow<DataState<List<TransactionShort>>>

@@ -1,5 +1,7 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.internal.utils.getLocalProperty
+import org.jetbrains.dokka.gradle.DokkaCollectorTask
+import org.jetbrains.dokka.gradle.DokkaTask
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -14,6 +16,7 @@ plugins {
     alias(libs.plugins.room)
 
     id("com.codingfeline.buildkonfig") version "+"
+    alias(libs.plugins.dokka)
 }
 
 fun getLatestGitTag() = providers.exec {
@@ -21,7 +24,7 @@ fun getLatestGitTag() = providers.exec {
     isIgnoreExitValue = true
 }.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
 
-val libraryVersion =  getLatestGitTag()
+val libraryVersion = getLatestGitTag()
 
 println("Library version: $libraryVersion")
 
@@ -144,7 +147,6 @@ kotlin {
                 implementation("androidx.lifecycle:lifecycle-process:2.9.2")
 
 
-
             }
         }
 
@@ -255,3 +257,10 @@ fun generateDocumentations() {
 }
 
 generateDocumentations()
+
+
+tasks.withType<DokkaTask>().configureEach {
+    outputDirectory.set(layout.projectDirectory.dir("docs"))
+
+}
+

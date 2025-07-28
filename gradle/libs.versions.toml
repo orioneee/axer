@@ -35,6 +35,7 @@ core = "1.6.1"
 junit = "1.2.1"
 startupRuntime = "1.2.0"
 adaptiveDesktop = "1.0.0"
+dokka = "2.0.0"
 
 
 [libraries]
@@ -103,4 +104,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

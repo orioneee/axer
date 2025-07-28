@@ -12,7 +12,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
-class LogProcessor {
+internal class LogProcessor {
     private val logsDAO: LogsDAO by IsolatedContext.koin.inject()
 
     @OptIn(ExperimentalTime::class)

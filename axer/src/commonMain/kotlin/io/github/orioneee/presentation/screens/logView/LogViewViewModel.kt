@@ -37,6 +37,7 @@ internal class LogViewViewModel(
     val isExporting = _isExporting.asStateFlow()
     val firstExportPointId = _firstExportPointId.asStateFlow()
     val lastExportPointId = _lastExportPointId.asStateFlow()
+    @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
 
 

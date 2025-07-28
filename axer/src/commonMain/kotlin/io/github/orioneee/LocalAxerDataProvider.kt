@@ -148,6 +148,7 @@ internal class LocalAxerDataProvider(
     }
 
 
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     override fun getDatabaseContent(
         file: String,
         tableName: String,
