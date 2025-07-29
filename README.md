@@ -5,11 +5,15 @@
 </div>
 
 # Axer Library
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
 [![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/Axer/)
+![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-success?logo=jetpackcompose)
+![Android](https://img.shields.io/badge/Android-✔️-green?logo=android)
+![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
+![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
 
 ---
-
 ## 📑 Summary
 
 - [Overview](#overview)
@@ -24,6 +28,7 @@
 - [Stability](#stability)
 - [iOS Limitations](#ios-limitations)
 - [Inspiration](#inspiration)
+- [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
 - [License](#license)
 
@@ -384,6 +389,28 @@ Expect possible bugs and breaking changes as the library evolves.
 
 Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects.  
 It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), with added multiplatform and Room DB inspection support.
+
+---
+
+
+## 📦 Dependency Versions
+
+| Dependency            | Version          |
+|-----------------------|------------------|
+| Kotlin                | 2.2.0 |
+| Compose               | 1.8.2 |
+| Ktor                  | 3.2.2 |
+| Koin                  | 4.1.0 |
+| Room                  | 2.7.2 |
+| OkHttp                | 5.1.0 |
+| Napier                | 2.7.1 |
+| kotlinx-coroutines    | 1.10.2 |
+| kotlinx-serialization | 1.9.0 |
+| kotlinx-datetime      | 0.7.1 |
+| Accompanist           | 0.37.3 |
+| Coil Compose          | 3.3.0 |
+| Navigation Compose    | 2.9.0-beta04 |
+| minSdk                | 26      |
 
 ---
 

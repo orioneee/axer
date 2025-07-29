@@ -88,16 +88,11 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.multiplatform.settings)
 
-            val ktor_version = libs.versions.ktor.get()
-            implementation("io.ktor:ktor-server-core:${ktor_version}")
-            implementation("io.ktor:ktor-server-cio:${ktor_version}")
-            implementation("io.ktor:ktor-server-content-negotiation:${ktor_version}")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
-            implementation("io.ktor:ktor-server-websockets:${ktor_version}")
-
-            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0")
-            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0-shaded-core")
-            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.6.0-shaded")
+            implementation(libs.ktor.server.core)
+            implementation(libs.ktor.server.cio)
+            implementation(libs.ktor.server.content.negotiation)
+            implementation(libs.ktor.serialization.json)
+            implementation(libs.ktor.server.websockets)
         }
 
 
@@ -238,20 +233,45 @@ buildkonfig {
 
 
 fun generateDocumentations() {
-    val version = getLatestGitTag()
-    println("Latest version: '$version'")
+    val versions = mapOf(
+        "AXER_VERSION" to getLatestGitTag(),
+        "KOTLIN_VERSION" to libs.versions.kotlin.get(),
+        "COMPOSE_VERSION" to libs.versions.compose.get(),
+        "KTOR_VERSION" to libs.versions.ktor.get(),
+        "KOIN_VERSION" to libs.versions.koin.get(),
+        "ROOM_VERSION" to libs.versions.room.get(),
+        "OKHTTP_VERSION" to libs.versions.okhttp.get(),
+        "NAPIER_VERSION" to libs.versions.napier.get(),
+        "KOTLINX_COROUTINES_VERSION" to libs.versions.kotlinx.coroutines.get(),
+        "KOTLINX_SERIALIZATION_VERSION" to libs.versions.kotlinx.serialization.get(),
+        "KOTLINX_DATETIME_VERSION" to libs.versions.kotlinx.datetime.get(),
+        "ACCOMPANIST_PERMISSIONS_VERSION" to libs.versions.accompanistPermissions.get(),
+        "COIL_COMPOSE_VERSION" to libs.versions.coilCompose.get(),
+        "NAVIGATION_COMPOSE_VERSION" to libs.versions.navigationCompose.get(),
+        "MIN_SDK" to libs.versions.minSdk.get()
+    )
+
 
     val templateFile = File(rootDir, "axer/template/template_README.MD")
     println("Template exists: ${templateFile.exists()}")
 
-    val template = templateFile.readText()
-    val updated = template.replace("{{AXER_VERSION}}", version)
+    if (!templateFile.exists()) {
+        println("Template file not found!")
+        return
+    }
+
+    var template = templateFile.readText()
+
+    // Replace all placeholders
+    versions.forEach { (key, value) ->
+        template = template.replace("{{${key}}}", value)
+    }
 
     val outputFile = File(rootDir, "README.md")
     println("Writing to: ${outputFile.absolutePath}")
-    outputFile.writeText(updated)
+    outputFile.writeText(template)
 
-    println("README.md updated with version: $version")
+    println("README.md updated with versions.")
 }
 
 generateDocumentations()

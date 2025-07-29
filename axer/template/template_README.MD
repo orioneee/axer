@@ -5,11 +5,15 @@
 </div>
 
 # Axer Library
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
 [![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/Axer/)
+![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-success?logo=jetpackcompose)
+![Android](https://img.shields.io/badge/Android-✔️-green?logo=android)
+![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
+![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
 
 ---
-
 ## 📑 Summary
 
 - [Overview](#overview)
@@ -24,6 +28,7 @@
 - [Stability](#stability)
 - [iOS Limitations](#ios-limitations)
 - [Inspiration](#inspiration)
+- [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
 - [License](#license)
 
@@ -384,6 +389,28 @@ Expect possible bugs and breaking changes as the library evolves.
 
 Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects.  
 It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), with added multiplatform and Room DB inspection support.
+
+---
+
+
+## 📦 Dependency Versions
+
+| Dependency            | Version          |
+|-----------------------|------------------|
+| Kotlin                | {{KOTLIN_VERSION}} |
+| Compose               | {{COMPOSE_VERSION}} |
+| Ktor                  | {{KTOR_VERSION}} |
+| Koin                  | {{KOIN_VERSION}} |
+| Room                  | {{ROOM_VERSION}} |
+| OkHttp                | {{OKHTTP_VERSION}} |
+| Napier                | {{NAPIER_VERSION}} |
+| kotlinx-coroutines    | {{KOTLINX_COROUTINES_VERSION}} |
+| kotlinx-serialization | {{KOTLINX_SERIALIZATION_VERSION}} |
+| kotlinx-datetime      | {{KOTLINX_DATETIME_VERSION}} |
+| Accompanist           | {{ACCOMPANIST_PERMISSIONS_VERSION}} |
+| Coil Compose          | {{COIL_COMPOSE_VERSION}} |
+| Navigation Compose    | {{NAVIGATION_COMPOSE_VERSION}} |
+| minSdk                | {{MIN_SDK}}      |
 
 ---
 
