@@ -31,10 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Axer.installErrorHandler()
         enableEdgeToEdge()
-
-        lifecycleScope.launch {
-            Axer.runServerIfNotRunning(this)
-        }
+        Axer.runServerIfNotRunning(lifecycleScope)
         setContent {
             val theme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val isDark = isSystemInDarkTheme()

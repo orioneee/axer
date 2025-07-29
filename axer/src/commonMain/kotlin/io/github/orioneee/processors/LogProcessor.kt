@@ -25,7 +25,6 @@ internal class LogProcessor {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (AxerSettings.isRecordingLogs.get()) {
-
                 val newMessage = message +
                         (throwable?.let { "\n${it.getPlatformStackTrace()}" } ?: "")
                 val line = LogLine(
