@@ -40,51 +40,6 @@ internal class RequestDetailsViewModel(
     val requestByIDState = dataProvider.getRequestById(requestId).distinctUntilChanged()
     val requestByID = requestByIDState.successData()
 
-    val formatedRequestBody = combine(
-        requestByID,
-        _selectedRequestBodyFormat
-    ) { request, bodyType ->
-        request?.let {
-            formateBody(
-                it.requestBody,
-                bodyType ?: BodyType.JSON
-            )
-        }
-    }
-
-    @OptIn(FlowPreview::class)
-    val formatedResponseBody = combine(
-        requestByID,
-        _selectedResponseBodyFormat
-    ) { request, bodyType ->
-        request?.let {
-            formateBody(
-                it.responseBody,
-                bodyType ?: it.responseDefaultType ?: BodyType.RAW_TEXT
-            )
-        }
-    }.distinctUntilChanged()
-
-
-    suspend fun formateBody(
-        content: ByteArray?,
-        bodyType: BodyType = BodyType.RAW_TEXT,
-    ): AnnotatedString {
-        if (content == null) return AnnotatedString("")
-        return when (bodyType) {
-            BodyType.IMAGE -> AnnotatedString("")
-            BodyType.JSON -> try {
-                formatJson(content)
-            } catch (e: Exception) {
-                AnnotatedString("Invalid JSON: ${e.message}")
-            }
-            BodyType.HTML, BodyType.XML -> formatXml(content)
-            BodyType.CSS -> formatCSS(content)
-            BodyType.JAVASCRIPT -> formatJavascript(content)
-            BodyType.RAW_TEXT -> AnnotatedString(content.decodeToString())
-        }
-    }
-
     fun onRequestBodyFormatSelected(bodyType: BodyType) {
         _selectedRequestBodyFormat.value = bodyType
     }

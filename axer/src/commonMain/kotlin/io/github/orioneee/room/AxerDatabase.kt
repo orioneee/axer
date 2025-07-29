@@ -19,13 +19,14 @@ import io.github.orioneee.room.dao.LogsDAO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
+
 @Database(
     entities = [
         TransactionFull::class,
         AxerException::class,
         LogLine::class,
     ],
-    version = 19
+    version = 20
 )
 @ConstructedBy(AxerDatabaseConstructor::class)
 @TypeConverters(MapConverter::class, ListConverter::class, LogLevelConverter::class)

@@ -206,6 +206,7 @@ fun App() {
             }
         }
         install(Axer.ktorPlugin) {
+            maxBodySize = Long.MAX_VALUE
             requestImportantSelector = {
                 listOfNotNull(it.headers["Authorization"])
             }

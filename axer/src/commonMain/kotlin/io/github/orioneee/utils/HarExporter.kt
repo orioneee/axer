@@ -104,7 +104,7 @@ internal fun TransactionFull.toHarEntry(): HarEntry {
         postData = requestBody?.let {
             HarPostData(
                 mimeType = requestHeaders["Content-Type"] ?: "application/octet-stream",
-                text = it.decodeToString() // if binary, Base64 it
+                text = it.encodeBase64()
             )
         }
     )
@@ -118,7 +118,7 @@ internal fun TransactionFull.toHarEntry(): HarEntry {
             text = if(responseDefaultType == BodyType.IMAGE){
                 responseBody?.encodeBase64()
             } else{
-                responseBody?.decodeToString()
+                responseBody?.encodeBase64()
             }
         ),
         bodySize = responseBody?.size?.toLong() ?: 0L

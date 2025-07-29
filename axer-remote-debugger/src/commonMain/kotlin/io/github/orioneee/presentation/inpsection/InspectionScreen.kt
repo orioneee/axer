@@ -40,8 +40,10 @@ import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.RemoteAxerDataProvider
+import io.github.orioneee.axer.generated.resources.network_off
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 class InspectionScreen {
@@ -73,7 +75,7 @@ class InspectionScreen {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.WifiOff,
+                        painterResource(Res.drawable.network_off),
                         contentDescription = "Connection Lost",
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.primary

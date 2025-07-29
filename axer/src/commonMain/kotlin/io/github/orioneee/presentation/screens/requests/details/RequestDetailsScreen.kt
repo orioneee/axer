@@ -5,13 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -22,14 +24,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -45,16 +46,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.sebastianneubauer.jsontree.JsonTree
+import com.sebastianneubauer.jsontree.TreeState
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
 import io.github.orioneee.axer.generated.resources.duration
-import io.github.orioneee.axer.generated.resources.error
+import io.github.orioneee.axer.generated.resources.failed_decode_as_json
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
 import io.github.orioneee.axer.generated.resources.important
@@ -70,7 +74,6 @@ import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
 import io.github.orioneee.axer.generated.resources.what_is_important
 import io.github.orioneee.domain.other.DataState
-import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.presentation.LocalAxerDataProvider
@@ -87,6 +90,34 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+
+@Composable
+fun LargeTextViewer(
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = LocalTextStyle.current,
+    lineHeight: Dp = 20.dp
+) {
+    val lines = remember(text) { text.lineSequence().toList() }
+
+    // Estimate number of visible lines for performance tweaks if needed
+    val lineHeightPx = with(LocalDensity.current) { lineHeight.toPx() }
+
+    SelectionContainer {
+        LazyColumn(
+            modifier = modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(lines.size) { index ->
+                Text(
+                    text = lines[index],
+                    style = textStyle,
+                )
+            }
+        }
+    }
+}
+
 
 internal class RequestDetailsScreen {
     fun getSizeText(size: Long): String {
@@ -273,31 +304,50 @@ internal class RequestDetailsScreen {
                 Spacer(Modifier.height(16.dp))
                 BodySection {
                     Box(
-                        modifier = Modifier.Companion
+                        modifier = Modifier
+                            .heightIn(max = 10000.dp)
                             .padding(8.dp)
 
                     ) {
-                        if (selected != BodyType.IMAGE) {
-                            SelectionContainer {
-                                val formatted =
-                                    viewModel.formatedRequestBody.collectAsStateWithLifecycle(
-                                        AnnotatedString("")
+                        SelectionContainer {
+                            when (selected) {
+                                BodyType.JSON -> {
+                                    var isErrorDecoding by remember { mutableStateOf(false) }
+                                    if (isErrorDecoding) {
+                                        Text(stringResource(Res.string.failed_decode_as_json))
+                                    } else {
+                                        JsonTree(
+                                            json = request.requestBody?.decodeToString() ?: "",
+                                            onLoading = { CircularProgressIndicator() },
+                                            initialState = TreeState.EXPANDED,
+                                            onError = {
+                                                isErrorDecoding = true
+                                            }
+                                        )
+                                    }
+                                }
+
+                                BodyType.IMAGE -> {
+                                    AsyncImage(
+                                        model = request.requestBody,
+                                        contentDescription = "Response Image",
+                                        modifier = Modifier.Companion
+                                            .height(300.dp)
+                                            .clip(RoundedCornerShape(12.dp))
                                     )
-                                Text(text = formatted.value ?: AnnotatedString(""))
+                                }
+
+                                BodyType.RAW_TEXT -> {
+                                    LargeTextViewer(
+                                        request.requestBody?.decodeToString() ?: "",
+                                    )
+                                }
                             }
-                        } else {
-                            AsyncImage(
-                                model = request.requestBody,
-                                contentDescription = "Response Image",
-                                modifier = Modifier.Companion
-                                    .height(300.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                            )
                         }
                     }
                 }
             }
-            Spacer(Modifier.Companion.height(8.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -307,16 +357,16 @@ internal class RequestDetailsScreen {
         viewModel: RequestDetailsViewModel
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Companion.Start,
+            horizontalAlignment = Alignment.Start,
         ) {
-            Spacer(Modifier.Companion.height(8.dp))
+            Spacer(Modifier.height(8.dp))
             if (request.importantInResponse.isNotEmpty()) {
                 DisplayImportantSection(request.importantInResponse)
-                Spacer(Modifier.Companion.height(16.dp))
+                Spacer(Modifier.height(16.dp))
             }
             Text(
                 buildStringSection(
@@ -375,49 +425,64 @@ internal class RequestDetailsScreen {
                     Spacer(Modifier.height(16.dp))
                 }
                 BodySection {
-                    if (selected != BodyType.IMAGE) {
-                        if (request.error == null) {
-                            Box(
-                                modifier = Modifier.Companion
-                                    .padding(8.dp)
-                            ) {
-                                val formatted =
-                                    viewModel.formatedResponseBody.collectAsStateWithLifecycle(
-                                        AnnotatedString("")
-                                    )
-                                SelectionContainer {
-                                    Text(formatted.value ?: AnnotatedString(""))
-                                }
-                            }
-                        } else {
-                            Box(
-                                modifier = Modifier.Companion
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                contentAlignment = Alignment.Companion.Center
-                            ) {
-                                SelectionContainer {
-                                    Text(
-                                        stringResource(Res.string.error, request.error),
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                        }
-                    } else {
+                    SelectionContainer {
                         Box(
-                            modifier = Modifier.Companion
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Companion.Center
+                            modifier = Modifier
+                                .heightIn(max = 10000.dp)
+                                .padding(8.dp)
                         ) {
-                            AsyncImage(
-                                model = request.responseBody,
-                                contentDescription = "Response Image",
-                                modifier = Modifier.Companion
-                                    .height(300.dp)
-                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                            )
+                            if (request.error == null) {
+                                when (selected) {
+                                    BodyType.JSON -> {
+                                        var isErrorDecoding by remember { mutableStateOf(false) }
+                                        if (isErrorDecoding) {
+                                            Text(stringResource(Res.string.failed_decode_as_json))
+                                        } else {
+                                            JsonTree(
+                                                json = request.responseBody?.decodeToString() ?: "",
+                                                onLoading = { CircularProgressIndicator() },
+                                                initialState = TreeState.EXPANDED,
+                                                onError = {
+                                                    isErrorDecoding = true
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    BodyType.IMAGE -> {
+                                        Box(
+                                            modifier = Modifier.Companion
+                                                .fillMaxWidth()
+                                                .padding(8.dp),
+                                            contentAlignment = Alignment.Companion.Center
+                                        ) {
+                                            AsyncImage(
+                                                model = request.responseBody,
+                                                contentDescription = "Response Image",
+                                                modifier = Modifier.Companion
+                                                    .height(300.dp)
+                                                    .clip(
+                                                        RoundedCornerShape(
+                                                            12.dp
+                                                        )
+                                                    )
+                                            )
+                                        }
+                                    }
+
+                                    BodyType.RAW_TEXT -> {
+                                        LargeTextViewer(
+                                            request.responseBody?.decodeToString() ?: ""
+                                        )
+                                    }
+
+                                }
+                            } else {
+                                Text(
+                                    text = request.error.stackTrace,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                     }
                 }
@@ -538,7 +603,7 @@ internal class RequestDetailsScreen {
                         text = { Text(stringResource(Res.string.response_tab)) }
                     )
                 }
-                if(request != null){
+                if (request != null) {
                     HorizontalPager(
                         userScrollEnabled = canSwipePage,
                         state = pager

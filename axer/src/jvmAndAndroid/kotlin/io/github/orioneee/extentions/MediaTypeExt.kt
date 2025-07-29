@@ -10,10 +10,6 @@ fun MediaType?.toBodyType(): BodyType {
     return when {
         this.type == "image" -> BodyType.IMAGE
         subtype.contains("json") -> BodyType.JSON
-        subtype.contains("html") -> BodyType.HTML
-        subtype.contains("xml") -> BodyType.XML
-        subtype.contains("css") -> BodyType.CSS
-        subtype.contains("javascript") || subtype.contains("ecmascript") || subtype == "js" -> BodyType.JAVASCRIPT
         else -> BodyType.RAW_TEXT
     }
 }

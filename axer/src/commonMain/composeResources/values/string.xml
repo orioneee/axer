@@ -78,5 +78,6 @@
     <string name="no_databases_desc">Probably database is locked(needs any operation with it) or AxerBundledSQLiteDriver in not attached to your database.</string>
     <string name="more">More</string>
     <string name="less">Less</string>
+    <string name="failed_decode_as_json">Failed to decode as JSON. Please check if the response is in valid JSON format.</string>
 
 </resources>

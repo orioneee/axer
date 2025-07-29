@@ -93,6 +93,9 @@ kotlin {
             implementation(libs.ktor.server.content.negotiation)
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.server.websockets)
+
+            implementation("com.sebastianneubauer.jsontree:jsontree:2.5.0")
+
         }
 
 

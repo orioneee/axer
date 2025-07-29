@@ -4,8 +4,4 @@ enum class BodyType {
     JSON,
     IMAGE,
     RAW_TEXT,
-    HTML,
-    XML,
-    CSS,
-    JAVASCRIPT,
 }
