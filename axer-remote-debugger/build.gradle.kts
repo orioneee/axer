@@ -93,13 +93,6 @@ android {
         versionCode = 1
         versionName = libraryVersion
     }
-    applicationVariants.all {
-        outputs.all {
-            val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            val appName = "AxerDebugger-$libraryVersion.apk"
-            outputImpl.outputFileName = appName
-        }
-    }
 
     buildTypes {
         debug {
