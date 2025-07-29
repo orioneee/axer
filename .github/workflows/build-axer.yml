@@ -1,4 +1,4 @@
-name: Build and Axer artifacts
+name: Build and deploy Axer
 
 on:
   release:
