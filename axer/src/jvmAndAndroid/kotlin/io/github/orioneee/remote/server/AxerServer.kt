@@ -133,7 +133,12 @@ private fun CoroutineScope.startKtorServer(
             )
 
             get("/isAxerServer") {
-                call.respond(HttpStatusCode.OK, getDeviceData())
+                try {
+                    call.respond(HttpStatusCode.OK, getDeviceData())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    call.respond(HttpStatusCode.InternalServerError, "Error: ${e.message}")
+                }
             }
 
             webSocket("/ws/isAlive") {
