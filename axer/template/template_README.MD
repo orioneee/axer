@@ -5,6 +5,8 @@
 </div>
 
 # Axer Library
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
+[![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/Axer/)
 
 ---
 
