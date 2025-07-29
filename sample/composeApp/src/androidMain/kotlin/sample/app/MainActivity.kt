@@ -1,6 +1,7 @@
 package sample.app
 
 import android.Manifest
+import android.app.Application
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast

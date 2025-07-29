@@ -377,7 +377,7 @@ internal fun App(
 
             /** ─── Database ─────────────────────────────────────────────── **/
             item {
-                ActionCard("Database") {
+                ActionCard("Storage") {
                     FilledTonalButton(
                         modifier = Modifier.padding(horizontal = 2.dp),
                         onClick = { populateDatabase(database) }) {
@@ -400,6 +400,17 @@ internal fun App(
                                 Axer.d("Sample", "movies=$movies directors=$directors")
                             }
                         }) { Text("Counts") }
+
+                    if (isSupportKVTest) {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch(Dispatchers.IO) {
+                                    testKVStorage()
+                                }
+                            }
+                        ) { Text("Test KV") }
+                    }
                 }
             }
 
