@@ -13,24 +13,24 @@
 ![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
 ![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
 
----
+
 ## 📑 Summary
 
-- [Overview](#overview)
+- [📝 Overview](#overview)
 - [🚀 Remote Debugger Support](#-remote-debugger-support)
-- [Installation](#installation)
-- [Features & Usage](#features--usage)
-  - [HTTP Request Monitoring](#http-request-monitoring)
-  - [Logger](#logger)
-  - [Exception Handling](#exception-handling)
-  - [Room Database Inspection](#room-database-inspection)
-- [Runtime Configuration](#runtime-configuration)
-- [Stability](#stability)
-- [iOS Limitations](#ios-limitations)
-- [Inspiration](#inspiration)
+- [💾 Installation](#installation)
+- [✨ Features & Usage](#features--usage)
+  - [🔍 HTTP Request Monitoring](#http-request-monitoring)
+  - [📋 Logger](#logger)
+  - [⚠️ Exception Handling](#exception-handling)
+  - [🗄️ Room Database Inspection](#room-database-inspection)
+- [⚙️ Runtime Configuration](#runtime-configuration)
+- [🛡️ Stability](#stability)
+- [🍏 iOS Limitations](#ios-limitations)
+- [💭 Inspiration](#inspiration)
 - [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
-- [License](#license)
+- [📄 License](#license)
 
 ---
 
@@ -395,23 +395,22 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 
 ## 📦 Dependency Versions
 
-| Dependency            | Version          |
-|-----------------------|------------------|
-| Kotlin                | 2.2.0 |
-| Compose               | 1.8.2 |
-| Ktor                  | 3.2.2 |
-| Koin                  | 4.1.0 |
-| Room                  | 2.7.2 |
-| OkHttp                | 5.1.0 |
-| Napier                | 2.7.1 |
-| kotlinx-coroutines    | 1.10.2 |
-| kotlinx-serialization | 1.9.0 |
-| kotlinx-datetime      | 0.7.1 |
+| Dependency            | Version                             |
+|-----------------------|-------------------------------------|
+| Kotlin                | 2.2.0                  |
+| Compose               | 1.8.2                 |
+| Ktor                  | 3.2.2                    |
+| Koin                  | 4.1.0                    |
+| Room                  | 2.7.2                    |
+| OkHttp                | 5.1.0                  |
+| Napier                | 2.7.1                  |
+| kotlinx-coroutines    | 1.10.2      |
+| kotlinx-serialization | 1.9.0   |
+| kotlinx-datetime      | 0.7.1        |
 | Accompanist           | 0.37.3 |
-| Coil Compose          | 3.3.0 |
-| Navigation Compose    | 2.9.0-beta04 |
-| minSdk                | 26      |
-
+| Coil Compose          | 3.3.0            |
+| Navigation Compose    | 2.9.0-beta04      |
+| minSdk                | 26                         |
 ---
 
 ## 💡 Tips & Extras

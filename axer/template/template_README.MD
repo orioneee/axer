@@ -13,24 +13,24 @@
 ![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
 ![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
 
----
+
 ## 📑 Summary
 
-- [Overview](#overview)
+- [📝 Overview](#overview)
 - [🚀 Remote Debugger Support](#-remote-debugger-support)
-- [Installation](#installation)
-- [Features & Usage](#features--usage)
-  - [HTTP Request Monitoring](#http-request-monitoring)
-  - [Logger](#logger)
-  - [Exception Handling](#exception-handling)
-  - [Room Database Inspection](#room-database-inspection)
-- [Runtime Configuration](#runtime-configuration)
-- [Stability](#stability)
-- [iOS Limitations](#ios-limitations)
-- [Inspiration](#inspiration)
+- [💾 Installation](#installation)
+- [✨ Features & Usage](#features--usage)
+  - [🔍 HTTP Request Monitoring](#http-request-monitoring)
+  - [📋 Logger](#logger)
+  - [⚠️ Exception Handling](#exception-handling)
+  - [🗄️ Room Database Inspection](#room-database-inspection)
+- [⚙️ Runtime Configuration](#runtime-configuration)
+- [🛡️ Stability](#stability)
+- [🍏 iOS Limitations](#ios-limitations)
+- [💭 Inspiration](#inspiration)
 - [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
-- [License](#license)
+- [📄 License](#license)
 
 ---
 
@@ -395,23 +395,22 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 
 ## 📦 Dependency Versions
 
-| Dependency            | Version          |
-|-----------------------|------------------|
-| Kotlin                | {{KOTLIN_VERSION}} |
-| Compose               | {{COMPOSE_VERSION}} |
-| Ktor                  | {{KTOR_VERSION}} |
-| Koin                  | {{KOIN_VERSION}} |
-| Room                  | {{ROOM_VERSION}} |
-| OkHttp                | {{OKHTTP_VERSION}} |
-| Napier                | {{NAPIER_VERSION}} |
-| kotlinx-coroutines    | {{KOTLINX_COROUTINES_VERSION}} |
-| kotlinx-serialization | {{KOTLINX_SERIALIZATION_VERSION}} |
-| kotlinx-datetime      | {{KOTLINX_DATETIME_VERSION}} |
+| Dependency            | Version                             |
+|-----------------------|-------------------------------------|
+| Kotlin                | {{KOTLIN_VERSION}}                  |
+| Compose               | {{COMPOSE_VERSION}}                 |
+| Ktor                  | {{KTOR_VERSION}}                    |
+| Koin                  | {{KOIN_VERSION}}                    |
+| Room                  | {{ROOM_VERSION}}                    |
+| OkHttp                | {{OKHTTP_VERSION}}                  |
+| Napier                | {{NAPIER_VERSION}}                  |
+| kotlinx-coroutines    | {{KOTLINX_COROUTINES_VERSION}}      |
+| kotlinx-serialization | {{KOTLINX_SERIALIZATION_VERSION}}   |
+| kotlinx-datetime      | {{KOTLINX_DATETIME_VERSION}}        |
 | Accompanist           | {{ACCOMPANIST_PERMISSIONS_VERSION}} |
-| Coil Compose          | {{COIL_COMPOSE_VERSION}} |
-| Navigation Compose    | {{NAVIGATION_COMPOSE_VERSION}} |
-| minSdk                | {{MIN_SDK}}      |
-
+| Coil Compose          | {{COIL_COMPOSE_VERSION}}            |
+| Navigation Compose    | {{NAVIGATION_COMPOSE_VERSION}}      |
+| minSdk                | {{MIN_SDK}}                         |
 ---
 
 ## 💡 Tips & Extras
