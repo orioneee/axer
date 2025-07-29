@@ -1,8 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.internal.utils.getLocalProperty
-import org.jetbrains.dokka.gradle.DokkaCollectorTask
 import org.jetbrains.dokka.gradle.DokkaTask
-import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -259,9 +257,8 @@ fun generateDocumentations() {
 generateDocumentations()
 
 
-tasks.withType<DokkaTask>().configureEach {
-    outputDirectory.set(layout.settingsDirectory.dir("docs"))
+
+dokka {
+    moduleName.set("Axer")
+    basePublicationsDirectory = layout.settingsDirectory.dir("docs")
 }
-
-
-
