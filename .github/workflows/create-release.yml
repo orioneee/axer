@@ -1,0 +1,25 @@
+name: Create Release on Tag
+
+on:
+  push:
+    tags:
+      - '*'  # Triggers on any new tag push
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automatically created release for tag ${{ github.ref_name }}.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
