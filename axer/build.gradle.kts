@@ -237,6 +237,32 @@ buildkonfig {
 }
 
 
+/**
+ * Generates README.md from template_README.MD with dynamic dependency versions.
+ * 
+ * This function:
+ * 1. Reads the template from axer/template/template_README.MD
+ * 2. Parses gradle/libs.versions.toml to extract dependency versions
+ * 3. Replaces placeholders in the template with actual versions
+ * 4. Writes the result to README.md
+ * 
+ * Supported placeholders:
+ * - {{AXER_VERSION}} - Latest git tag
+ * - {{KOTLIN_VERSION}} - Kotlin version from TOML
+ * - {{COMPOSE_VERSION}} - Compose Multiplatform version from TOML
+ * - {{KTOR_VERSION}} - Ktor version from TOML
+ * - {{KOIN_VERSION}} - Koin version from TOML
+ * - {{ROOM_VERSION}} - Room version from TOML
+ * - {{OKHTTP_VERSION}} - OkHttp version from TOML
+ * - {{NAPIER_VERSION}} - Napier version from TOML
+ * - {{KOTLINX_COROUTINES_VERSION}} - kotlinx-coroutines version from TOML
+ * - {{KOTLINX_SERIALIZATION_VERSION}} - kotlinx-serialization version from TOML
+ * - {{KOTLINX_DATETIME_VERSION}} - kotlinx-datetime version from TOML
+ * - {{ACCOMPANIST_VERSION}} - Accompanist version from TOML
+ * - {{COIL_COMPOSE_VERSION}} - Coil Compose version from TOML
+ * - {{NAVIGATION_COMPOSE_VERSION}} - Navigation Compose version from TOML
+ * - {{MIN_SDK}} - Minimum SDK version from TOML
+ */
 fun generateDocumentations() {
     val version = getLatestGitTag()
     println("Latest version: '$version'")

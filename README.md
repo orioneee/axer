@@ -1,3 +1,12 @@
+<!--
+This is a template README file for dynamic generation.
+Placeholders like {AXER_VERSION}, {KOTLIN_VERSION}, etc. are replaced
+with actual values from gradle/libs.versions.toml by the generateDocumentations()
+function in axer/build.gradle.kts.
+
+To regenerate README.md, run: ./gradlew
+-->
+
 <div align="center">
   <picture>
     <img width="200px" alt="Axer logo" src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logo.svg">
