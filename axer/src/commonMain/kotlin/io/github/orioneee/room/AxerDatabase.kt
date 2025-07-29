@@ -47,6 +47,6 @@ internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerD
         .setDriver(BundledSQLiteDriver())
 //        .setDriver(AxerBundledSQLiteDriver.getInstance())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .fallbackToDestructiveMigration(false)
+        .fallbackToDestructiveMigration(true)
         .build()
 }

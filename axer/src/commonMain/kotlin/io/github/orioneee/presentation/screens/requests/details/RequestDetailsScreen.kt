@@ -305,7 +305,7 @@ internal class RequestDetailsScreen {
                 BodySection {
                     Box(
                         modifier = Modifier
-                            .heightIn(max = 10000.dp)
+                            .heightIn(max = 2000.dp)
                             .padding(8.dp)
 
                     ) {
@@ -428,7 +428,7 @@ internal class RequestDetailsScreen {
                     SelectionContainer {
                         Box(
                             modifier = Modifier
-                                .heightIn(max = 10000.dp)
+                                .heightIn(max = 2000.dp)
                                 .padding(8.dp)
                         ) {
                             if (request.error == null) {

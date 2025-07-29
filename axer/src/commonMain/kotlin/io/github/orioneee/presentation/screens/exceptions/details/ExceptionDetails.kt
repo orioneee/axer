@@ -193,31 +193,33 @@ internal class ExceptionDetails {
             ) {
                 PlatformHorizontalScrollBar(scrollState)
             }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = {
-                        isShortView = !isShortView
-                    }
+            if(events.size > 5) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        AnimatedContent(isShortView) {
-                            if (it) {
-                                Text(text = stringResource(Res.string.more))
-                            } else {
-                                Text(text = stringResource(Res.string.less))
-                            }
+                    TextButton(
+                        onClick = {
+                            isShortView = !isShortView
                         }
-                        Icon(
-                            imageVector = Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = "Toggle View",
-                            modifier = Modifier.rotate(rotating.value)
-                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            AnimatedContent(isShortView) {
+                                if (it) {
+                                    Text(text = stringResource(Res.string.more))
+                                } else {
+                                    Text(text = stringResource(Res.string.less))
+                                }
+                            }
+                            Icon(
+                                imageVector = Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Toggle View",
+                                modifier = Modifier.rotate(rotating.value)
+                            )
+                        }
                     }
                 }
             }
