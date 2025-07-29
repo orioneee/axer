@@ -244,14 +244,64 @@ fun generateDocumentations() {
     val templateFile = File(rootDir, "axer/template/template_README.MD")
     println("Template exists: ${templateFile.exists()}")
 
+    val tomlFile = File(rootDir, "gradle/libs.versions.toml")
+    println("TOML file exists: ${tomlFile.exists()}")
+
+    // Parse TOML file to extract versions
+    val tomlContent = tomlFile.readText()
+    val versionRegex = """([\w-]+)\s*=\s*["']([^"']+)["']""".toRegex()
+    val versions = mutableMapOf<String, String>()
+    
+    // Extract versions from [versions] section
+    val versionsSection = tomlContent.substringAfter("[versions]").substringBefore("[libraries]")
+    versionRegex.findAll(versionsSection).forEach { match ->
+        val key = match.groupValues[1]
+        val value = match.groupValues[2]
+        versions[key] = value
+    }
+
+    println("Extracted ${versions.size} versions from TOML")
+
     val template = templateFile.readText()
-    val updated = template.replace("{{AXER_VERSION}}", version)
+    var updated = template
+    
+    // Replace Axer version
+    updated = updated.replace("{{AXER_VERSION}}", version)
+    
+    // Replace dependency versions with mapping from TOML keys to placeholder names
+    val versionMappings = mapOf(
+        "kotlin" to "{{KOTLIN_VERSION}}",
+        "compose" to "{{COMPOSE_VERSION}}",
+        "ktor" to "{{KTOR_VERSION}}",
+        "koin" to "{{KOIN_VERSION}}",
+        "room" to "{{ROOM_VERSION}}",
+        "okhttp" to "{{OKHTTP_VERSION}}",
+        "napier" to "{{NAPIER_VERSION}}",
+        "kotlinx-coroutines" to "{{KOTLINX_COROUTINES_VERSION}}",
+        "kotlinx-serialization" to "{{KOTLINX_SERIALIZATION_VERSION}}",
+        "kotlinx-datetime" to "{{KOTLINX_DATETIME_VERSION}}",
+        "accompanistPermissions" to "{{ACCOMPANIST_VERSION}}",
+        "coilCompose" to "{{COIL_COMPOSE_VERSION}}",
+        "navigationCompose" to "{{NAVIGATION_COMPOSE_VERSION}}",
+        "minSdk" to "{{MIN_SDK}}"
+    )
+    
+    // Replace each placeholder with the corresponding version from TOML
+    versionMappings.forEach { (tomlKey, placeholder) ->
+        val versionValue = versions[tomlKey] ?: "N/A"
+        updated = updated.replace(placeholder, versionValue)
+        if (versionValue != "N/A") {
+            println("Replaced $placeholder with $versionValue")
+        } else {
+            println("Warning: Version for $tomlKey not found in TOML")
+        }
+    }
 
     val outputFile = File(rootDir, "README.md")
     println("Writing to: ${outputFile.absolutePath}")
     outputFile.writeText(updated)
 
-    println("README.md updated with version: $version")
+    println("README.md updated with version: $version and dependencies")
 }
 
 generateDocumentations()

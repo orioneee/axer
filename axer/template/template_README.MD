@@ -8,6 +8,30 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
 [![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/Axer/)
 
+## Platform Support
+[![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-blueviolet?logo=compose)](https://github.com/JetBrains/compose-multiplatform)
+[![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![iOS](https://img.shields.io/badge/iOS-000000?logo=apple&logoColor=white)](https://developer.apple.com/ios/)
+[![JVM](https://img.shields.io/badge/JVM-ED8B00?logo=oracle&logoColor=white)](https://openjdk.org/)
+
+## Dependencies
+| Library | Version |
+|---------|---------|
+| Kotlin | {{KOTLIN_VERSION}} |
+| Compose Multiplatform | {{COMPOSE_VERSION}} |
+| Ktor | {{KTOR_VERSION}} |
+| Koin | {{KOIN_VERSION}} |
+| Room | {{ROOM_VERSION}} |
+| OkHttp | {{OKHTTP_VERSION}} |
+| Napier | {{NAPIER_VERSION}} |
+| kotlinx-coroutines | {{KOTLINX_COROUTINES_VERSION}} |
+| kotlinx-serialization | {{KOTLINX_SERIALIZATION_VERSION}} |
+| kotlinx-datetime | {{KOTLINX_DATETIME_VERSION}} |
+| Accompanist | {{ACCOMPANIST_VERSION}} |
+| Coil Compose | {{COIL_COMPOSE_VERSION}} |
+| Navigation Compose | {{NAVIGATION_COMPOSE_VERSION}} |
+| **Min SDK** | **{{MIN_SDK}}** |
+
 ---
 
 ## 📑 Summary

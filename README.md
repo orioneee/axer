@@ -8,6 +8,30 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
 [![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/Axer/)
 
+## Platform Support
+[![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-blueviolet?logo=compose)](https://github.com/JetBrains/compose-multiplatform)
+[![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![iOS](https://img.shields.io/badge/iOS-000000?logo=apple&logoColor=white)](https://developer.apple.com/ios/)
+[![JVM](https://img.shields.io/badge/JVM-ED8B00?logo=oracle&logoColor=white)](https://openjdk.org/)
+
+## Dependencies
+| Library | Version |
+|---------|---------|
+| Kotlin | 2.2.0 |
+| Compose Multiplatform | 1.8.2 |
+| Ktor | 3.2.3 |
+| Koin | 4.1.0 |
+| Room | 2.7.2 |
+| OkHttp | 5.1.0 |
+| Napier | 2.7.1 |
+| kotlinx-coroutines | 1.10.2 |
+| kotlinx-serialization | 1.9.0 |
+| kotlinx-datetime | 0.7.1 |
+| Accompanist | 0.37.3 |
+| Coil Compose | 3.3.0 |
+| Navigation Compose | 2.9.0-beta04 |
+| **Min SDK** | **26** |
+
 ---
 
 ## 📑 Summary
@@ -98,16 +122,16 @@ Axer.runServerIfNotRunning(lifecycleScope) // for example, in an Android Activit
 
 ## Installation
 
-Add the dependencies to your project (`1.1.2` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`0.0.0` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.1.2")
+implementation("io.github.orioneee:axer:0.0.0")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.1.2")
+implementation("io.github.orioneee:axer-no-op:0.0.0")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -369,7 +393,7 @@ Axer.configure {
 
 ## Stability
 
-Axer is currently in beta (`1.1.2`).  
+Axer is currently in beta (`0.0.0`).  
 Expect possible bugs and breaking changes as the library evolves.
 
 ---
