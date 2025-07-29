@@ -41,7 +41,6 @@ internal fun Route.databaseModule(
             sendSerialized(null)
         }
         reader.axerDriver.changeDataFlow
-            .debounce(100)
             .onEach {
                 if (isEnabledDatabase.first()) {
                     val tables = dbMutex.withLock {
@@ -152,7 +151,6 @@ internal fun Route.databaseModule(
            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
          }
         reader.axerDriver.changeDataFlow
-            .debounce(100)
             .onEach {
                 if (isEnabledDatabase.first()) {
                     try {
@@ -215,7 +213,6 @@ internal fun Route.databaseModule(
 
         var command: String? = null
         reader.axerDriver.changeDataFlow
-            .debounce(100)
             .onEach {
                 command?.let {
                     if (isEnabledDatabase.first()) {

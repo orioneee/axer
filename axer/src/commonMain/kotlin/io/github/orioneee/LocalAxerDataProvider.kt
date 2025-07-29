@@ -133,7 +133,6 @@ internal class LocalAxerDataProvider(
         }
 
         val updates = reader.axerDriver.changeDataFlow
-            .debounce(100)
             .flatMapLatest {
                 flow {
                     val state: DataState<List<DatabaseWrapped>> =
@@ -163,7 +162,6 @@ internal class LocalAxerDataProvider(
         }
 
         val updates = reader.axerDriver.changeDataFlow
-            .debounce(100)
             .flatMapLatest {
                 flow {
                     val content = reader.getTableContent(file, tableName, page, pageSize)
@@ -261,7 +259,6 @@ internal class LocalAxerDataProvider(
         }
 
         val updates = reader.axerDriver.changeDataFlow
-            .debounce(100)
             .flatMapLatest {
                 flow {
                     try {

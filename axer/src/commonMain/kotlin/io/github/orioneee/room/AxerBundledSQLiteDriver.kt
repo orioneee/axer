@@ -5,6 +5,7 @@ import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.Axer
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -31,7 +33,9 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
         extraBufferCapacity = 500,
         onBufferOverflow = BufferOverflow.DROP_LATEST
     )
-    val changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val _changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    @OptIn(FlowPreview::class)
+    val changeDataFlow = _changeDataFlow.asSharedFlow().sample(500)
 
     init {
         Axer.initIfCan()
@@ -41,13 +45,13 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     override fun open(fileName: String): SQLiteConnection {
         if (!dbFiles.contains(fileName)){
             dbFiles.add(fileName)
-            changeDataFlow.tryEmit(fileName)
+            _changeDataFlow.tryEmit(fileName)
         }
         val connection = driver.open(fileName)
         return object : SQLiteConnection {
             override fun prepare(sql: String): SQLiteStatement {
                 if (isSqlQueryChangeData(sql)) {
-                    changeDataFlow.tryEmit(sql)
+                    _changeDataFlow.tryEmit(sql)
                 }
                 val originalStatement = connection.prepare(sql)
                 return AxerSqlStatement(

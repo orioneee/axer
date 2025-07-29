@@ -144,9 +144,6 @@ internal class RequestListScreen() {
         }
         val state = viewModel.requestsState.collectAsStateWithLifecycle(DataState.Loading())
         val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsStateWithLifecycle(false)
-        LaunchedEffect(state) {
-            println("RequestListScreen: State changed to ${state.value}")
-        }
         val requests = viewModel.filteredRequests.collectAsState(emptyList())
         val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
         val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())

@@ -95,7 +95,6 @@ internal interface AxerExceptionDao {
     FROM LogLine WHERE sessionIdentifier = :sessionIdentifier AND time <= :olderThan
     
     ORDER BY eventTime DESC
-    LIMIT 25
 """
     )
     suspend fun getSessionEventsDTO(
@@ -115,10 +114,9 @@ internal interface AxerExceptionDao {
                 exception.time
             ).toSessionEvents()
                 .sortedByDescending {
-                it.eventTime
-            }.also {
-                println("Session events for exception ${exception.id}: ${it.size}")
-            }
+                    it.eventTime
+                }
+                .take(25)
         )
     }
 

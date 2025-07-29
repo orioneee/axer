@@ -253,7 +253,7 @@ internal class RoomReader {
             stmt.bindCell(1, newValue, editableItem.schemaItem.type)
             stmt.bindCell(2, primaryKeyValue, primarySchemaItem.type)
             stmt.step()
-            axerDriver.changeDataFlow.emit("UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?")
+            axerDriver._changeDataFlow.emit("UPDATE $tableName SET $columnName = ? WHERE ${primarySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }
@@ -280,7 +280,7 @@ internal class RoomReader {
         try {
             stmt.bindCell(1, primaryKeyValue, primaryKeySchemaItem.type)
             stmt.step()
-            axerDriver.changeDataFlow.emit("DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?")
+            axerDriver._changeDataFlow.emit("DELETE FROM $tableName WHERE ${primaryKeySchemaItem.name} = ?")
         } finally {
             stmt.close()
         }

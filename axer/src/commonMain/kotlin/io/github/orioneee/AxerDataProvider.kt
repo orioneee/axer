@@ -15,7 +15,6 @@ import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import kotlinx.coroutines.flow.Flow
 
-@Suppress("Dokka")
 
 interface AxerDataProvider {
     fun getAllRequests(): Flow<DataState<List<TransactionShort>>>
