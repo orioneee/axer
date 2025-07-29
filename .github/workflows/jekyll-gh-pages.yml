@@ -30,12 +30,12 @@ jobs:
           java-version: 17
 
       - name: Build Dokka HTML documentation
-        run: ./gradlew dokkaHtml
+        run: ./gradlew dokkaGeneratePublicationHtml
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: axer/build/dokka-module/html/module
+          path: docs  # Dokka output directory at root
 
   deploy:
     needs: build
