@@ -369,7 +369,9 @@ class RemoteAxerDataProvider(
             clientTimeFlow
         ) { serverTime, clientTime ->
             abs(serverTime - clientTime) < maxDelta
-        }.distinctUntilChanged().debounce(500)
+        }
+            .distinctUntilChanged()
+            .debounce(500)
     }
 
 

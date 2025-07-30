@@ -24,6 +24,7 @@ actual fun MultiplatformAlertDialog(
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
     title: @Composable (() -> Unit),
+    cancelButton: @Composable (() -> Unit)?,
     confirmButton: @Composable (() -> Unit),
     content: @Composable () -> Unit,
 ) {
@@ -65,6 +66,7 @@ actual fun MultiplatformAlertDialog(
             onDismissRequest = onDismiss,
             title = title,
             text = content,
+            dismissButton = cancelButton,
             confirmButton = confirmButton,
         )
     }

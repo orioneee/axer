@@ -16,6 +16,7 @@ expect fun MultiplatformAlertDialog(
     isShowDialog: Boolean,
     onDismiss: () -> Unit,
     title: @Composable (() -> Unit),
+    cancelButton: @Composable (() -> Unit)? = null,
     confirmButton: @Composable (() -> Unit) = {
         TextButton(
             onClick = onDismiss

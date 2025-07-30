@@ -1,5 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import java.util.Locale
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
+    id("com.codingfeline.buildkonfig") version "+"
 }
 
 fun getLatestGitTag() = providers.exec {
@@ -111,5 +112,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+}
+
+buildkonfig {
+    packageName = "io.orioneee.axer.debugger"
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", libraryVersion)
     }
 }

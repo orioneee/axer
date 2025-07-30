@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.selectdevice
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.orioneee.data.RemoteRepositoryImpl
 import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import io.ktor.client.HttpClient
@@ -10,13 +11,13 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
+import io.orioneee.axer.debugger.BuildKonfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,19 +25,75 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.Inet4Address
-import java.net.InetAddress
 import java.net.NetworkInterface
-import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 
 data class DeviceScanUiState(
     val devices: List<DeviceData> = emptyList(),
     val isSearching: Boolean = false,
-    val progress: Float = 0f, // Scan progress from 0.0 to 1.0
+    val progress: Float = 0f,
 )
 
 class DeviceScanViewModel : ViewModel() {
+    private val _newerVersionAvailable = MutableStateFlow<String?>(null)
+    private val _isShowingNewVersionDialog = MutableStateFlow(false)
+
+    val newerVersionAvailable = _newerVersionAvailable.asStateFlow()
+    val isShowingNewVersionDialog = _isShowingNewVersionDialog.asStateFlow()
+    fun onDismissNewVersion() {
+        _isShowingNewVersionDialog.value = false
+    }
+
+    private val localClient = HttpClient {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        install(HttpTimeout) {
+            connectTimeoutMillis = 1000
+            requestTimeoutMillis = 3_500
+        }
+    }
+
+    private val remoteClient = HttpClient {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+    }
+
+    private val remoteRepository: RemoteRepositoryImpl by lazy {
+        RemoteRepositoryImpl(remoteClient)
+    }
+
+    init {
+        viewModelScope.launch {
+            try {
+                val latestTag = remoteRepository.getLatestGitTag()
+                val currentVersion = BuildKonfig.VERSION_NAME
+                val currentVersionCode =
+                    currentVersion.split(".").joinToString("").toIntOrNull() ?: 0
+                if (latestTag.isSuccess) {
+                    val latestVersion = latestTag.getOrThrow()
+                    val latestVersionCode = latestVersion.split(".")
+                        .joinToString("")
+                        .toIntOrNull() ?: 0
+                    println("Current version: $currentVersion, Latest version: $latestVersion")
+                    println("Current version code: $currentVersionCode, Latest version code: $latestVersionCode")
+                    if (latestVersionCode > currentVersionCode) {
+                        _newerVersionAvailable.value = latestVersion
+                        _isShowingNewVersionDialog.value = true
+                    }
+                } else {
+                    println("Failed to fetch latest version: ${latestTag.exceptionOrNull()?.message}")
+                    _newerVersionAvailable.value = null
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _newerVersionAvailable.value = null
+            }
+        }
+    }
 
     private val _uiState = MutableStateFlow(DeviceScanUiState())
     val uiState = _uiState.asStateFlow()
@@ -44,7 +101,7 @@ class DeviceScanViewModel : ViewModel() {
     var scanningJob: Job? = null
 
     fun startScanning() {
-        scanningJob =  viewModelScope.launch {
+        scanningJob = viewModelScope.launch {
             _uiState.update { it.copy(isSearching = true, devices = emptyList(), progress = 0f) }
 
             scanForAxerDevices { foundDevices, currentProgress ->
@@ -60,22 +117,10 @@ class DeviceScanViewModel : ViewModel() {
 
     private suspend fun scanForAxerDevices(onProgress: (List<DeviceData>, Float) -> Unit) =
         withContext(Dispatchers.IO) {
-            val client = HttpClient {
-                install(ContentNegotiation) {
-                    json(Json { ignoreUnknownKeys = true })
-                }
-                // set timeout 200ms
-                install(HttpTimeout) {
-                    connectTimeoutMillis = 1000
-                    requestTimeoutMillis = 3_500
-                }
-            }
-
             val reachableIps = CopyOnWriteArrayList<DeviceData>()
 
             val subnets = NetworkInterface.getNetworkInterfaces().asSequence()
                 .filter {
-                    //check not contains VMware Network
                     !it.displayName.contains("VMware", ignoreCase = true)
                             && !it.displayName.contains("VirtualBox", ignoreCase = true)
                 }
@@ -92,11 +137,6 @@ class DeviceScanViewModel : ViewModel() {
                     it.substringAfterLast(".").toIntOrNull()
                 }
 
-
-            if (subnets.isEmpty()) {
-                client.close()
-                return@withContext
-            }
 
             val totalJobsPerSubnet = 254
             val totalJobs = subnets.size * totalJobsPerSubnet
@@ -117,7 +157,7 @@ class DeviceScanViewModel : ViewModel() {
             allIps.map {
                 async {
                     try {
-                        checkIp(it, client)?.let { result ->
+                        checkIp(it, localClient)?.let { result ->
                             println("Found Axer server at: $it")
                             reachableIps.add(result)
                         }
@@ -127,7 +167,6 @@ class DeviceScanViewModel : ViewModel() {
                     }
                 }
             }.awaitAll()
-            client.close()
         }
 
     private suspend fun checkIp(ip: String, client: HttpClient): DeviceData? {
@@ -137,12 +176,6 @@ class DeviceScanViewModel : ViewModel() {
             }
         }
         return try {
-//            if (!InetAddress.getByName(ip).isReachable(200)) {
-//                doInNeededIp {
-//                    println("Skipping unreachable IP: $ip")
-//                }
-//                return null
-//            }
             val response = client.get("http://$ip:$AXER_SERVER_PORT/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
                 doInNeededIp {
@@ -159,7 +192,7 @@ class DeviceScanViewModel : ViewModel() {
             doInNeededIp {
                 println("Error checking IP $ip: ${e.message}")
             }
-            null // Catches timeouts, connection refused, etc.
+            null
         }
     }
 }

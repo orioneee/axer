@@ -23,8 +23,10 @@ import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.outlined.BrowserUpdated
 import androidx.compose.material.icons.outlined.Router
 import androidx.compose.material.icons.outlined.WifiOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -35,6 +37,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,7 +55,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
+import org.jetbrains.compose.resources.painterResource
 
 class SelectDeviceScreen {
 
@@ -67,10 +74,80 @@ class SelectDeviceScreen {
                 }
             }
         )
+        val isShown = viewModel.isShowingNewVersionDialog.collectAsState(false)
         val uiState by viewModel.uiState.collectAsState()
         LaunchedEffect(Unit) {
             viewModel.startScanning()
         }
+
+        MultiplatformAlertDialog(
+            isShowDialog = isShown.value,
+            onDismiss = viewModel::onDismissNewVersion,
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    AxerLogo(modifier = Modifier.size(32.dp))
+                    Text(
+                        text = "New Version Available",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            },
+            content = {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        Icons.Outlined.BrowserUpdated,
+                        contentDescription = "Update Icon",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "A New Version is Available",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "Please update to the latest version for new features and improvements.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            confirmButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = viewModel::onDismissNewVersion,
+                    ) {
+                        Text("Later")
+                    }
+                    val uriHandler = LocalUriHandler.current
+                    Button(
+                        onClick = {
+                            uriHandler.openUri("https://github.com/orioneee/Axer/releases")
+                        }
+                    ) {
+                        Text("Update")
+                    }
+                }
+            }
+        )
 
         Scaffold(
             topBar = {
