@@ -87,14 +87,47 @@ Axer now features **remote debugging**! You can run the Axer debugger app on you
   <img src="https://raw.githubusercontent.com/orioneee/Axer/refs/heads/main/sample/screenshots/no_devices_remote.jpg" width="22%" />
 </p>
 
-
 ### Enabling Remote Debugging
 
 On your debuggable app (JVM/Android), manually start the Axer server:
 
 ```kotlin
-Axer.runServerIfNotRunning(lifecycleScope) // for example, in an Android Activity or ViewModel
+Axer.runServerIfNotRunning(lifecycleScope)
+// for example, in an Android Activity or ViewModel
+// Also you can adjust port
 ```
+
+- **Note**: Both debugger and debuggable device **must be on the same network**.
+- **Only one server** can be runned on one device at same time (Axer uses port `53214` by default), so if you want monitor multiple apps ensure only one server is running per device.
+
+---
+
+### 🔌 Port Forwarding via ADB (for Android Devices)
+
+If your Android device is connected via ADB and you want to debug remotely from your PC avoid local network, you can **forward a port using ADB**:
+
+```bash
+adb forward tcp:11111 tcp:53214
+```
+
+- `11111` — port on your PC (you can choose any free port)
+- `53214` — default port used by Axer server on the device
+
+Now, in the Axer remote debugger app, connect to `127.0.0.1` (your local PC) and specify the chosen port (`11111`).  
+This will forward all traffic from your PC to the Axer server running on your Android device.
+
+- If you run Axer server on a custom port, just forward to that port instead.
+- If you run the server on a custom IP (e.g., on an emulator or in a specific network setup), specify that IP in the debugger app.
+
+**Summary table:**
+
+| Scenario                                | Connect to (host) | Port      |
+|------------------------------------------|-------------------|-----------|
+| ADB port forwarding (local PC)           | 127.0.0.1         | 11111     |
+| Same network (Wi-Fi/LAN)                 | Device's IP       | 53214     |
+| Custom port or IP                        | Custom IP         | (chosen)  |
+
+---
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
 - **Only one server** can be runned on one device at same time (Axer uses port `53214`) so if you want monitor multiple app enshure only one server runned
@@ -103,16 +136,16 @@ Axer.runServerIfNotRunning(lifecycleScope) // for example, in an Android Activit
 
 ## Installation
 
-Add the dependencies to your project (`1.1.4` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.1.5` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.1.4")
+implementation("io.github.orioneee:axer:1.1.5")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.1.4")
+implementation("io.github.orioneee:axer-no-op:1.1.5")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -374,7 +407,7 @@ Axer.configure {
 
 ## Stability
 
-Axer is currently in beta (`1.1.4`).  
+Axer is currently in beta (`1.1.5`).  
 Expect possible bugs and breaking changes as the library evolves.
 
 ---
@@ -399,7 +432,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 |-----------------------|-------------------------------------|
 | Kotlin                | 2.2.0                  |
 | Compose               | 1.8.2                 |
-| Ktor                  | 3.2.2                    |
+| Ktor                  | 3.2.3                    |
 | Koin                  | 4.1.0                    |
 | Room                  | 2.7.2                    |
 | OkHttp                | 5.1.0                  |
