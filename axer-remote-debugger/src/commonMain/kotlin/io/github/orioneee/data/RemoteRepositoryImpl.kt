@@ -12,7 +12,7 @@ class RemoteRepositoryImpl(
         val url = "https://api.github.com/repos/orioneee/axer/releases/latest"
         return try {
             val response: GitResponse = client.get(url).body()
-            Result.success(response.tag_name)
+            Result.success(response.tagName)
         } catch (e: Exception) {
             Result.failure(e)
         }

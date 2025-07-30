@@ -1,26 +1,36 @@
 package io.github.orioneee.models.release
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class GitResponse(
     val assets: List<Asset>,
-    val assets_url: String,
+    @SerialName("assets_url")
+    val assetsUrl: String,
     val author: Author,
     val body: String,
-    val created_at: String,
+    @SerialName("created_at")
+    val createdAt: String,
     val draft: Boolean,
-    val html_url: String,
+    @SerialName("html_url")
+    val htmlUrl: String,
     val id: Int,
     val immutable: Boolean,
-    val name: String,
-    val node_id: String,
+    @SerialName("node_id")
+    val nodeId: String,
     val prerelease: Boolean,
-    val published_at: String,
-    val tag_name: String,
-    val tarball_url: String,
-    val target_commitish: String,
-    val upload_url: String,
+    @SerialName("published_at")
+    val publishedAt: String,
+    @SerialName("tag_name")
+    val tagName: String,
+    @SerialName("tarball_url")
+    val tarballUrl: String,
+    @SerialName("target_commitish")
+    val targetCommitish: String,
+    @SerialName("upload_url")
+    val uploadUrl: String,
     val url: String,
-    val zipball_url: String
+    @SerialName("zipball_url")
+    val zipballUrl: String
 )
