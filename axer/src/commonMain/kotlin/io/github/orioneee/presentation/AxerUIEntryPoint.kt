@@ -1,8 +1,14 @@
 package io.github.orioneee.presentation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -31,7 +37,11 @@ import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
 import io.github.orioneee.processors.SessionManager
 import io.github.orioneee.room.AxerDatabase
+import io.github.orioneee.snackbarProcessor.SnackBarEvent
+import io.github.orioneee.snackbarProcessor.snackbarEvents
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.koinInject
@@ -96,49 +106,83 @@ class AxerUIEntryPoint {
                 }
                 destinations.toList()
             }
+            val snackbarHostState = remember { SnackbarHostState() }
+            LaunchedEffect(Unit) {
+                snackbarEvents
+                    .onEach {
+                        println("Snackbar event: $it")
+                        when (it) {
+                            is SnackBarEvent.Message -> {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar(
+                                    message = it.text,
+                                    duration = it.duration,
+                                    withDismissAction = true
+                                )
+                            }
+
+                            is SnackBarEvent.Dismiss -> {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                            }
+                        }
+                    }
+                    .launchIn(this)
+            }
 
 
             Surface {
-                if (availableDestinations.isNotEmpty()) {
-                    LaunchedEffect(availableDestinations, currentRoute) {
-                        if (currentRoute == null) return@LaunchedEffect
-                        val isCurrentRouteAvailable =
-                            availableDestinations.any { it.route == currentRoute }
-                        if (!isCurrentRouteAvailable) {
-                            val firstAvailable = availableDestinations.first()
-                            navController.navigateSaveState(firstAvailable.route)
-                        }
+                Scaffold(
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState)
                     }
-                    NavigationSuiteScaffold(
-                        navigationSuiteItems = {
-                            availableDestinations.forEach {
-                                item(
-                                    icon = {
-                                        Icon(
-                                            imageVector = it.icon,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    label = { Text(stringResource(it.label)) },
-                                    selected = it.route == currentRoute,
-                                    onClick = {
-                                        navController.navigateSaveState(it.route)
-                                    }
-                                )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(it),
+                    ) {}
+                    if (availableDestinations.isNotEmpty()) {
+                        LaunchedEffect(availableDestinations, currentRoute) {
+                            if (currentRoute == null) return@LaunchedEffect
+                            val isCurrentRouteAvailable =
+                                availableDestinations.any { it.route == currentRoute }
+                            if (!isCurrentRouteAvailable) {
+                                val firstAvailable = availableDestinations.first()
+                                navController.navigateSaveState(firstAvailable.route)
                             }
                         }
-                    ) {
-                        MainNavigation().Host(
-                            startRoute = availableDestinations.first(),
-                            navController = navController
-                        )
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(Res.string.no_available_options))
+                        NavigationSuiteScaffold(
+                            navigationSuiteItems = {
+                                availableDestinations.forEach {
+                                    item(
+                                        icon = {
+                                            Icon(
+                                                imageVector = it.icon,
+                                                contentDescription = null
+                                            )
+                                        },
+                                        label = { Text(stringResource(it.label)) },
+                                        selected = it.route == currentRoute,
+                                        onClick = {
+                                            navController.navigateSaveState(it.route)
+                                        }
+                                    )
+                                }
+                            }
+                        ) {
+                            MainNavigation().Host(
+                                startRoute = availableDestinations.first(),
+                                navController = navController
+                            )
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(stringResource(Res.string.no_available_options))
+                        }
                     }
                 }
             }

@@ -11,8 +11,6 @@ data class DeviceData(
     val deviceManufacturer: String,
     val deviceName: String,
     val axerVersion: String,
-    val ip: String? = null,
-    val port: Int? = null,
 ){
     val readableDeviceName: String
         get() {

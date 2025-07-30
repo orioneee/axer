@@ -16,14 +16,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.BrowserUpdated
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material.icons.outlined.Router
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.Button
@@ -34,7 +38,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,25 +49,156 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
-import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.models.ConnectionInfo
+import io.github.orioneee.models.Device
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
-import org.jetbrains.compose.resources.painterResource
+import io.github.orioneee.remote.server.AXER_SERVER_PORT
 
 class SelectDeviceScreen {
+    @Composable
+    fun ManualConnectionDialog(
+        isShown: Boolean,
+        defaultIp: String,
+        defaultPort: String = AXER_SERVER_PORT.toString(),
+        onDismiss: () -> Unit,
+        onAdd: (ip: String, port: String) -> Unit
+    ) {
+        var ip by remember { mutableStateOf(defaultIp) }
+        var port by remember { mutableStateOf(defaultPort) }
+
+        var ipError by remember { mutableStateOf<String?>(null) }
+        var portError by remember { mutableStateOf<String?>(null) }
+
+        // Validation functions
+        fun validateIp(ip: String): String? {
+            val ipv4Regex = Regex(
+                "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
+                        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+            )
+            return if (ip.matches(ipv4Regex)) null else "Invalid IP address"
+        }
+
+        fun validatePort(port: String): String? {
+            return when {
+                port.isBlank() -> "Port is required"
+                port.toIntOrNull() == null -> "Port must be a number"
+                port.toInt() !in 1..65535 -> "Port must be 1–65535"
+                else -> null
+            }
+        }
+
+        val isFormValid = validateIp(ip) == null && validatePort(port) == null
+
+        MultiplatformAlertDialog(
+            isShowDialog = isShown,
+            onDismiss = onDismiss,
+            title = {
+                Text(
+                    text = "Manual Connection",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = ip,
+                        onValueChange = {
+                            ip = it
+                            ipError = validateIp(it)
+                        },
+                        label = { Text("IP Address") },
+                        isError = ipError != null,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (ipError != null) {
+                        Text(
+                            text = ipError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = port,
+                        onValueChange = {
+                            port = it
+                            portError = validatePort(it)
+                        },
+                        label = { Text("Port") },
+                        isError = portError != null,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (portError != null) {
+                        Text(
+                            text = portError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    TextButton(
+                        onClick = onDismiss,
+                    ) {
+                        Text("Dismiss")
+                    }
+
+                    Button(
+                        onClick = {
+                            ipError = validateIp(ip)
+                            portError = validatePort(port)
+
+                            if (isFormValid) {
+                                onAdd(ip.trim(), port.trim())
+                            }
+                        },
+                        enabled = isFormValid
+                    ) {
+                        Text("Add")
+                    }
+                }
+            }
+        )
+    }
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -75,11 +213,30 @@ class SelectDeviceScreen {
             }
         )
         val isShown = viewModel.isShowingNewVersionDialog.collectAsState(false)
-        val uiState by viewModel.uiState.collectAsState()
+        val isShowAddDeviceDialog = viewModel.isShowAddDeviceDialog.collectAsState(false)
+        val isScanning = viewModel.isScanning.collectAsStateWithLifecycle(false)
+        val scanningProgress = viewModel.scanningProgress.collectAsStateWithLifecycle(0f)
+        val foundedDevices = viewModel.foundedDevices.collectAsStateWithLifecycle(emptyList())
+        val addedButNotAxer =
+            viewModel.manuallyAddedButNotAxer.collectAsStateWithLifecycle(emptyList())
         LaunchedEffect(Unit) {
-            viewModel.startScanning()
+            viewModel.scanLocalNetwork()
+            viewModel.scanManuallyAddedConnections()
         }
-
+        ManualConnectionDialog(
+            isShown = isShowAddDeviceDialog.value,
+            onDismiss = viewModel::onDismissAddDevice,
+            defaultIp = viewModel.getSubNetMask().firstOrNull()?.plus(".") ?: "",
+            onAdd = { ip, port ->
+                viewModel.onAddedConnection(
+                    ConnectionInfo(
+                        ip = ip,
+                        port = port.toInt(),
+                        isCustomAdded = true
+                    )
+                )
+            }
+        )
         MultiplatformAlertDialog(
             isShowDialog = isShown.value,
             onDismiss = viewModel::onDismissNewVersion,
@@ -154,11 +311,24 @@ class SelectDeviceScreen {
                 CenterAlignedTopAppBar(
                     title = { Text("Select a Device") },
                     actions = {
-                        if (!uiState.isSearching) {
-                            IconButton(onClick = { viewModel.startScanning() }) {
+                        IconButton(
+                            enabled = !isScanning.value,
+                            onClick = viewModel::onClickAddDevice
+                        ) {
+                            Icon(
+                                Icons.Outlined.Add,
+                                contentDescription = "Add Device",
+                            )
+                        }
+                            IconButton(
+                                enabled = !isScanning.value,
+                                onClick = {
+                                    viewModel.scanLocalNetwork()
+                                    viewModel.scanManuallyAddedConnections()
+                                }
+                            ) {
                                 Icon(Icons.Default.Refresh, contentDescription = "Rescan")
                             }
-                        }
                     },
                 )
             }
@@ -168,13 +338,12 @@ class SelectDeviceScreen {
                 horizontalAlignment = Alignment.Companion.CenterHorizontally
             ) {
                 AnimatedVisibility(
-                    uiState.isSearching
+                    isScanning.value
                 ) {
-                    ScanningProgress(uiState.progress)
+                    ScanningProgress(scanningProgress.value)
                 }
-
-                if (uiState.devices.isEmpty()) {
-                    if (!uiState.isSearching) {
+                if (foundedDevices.value.isEmpty() && addedButNotAxer.value.isEmpty()) {
+                    if (!isScanning.value) {
                         Box(
                             modifier = Modifier.Companion.weight(1f),
                             contentAlignment = Alignment.Companion.Center
@@ -195,9 +364,18 @@ class SelectDeviceScreen {
                         }
                     }
                 } else {
-                    DeviceList(devices = uiState.devices) {
-                        navController.navigate(it)
-                    }
+                    DeviceList(
+                        devices = foundedDevices.value,
+                        addedButNotAxer = addedButNotAxer.value,
+                        isScanning = isScanning.value,
+                        onDeviceClick = { device ->
+                            navController.navigate(device.toNavArguments())
+                        },
+                        onDelete = { conn ->
+                            println("Deleting connection: $conn")
+                            viewModel.onDeleteConnection(conn)
+                        }
+                    )
                 }
             }
         }
@@ -288,16 +466,78 @@ class SelectDeviceScreen {
     }
 
     @Composable
-    fun DeviceList(devices: List<DeviceData>, onDeviceClick: (DeviceData) -> Unit) {
+    fun DeviceList(
+        devices: List<Device>,
+        onDeviceClick: (Device) -> Unit,
+        addedButNotAxer: List<ConnectionInfo>,
+        isScanning: Boolean,
+        onDelete: (ConnectionInfo) -> Unit
+    ) {
+        val isShowingAddedButNotAxer = remember(addedButNotAxer, isScanning) {
+            addedButNotAxer.isNotEmpty() && !isScanning
+        }
         LazyVerticalStaggeredGrid(
             modifier = Modifier.Companion.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             columns = StaggeredGridCells.Adaptive(300.dp)
         ) {
-            items(items = devices, key = { it.ip ?: it.deviceName }) { device ->
-                DeviceCard(device) {
-                    onDeviceClick(device)
+            items(
+                items = devices.toList(),
+                key = { it.connection.toAddress() }
+            ) { device ->
+                DeviceCard(
+                    device,
+                    onClick = { onDeviceClick(device) },
+                    onDelete = {
+                        onDelete(device.connection)
+                    }
+                )
+            }
+            if (isShowingAddedButNotAxer) {
+                item(
+                    span = StaggeredGridItemSpan.FullLine
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Manually added but not recognized as Axer devices, try different IP/port or retry scanning.",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+                items(
+                    addedButNotAxer,
+                    key = { it.toAddress() }
+                ) {
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                text = it.toAddress(),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Outlined.LinkOff,
+                                contentDescription = "Device Icon",
+                            )
+                        },
+                        trailingContent = {
+                            IconButton(
+                                onClick = { onDelete(it) }
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Delete,
+                                    contentDescription = "Delete Device",
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -306,7 +546,9 @@ class SelectDeviceScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun DeviceCard(
-        deviceData: DeviceData, onClick: () -> Unit
+        device: Device,
+        onClick: () -> Unit,
+        onDelete: () -> Unit
     ) {
         Card(
             onClick = onClick,
@@ -314,39 +556,54 @@ class SelectDeviceScreen {
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row(
-                modifier = Modifier.Companion.padding(20.dp),
-                verticalAlignment = Alignment.Companion.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Router,
-                    contentDescription = "Device Icon",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.Companion.size(40.dp)
-                )
-                Spacer(Modifier.Companion.width(20.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = deviceData.readableDeviceName ?: "Unknown Device",
-                        style = MaterialTheme.typography.titleMedium
+            ListItem(
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.Router,
+                        contentDescription = "Device Icon",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.Companion.size(40.dp)
                     )
-                    Text(
-                        text = "OS: ${deviceData.osName ?: "N/A"} ${deviceData.osVersion ?: ""}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-                    Text(
-                        text = "IP: ${deviceData.ip ?: "No IP"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    Text(
-                        text = "Version: ${deviceData.axerVersion}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                },
+                headlineContent = {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = device.data.readableDeviceName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "OS: ${device.data.osName} ${device.data.osVersion}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                        Text(
+                            text = "${device.connection.ip}:${device.connection.port}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = "Version: ${device.data.axerVersion}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                },
+                trailingContent = {
+                    if (device.connection.isCustomAdded) {
+                        IconButton(
+                            onClick = {
+                                onDelete()
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.Delete,
+                                contentDescription = "Delete Device",
+                            )
+                        }
+                    }
                 }
-            }
+            )
         }
     }
 }

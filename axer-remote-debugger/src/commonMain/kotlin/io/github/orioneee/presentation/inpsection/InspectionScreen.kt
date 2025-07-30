@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
-import androidx.compose.material.icons.outlined.SignalWifiOff
-import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,12 +33,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.app_name_device
-import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.presentation.AxerUIEntryPoint
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.RemoteAxerDataProvider
 import io.github.orioneee.axer.generated.resources.network_off
+import io.github.orioneee.models.Device
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -119,10 +117,10 @@ class InspectionScreen {
     @Composable
     fun Screen(
         navController: NavHostController,
-        deviceData: DeviceData,
+        deviceData: Device,
     ) {
         val provider =
-            remember(deviceData) { RemoteAxerDataProvider("http://${deviceData.ip}:${deviceData.port}") }
+            remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
         val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
         var isDialogDismissed by remember { mutableStateOf(false) }
         Scaffold(
@@ -132,7 +130,7 @@ class InspectionScreen {
                         Text(
                             stringResource(
                                 Res.string.app_name_device,
-                                deviceData.readableDeviceName
+                                deviceData.data.readableDeviceName
                             )
                         )
                     },

@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.models.Device
+import io.github.orioneee.models.NavArgumentsDTO
 import io.github.orioneee.presentation.inpsection.InspectionScreen
 import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.selectdevice.SelectDeviceScreen
@@ -28,8 +30,8 @@ class NavigationClass {
                     composable(Route.SELECT_DEVICE.path) {
                         SelectDeviceScreen().Screen(navController)
                     }
-                    composable<DeviceData> {
-                        val route = it.toRoute<DeviceData>()
+                    composable<NavArgumentsDTO> {
+                        val route = it.toRoute<NavArgumentsDTO>().toDevice()
                         InspectionScreen().Screen(navController, route)
                     }
                 }

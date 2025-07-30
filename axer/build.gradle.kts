@@ -95,7 +95,6 @@ kotlin {
             implementation(libs.ktor.server.websockets)
 
             implementation("com.sebastianneubauer.jsontree:jsontree:2.5.0")
-
         }
 
 

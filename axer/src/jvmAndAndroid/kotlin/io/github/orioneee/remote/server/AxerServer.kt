@@ -1,12 +1,8 @@
 package io.github.orioneee.remote.server
 
 import io.github.orioneee.Axer
-import io.github.orioneee.domain.database.DatabaseData
-import io.github.orioneee.domain.database.EditableRowItem
-import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.processors.RoomReader
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO
@@ -22,20 +18,14 @@ import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
-import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
-import io.ktor.websocket.CloseReason
-import io.ktor.websocket.close
-import io.ktor.websocket.readText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,39 +34,37 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import java.net.InetAddress
 import java.net.NetworkInterface
 import kotlin.time.Duration.Companion.seconds
 
-fun getLocalIpAddress(): String? {
+internal fun getLocalIpAddress(): String? {
     return NetworkInterface.getNetworkInterfaces().toList().flatMap { it.inetAddresses.toList() }
         .firstOrNull {
             !it.isLoopbackAddress && it is InetAddress && it.hostAddress.indexOf(':') < 0
         }?.hostAddress
 }
 
-var serverJob: Job? = null
+internal var serverJob: Job? = null
 
-fun Axer.runServerIfNotRunning(scope: CoroutineScope) {
+internal expect fun serverNotify(message: String)
+
+fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT) {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = scope.launch(Dispatchers.IO) {
-            val server = startKtorServer(AXER_SERVER_PORT)
+            val server = getKtorServer(port)
             try {
                 server.start(wait = false)
+                serverNotify("Axer server started on ${getLocalIpAddress() ?: "localhost"}:$port")
             } catch (e: CancellationException) {
-                println("Server was cancelled: ${e.message}")
                 server.stop()
+                serverNotify("Axer server stopped")
                 throw e
             } catch (e: Exception) {
+                serverNotify("Axer server failed: ${e.message}")
                 e.printStackTrace()
             }
         }
@@ -86,7 +74,7 @@ fun Axer.runServerIfNotRunning(scope: CoroutineScope) {
 const val AXER_SERVER_PORT = 53214
 
 @OptIn(FlowPreview::class)
-private fun CoroutineScope.startKtorServer(
+private fun CoroutineScope.getKtorServer(
     port: Int
 ): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
     val reader = RoomReader()
