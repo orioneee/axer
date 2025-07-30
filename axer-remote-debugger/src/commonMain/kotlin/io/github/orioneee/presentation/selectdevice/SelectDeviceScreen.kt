@@ -50,7 +50,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
-import io.github.orioneee.SupportingVersions
 import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
 
@@ -160,10 +159,6 @@ class SelectDeviceScreen {
         val text: String
     )
 
-    // This logic remains the same
-    val lastSupportedVersion = SupportingVersions.list.lastOrNull() ?: "1.0.0"
-
-    // Populate the list using our new data class
     val steps = listOf(
         SetupStep(
             icon = Icons.Default.Dns,
@@ -173,10 +168,6 @@ class SelectDeviceScreen {
             icon = Icons.Default.Wifi,
             text = "Ensure your device is connected to the same network as the device running the debugger."
         ),
-        SetupStep(
-            icon = Icons.Default.SystemUpdate,
-            text = "Ensure your device is running Axer version $lastSupportedVersion or later."
-        )
     )
 
     @Composable
