@@ -2,8 +2,17 @@ name: Build and deploy Axer
 
 on:
   release:
-    types: [created]
+    types: [ created ]
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-macos:
@@ -118,9 +127,6 @@ jobs:
 
   build-apk:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -151,7 +157,7 @@ jobs:
         run: |
           BUILD_APK=./axer-remote-debugger/build/outputs/apk/release/axer-remote-debugger-release-unsigned.apk
           SIGNED_APK=./axer-remote-debugger/build/outputs/apk/release/Axer-Debugger-${VERSION}.apk
-          
+
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner | sort -V | tail -n 1)
 
           $APKSIGNER sign \
@@ -170,7 +176,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   build-maven:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -192,3 +198,39 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permissions to Gradle
+        run: chmod +x ./gradlew
+
+      - name: Build Dokka HTML documentation
+        run: ./gradlew dokkaGeneratePublicationHtml
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/html  # Adjust if Dokka output directory differs
+
+  deploy-docs:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

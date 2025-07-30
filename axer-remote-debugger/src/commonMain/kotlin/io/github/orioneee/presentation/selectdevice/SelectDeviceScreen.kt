@@ -226,7 +226,7 @@ class SelectDeviceScreen {
         ManualConnectionDialog(
             isShown = isShowAddDeviceDialog.value,
             onDismiss = viewModel::onDismissAddDevice,
-            defaultIp = viewModel.getSubNetMask().firstOrNull()?.plus(".") ?: "",
+            defaultIp = "127.0.0.1",
             onAdd = { ip, port ->
                 viewModel.onAddedConnection(
                     ConnectionInfo(
