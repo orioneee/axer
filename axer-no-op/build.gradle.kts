@@ -9,13 +9,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-fun getLatestGitTag() = providers.exec {
-    commandLine("git", "describe", "--tags", "--abbrev=0")
-    isIgnoreExitValue = true
-}.standardOutput
-    .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
-
-val libraryVersion = getLatestGitTag()
+val axerVersion: String by project
+val libraryVersion = axerVersion
 
 version = libraryVersion
 

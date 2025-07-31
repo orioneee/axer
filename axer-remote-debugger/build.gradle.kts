@@ -10,14 +10,10 @@ plugins {
     id("com.codingfeline.buildkonfig") version "+"
 }
 
-fun getLatestGitTag() = providers.exec {
-    commandLine("git", "describe", "--tags", "--abbrev=0")
-    isIgnoreExitValue = true
-}.standardOutput
-    .asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
+val axerVersion: String by project
 
-val libraryVersion = getLatestGitTag()
-version = libraryVersion
+version = axerVersion
+
 
 kotlin {
     jvmToolchain(17)
@@ -62,7 +58,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Axer Debbugger"
-            packageVersion = libraryVersion.substringAfter('-').substringBeforeLast("-")
+            packageVersion = axerVersion.substringAfter('-').substringBeforeLast("-")
 
 
             windows {
@@ -92,7 +88,7 @@ android {
 
         applicationId = "io.orioneee.axer.debugger"
         versionCode = 1
-        versionName = libraryVersion
+        versionName = axerVersion
     }
 
     buildTypes {
@@ -118,6 +114,6 @@ android {
 buildkonfig {
     packageName = "io.orioneee.axer.debugger"
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", libraryVersion)
+        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", axerVersion)
     }
 }

@@ -17,16 +17,10 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
-fun getLatestGitTag() = providers.exec {
-    commandLine("git", "describe", "--tags", "--abbrev=0")
-    isIgnoreExitValue = true
-}.standardOutput.asText?.get()?.trim()?.takeIf { it.isNotBlank() } ?: "0.0.0"
+val axerVersion: String by project
+println("Axer version: $axerVersion")
 
-val libraryVersion = getLatestGitTag()
-
-println("Library version: $libraryVersion")
-
-version = libraryVersion
+version = axerVersion
 
 kotlin {
 
@@ -177,7 +171,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.orioneee",
         artifactId = "axer",
-        version = libraryVersion,
+        version = axerVersion,
     )
 
     pom {
@@ -229,14 +223,14 @@ buildkonfig {
     packageName = "io.github.orioneee.axer.generated.configs"
 
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", libraryVersion)
+        buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", axerVersion)
     }
 }
 
 
 fun generateDocumentations() {
     val versions = mapOf(
-        "AXER_VERSION" to getLatestGitTag(),
+        "AXER_VERSION" to axerVersion,
         "KOTLIN_VERSION" to libs.versions.kotlin.get(),
         "COMPOSE_VERSION" to libs.versions.compose.get(),
         "KTOR_VERSION" to libs.versions.ktor.get(),
