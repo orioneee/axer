@@ -18,8 +18,7 @@ internal fun Route.logsModule(
         initialData = { logsDao.getAllSync() },
         dataFlow = { logsDao.getAll() },
         getId = { it.id },
-        chunkSize = 5000,
-        sendsToReplaceAll = 10
+        chunkSize = 5000
     )
 
 

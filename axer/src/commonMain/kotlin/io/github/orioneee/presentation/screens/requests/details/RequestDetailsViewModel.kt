@@ -18,10 +18,12 @@ import io.github.orioneee.domain.requests.formatters.formatXml
 import io.github.orioneee.extentions.successData
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.shareIn
 
 internal class RequestDetailsViewModel(
     private val dataProvider: AxerDataProvider,
@@ -36,8 +38,11 @@ internal class RequestDetailsViewModel(
 
     val selectedRequestBodyFormat = _selectedRequestBodyFormat.asStateFlow()
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
-
-    val requestByIDState = dataProvider.getRequestById(requestId).distinctUntilChanged()
+    private val _requestByIDState by lazy {
+        dataProvider.getRequestById(requestId)
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
+    }
+    val requestByIDState = _requestByIDState.distinctUntilChanged()
     val requestByID = requestByIDState.successData()
 
     fun onRequestBodyFormatSelected(bodyType: BodyType) {

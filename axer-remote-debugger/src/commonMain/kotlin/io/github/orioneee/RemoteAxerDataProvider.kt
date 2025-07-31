@@ -13,6 +13,8 @@ import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.remote.server.UpdatesData
+import io.github.orioneee.remote.server.requestReplaceAll
+import io.github.orioneee.remote.server.toSha256Hash
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
@@ -33,7 +35,9 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +47,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -78,49 +83,75 @@ class RemoteAxerDataProvider(
     }
 
     @OptIn(DelicateCoroutinesApi::class)
+    private inline fun <reified T> webSocketFlowWithSendChannel(
+        path: String,
+        crossinline dataMapper: (T) -> T = { it },
+    ): Pair<Flow<DataState<T>>, SendChannel<String>> {
+        val sendChannel = Channel<String>(Channel.UNLIMITED)
+        val flow = callbackFlow {
+            val uri = URI(serverUrl)
+            trySend(DataState.Loading())
+
+            val job = launch {
+                while (isActive && !isClosedForSend) {
+                    try {
+                        client.webSocket(
+                            method = HttpMethod.Get,
+                            host = uri.host,
+                            port = uri.port,
+                            path = path
+                        ) {
+                            val incomingFrames: ReceiveChannel<Frame> = incoming
+                            val outgoingJob = launch {
+                                for (msg in sendChannel) {
+                                    println("Sending message: $msg to path: $path")
+                                    send(Frame.Text(msg))
+                                }
+                            }
+
+                            try {
+                                for (frame in incomingFrames) {
+                                    if (frame is Frame.Text) {
+                                        val data = frame.readText()
+                                        val sizeInBytes = data.toByteArray().size
+                                        val obj = json.decodeFromString<T>(data)
+                                        val mapped = dataMapper(obj)
+                                        trySend(DataState.Success(mapped)).isSuccess
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                println("Error processing frame: ${e.message} from path: $path")
+                                throw e
+                            } finally {
+                                outgoingJob.cancel()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        println("WebSocket error: ${e.message}")
+                    }
+
+                    delay(1_000)
+                }
+            }
+
+            awaitClose {
+                job.cancel()
+                sendChannel.close()
+            }
+        }.distinctUntilChanged()
+
+        return Pair(flow, sendChannel)
+    }
+
+
+    @OptIn(DelicateCoroutinesApi::class)
     private inline fun <reified T> webSocketFlow(
         path: String,
         crossinline dataMapper: (T) -> T = { it },
-    ): Flow<DataState<T>> = callbackFlow {
-        val uri = URI(serverUrl)
-        trySend(DataState.Loading())
-        val job = launch {
-            while (isActive && !isClosedForSend) {
-                try {
-                    client.webSocket(
-                        method = HttpMethod.Companion.Get,
-                        host = uri.host,
-                        port = uri.port,
-                        path = path
-                    ) {
-                        val incomingFrames: ReceiveChannel<Frame> = incoming
-                        try {
-                            for (frame in incomingFrames) {
-                                if (frame is Frame.Text) {
-                                    val data = frame.readText()
-                                    val sizeInBytes = data.toByteArray().size
-                                    println("Received data from: $path, size: $sizeInBytes bytes")
-                                    val obj = json.decodeFromString<T>(data)
-                                    val mapped = dataMapper(obj)
-                                    trySend(DataState.Success(mapped)).isSuccess
-                                }
-                            }
-                        } catch (e: Exception) {
-                            println("Error processing frame: ${e.message} from path: $path")
-                        }
-                    }
-                } catch (e: Exception) {
-                    println("WebSocket error: ${e.message}")
-                }
-
-                delay(1_000)
-            }
-        }
-
-        awaitClose {
-            job.cancel()
-        }
-    }.distinctUntilChanged()
+    ): Flow<DataState<T>> = webSocketFlowWithSendChannel(
+        path = path,
+        dataMapper = dataMapper
+    ).first
 
     private inline fun <reified T : Any> webSocketUpdatesFlow(
         path: String,
@@ -129,42 +160,55 @@ class RemoteAxerDataProvider(
     ): Flow<DataState<List<T>>> {
         val currentState = mutableListOf<T>()
 
-        return webSocketFlow<UpdatesData<T>>(path) // assuming raw data is String
-            .map { state ->
-                when (state) {
-                    is DataState.Loading -> {
-                        DataState.Loading()
-                    }
-
-                    is DataState.Success<*> -> {
-                        val update = state.data as UpdatesData<T>
-                        println("Received update: ${update.updatedOrCreated.size} updated, ${update.deleted.size} deleted, replaceWith size: ${update.replaceWith.size}")
-                        if (update.replaceWith.isEmpty() && !update.replaceAll) {
-                            // Remove deleted items
-                            currentState.removeAll { oldItem ->
-                                update.deleted.contains(getId(oldItem))
-                            }
-
-                            // Update or add new items
-                            update.updatedOrCreated.forEach { newItem ->
-                                val index =
-                                    currentState.indexOfFirst { getId(it) == getId(newItem) }
-                                if (index != -1) {
-                                    currentState[index] = newItem
-                                } else {
-                                    currentState.add(newItem)
-                                }
-                            }
-                        } else {
-                            println("Replacing all items with new list of size: ${update.replaceWith.size}")
-                            // Replace all items with the new list
-                            currentState.clear()
-                            currentState.addAll(update.replaceWith)
-                        }
-                        DataState.Success(sorter(currentState).toList())
-                    }
+        val data = webSocketFlowWithSendChannel<UpdatesData<T>>(path)
+        val mapped = data.first.map { state ->
+            when (state) {
+                is DataState.Loading -> {
+                    DataState.Loading()
                 }
-            }.distinctUntilChanged()
+
+                is DataState.Success<*> -> {
+                    val update = state.data as UpdatesData<T>
+                    if (update.replaceWith.isEmpty() && !update.replaceAll) {
+                        currentState.removeAll { oldItem ->
+                            update.deleted.contains(getId(oldItem))
+                        }
+
+                        update.updatedOrCreated.forEach { newItem ->
+                            val index =
+                                currentState.indexOfFirst { getId(it) == getId(newItem) }
+                            if (index != -1) {
+                                currentState[index] = newItem
+                            } else {
+                                currentState.add(newItem)
+                            }
+                        }
+                        val hashFromServer = update.hash
+                        val currentHash = currentState.toSha256Hash{
+                            getId(it)
+                        }
+                        if (hashFromServer != currentHash) {
+                            println("Hash mismatch! Server: $hashFromServer, Client: $currentHash")
+                            val message = Frame.requestReplaceAll
+                            val result = data.second.trySend(message)
+                            if (result.isFailure) {
+                                println("Failed to send replaceAll request frame. Reason: ${result.exceptionOrNull()}")
+                            }
+
+                        } else{
+                            println("Hash match! Server: $hashFromServer, Client: $currentHash")
+                        }
+                    } else {
+                        println("Replacing all items with new list of size: ${update.replaceWith.size}")
+                        currentState.clear()
+                        currentState.addAll(update.replaceWith)
+                    }
+                    DataState.Success(sorter(currentState).toList())
+                }
+            }
+        }.distinctUntilChanged()
+
+        return mapped
     }
 
 

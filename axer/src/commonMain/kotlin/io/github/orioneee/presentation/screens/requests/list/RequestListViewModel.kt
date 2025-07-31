@@ -10,11 +10,13 @@ import io.github.orioneee.utils.toHarFile
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 internal class RequestListViewModel(
@@ -30,7 +32,11 @@ internal class RequestListViewModel(
 
     @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
-    val requestsState = dataProvider.getAllRequests()
+    private val _requestsState by lazy {
+        dataProvider.getAllRequests().shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
+    }
+    val requestsState = _requestsState
+
     val requests = requestsState.successData().filterNotNull()
 
     val methodFilters = requests.map {

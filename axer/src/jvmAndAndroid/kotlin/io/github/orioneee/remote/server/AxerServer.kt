@@ -55,16 +55,16 @@ internal expect fun serverNotify(message: String)
 fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT) {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = scope.launch(Dispatchers.IO) {
-            val server = getKtorServer(port)
+            var server:  EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
             try {
-                server.start(wait = false)
+                server = getKtorServer(port)
                 serverNotify("Axer server started on ${getLocalIpAddress() ?: "localhost"}:$port")
-            } catch (e: CancellationException) {
-                server.stop()
+                server.start(wait = true)
+            } catch (e: Throwable) {
                 serverNotify("Axer server stopped")
-                throw e
             } catch (e: Exception) {
                 serverNotify("Axer server failed: ${e.message}")
+                server?.stop()
                 e.printStackTrace()
             }
         }

@@ -11,12 +11,14 @@ import io.github.orioneee.utils.DataExporter
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
@@ -40,9 +42,10 @@ internal class LogViewViewModel(
     @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
 
-
     @OptIn(FlowPreview::class)
-    val logsState = dataProvider.getAllLogs().debounce(100)
+    val logsState by lazy {
+        dataProvider.getAllLogs().shareIn(viewModelScope , SharingStarted.WhileSubscribed(), replay = 1)
+    }
     val logs = logsState.successData().filterNotNull()
     val filtredLogs = combine(
         logs,

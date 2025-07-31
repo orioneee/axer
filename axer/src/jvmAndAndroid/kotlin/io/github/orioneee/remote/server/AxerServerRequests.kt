@@ -11,8 +11,11 @@ import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 internal fun Route.requestsModule(
@@ -25,7 +28,6 @@ internal fun Route.requestsModule(
         initialData = { requestsDao.getAllShortSync() },
         dataFlow = { requestsDao.getAllShort() },
         getId = { it.id },
-        sendsToReplaceAll = 10,
     )
 
     webSocket("/ws/requests/{id}") {
@@ -33,12 +35,14 @@ internal fun Route.requestsModule(
         if (id != null) {
             if (isEnabledRequests.first()) {
                 sendSerialized(requestsDao.getByIdSync(id))
-            } else{
+            } else {
                 sendSerialized(null)
             }
             launch {
                 combine(
-                    requestsDao.getById(id),
+                    requestsDao.getById(id)
+                        .distinctUntilChanged()
+                        .debounce(500.milliseconds),
                     isEnabledRequests
                 ) { request, isEnabled ->
                     isEnabled.to(request)

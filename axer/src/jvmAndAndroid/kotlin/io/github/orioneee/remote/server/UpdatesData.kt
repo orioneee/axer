@@ -7,5 +7,6 @@ data class UpdatesData<T>(
     val updatedOrCreated: List<T>,
     val deleted: List<Long>,
     val replaceWith: List<T>,
-    val replaceAll: Boolean
+    val replaceAll: Boolean,
+    val hash: String
 )
