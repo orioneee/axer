@@ -87,7 +87,7 @@ android {
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk = 26
         targetSdk = libs.versions.compileSdk.get().toInt()
 
         applicationId = "io.orioneee.axer.debugger"

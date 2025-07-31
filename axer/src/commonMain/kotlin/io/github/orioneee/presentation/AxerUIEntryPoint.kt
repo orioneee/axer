@@ -141,47 +141,48 @@ class AxerUIEntryPoint {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(it),
-                    ) {}
-                    if (availableDestinations.isNotEmpty()) {
-                        LaunchedEffect(availableDestinations, currentRoute) {
-                            if (currentRoute == null) return@LaunchedEffect
-                            val isCurrentRouteAvailable =
-                                availableDestinations.any { it.route == currentRoute }
-                            if (!isCurrentRouteAvailable) {
-                                val firstAvailable = availableDestinations.first()
-                                navController.navigateSaveState(firstAvailable.route)
-                            }
-                        }
-                        NavigationSuiteScaffold(
-                            navigationSuiteItems = {
-                                availableDestinations.forEach {
-                                    item(
-                                        icon = {
-                                            Icon(
-                                                imageVector = it.icon,
-                                                contentDescription = null
-                                            )
-                                        },
-                                        label = { Text(stringResource(it.label)) },
-                                        selected = it.route == currentRoute,
-                                        onClick = {
-                                            navController.navigateSaveState(it.route)
-                                        }
-                                    )
+                    ) {
+                        if (availableDestinations.isNotEmpty()) {
+                            LaunchedEffect(availableDestinations, currentRoute) {
+                                if (currentRoute == null) return@LaunchedEffect
+                                val isCurrentRouteAvailable =
+                                    availableDestinations.any { it.route == currentRoute }
+                                if (!isCurrentRouteAvailable) {
+                                    val firstAvailable = availableDestinations.first()
+                                    navController.navigateSaveState(firstAvailable.route)
                                 }
                             }
-                        ) {
-                            MainNavigation().Host(
-                                startRoute = availableDestinations.first(),
-                                navController = navController
-                            )
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(stringResource(Res.string.no_available_options))
+                            NavigationSuiteScaffold(
+                                navigationSuiteItems = {
+                                    availableDestinations.forEach {
+                                        item(
+                                            icon = {
+                                                Icon(
+                                                    imageVector = it.icon,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            label = { Text(stringResource(it.label)) },
+                                            selected = it.route == currentRoute,
+                                            onClick = {
+                                                navController.navigateSaveState(it.route)
+                                            }
+                                        )
+                                    }
+                                }
+                            ) {
+                                MainNavigation().Host(
+                                    startRoute = availableDestinations.first(),
+                                    navController = navController
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(stringResource(Res.string.no_available_options))
+                            }
                         }
                     }
                 }

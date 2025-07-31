@@ -150,7 +150,7 @@ class InspectionScreen {
             },
         ) {
             Box(
-                modifier = Modifier.padding(it),
+                modifier = Modifier.padding(top = it.calculateTopPadding()),
                 contentAlignment = Alignment.Center
             ) {
                 AxerUIEntryPoint().Screen(provider)

@@ -34,7 +34,7 @@ actual fun openAxer() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(it)
+                        .padding(top = it.calculateTopPadding())
                 ) {
                     AxerUIEntryPoint().Screen()
                 }
