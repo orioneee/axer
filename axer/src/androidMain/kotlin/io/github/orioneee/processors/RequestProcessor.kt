@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import io.github.orioneee.ClearAllRequestBroadcastReceiver
 import io.github.orioneee.NotificationInfo
@@ -26,12 +27,14 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    val channel = NotificationChannel(
-        NotificationInfo.CHANNEL_ID,
-        NotificationInfo.CHANNEL_NAME,
-        NotificationManager.IMPORTANCE_LOW
-    )
-    notificationManager.createNotificationChannel(channel)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            NotificationInfo.CHANNEL_ID,
+            NotificationInfo.CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_LOW
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
 
     val pendingIntent = PendingIntent.getActivity(
         context,

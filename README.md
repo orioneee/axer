@@ -443,7 +443,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | Accompanist           | 0.37.3 |
 | Coil Compose          | 3.3.0            |
 | Navigation Compose    | 2.9.0-beta04      |
-| minSdk                | 26                         |
+| minSdk                | 21                         |
 ---
 
 ## 💡 Tips & Extras

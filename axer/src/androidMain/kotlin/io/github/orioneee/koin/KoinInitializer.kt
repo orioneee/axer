@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
+import android.os.Build
 import androidx.core.content.getSystemService
 import androidx.startup.Initializer
 import io.github.orioneee.NotificationInfo
@@ -29,21 +30,25 @@ class KoinInitializer : Initializer<KoinApplication> {
     }
 
     internal fun createShortcut(context: Context) {
-        val shortcutManager = context.getSystemService<ShortcutManager>() ?: return
-        if (shortcutManager.dynamicShortcuts.any { it.id == NotificationInfo.SHORTCUT_ID }) {
-            return
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            val shortcutManager = context.getSystemService<ShortcutManager>() ?: return
+            if (shortcutManager.dynamicShortcuts.any { it.id == NotificationInfo.SHORTCUT_ID }) {
+                return
+            }
 
-        val shortcut =
-            ShortcutInfo.Builder(context, NotificationInfo.SHORTCUT_ID)
-                .setShortLabel("Open Axer")
-                .setIcon(Icon.createWithResource(context, R.drawable.ic_shortcut_icon))
-                .setIntent(NotificationInfo.getLaunchIntent(context).setAction(Intent.ACTION_VIEW))
-                .build()
-        try {
-            shortcutManager.addDynamicShortcuts(listOf(shortcut))
-        } catch (e: Exception) {
-            e.printStackTrace()
+            val shortcut =
+                ShortcutInfo.Builder(context, NotificationInfo.SHORTCUT_ID)
+                    .setShortLabel("Open Axer")
+                    .setIcon(Icon.createWithResource(context, R.mipmap.ic_shortcut_icon))
+                    .setIntent(
+                        NotificationInfo.getLaunchIntent(context).setAction(Intent.ACTION_VIEW)
+                    )
+                    .build()
+            try {
+                shortcutManager.addDynamicShortcuts(listOf(shortcut))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

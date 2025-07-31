@@ -26,7 +26,7 @@ val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 fun main() = application {
     Axer.installErrorHandler()
     CoroutineScope(Dispatchers.IO).launch {
-        Axer.runServerIfNotRunning(this, 46752)
+        Axer.runServerIfNotRunning(this)
     }
     AxerTrayWindow()
     startKoin {
