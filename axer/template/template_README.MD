@@ -116,6 +116,14 @@ adb forward tcp:11111 tcp:53214
 Now, in the Axer remote debugger app, connect to `127.0.0.1` (your local PC) and specify the chosen port (`11111`).  
 This will forward all traffic from your PC to the Axer server running on your Android device.
 
+Also this work with **emulators** so you need just forawrd port, its can be the same port on pc for example
+
+```bash
+adb forward tcp:53214 tcp:53214
+```
+
+And now you can add in axer remote debugger ip 127.0.0.1, port 53214 and use it.
+
 - If you run Axer server on a custom port, just forward to that port instead.
 - If you run the server on a custom IP (e.g., on an emulator or in a specific network setup), specify that IP in the debugger app.
 
