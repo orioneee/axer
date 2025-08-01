@@ -12,6 +12,8 @@
 ![Android](https://img.shields.io/badge/Android-✔️-green?logo=android)
 ![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
 ![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
+![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform-orange?logo=kotlin)
+[![License](https://img.shields.io/github/license/orioneee/Axer)](https://github.com/orioneee/Axer/blob/main/LICENSE)
 
 
 ## 📑 Summary
