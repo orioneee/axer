@@ -3,7 +3,6 @@ package sample.app
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,11 +17,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import io.github.orioneee.Axer
 import io.github.orioneee.installErrorHandler
-import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.remote.server.runServerIfNotRunning
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import io.github.orioneee.remote.server.stopServerIfRunning
 
 class MainActivity : ComponentActivity() {
 
@@ -33,24 +29,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         Axer.runServerIfNotRunning(lifecycleScope)
         setContent {
-            val theme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val isDark = isSystemInDarkTheme()
-                if (isDark) {
-                    dynamicDarkColorScheme(this)
-                } else {
-                    dynamicLightColorScheme(this)
-                }
-            } else {
-                val isDark = isSystemInDarkTheme()
-                if (isDark) {
-                    AxerTheme.dark
-                } else {
-                    AxerTheme.light
-                }
-            }
-            MaterialTheme(
-                colorScheme = theme
-            ) {
+            MaterialTheme{
                 val notificationPermissionState =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)

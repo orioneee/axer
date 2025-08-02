@@ -77,7 +77,7 @@ internal actual suspend fun updateNotification(requests: List<Transaction>) {
         .setStyle(inboxStyle)
         .setSmallIcon(R.drawable.ic_http)
         .setContentIntent(pendingIntent)
-        .setAutoCancel(true)
+        .setAutoCancel(false)
         .addAction(action)
         .setSubText(lines.size.toString())
         .build()

@@ -70,6 +70,7 @@ import androidx.navigation.NavHostController
 import io.github.orioneee.models.ConnectionInfo
 import io.github.orioneee.models.Device
 import io.github.orioneee.presentation.components.AxerLogo
+import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
@@ -310,6 +311,9 @@ class SelectDeviceScreen {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("Select a Device") },
+                    navigationIcon = {
+                        AxerLogoDialog()
+                    },
                     actions = {
                         IconButton(
                             enabled = !isScanning.value,
@@ -559,12 +563,21 @@ class SelectDeviceScreen {
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.Router,
-                        contentDescription = "Device Icon",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.Companion.size(40.dp)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ){
+                        Icon(
+                            imageVector = Icons.Outlined.Router,
+                            contentDescription = "Device Icon",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.Companion.size(40.dp)
+                        )
+                        Text(
+                            text = device.data.baseAppName ?: "Unknown",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 },
                 headlineContent = {
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

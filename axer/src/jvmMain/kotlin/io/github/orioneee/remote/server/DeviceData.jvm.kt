@@ -36,6 +36,7 @@ fun getFallbackDeviceData(): DeviceData {
         deviceManufacturer = System.getProperty("java.vendor") ?: "Unknown Manufacturer",
         deviceName = System.getProperty("user.name") ?: "Unknown Device",
         axerVersion = BuildKonfig.VERSION_NAME,
+        baseAppName = null,
     )
 }
 
@@ -50,6 +51,7 @@ fun getLinuxDeviceData(): DeviceData {
         deviceManufacturer = manufacturer ?: "Unknown Manufacturer",
         deviceName = runCommand("hostname")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
+        baseAppName = null,
     )
 }
 
@@ -63,6 +65,7 @@ fun getWindowsDeviceData(): DeviceData {
             ?.getOrNull(1)?.trim() ?: "Unknown Manufacturer",
         deviceName = runCommand("hostname")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
+        baseAppName = null,
     )
 }
 
@@ -74,5 +77,6 @@ fun getMacDeviceData(): DeviceData {
         deviceManufacturer = "Apple Inc.",
         deviceName = runCommand("scutil --get ComputerName")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
+        baseAppName = null,
     )
 }

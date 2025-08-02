@@ -31,7 +31,8 @@ data class Device(
             device_axerVersion = data.axerVersion,
 
             info_ip = connection.ip,
-            info_port = connection.port
+            info_port = connection.port,
+            info_baseAppName = data.baseAppName
         )
     }
 }
@@ -48,6 +49,7 @@ data class NavArgumentsDTO(
 
     val info_ip: String,
     val info_port: Int,
+    val info_baseAppName: String?,
 ){
     fun toDevice(): Device {
         return Device(
@@ -62,7 +64,8 @@ data class NavArgumentsDTO(
                 deviceModel = device_deviceModel,
                 deviceManufacturer = device_deviceManufacturer,
                 deviceName = device_deviceName,
-                axerVersion = device_axerVersion
+                axerVersion = device_axerVersion,
+                baseAppName = info_baseAppName
             )
         )
     }

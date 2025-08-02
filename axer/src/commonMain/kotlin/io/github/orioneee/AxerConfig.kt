@@ -8,5 +8,6 @@ class AxerConfig {
     var enableLogMonitor: Boolean = AxerSettings.enableLogMonitor.get()
     var enableDatabaseMonitor: Boolean = AxerSettings.enableDatabaseMonitor.get()
     var isRecordingLogs: Boolean = AxerSettings.isRecordingLogs.get()
+    var isSendNotification: Boolean = AxerSettings.isSendNotification.get()
 
 }

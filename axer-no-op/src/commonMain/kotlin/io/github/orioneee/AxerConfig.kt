@@ -6,4 +6,5 @@ class AxerConfig {
     var enableLogMonitor: Boolean = true
     var enableDatabaseMonitor: Boolean = true
     var isRecordingLogs: Boolean = true
+    var isSendNotification: Boolean = true
 }

@@ -9,6 +9,7 @@ internal object NotificationInfo {
     const val CHANNEL_ID = "axer_notification_channel"
     const val CHANNEL_NAME = "Axer Notification Channel"
     const val SHORTCUT_ID = "axer_shortcut"
+    const val SERVER_SERVICE_NOTIFICATION_ID = 50
 
     fun getLaunchIntent(context: Context): Intent {
         return Intent(context, AxerActivity::class.java).apply {

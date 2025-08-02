@@ -11,6 +11,7 @@ data class DeviceData(
     val deviceManufacturer: String,
     val deviceName: String,
     val axerVersion: String,
+    val baseAppName: String? = null,
 ){
     val readableDeviceName: String
         get() {

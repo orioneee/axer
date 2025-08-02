@@ -8,6 +8,7 @@ import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.byteSize
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.RequestDao
+import io.github.orioneee.storage.AxerSettings
 import io.ktor.utils.io.core.toByteArray
 
 
@@ -20,12 +21,15 @@ internal class RequestProcessor(
     suspend fun deleteRequestIfNotFiltred(id: Long) {
         dao.deleteById(id)
     }
+
     suspend fun onSend(request: TransactionFull): Long {
         dao.deleteAllWhichOlderThan(requestMaxAge)
         dao.trimToMaxSize(maxTotalRequestSize)
         val id = dao.upsert(request)
         val firstFive = dao.getFirstFiveNotReaded()
-        updateNotification(firstFive)
+        if (AxerSettings.isSendNotification.get()) {
+            updateNotification(firstFive)
+        }
         return id
     }
 
@@ -33,14 +37,18 @@ internal class RequestProcessor(
         val requestWithSize = request.copy(size = request.byteSize())
         dao.upsert(requestWithSize)
         val firstFive = dao.getFirstFiveNotReaded()
-        updateNotification(firstFive)
+        if (AxerSettings.isSendNotification.get()) {
+            updateNotification(firstFive)
+        }
     }
 
     suspend fun onFinished(request: TransactionFull) {
         val requestWithSize = request.copy(size = request.byteSize())
         dao.upsert(requestWithSize)
         val firstFive = dao.getFirstFiveNotReaded()
-        updateNotification(firstFive)
+        if (AxerSettings.isSendNotification.get()) {
+            updateNotification(firstFive)
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 package io.github.orioneee.storage
 
 import com.russhwolf.settings.ObservableSettings
+import io.github.orioneee.Axer
 import io.github.orioneee.AxerConfig
 
 internal object AxerSettings {
@@ -10,9 +11,9 @@ internal object AxerSettings {
     val enableExceptionMonitor = BooleanSettingItem(settings, "enableExceptionMonitor")
     val enableLogMonitor = BooleanSettingItem(settings, "enableLogMonitor")
     val enableDatabaseMonitor = BooleanSettingItem(settings, "enableDatabaseMonitor")
-
     val isRecordingLogs = BooleanSettingItem(settings, "isRecordingLogs")
-    val enableRemoteMonitor = BooleanSettingItem(settings, "enableRemoteMonitor", true)
+
+    val isSendNotification = BooleanSettingItem(settings, "isSendNotification", true)
 
     fun configure(config: AxerConfig) {
         enableRequestMonitor.set(config.enableRequestMonitor)
@@ -20,6 +21,7 @@ internal object AxerSettings {
         enableLogMonitor.set(config.enableLogMonitor)
         enableDatabaseMonitor.set(config.enableDatabaseMonitor)
         isRecordingLogs.set(config.isRecordingLogs)
+        isSendNotification.set(config.isSendNotification)
     }
 }
 

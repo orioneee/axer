@@ -1,6 +1,14 @@
 package io.github.orioneee.remote.server
 
 import io.github.orioneee.Axer
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.axer_already_running
+import io.github.orioneee.axer.generated.resources.axer_port_in_use
+import io.github.orioneee.axer.generated.resources.server_failed
+import io.github.orioneee.axer.generated.resources.server_started
+import io.github.orioneee.axer.generated.resources.server_starting
+import io.github.orioneee.axer.generated.resources.server_stopped
+import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.processors.RoomReader
@@ -8,6 +16,9 @@ import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO
 import io.github.orioneee.room.dao.RequestDao
 import io.github.orioneee.storage.AxerSettings
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
@@ -31,12 +42,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import okio.IOException
+import org.jetbrains.compose.resources.getString
 import java.net.InetAddress
 import java.net.NetworkInterface
 import kotlin.time.Duration.Companion.seconds
@@ -52,29 +67,111 @@ internal var serverJob: Job? = null
 
 internal expect fun serverNotify(message: String)
 
+fun isPortInUse(port: Int): Boolean {
+    return try {
+        val socket = java.net.ServerSocket(port)
+        socket.close()
+        false // port is free
+    } catch (e: Exception) {
+        true // port is in use
+    }
+}
+
+
+suspend fun checkIfAnotherAxerInstanceIsRunning(port: Int): Pair<Boolean, String?> {
+    return try {
+        val client = HttpClient()
+        val response = client.get("http://127.0.0.1:$port/isAxerServer")
+        val body = response.body<String>()
+        val data = Json.decodeFromString<DeviceData>(body)
+        client.close()
+        println("Axer server is running: ${data.baseAppName} on port $port")
+        true to data.baseAppName
+    } catch (e: Exception) {
+        false to null
+    }
+}
+
+expect suspend fun sendNotificationAboutRunningServer(
+    ip: String,
+    port: Int,
+    isRunning: Boolean
+)
+
 fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT) {
     if (serverJob == null || serverJob?.isCompleted == true) {
-        serverJob = scope.launch(Dispatchers.IO) {
-            var server:  EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
+        serverJob = scope.launch(SupervisorJob() + Dispatchers.IO) {
+            val canRun = runChecksBeforeStartingServer(port)
+            if (!canRun) return@launch
+
+            val ip = getLocalIpAddress() ?: "localhost"
+            var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? =
+                null
             try {
-                server = getKtorServer(port)
-                serverNotify("Axer server started on ${getLocalIpAddress() ?: "localhost"}:$port")
-                server.start(wait = true)
-            } catch (e: Throwable) {
-                serverNotify("Axer server stopped")
+                coroutineScope {
+                    val startedMsg = getString(Res.string.server_started, "$ip:$port")
+
+                    server = getKtorServer(port)
+                    serverNotify(startedMsg)
+                    server.start(wait = true)
+                }
+            } catch (e: CancellationException) {
+                val stoppedMsg = getString(Res.string.server_stopped)
+                serverNotify(stoppedMsg)
+                server?.stop(1000, 1000)
+                throw e
             } catch (e: Exception) {
-                serverNotify("Axer server failed: ${e.message}")
+                val failedMsg = getString(Res.string.server_failed, e.message ?: "unknown error")
+                serverNotify(failedMsg)
                 server?.stop()
                 e.printStackTrace()
+            } finally {
+                server?.stop(1000, 1000)
             }
         }
     }
 }
 
+fun Axer.stopServerIfRunning() {
+    if (serverJob != null && serverJob?.isActive == true) {
+        serverJob?.cancel()
+        serverJob = null
+        serverNotify("Axer server stopped")
+    } else {
+        serverNotify("Axer server is not running")
+    }
+}
+
+suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
+    val (isRunning, appName) = checkIfAnotherAxerInstanceIsRunning(port)
+    if (isRunning) {
+        val msg = if (appName != null) {
+            getString(Res.string.axer_already_running, port, appName)
+        } else {
+            getString(Res.string.axer_already_running, port, "Unknown app")
+        }
+        Axer.e("AxerServer", "Axer already running on port $port: $appName")
+        Axer.recordException(IllegalStateException(msg))
+        serverNotify(msg)
+        return false
+    }
+
+    if (isPortInUse(port)) {
+        val msg = getString(Res.string.axer_port_in_use, port)
+        serverNotify(msg)
+        Axer.e("AxerServer", "Port $port is already in use")
+        Axer.recordException(IllegalStateException(msg))
+        return false
+    }
+
+    return true
+}
+
+
 const val AXER_SERVER_PORT = 53214
 
 @OptIn(FlowPreview::class)
-private fun CoroutineScope.getKtorServer(
+internal fun CoroutineScope.getKtorServer(
     port: Int
 ): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
     val reader = RoomReader()

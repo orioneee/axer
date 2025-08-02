@@ -213,6 +213,9 @@ fun App() {
         }
     }
     val database: SampleDatabase = koinInject()
+    Axer.configure {
+        isSendNotification = true
+    }
     App(
         client = client,
         database = database,

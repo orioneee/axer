@@ -82,4 +82,14 @@
     <string name="run_server_on">Run axer server on %1$s</string>
     <string name="server_stop">Axer server stopped</string>
 
+    <string name="server_starting">Axer server is starting on %1$s</string>
+    <string name="server_started">Axer server started on %1$s</string>
+    <string name="server_stopped">Axer server stopped</string>
+    <string name="server_failed">Axer server failed: %1$s</string>
+    <string name="stop">Stop</string>
+    <string name="axer_server">Axer Server</string>
+
+    <string name="axer_already_running">Axer already running on port %1$s (%2$s)</string>
+    <string name="axer_port_in_use">Port %1$s is in use</string>
+
 </resources>
