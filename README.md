@@ -14,6 +14,7 @@
 ![JVM](https://img.shields.io/badge/JVM-✔️-yellow?logo=java)
 ![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform-orange?logo=kotlin)
 [![License](https://img.shields.io/github/license/orioneee/Axer)](https://github.com/orioneee/Axer/blob/main/LICENSE)
+![Build and deploy Axer](https://github.com/orioneee/axer/actions/workflows/build-axer.yml/badge.svg)
 
 
 ## 📑 Summary
@@ -94,9 +95,12 @@ Axer now features **remote debugging**! You can run the Axer debugger app on you
 On your debuggable app (JVM/Android), manually start the Axer server:
 
 ```kotlin
-Axer.runServerIfNotRunning(lifecycleScope)
 // for example, in an Android Activity or ViewModel
 // Also you can adjust port
+Axer.runServerIfNotRunning(lifecycleScope)
+
+//if you want stop server from code, you can use
+Axer.stopServerIfRunning()
 ```
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
