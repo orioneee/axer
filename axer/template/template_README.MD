@@ -97,14 +97,15 @@ On your debuggable app (JVM/Android), manually start the Axer server:
 ```kotlin
 // for example, in an Android Activity or ViewModel
 // Also you can adjust port
-Axer.runServerIfNotRunning(lifecycleScope)
+Axer.runServerIfNotRunning(lifecycleScope) // has second parameter for custom port
+```
 
 //if you want stop server from code, you can use
 Axer.stopServerIfRunning()
 ```
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
-- **Only one server** can be runned on one device at same time (Axer uses port `53214` by default), so if you want monitor multiple apps ensure only one server is running per device.
+- **Only one server** can be runned on one device at same time (Axer uses port `53214` by default), so if you want monitor multiple apps set different ports for each app or ensure only one server is running.
 
 ---
 
