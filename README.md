@@ -445,7 +445,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | Dependency            | Version                             |
 |-----------------------|-------------------------------------|
 | Kotlin                | 2.2.0                  |
-| Compose               | 1.8.2                 |
+| Compose               | 1.9.0-beta01                 |
 | Ktor                  | 3.2.3                    |
 | Koin                  | 4.1.0                    |
 | Room                  | 2.7.2                    |

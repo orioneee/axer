@@ -36,6 +36,7 @@ kotlin {
             api(libs.ktor.client.core)
             implementation(compose.material3)
             implementation(libs.sqlite.bundled)
+            implementation(libs.androidx.room.runtime)
             implementation(libs.napier)
             implementation(libs.kotlinx.datetime)
         }

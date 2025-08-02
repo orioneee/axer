@@ -82,11 +82,7 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.multiplatform.settings)
 
-            implementation(libs.ktor.server.core)
-            implementation(libs.ktor.server.cio)
-            implementation(libs.ktor.server.content.negotiation)
-            implementation(libs.ktor.serialization.json)
-            implementation(libs.ktor.server.websockets)
+
 
             implementation("com.sebastianneubauer.jsontree:jsontree:2.5.0")
         }
@@ -108,6 +104,8 @@ kotlin {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.default.headers)
+                implementation(libs.ktor.serialization.json)
+                implementation(libs.ktor.server.websockets)
             }
         }
 

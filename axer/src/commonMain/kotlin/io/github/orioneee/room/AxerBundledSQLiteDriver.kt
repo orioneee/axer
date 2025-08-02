@@ -17,8 +17,9 @@ import kotlinx.coroutines.flow.sample
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+internal expect fun getBaseSqliteDriver(): SQLiteDriver
 class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
-    val driver = BundledSQLiteDriver()
+    val driver = getBaseSqliteDriver()
     val dbFiles = mutableSetOf<String>()
 
 
