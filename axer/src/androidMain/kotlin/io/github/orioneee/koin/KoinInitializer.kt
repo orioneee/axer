@@ -39,7 +39,7 @@ class KoinInitializer : Initializer<KoinApplication> {
             val shortcut =
                 ShortcutInfo.Builder(context, NotificationInfo.SHORTCUT_ID)
                     .setShortLabel("Open Axer")
-                    .setIcon(Icon.createWithResource(context, R.mipmap.ic_shortcut_icon))
+                    .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
                     .setIntent(
                         NotificationInfo.getLaunchIntent(context).setAction(Intent.ACTION_VIEW)
                     )

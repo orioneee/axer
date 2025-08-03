@@ -1,1 +1,3 @@
+-dontwarn java.lang.management.ManagementFactory
+-dontwarn java.lang.management.RuntimeMXBean
 -dontwarn okhttp3.internal.Util
