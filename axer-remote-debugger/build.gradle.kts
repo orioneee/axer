@@ -47,6 +47,7 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation("com.malinskiy.adam:adam:0.5.10")
         }
     }
 }

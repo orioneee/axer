@@ -2,6 +2,7 @@ package io.github.orioneee.presentation.selectdevice
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Android
 import androidx.compose.material.icons.outlined.BrowserUpdated
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.LinkOff
@@ -46,6 +48,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +57,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -67,6 +71,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
+import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.ConnectionInfo
 import io.github.orioneee.models.Device
 import io.github.orioneee.presentation.components.AxerLogo
@@ -74,8 +80,20 @@ import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 
 class SelectDeviceScreen {
+
+    fun validatePort(port: String): String? {
+        return when {
+            port.isBlank() -> "Port is required"
+            port.toIntOrNull() == null -> "Port must be a number"
+            port.toInt() !in 1..65535 -> "Port must be 1–65535"
+            else -> null
+        }
+    }
+
     @Composable
     fun ManualConnectionDialog(
         isShown: Boolean,
@@ -93,20 +111,11 @@ class SelectDeviceScreen {
         // Validation functions
         fun validateIp(ip: String): String? {
             val ipv4Regex = Regex(
-                "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
-                        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" + "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
             )
             return if (ip.matches(ipv4Regex)) null else "Invalid IP address"
         }
 
-        fun validatePort(port: String): String? {
-            return when {
-                port.isBlank() -> "Port is required"
-                port.toIntOrNull() == null -> "Port must be a number"
-                port.toInt() !in 1..65535 -> "Port must be 1–65535"
-                else -> null
-            }
-        }
 
         val isFormValid = validateIp(ip) == null && validatePort(port) == null
 
@@ -121,9 +130,7 @@ class SelectDeviceScreen {
             },
             content = {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier = Modifier.fillMaxWidth().padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     OutlinedTextField(
@@ -165,13 +172,10 @@ class SelectDeviceScreen {
                         )
                     }
                 }
-            },
-            confirmButton = {
+            }, confirmButton = {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
@@ -190,14 +194,12 @@ class SelectDeviceScreen {
                             if (isFormValid) {
                                 onAdd(ip.trim(), port.trim())
                             }
-                        },
-                        enabled = isFormValid
+                        }, enabled = isFormValid
                     ) {
                         Text("Add")
                     }
                 }
-            }
-        )
+            })
     }
 
 
@@ -211,8 +213,7 @@ class SelectDeviceScreen {
                 initializer {
                     DeviceScanViewModel()
                 }
-            }
-        )
+            })
         val isShown = viewModel.isShowingNewVersionDialog.collectAsState(false)
         val isShowAddDeviceDialog = viewModel.isShowAddDeviceDialog.collectAsState(false)
         val isScanning = viewModel.isScanning.collectAsStateWithLifecycle(false)
@@ -220,6 +221,7 @@ class SelectDeviceScreen {
         val foundedDevices = viewModel.foundedDevices.collectAsStateWithLifecycle(emptyList())
         val addedButNotAxer =
             viewModel.manuallyAddedButNotAxer.collectAsStateWithLifecycle(emptyList())
+        val adbDevices = viewModel.adbDevices.collectAsStateWithLifecycle(emptyList())
         LaunchedEffect(Unit) {
             viewModel.scanLocalNetwork()
             viewModel.scanManuallyAddedConnections()
@@ -231,13 +233,10 @@ class SelectDeviceScreen {
             onAdd = { ip, port ->
                 viewModel.onAddedConnection(
                     ConnectionInfo(
-                        ip = ip,
-                        port = port.toInt(),
-                        isCustomAdded = true
+                        ip = ip, port = port.toInt(), isCustomAdded = true
                     )
                 )
-            }
-        )
+            })
         MultiplatformAlertDialog(
             isShowDialog = isShown.value,
             onDismiss = viewModel::onDismissNewVersion,
@@ -284,9 +283,7 @@ class SelectDeviceScreen {
             confirmButton = {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
@@ -299,13 +296,11 @@ class SelectDeviceScreen {
                     Button(
                         onClick = {
                             uriHandler.openUri("https://github.com/orioneee/Axer/releases")
-                        }
-                    ) {
+                        }) {
                         Text("Update")
                     }
                 }
-            }
-        )
+            })
 
         Scaffold(
             topBar = {
@@ -316,27 +311,23 @@ class SelectDeviceScreen {
                     },
                     actions = {
                         IconButton(
-                            enabled = !isScanning.value,
-                            onClick = viewModel::onClickAddDevice
+                            enabled = !isScanning.value, onClick = viewModel::onClickAddDevice
                         ) {
                             Icon(
                                 Icons.Outlined.Add,
                                 contentDescription = "Add Device",
                             )
                         }
-                            IconButton(
-                                enabled = !isScanning.value,
-                                onClick = {
-                                    viewModel.scanLocalNetwork()
-                                    viewModel.scanManuallyAddedConnections()
-                                }
-                            ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Rescan")
-                            }
+                        IconButton(
+                            enabled = !isScanning.value, onClick = {
+                                viewModel.scanLocalNetwork()
+                                viewModel.scanManuallyAddedConnections()
+                            }) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Rescan")
+                        }
                     },
                 )
-            }
-        ) { padding ->
+            }) { padding ->
             Column(
                 modifier = Modifier.Companion.fillMaxSize().padding(padding),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally
@@ -346,7 +337,7 @@ class SelectDeviceScreen {
                 ) {
                     ScanningProgress(scanningProgress.value)
                 }
-                if (foundedDevices.value.isEmpty() && addedButNotAxer.value.isEmpty()) {
+                if (foundedDevices.value.isEmpty() && addedButNotAxer.value.isEmpty() && adbDevices.value.isEmpty()) {
                     if (!isScanning.value) {
                         Box(
                             modifier = Modifier.Companion.weight(1f),
@@ -369,6 +360,7 @@ class SelectDeviceScreen {
                     }
                 } else {
                     DeviceList(
+                        viewModel = viewModel,
                         devices = foundedDevices.value,
                         addedButNotAxer = addedButNotAxer.value,
                         isScanning = isScanning.value,
@@ -378,7 +370,8 @@ class SelectDeviceScreen {
                         onDelete = { conn ->
                             println("Deleting connection: $conn")
                             viewModel.onDeleteConnection(conn)
-                        }
+                        },
+                        navController = navController
                     )
                 }
             }
@@ -414,14 +407,12 @@ class SelectDeviceScreen {
     }
 
     data class SetupStep(
-        val icon: ImageVector,
-        val text: String
+        val icon: ImageVector, val text: String
     )
 
     val steps = listOf(
         SetupStep(
-            icon = Icons.Default.Dns,
-            text = "Make sure axer server is running on your app."
+            icon = Icons.Default.Dns, text = "Make sure axer server is running on your app."
         ),
         SetupStep(
             icon = Icons.Default.Wifi,
@@ -431,71 +422,81 @@ class SelectDeviceScreen {
 
     @Composable
     fun EmptyState() {
-
-        EmptyScreen().Screen(
-            image = rememberVectorPainter(Icons.Outlined.WifiOff),
-            title = {
-                Text(
-                    text = "No Devices Found",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            description = {
-                Column {
-                    steps.forEachIndexed { index, it ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(10.dp)
-                        ) {
-                            Icon(
-                                imageVector = it.icon,
-                                contentDescription = null,
-                                modifier = Modifier.Companion.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = it.text,
-                                textAlign = TextAlign.Start,
-                            )
-                        }
+        EmptyScreen().Screen(image = rememberVectorPainter(Icons.Outlined.WifiOff), title = {
+            Text(
+                text = "No Devices Found",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }, description = {
+            Column {
+                steps.forEachIndexed { index, it ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = it.icon,
+                            contentDescription = null,
+                            modifier = Modifier.Companion.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = it.text,
+                            textAlign = TextAlign.Start,
+                        )
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
                 }
+                Spacer(modifier = Modifier.height(2.dp))
             }
-        )
+        })
     }
 
     @Composable
     fun DeviceList(
+        viewModel: DeviceScanViewModel,
         devices: List<Device>,
         onDeviceClick: (Device) -> Unit,
         addedButNotAxer: List<ConnectionInfo>,
         isScanning: Boolean,
-        onDelete: (ConnectionInfo) -> Unit
+        onDelete: (ConnectionInfo) -> Unit,
+        navController: NavHostController
     ) {
         val isShowingAddedButNotAxer = remember(addedButNotAxer, isScanning) {
             addedButNotAxer.isNotEmpty() && !isScanning
         }
+        val adbDevices = viewModel.adbDevices.collectAsStateWithLifecycle(emptyList())
         LazyVerticalStaggeredGrid(
             modifier = Modifier.Companion.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             columns = StaggeredGridCells.Adaptive(300.dp)
         ) {
-            items(
-                items = devices.toList(),
-                key = { it.connection.toAddress() }
-            ) { device ->
-                DeviceCard(
-                    device,
-                    onClick = { onDeviceClick(device) },
-                    onDelete = {
-                        onDelete(device.connection)
+            if(devices.isNotEmpty()){
+                item(
+                    span = StaggeredGridItemSpan.FullLine
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Axer devices in local network",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
                     }
+                }
+            }
+            items(
+                items = devices.toList(), key = { it.connection.toAddress() }) { device ->
+                DeviceCard(device, onClick = { onDeviceClick(device) }, onDelete = {
+                    onDelete(device.connection)
+                }
                 )
             }
             if (isShowingAddedButNotAxer) {
@@ -521,8 +522,7 @@ class SelectDeviceScreen {
                     ListItem(
                         headlineContent = {
                             Text(
-                                text = it.toAddress(),
-                                style = MaterialTheme.typography.titleMedium
+                                text = it.toAddress(), style = MaterialTheme.typography.titleMedium
                             )
                         },
                         leadingContent = {
@@ -533,8 +533,7 @@ class SelectDeviceScreen {
                         },
                         trailingContent = {
                             IconButton(
-                                onClick = { onDelete(it) }
-                            ) {
+                                onClick = { onDelete(it) }) {
                                 Icon(
                                     Icons.Outlined.Delete,
                                     contentDescription = "Delete Device",
@@ -544,15 +543,170 @@ class SelectDeviceScreen {
                     )
                 }
             }
+            if (adbDevices.value.isNotEmpty()) {
+                item(
+                    span = StaggeredGridItemSpan.FullLine
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Devices connected via ADB",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+                items(
+                    adbDevices.value,
+                    key = { it.serial }
+                ) {
+                    AdbDevice(
+                        viewModel = viewModel,
+                        device = it,
+                        navController = navController
+                    )
+                }
+            }
         }
+    }
+
+    @Composable
+    fun AdbDevice(
+        viewModel: DeviceScanViewModel,
+        device: AdbDevice,
+        navController: NavHostController,
+    ) {
+        var isShowSelectPortDialog by remember { mutableStateOf(false) }
+        var port by remember { mutableStateOf(AXER_SERVER_PORT.toString()) }
+        var portError by remember { mutableStateOf<String?>(null) }
+        val chanel: Channel<Result<Device>> = remember { Channel(Channel.BUFFERED) }
+        var isLoading by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            for (connection in chanel) {
+                connection.onSuccess {
+                    navController.navigate(it.toNavArguments())
+                }
+                connection.onFailure {
+                    portError = "Axer server not found on this device at port $port"
+                }
+                isLoading = false
+            }
+        }
+        DisposableEffect(Unit) {
+            onDispose {
+                chanel.close()
+            }
+        }
+        MultiplatformAlertDialog(
+            isShowDialog = isShowSelectPortDialog,
+            onDismiss = {
+                isShowSelectPortDialog
+            },
+            title = {
+                Text(
+                    text = "Select Port",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            },
+            content = {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    AnimatedVisibility(isLoading) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Text(
+                        "Enter the port number for the Axer server on this device, by default it is ${AXER_SERVER_PORT}. "
+                    )
+                    OutlinedTextField(
+                        enabled = !isLoading,
+                        value = port,
+                        onValueChange = {
+                            port = it
+                            portError = validatePort(it)
+                        },
+                        label = { Text("Port") },
+                        isError = portError != null,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    portError?.let {
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        enabled = !isLoading,
+                        onClick = {
+                            isShowSelectPortDialog = false
+                            port = AXER_SERVER_PORT.toString()
+                            portError = null
+                        },
+                    ) {
+                        Text("Dismiss")
+                    }
+
+                    Button(
+                        onClick = {
+                            viewModel.checkAdbDevice(
+                                device = device,
+                                port = port.toIntOrNull() ?: AXER_SERVER_PORT,
+                                channel = chanel
+                            )
+                        },
+                        enabled = !isLoading && portError == null && port.isNotBlank() && port.toIntOrNull() != null && port.toInt() in 1..65535
+                    ) {
+                        Text("Add")
+                    }
+                }
+            }
+        )
+        ListItem(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable {
+                    isShowSelectPortDialog = true
+                },
+            headlineContent = {
+                Text(
+                    text = device.name,
+                )
+            },
+            supportingContent = {
+                Text(
+                    text = device.serial,
+                )
+            },
+            leadingContent = {
+                Icon(
+                    imageVector = Icons.Outlined.Android,
+                    contentDescription = "Device Icon",
+                )
+            },
+        )
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun DeviceCard(
-        device: Device,
-        onClick: () -> Unit,
-        onDelete: () -> Unit
+        device: Device, onClick: () -> Unit, onDelete: () -> Unit
     ) {
         Card(
             onClick = onClick,
@@ -566,7 +720,7 @@ class SelectDeviceScreen {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ){
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Router,
                             contentDescription = "Device Icon",
@@ -607,16 +761,14 @@ class SelectDeviceScreen {
                         IconButton(
                             onClick = {
                                 onDelete()
-                            }
-                        ) {
+                            }) {
                             Icon(
                                 Icons.Outlined.Delete,
                                 contentDescription = "Delete Device",
                             )
                         }
                     }
-                }
-            )
+                })
         }
     }
 }

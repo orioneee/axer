@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.data.RemoteRepositoryImpl
 import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.ConnectionInfo
+import io.github.orioneee.models.CreatedPortForwardingRules
 import io.github.orioneee.models.Device
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -17,22 +19,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
+
+internal expect fun DeviceScanViewModel.lookForAdbConnectAxer()
+internal expect suspend fun DeviceScanViewModel.checkIsAxerOnAdb(
+    device: AdbDevice,
+    port: Int,
+    localClient: HttpClient
+): Result<Device>
 
 class DeviceScanViewModel : ViewModel() {
     private val allConnections = generateConnections()
@@ -45,7 +55,10 @@ class DeviceScanViewModel : ViewModel() {
     private val _manuallyAddedFoundedDevices = MutableStateFlow<List<Device>>(emptyList())
     private val _isAutoScanning = MutableStateFlow(false)
     private val _isScanningManuallyAddedConnections = MutableStateFlow(false)
+    val _adbDevices = MutableStateFlow<List<AdbDevice>>(emptyList())
+    val _createPortForwaringRules = MutableStateFlow<List<CreatedPortForwardingRules>>(emptyList())
 
+    val adbDevices = _adbDevices.asStateFlow().sample(1.seconds)
     val isShowingNewVersionDialog = _isShowingNewVersionDialog.asStateFlow()
     val isShowAddDeviceDialog = _isShowAddDeviceDialog.asStateFlow()
     val isScanning = combine(
@@ -151,9 +164,18 @@ class DeviceScanViewModel : ViewModel() {
     var autoScanningJob: Job? = null
     var manuallyAddedScanningJob: Job? = null
     fun scanLocalNetwork() {
+        lookForAdbConnectAxer()
         autoScanningJob?.cancel()
         autoScanningJob = viewModelScope.launch(Dispatchers.IO) {
             scanForAxerDevices()
+        }
+    }
+
+    fun checkAdbDevice(device: AdbDevice, port: Int, channel: SendChannel<Result<Device>>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            checkIsAxerOnAdb(device, port, localClient).let { result ->
+                channel.trySend(result)
+            }
         }
     }
 
@@ -197,6 +219,7 @@ class DeviceScanViewModel : ViewModel() {
         }
     }
 
+
     private suspend fun scanForAxerManuallyAddedConnections() = withContext(Dispatchers.IO) {
         _isScanningManuallyAddedConnections.value = true
         _manuallyAddedFoundedDevices.value = emptyList()
@@ -208,7 +231,7 @@ class DeviceScanViewModel : ViewModel() {
                 checkConnection(conn).let { result ->
                     _manuallyAddedConnectionsScanProgress.value =
                         completedJobs.incrementAndGet()
-                    if(result != null){
+                    if (result != null) {
                         founded += Device(
                             connection = conn,
                             data = result,
@@ -240,7 +263,7 @@ class DeviceScanViewModel : ViewModel() {
             async {
                 checkConnection(conn).let { result ->
                     _scanningProgress.value = completedJobs.incrementAndGet()
-                    if(result != null){
+                    if (result != null) {
                         founded += Device(
                             connection = conn,
                             data = result,
@@ -254,6 +277,7 @@ class DeviceScanViewModel : ViewModel() {
         }.awaitAll()
         _isAutoScanning.value = false
     }
+
 
     private suspend fun checkConnection(
         data: ConnectionInfo,

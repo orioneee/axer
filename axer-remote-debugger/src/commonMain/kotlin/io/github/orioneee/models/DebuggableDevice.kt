@@ -4,6 +4,11 @@ import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import kotlinx.serialization.Serializable
 
+data class AdbDevice(
+    val serial: String,
+    val name: String,
+)
+
 @Serializable
 data class ConnectionInfo(
     val ip: String,
