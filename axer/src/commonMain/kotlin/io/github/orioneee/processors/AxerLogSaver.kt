@@ -4,11 +4,14 @@ import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.LogLevel
 import io.github.orioneee.processors.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
+import io.github.orioneee.logger.performPlatformLog
 import io.github.orioneee.storage.AxerSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 open class AxerLogSaver() : Antilog() {
+    private val processor = LogProcessor()
+
     fun saveLog(
         priority: LogLevel,
         tag: String?,
@@ -16,7 +19,6 @@ open class AxerLogSaver() : Antilog() {
         message: String?,
         time: Long,
     ) {
-        val processor = LogProcessor()
         processor.onLog(
             level = priority,
             tag = tag,

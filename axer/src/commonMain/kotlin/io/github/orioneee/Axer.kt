@@ -6,6 +6,7 @@ import io.github.aakira.napier.LogLevel
 import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.processors.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
+import io.github.orioneee.logger.performPlatformLog
 import io.github.orioneee.processors.ExceptionProcessor
 import io.github.orioneee.storage.AxerSettings
 import kotlin.time.Clock
@@ -38,14 +39,20 @@ object Axer {
     fun installAxerErrorHandler() {
         installErrorHandler()
     }
-
+    private val processor: LogProcessor
     internal fun initIfCan() {
         initializeIfCan()
+    }
+    init {
+        initIfCan()
+        processor = LogProcessor()
     }
 
     @Deprecated("No need to initialize logger")
     fun initializeLogger() {
     }
+
+
 
     @OptIn(ExperimentalTime::class)
     fun d(
@@ -54,9 +61,15 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        val time = Clock.System.now().toEpochMilliseconds()
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.DEBUG,
+            time = time
+        )
         if (record) {
-            val time = Clock.System.now().toEpochMilliseconds()
-            val processor = LogProcessor()
             processor.onLog(
                 tag = tag,
                 message = message,
@@ -65,13 +78,7 @@ object Axer {
                 time = time
             )
         }
-        PlatformLogger.performPlatformLog(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            priority = LogLevel.DEBUG,
-            time = Clock.System.now().toEpochMilliseconds()
-        )
+
     }
 
     @OptIn(ExperimentalTime::class)
@@ -81,9 +88,15 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        val time = Clock.System.now().toEpochMilliseconds()
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.ERROR,
+            time = time
+        )
         if (record) {
-            val time = Clock.System.now().toEpochMilliseconds()
-            val processor = LogProcessor()
             processor.onLog(
                 tag = tag,
                 message = message,
@@ -92,13 +105,7 @@ object Axer {
                 time = time
             )
         }
-        PlatformLogger.performPlatformLog(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            priority = LogLevel.ERROR,
-            time = Clock.System.now().toEpochMilliseconds()
-        )
+
     }
 
     @OptIn(ExperimentalTime::class)
@@ -108,9 +115,15 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        val time = Clock.System.now().toEpochMilliseconds()
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.INFO,
+            time = time
+        )
         if (record) {
-            val time = Clock.System.now().toEpochMilliseconds()
-            val processor = LogProcessor()
             processor.onLog(
                 tag = tag,
                 message = message,
@@ -119,13 +132,7 @@ object Axer {
                 time = time
             )
         }
-        PlatformLogger.performPlatformLog(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            priority = LogLevel.INFO,
-            time = Clock.System.now().toEpochMilliseconds()
-        )
+
     }
 
     @OptIn(ExperimentalTime::class)
@@ -135,9 +142,15 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        val time = Clock.System.now().toEpochMilliseconds()
+        PlatformLogger.performPlatformLog(
+            tag = tag,
+            message = message,
+            throwable = throwable,
+            priority = LogLevel.VERBOSE,
+            time = time
+        )
         if (record) {
-            val time = Clock.System.now().toEpochMilliseconds()
-            val processor = LogProcessor()
             processor.onLog(
                 tag = tag,
                 message = message,
@@ -146,13 +159,6 @@ object Axer {
                 time = time
             )
         }
-        PlatformLogger.performPlatformLog(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            priority = LogLevel.VERBOSE,
-            time = Clock.System.now().toEpochMilliseconds()
-        )
     }
 
     @OptIn(ExperimentalTime::class)
@@ -162,23 +168,24 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
-        if (record) {
-            val processor = LogProcessor()
-            processor.onLog(
-                tag = tag,
-                message = message,
-                level = LogLevel.WARNING,
-                throwable = throwable,
-                time = Clock.System.now().toEpochMilliseconds()
-            )
-        }
+        val time = Clock.System.now().toEpochMilliseconds()
         PlatformLogger.performPlatformLog(
             tag = tag,
             message = message,
             throwable = throwable,
             priority = LogLevel.WARNING,
-            time = Clock.System.now().toEpochMilliseconds()
+            time = time
         )
+        if (record) {
+            processor.onLog(
+                tag = tag,
+                message = message,
+                level = LogLevel.WARNING,
+                throwable = throwable,
+                time = time
+            )
+        }
+
     }
 
     @OptIn(ExperimentalTime::class)
@@ -188,16 +195,15 @@ object Axer {
         throwable: Throwable? = null,
         record: Boolean = true
     ) {
+        val time = Clock.System.now().toEpochMilliseconds()
         PlatformLogger.performPlatformLog(
             tag = tag,
             message = message,
             throwable = throwable,
             priority = LogLevel.ASSERT,
-            time = Clock.System.now().toEpochMilliseconds()
+            time = time
         )
         if (record) {
-            val time = Clock.System.now().toEpochMilliseconds()
-            val processor = LogProcessor()
             processor.onLog(
                 tag = tag,
                 message = message,
@@ -214,6 +220,7 @@ object Axer {
         config.block()
         AxerSettings.configure(config)
     }
+
     fun getConfig(): AxerConfig {
         return config
     }
