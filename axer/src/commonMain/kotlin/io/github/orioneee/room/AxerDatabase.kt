@@ -45,7 +45,7 @@ internal expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDat
 internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
     return builder
         .setDriver(getBaseSqliteDriver())
-        .setDriver(AxerBundledSQLiteDriver.getInstance())
+//        .setDriver(AxerBundledSQLiteDriver.getInstance())
         .setQueryCoroutineContext(Dispatchers.IO)
         .fallbackToDestructiveMigration(true)
         .build()
