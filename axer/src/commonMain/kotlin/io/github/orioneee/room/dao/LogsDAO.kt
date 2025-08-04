@@ -12,11 +12,14 @@ import kotlin.time.ExperimentalTime
 @Dao
 internal interface LogsDAO {
 
-    @Query("SELECT * FROM LogLine ORDER BY time DESC")
+    @Query("SELECT * FROM LogLine ORDER BY id DESC")
     fun getAll(): Flow<List<LogLine>>
 
-    @Query("SELECT * FROM LogLine ORDER BY time DESC")
+    @Query("SELECT * FROM LogLine ORDER BY id DESC")
     suspend fun getAllSync(): List<LogLine>
+
+    @Query("SELECT MAX(id) FROM LogLine")
+    suspend fun getMaxId(): Long?
 
     @Query("SELECT DISTINCT tag FROM LogLine")
     fun getUniqueTags(): Flow<List<String>>
@@ -25,7 +28,7 @@ internal interface LogsDAO {
     fun getUniqueLevels(): Flow<List<LogLevel>>
 
     @Upsert
-    suspend fun upsert(line: LogLine)
+    suspend fun upsert(line: LogLine): Long
 
     @Query("DELETE FROM LogLine")
     suspend fun clear()

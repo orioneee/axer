@@ -10,7 +10,6 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 open class AxerLogSaver() : Antilog() {
-    private val processor = LogProcessor()
 
     fun saveLog(
         priority: LogLevel,
@@ -19,7 +18,7 @@ open class AxerLogSaver() : Antilog() {
         message: String?,
         time: Long,
     ) {
-        processor.onLog(
+        LogProcessor.onLog(
             level = priority,
             tag = tag,
             message = message,

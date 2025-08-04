@@ -10,10 +10,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.time.ExperimentalTime
 
-internal class LogProcessor {
-    private val logsDAO: LogsDAO by IsolatedContext.koin.inject()
+internal object LogProcessor {
+    private val logsDAO by lazy { IsolatedContext.koin.get<LogsDAO>() }
+    val logSaveMutex = Mutex()
 
     @OptIn(ExperimentalTime::class)
     internal fun onLog(
@@ -25,22 +28,24 @@ internal class LogProcessor {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             if (AxerSettings.isRecordingLogs.get()) {
-                val newMessage = message +
-                        (throwable?.let { "\n${it.getPlatformStackTrace()}" } ?: "")
-                val line = LogLine(
-                    tag = tag,
-                    message = newMessage.let {
-                        if (it.length > 2000) it.take(2000) + "... (truncated)" else it
-                    },
-                    level = level,
-                    time = time,
-                    sessionIdentifier = SessionManager.sessionId
-                )
-                try {
-                    logsDAO.deleteAllWhichOlderThan()
-                    logsDAO.upsert(line)
-                } catch (e: Exception) {
-                    println(e.getPlatformStackTrace())
+                logSaveMutex.withLock {
+                    val newMessage = message +
+                            (throwable?.let { "\n${it.getPlatformStackTrace()}" } ?: "")
+                    val line = LogLine(
+                        tag = tag,
+                        message = newMessage.let {
+                            if (it.length > 5000) it.take(5000) + "... (truncated)" else it
+                        },
+                        level = level,
+                        time = time,
+                        sessionIdentifier = SessionManager.sessionId
+                    )
+                    try {
+                        logsDAO.deleteAllWhichOlderThan()
+                        logsDAO.upsert(line)
+                    } catch (e: Exception) {
+                        println(e.getPlatformStackTrace())
+                    }
                 }
             }
         }

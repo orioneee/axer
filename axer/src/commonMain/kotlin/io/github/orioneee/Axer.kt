@@ -39,13 +39,11 @@ object Axer {
     fun installAxerErrorHandler() {
         installErrorHandler()
     }
-    private val processor: LogProcessor
     internal fun initIfCan() {
         initializeIfCan()
     }
     init {
         initIfCan()
-        processor = LogProcessor()
     }
 
     @Deprecated("No need to initialize logger")
@@ -70,7 +68,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.DEBUG,
@@ -97,7 +95,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.ERROR,
@@ -124,7 +122,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.INFO,
@@ -151,7 +149,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.VERBOSE,
@@ -177,7 +175,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.WARNING,
@@ -204,7 +202,7 @@ object Axer {
             time = time
         )
         if (record) {
-            processor.onLog(
+            LogProcessor.onLog(
                 tag = tag,
                 message = message,
                 level = LogLevel.ASSERT,
