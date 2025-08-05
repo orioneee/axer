@@ -187,10 +187,6 @@ class DeviceScanViewModel : ViewModel() {
     }
 
     fun getSubNetMask(): List<String> = NetworkInterface.getNetworkInterfaces().asSequence()
-        .filter {
-            !it.displayName.contains("VMware", ignoreCase = true)
-                    && !it.displayName.contains("VirtualBox", ignoreCase = true)
-        }
         .filter { it.isUp && !it.isLoopback }
         .flatMap { nif ->
             nif.inetAddresses.asSequence()

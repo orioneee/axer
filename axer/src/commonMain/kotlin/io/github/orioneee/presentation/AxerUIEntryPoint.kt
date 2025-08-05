@@ -131,59 +131,59 @@ class AxerUIEntryPoint {
 
 
             Surface {
-                Scaffold(
-                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                    snackbarHost = {
-                        SnackbarHost(snackbarHostState)
+                if (availableDestinations.isNotEmpty()) {
+                    LaunchedEffect(availableDestinations, currentRoute) {
+                        if (currentRoute == null) return@LaunchedEffect
+                        val isCurrentRouteAvailable =
+                            availableDestinations.any { it.route == currentRoute }
+                        if (!isCurrentRouteAvailable) {
+                            val firstAvailable = availableDestinations.first()
+                            navController.navigateSaveState(firstAvailable.route)
+                        }
                     }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(it),
-                    ) {
-                        if (availableDestinations.isNotEmpty()) {
-                            LaunchedEffect(availableDestinations, currentRoute) {
-                                if (currentRoute == null) return@LaunchedEffect
-                                val isCurrentRouteAvailable =
-                                    availableDestinations.any { it.route == currentRoute }
-                                if (!isCurrentRouteAvailable) {
-                                    val firstAvailable = availableDestinations.first()
-                                    navController.navigateSaveState(firstAvailable.route)
-                                }
-                            }
-                            NavigationSuiteScaffold(
-                                navigationSuiteItems = {
-                                    availableDestinations.forEach {
-                                        item(
-                                            icon = {
-                                                Icon(
-                                                    imageVector = it.icon,
-                                                    contentDescription = null
-                                                )
-                                            },
-                                            label = { Text(stringResource(it.label)) },
-                                            selected = it.route == currentRoute,
-                                            onClick = {
-                                                navController.navigateSaveState(it.route)
-                                            }
+                    NavigationSuiteScaffold(
+                        navigationSuiteItems = {
+                            availableDestinations.forEach {
+                                item(
+                                    icon = {
+                                        Icon(
+                                            imageVector = it.icon,
+                                            contentDescription = null
                                         )
+                                    },
+                                    label = { Text(stringResource(it.label)) },
+                                    selected = it.route == currentRoute,
+                                    onClick = {
+                                        navController.navigateSaveState(it.route)
                                     }
-                                }
+                                )
+                            }
+                        }
+                    ) {
+                        Scaffold(
+                            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                            snackbarHost = {
+                                SnackbarHost(snackbarHostState)
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(it),
                             ) {
                                 MainNavigation().Host(
                                     startRoute = availableDestinations.first(),
                                     navController = navController
                                 )
                             }
-                        } else {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(stringResource(Res.string.no_available_options))
-                            }
                         }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(Res.string.no_available_options))
                     }
                 }
             }

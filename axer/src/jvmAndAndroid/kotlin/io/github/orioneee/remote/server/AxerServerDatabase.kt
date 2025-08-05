@@ -3,6 +3,7 @@ package io.github.orioneee.remote.server
 import io.github.orioneee.domain.database.DatabaseData
 import io.github.orioneee.domain.database.EditableRowItem
 import io.github.orioneee.domain.database.RowItem
+import io.github.orioneee.domain.other.BaseResponse
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.processors.RoomReader
 import io.ktor.http.HttpStatusCode
@@ -18,7 +19,6 @@ import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -29,6 +29,7 @@ import kotlinx.coroutines.sync.withLock
 internal fun Route.databaseModule(
     isEnabledDatabase: Flow<Boolean>,
     reader: RoomReader,
+    readOnly: Boolean,
 ) {
     val dbMutex = Mutex()
     webSocket("/ws/database") {
@@ -55,12 +56,29 @@ internal fun Route.databaseModule(
     }
 
     post("database/cell/{file}/{table}") {
+        if (readOnly) {
+            call.respond<BaseResponse<String>>(
+                HttpStatusCode.MethodNotAllowed,
+                BaseResponse(
+                    status = HttpStatusCode.MethodNotAllowed.description,
+                    error = "Database updates are not allowed in read-only mode"
+                )
+            )
+
+            return@post
+        }
         if (isEnabledDatabase.first()) {
             val file = call.parameters["file"]
             val tableName = call.parameters["table"]
             val body: EditableRowItem = call.receive()
             if (file == null || tableName == null) {
-                call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    BaseResponse<String>(
+                        status = HttpStatusCode.BadRequest.description,
+                        error = "File or table name is missing"
+                    )
+                )
                 return@post
             }
             try {
@@ -71,25 +89,56 @@ internal fun Route.databaseModule(
                         editableItem = body
                     )
                 }
-                call.respond(HttpStatusCode.OK, "Cell updated successfully")
+                call.respond(
+                    HttpStatusCode.OK,
+                    BaseResponse(
+                        status = HttpStatusCode.OK.description,
+                        data = "Cell updated successfully"
+                    )
+                )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    "Error updating cell: ${e.message}"
+                    BaseResponse<String>(
+                        status = HttpStatusCode.InternalServerError.description,
+                        error = "Error updating cell: ${e.message}"
+                    )
                 )
             }
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
+            call.respond(
+                HttpStatusCode.BadRequest,
+                BaseResponse<String>(
+                    status = HttpStatusCode.BadRequest.description,
+                    error = "Database monitoring is disabled"
+                )
+            )
         }
     }
 
     delete("database/row/{file}/{table}") {
+        if (readOnly) {
+            call.respond(
+                HttpStatusCode.MethodNotAllowed,
+                BaseResponse<String>(
+                    status = HttpStatusCode.MethodNotAllowed.description,
+                    error = "Database updates are not allowed in read-only mode"
+                )
+            )
+            return@delete
+        }
         if (isEnabledDatabase.first()) {
             val file = call.parameters["file"]
             val tableName = call.parameters["table"]
             val body: RowItem = call.receive()
             if (file == null || tableName == null) {
-                call.respond(HttpStatusCode.BadRequest, "File or table name is missing")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    BaseResponse<String>(
+                        status = HttpStatusCode.BadRequest.description,
+                        error = "File or table name is missing"
+                    )
+                )
                 return@delete
             }
             try {
@@ -100,11 +149,20 @@ internal fun Route.databaseModule(
                         row = body
                     )
                 }
-                call.respond(HttpStatusCode.OK, "Row deleted successfully")
+                call.respond(
+                    HttpStatusCode.OK,
+                    BaseResponse(
+                        status = HttpStatusCode.OK.description,
+                        data = "Row deleted successfully"
+                    )
+                )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    "Error deleting row: ${e.message}"
+                    BaseResponse<String>(
+                        status = HttpStatusCode.InternalServerError.description,
+                        error = "Error deleting row: ${e.message}"
+                    )
                 )
             }
         }
@@ -140,16 +198,16 @@ internal fun Route.databaseModule(
             )
         }
 
-       try {
-           if (isEnabledDatabase.first()) {
-               sendSerialized(getTableInfo())
-           } else {
-               sendSerialized(null)
-           }
-       } catch (e: Exception) {
-           e.printStackTrace()
-           close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
-         }
+        try {
+            if (isEnabledDatabase.first()) {
+                sendSerialized(getTableInfo())
+            } else {
+                sendSerialized(null)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        }
         reader.axerDriver.changeDataFlow
             .onEach {
                 if (isEnabledDatabase.first()) {
@@ -178,10 +236,26 @@ internal fun Route.databaseModule(
         }
     }
     post("/ws/db_queries/execute/{file}") {
+        if (readOnly) {
+            call.respond(
+                HttpStatusCode.MethodNotAllowed,
+                BaseResponse<String>(
+                    status = HttpStatusCode.MethodNotAllowed.description,
+                    error = "Database updates are not allowed in read-only mode"
+                )
+            )
+            return@post
+        }
         if (isEnabledDatabase.first()) {
             val file = call.parameters["file"]
             if (file == null) {
-                call.respond(HttpStatusCode.BadRequest, "File parameter is missing")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    BaseResponse<String>(
+                        status = HttpStatusCode.BadRequest.description,
+                        error = "File parameter is missing"
+                    )
+                )
                 return@post
             }
             val body: String = call.receive()
@@ -192,15 +266,30 @@ internal fun Route.databaseModule(
                         query = body
                     )
                 }
-                call.respond(HttpStatusCode.OK, "Query executed successfully")
+                call.respond(
+                    HttpStatusCode.OK,
+                    BaseResponse(
+                        status = HttpStatusCode.OK.description,
+                        data = "Query executed successfully"
+                    )
+                )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    "Error executing query: ${e.message}"
+                    BaseResponse<String>(
+                        status = HttpStatusCode.InternalServerError.description,
+                        error = "Error executing query: ${e.message}"
+                    )
                 )
             }
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
+            call.respond(
+                HttpStatusCode.BadRequest,
+                BaseResponse<String>(
+                    status = HttpStatusCode.BadRequest.description,
+                    error = "Database monitoring is disabled"
+                )
+            )
         }
     }
 
@@ -215,6 +304,19 @@ internal fun Route.databaseModule(
         reader.axerDriver.changeDataFlow
             .onEach {
                 command?.let {
+                    val isViewCommand = it.trimStart()
+                        .uppercase()
+                        .startsWith("SELECT") || it.uppercase().startsWith("PRAGMA")
+                    if (!isViewCommand && readOnly) {
+                        close(
+                            CloseReason(
+                                CloseReason.Codes.CANNOT_ACCEPT,
+                                "Database updates are not allowed in read-only mode"
+                            )
+                        )
+                        return@onEach
+                    }
+
                     if (isEnabledDatabase.first()) {
                         val response = dbMutex.withLock {
                             reader.executeRawQuery(
@@ -250,6 +352,16 @@ internal fun Route.databaseModule(
 
 
     delete("/database/{file}/{table}") {
+        if (readOnly) {
+            call.respond(
+                HttpStatusCode.MethodNotAllowed,
+                BaseResponse<String>(
+                    status = HttpStatusCode.MethodNotAllowed.description,
+                    error = "Database updates are not allowed in read-only mode"
+                )
+            )
+            return@delete
+        }
         if (isEnabledDatabase.first()) {
             val file = call.parameters["file"] ?: return@delete
             val table = call.parameters["table"] ?: return@delete
@@ -257,15 +369,30 @@ internal fun Route.databaseModule(
                 dbMutex.withLock {
                     reader.clearTable(file, table)
                 }
-                call.respond(HttpStatusCode.OK, "Table $table in file $file cleared")
+                call.respond(
+                    HttpStatusCode.OK,
+                    BaseResponse(
+                        status = HttpStatusCode.OK.description,
+                        data = "Table cleared successfully"
+                    )
+                )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    "Error clearing table: ${e.message}"
+                    BaseResponse<String>(
+                        status = HttpStatusCode.InternalServerError.description,
+                        error = "Error clearing table: ${e.message}"
+                    )
                 )
             }
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Database monitoring is disabled")
+            call.respond(
+                HttpStatusCode.BadRequest,
+                BaseResponse<String>(
+                    status = HttpStatusCode.BadRequest.description,
+                    error = "Database monitoring is disabled"
+                )
+            )
         }
     }
 }
