@@ -3,8 +3,6 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.aakira.napier.Napier
-import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.logger.PlatformLogger
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -139,8 +137,5 @@ object Axer {
 
     fun getConfig(): AxerConfig {
         return config
-    }
-
-    fun changeLocale(supportedLocale: SupportedLocales) {
     }
 }

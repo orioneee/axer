@@ -3,7 +3,7 @@ package io.github.orioneee.remote.server
 import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.domain.other.DeviceData
 
-actual fun getDeviceData(isReadOnly: Boolean): DeviceData {
+internal actual fun getDeviceData(isReadOnly: Boolean): DeviceData {
     val os = System.getProperty("os.name").lowercase()
 
     return when {

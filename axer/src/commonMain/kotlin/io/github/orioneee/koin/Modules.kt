@@ -75,4 +75,4 @@ internal object Modules {
     }
 }
 
-expect fun getPlatformModules(): Module
+internal expect fun getPlatformModules(): Module

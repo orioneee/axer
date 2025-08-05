@@ -14,7 +14,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 
-class KoinInitializer : Initializer<KoinApplication> {
+internal class KoinInitializer : Initializer<KoinApplication> {
     override fun create(context: Context): KoinApplication {
         createShortcut(context.applicationContext)
         val koinApplication = koinApplication {
