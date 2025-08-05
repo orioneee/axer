@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ExceptionDetailsViewModel(
+internal class ExceptionDetailsViewModel(
     private val dataProvider: AxerDataProvider,
     val exceptionID: Long?
 ) : BaseViewModel() {

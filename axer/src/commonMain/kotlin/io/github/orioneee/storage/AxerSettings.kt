@@ -26,4 +26,4 @@ internal object AxerSettings {
 }
 
 
-expect fun createSettings(name: String): ObservableSettings
+internal expect fun createSettings(name: String): ObservableSettings

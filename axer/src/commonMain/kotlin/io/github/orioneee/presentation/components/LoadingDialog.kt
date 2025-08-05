@@ -19,7 +19,7 @@ import io.github.orioneee.axer.generated.resources.processing_your_request
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LoadingDialog(
+internal fun LoadingDialog(
     isShow: Boolean,
     onCancel: () -> Unit,
 ) {

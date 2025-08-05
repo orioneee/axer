@@ -272,7 +272,7 @@ internal fun PaginationUI(
 }
 
 @Composable
-fun Table(
+internal fun Table(
     modifier: Modifier = Modifier,
     rowCount: Int,
     columnCount: Int,

@@ -5,7 +5,7 @@ import com.russhwolf.settings.SharedPreferencesSettings
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.koin.getContext
 
-actual fun createSettings(name: String): ObservableSettings {
+internal actual fun createSettings(name: String): ObservableSettings {
     val factory = SharedPreferencesSettings.Factory(IsolatedContext.getContext())
     return factory.create(name)
 }

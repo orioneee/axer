@@ -1,38 +1,34 @@
 package io.github.orioneee.utils
 
-import io.github.orioneee.Axer
 import io.github.orioneee.axer.generated.configs.BuildKonfig
-import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.ktor.util.encodeBase64
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @Serializable
-data class HarFile(
+internal data class HarFile(
     val log: HarLog
 )
 
 @Serializable
-data class HarLog(
+internal data class HarLog(
     val version: String = "1.2",
     val creator: HarCreator = HarCreator(),
     val entries: List<HarEntry>
 )
 
 @Serializable
-data class HarCreator(
+internal data class HarCreator(
     val name: String = "Axer",
     val version: String = BuildKonfig.VERSION_NAME
 )
 
 @Serializable
-data class HarEntry(
+internal data class HarEntry(
     val startedDateTime: String,
     val time: Long,
     val request: HarRequest,
@@ -42,7 +38,7 @@ data class HarEntry(
 )
 
 @Serializable
-data class HarRequest(
+internal data class HarRequest(
     val method: String,
     val url: String,
     val httpVersion: String = "HTTP/1.1",
@@ -54,7 +50,7 @@ data class HarRequest(
 )
 
 @Serializable
-data class HarResponse(
+internal data class HarResponse(
     val status: Int,
     val statusText: String = "",
     val httpVersion: String = "HTTP/1.1",
@@ -66,19 +62,19 @@ data class HarResponse(
 )
 
 @Serializable
-data class HarHeader(val name: String, val value: String)
+internal data class HarHeader(val name: String, val value: String)
 
 @Serializable
-data class HarQueryParam(val name: String, val value: String)
+internal data class HarQueryParam(val name: String, val value: String)
 
 @Serializable
-data class HarPostData(
+internal data class HarPostData(
     val mimeType: String = "application/octet-stream",
     val text: String
 )
 
 @Serializable
-data class HarContent(
+internal data class HarContent(
     val size: Long,
     val mimeType: String,
     val text: String? = null,
@@ -86,7 +82,7 @@ data class HarContent(
 )
 
 @Serializable
-data class HarTimings(
+internal data class HarTimings(
     val send: Long = 0,
     val wait: Long = 0,
     val receive: Long = 0

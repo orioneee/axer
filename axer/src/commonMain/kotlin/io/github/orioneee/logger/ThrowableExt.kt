@@ -3,7 +3,7 @@ package io.github.orioneee.logger
 import io.github.orioneee.domain.requests.data.SavableError
 import io.github.orioneee.domain.requests.data.SavableErrorFull
 
-expect fun Throwable.getPlatformStackTrace(): String
+internal expect fun Throwable.getPlatformStackTrace(): String
 
 internal fun Throwable.getSavableError(): SavableErrorFull {
     return SavableErrorFull(

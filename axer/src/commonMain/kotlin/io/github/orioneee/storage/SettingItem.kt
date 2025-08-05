@@ -2,7 +2,7 @@ package io.github.orioneee.storage
 
 import kotlinx.coroutines.flow.Flow
 
-interface SettingItem<T : Any> {
+internal interface SettingItem<T : Any> {
     val key: String
 
     fun get(): T

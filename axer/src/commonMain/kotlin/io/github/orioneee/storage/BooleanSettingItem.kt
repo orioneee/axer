@@ -5,7 +5,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-class BooleanSettingItem(
+internal class BooleanSettingItem(
     private val settings: ObservableSettings,
     override val key: String,
     private val default: Boolean = true

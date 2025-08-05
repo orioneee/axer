@@ -1,4 +1,4 @@
 package io.github.orioneee.presentation.components
 
-actual val canSwipePage: Boolean
+internal actual val canSwipePage: Boolean
     get() = false

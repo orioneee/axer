@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -35,7 +34,6 @@ import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.presentation.components.AxerTheme
 import io.github.orioneee.presentation.navigation.FlowDestinations
 import io.github.orioneee.presentation.navigation.MainNavigation
-import io.github.orioneee.processors.SessionManager
 import io.github.orioneee.room.AxerDatabase
 import io.github.orioneee.snackbarProcessor.SnackBarEvent
 import io.github.orioneee.snackbarProcessor.snackbarEvents
@@ -47,7 +45,7 @@ import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 
-val LocalAxerDataProvider = compositionLocalOf<AxerDataProvider> {
+internal val LocalAxerDataProvider = compositionLocalOf<AxerDataProvider> {
     error("AxerDataProvider not provided")
 }
 
@@ -78,7 +76,7 @@ class AxerUIEntryPoint {
 
     @OptIn(ExperimentalUuidApi::class)
     @Composable
-    fun Content() {
+    internal fun Content() {
         AxerTheme.ProvideTheme {
             val navController = rememberNavController()
             val currentBackStack by navController.currentBackStackEntryAsState()

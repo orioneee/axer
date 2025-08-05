@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 
 @Composable
-expect fun BoxScope.PlatformVerticalScrollBar(state: LazyListState)
+internal expect fun BoxScope.PlatformVerticalScrollBar(state: LazyListState)
 
 @Composable
-expect fun PlatformHorizontalScrollBar(scrollState: ScrollState)
+internal expect fun PlatformHorizontalScrollBar(scrollState: ScrollState)
