@@ -71,7 +71,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
-import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.ConnectionInfo
 import io.github.orioneee.models.Device
@@ -81,7 +80,6 @@ import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
 import io.github.orioneee.remote.server.AXER_SERVER_PORT
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
 
 class SelectDeviceScreen {
 

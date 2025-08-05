@@ -8,6 +8,7 @@ import io.github.orioneee.domain.database.RowItem
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.exceptions.SessionException
 import io.github.orioneee.domain.logs.LogLine
+import io.github.orioneee.domain.other.BaseResponse
 import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.data.TransactionFull
@@ -16,6 +17,7 @@ import io.github.orioneee.remote.server.UpdatesData
 import io.github.orioneee.remote.server.requestReplaceAll
 import io.github.orioneee.remote.server.toSha256Hash
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -224,12 +226,11 @@ class RemoteAxerDataProvider(
     ): Result<T> {
         return try {
             val response = requestBlock()
-            if (!response.status.isSuccess()) {
-                return Result.failure(Exception("Request failed with status: ${response.status}"))
-            }
             val textBody = response.bodyAsText()
-            Result.success(json.decodeFromString<T>(textBody))
+            val resp = Json.decodeFromString<BaseResponse<T>>(textBody)
+            resp.toResult()
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure(e)
         }
     }
@@ -245,9 +246,12 @@ class RemoteAxerDataProvider(
     }
 
     override suspend fun markAsViewed(id: Long): Result<Unit> {
-        return safeRequest<Unit> {
+        return safeRequest<String> {
             client.post("$serverUrl/requests/view/$id")
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
     override suspend fun deleteAllRequests(): Result<Unit> {
@@ -263,7 +267,7 @@ class RemoteAxerDataProvider(
             sorter = { it.sortedByDescending { it.time } }
         )
 
-    override suspend fun getSessionEventsByException(id: Long): Result<SessionException?> {
+    override suspend fun getSessionEventsByException(id: Long): Result<SessionException> {
         return safeRequest {
             client.get("$serverUrl/exceptions/$id")
         }
@@ -302,8 +306,8 @@ class RemoteAxerDataProvider(
         return webSocketFlow("/ws/database/$file/$tableName/$page")
     }
 
-    override suspend fun clearTable(file: String, tableName: String) {
-        safeRequest<String> {
+    override suspend fun clearTable(file: String, tableName: String): Result<String> {
+       return safeRequest<String> {
             client.delete("$serverUrl/database/$file/$tableName")
         }
     }

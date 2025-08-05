@@ -1,5 +1,7 @@
 package io.github.orioneee.remote.server
 
+import io.github.orioneee.domain.exceptions.SessionException
+import io.github.orioneee.domain.other.BaseResponse
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -11,7 +13,8 @@ import kotlinx.coroutines.flow.first
 
 internal fun Route.exceptionsModule(
     exceptionsDao: AxerExceptionDao,
-    isEnabledExceptions: Flow<Boolean>
+    isEnabledExceptions: Flow<Boolean>,
+    readOnly: Boolean
 ) {
     reactiveUpdatesSocket(
         path = "/ws/exceptions",
@@ -19,16 +22,37 @@ internal fun Route.exceptionsModule(
         initialData = { exceptionsDao.getAllSuspend() },
         dataFlow = { exceptionsDao.getAll() },
         getId = { it.id }
-        // No debounce for exceptions
     )
 
 
     delete("exceptions") {
+        if (readOnly) {
+            call.respond(
+                HttpStatusCode.MethodNotAllowed,
+                BaseResponse<String>(
+                    status = HttpStatusCode.MethodNotAllowed.description,
+                    error = "Exceptions deletion is not allowed in read-only mode"
+                )
+            )
+            return@delete
+        }
         if (isEnabledExceptions.first()) {
             exceptionsDao.deleteAll()
-            call.respond(HttpStatusCode.OK, "All exceptions deleted")
+            call.respond(
+                HttpStatusCode.OK,
+                BaseResponse(
+                    status = HttpStatusCode.OK.description,
+                    data = "Exceptions cleared successfully"
+                )
+            )
         } else {
-            call.respond(HttpStatusCode.BadRequest, "Exception monitoring is disabled")
+            call.respond(
+                HttpStatusCode.BadRequest,
+                BaseResponse<String>(
+                    status = HttpStatusCode.BadRequest.description,
+                    error = "Exception monitoring is disabled"
+                )
+            )
         }
     }
     get("/exceptions/{id}") {
@@ -37,14 +61,43 @@ internal fun Route.exceptionsModule(
             if (id != null) {
                 if (isEnabledExceptions.first()) {
                     val data = exceptionsDao.getSessionEvents(id)
-                    call.respond(HttpStatusCode.OK, message = data ?: "No data found for id $id")
+                    if (data != null) {
+                        val response = BaseResponse(
+                            status = HttpStatusCode.OK.description,
+                            data = data
+                        )
+                        call.respond(
+                            HttpStatusCode.OK,
+                            response
+                        )
+                    } else {
+                        call.respond(
+                            HttpStatusCode.NotFound,
+                            BaseResponse<SessionException>(
+                                status = HttpStatusCode.NotFound.description,
+                                error = "Exception with ID $id not found"
+                            )
+                        )
+                    }
                 } else {
-                    call.respond(HttpStatusCode.BadRequest, "Exception monitoring is disabled")
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        BaseResponse<SessionException>(
+                            status = HttpStatusCode.BadRequest.description,
+                            error = "Exception monitoring is disabled"
+                        )
+                    )
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            call.respond(HttpStatusCode.BadRequest, "Invalid id format")
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                BaseResponse<SessionException>(
+                    status = HttpStatusCode.InternalServerError.description,
+                    error = "An error occurred while fetching the exception: ${e.message}"
+                )
+            )
         }
     }
 }

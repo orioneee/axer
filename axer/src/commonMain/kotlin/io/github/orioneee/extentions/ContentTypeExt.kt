@@ -3,7 +3,7 @@ package io.github.orioneee.extentions
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.ktor.http.ContentType
 
-fun ContentType?.toBodyType(): BodyType {
+internal fun ContentType?.toBodyType(): BodyType {
     if (this == null) return BodyType.RAW_TEXT
 
     val contentType = this.toString().lowercase()

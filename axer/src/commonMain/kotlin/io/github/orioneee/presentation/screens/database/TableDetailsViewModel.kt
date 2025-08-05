@@ -11,6 +11,7 @@ import io.github.orioneee.domain.database.SortColumn
 import io.github.orioneee.extentions.sortBySortingItem
 import io.github.orioneee.extentions.successData
 import io.github.orioneee.logger.getPlatformStackTrace
+import io.github.orioneee.snackbarProcessor.SnackBarController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
@@ -97,10 +98,13 @@ internal class TableDetailsViewModel(
         viewModelScope.launch {
             try {
                 _editableRowItem.value = null
-                dataProvider.clearTable(
+                val res = dataProvider.clearTable(
                     file = file,
                     tableName = tableName
                 )
+                res.onFailure {
+                    SnackBarController.showSnackBar(text = "Failed to clear table: ${it.message}")
+                }
             } catch (e: Exception) {
             }
         }
@@ -116,12 +120,18 @@ internal class TableDetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _isUpdatingCell.value = true
             try {
-                dataProvider.updateCell(
+                val res = dataProvider.updateCell(
                     file = file,
                     tableName = tableName,
                     editableItem = editableItem
                 )
-                _message.value = "Cell updated successfully"
+                res.onFailure {
+                    _message.value = "Failed to update cell: ${it.message}"
+                    return@onFailure
+                }
+                res.onSuccess {
+                    _message.value = "Cell updated successfully"
+                }
             } catch (e: Exception) {
                 throw e
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
@@ -154,12 +164,17 @@ internal class TableDetailsViewModel(
                         _editableRowItem.value = null
                     }
                 }
-                dataProvider.deleteRow(
+                val res = dataProvider.deleteRow(
                     file = file,
                     tableName = tableName,
                     row = rowItem
                 )
-                _message.value = "Row deleted successfully"
+                res.onFailure {
+                    SnackBarController.showSnackBar(text = "Failed to delete row: ${it.message}")
+                }
+                res.onSuccess {
+                    _message.value = "Row deleted successfully"
+                }
             } catch (e: Exception) {
                 _message.value = e.getPlatformStackTrace().substringBefore("\n")
 

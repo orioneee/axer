@@ -8,13 +8,15 @@ data class EnabledFeathers(
     val isEnabledExceptions: Boolean,
     val isEnabledLogs: Boolean,
     val isEnabledDatabase: Boolean,
+    val isReadOnly: Boolean
 ){
     companion object {
         val Default = EnabledFeathers(
             isEnabledRequests = true,
             isEnabledExceptions = true,
             isEnabledLogs = true,
-            isEnabledDatabase = true
+            isEnabledDatabase = true,
+            isReadOnly = false
         )
     }
 }

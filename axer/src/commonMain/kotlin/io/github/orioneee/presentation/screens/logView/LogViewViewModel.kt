@@ -7,6 +7,7 @@ import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.extentions.successData
 import io.github.orioneee.koin.IsolatedContext
 import io.github.orioneee.room.dao.LogsDAO
+import io.github.orioneee.snackbarProcessor.SnackBarController
 import io.github.orioneee.utils.DataExporter
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -122,7 +123,10 @@ internal class LogViewViewModel(
         currentJob = viewModelScope.launch {
             try {
                 _isShowLoadingDialog.value = true
-                dataProvider.deleteAllLogs()
+                val res = dataProvider.deleteAllLogs()
+                res.onFailure {
+                    SnackBarController.showSnackBar(text = "Failed to clear logs: ${it.message}")
+                }
             } finally {
                 _isShowLoadingDialog.value = false
             }

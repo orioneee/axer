@@ -24,7 +24,7 @@ import io.github.orioneee.extentions.clickableWithoutRipple
 
 
 @Composable
-fun PhantomMyRatioButton(
+internal fun PhantomMyRatioButton(
     modifier: Modifier = Modifier,
     selected: Boolean,
 ) {
@@ -50,7 +50,7 @@ fun PhantomMyRatioButton(
 }
 
 @Composable
-fun MyRatioButton(
+internal fun MyRatioButton(
     selected: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,

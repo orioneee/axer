@@ -14,7 +14,7 @@ fun getHostAppName(context: Context): String {
     return packageManager.getApplicationLabel(applicationInfo).toString()
 }
 
-actual fun getDeviceData(): DeviceData {
+internal actual fun getDeviceData(isReadOnly: Boolean): DeviceData {
     val manufacturer = Build.MANUFACTURER.replaceFirstChar { it.uppercase() }
     val model = Build.MODEL.replaceFirstChar { it.uppercase() }
     val osVersion = Build.VERSION.RELEASE
@@ -27,5 +27,6 @@ actual fun getDeviceData(): DeviceData {
         deviceName = "$manufacturer $model",
         axerVersion = BuildKonfig.VERSION_NAME,
         baseAppName = getHostAppName(context = IsolatedContext.getContext()),
+        isReadOnly = isReadOnly,
     )
 }

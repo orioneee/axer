@@ -6,6 +6,7 @@ import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.domain.database.QueryResponse
 import io.github.orioneee.domain.database.SchemaItem
 import io.github.orioneee.domain.database.SortColumn
+import io.github.orioneee.snackbarProcessor.SnackBarController
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -49,10 +50,13 @@ internal class RawQueryViewModel(
             else if (!query.startsWith("SELECT", ignoreCase = true)) {
                 try {
                     _isLoading.value = true
-                    provider.executeRawQuery(
+                    val res = provider.executeRawQuery(
                         file = name,
                         query = query
                     )
+                    res.onFailure {
+                        SnackBarController.showSnackBar(text = "Error executing query: ${it.message}")
+                    }
                     _queryResponse.value = QueryResponse(
                         rows = emptyList(),
                         schema = emptyList()

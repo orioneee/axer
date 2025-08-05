@@ -1,3 +1,3 @@
 package io.github.orioneee.presentation.components
 
-expect val canSwipePage: Boolean
+internal expect val canSwipePage: Boolean

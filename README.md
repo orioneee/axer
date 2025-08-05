@@ -98,7 +98,6 @@ On your debuggable app (JVM/Android), manually start the Axer server:
 // for example, in an Android Activity or ViewModel
 // Also you can adjust port
 Axer.runServerIfNotRunning(lifecycleScope) // has second parameter for custom port
-```
 
 //if you want stop server from code, you can use
 Axer.stopServerIfRunning()
@@ -115,7 +114,7 @@ If your Android device is connected via ADB and you want to debug remotely from 
 
 ```bash
 adb forward tcp:11111 tcp:53214
-```
+````
 
 - `11111` — port on your PC (you can choose any free port)
 - `53214` — default port used by Axer server on the device

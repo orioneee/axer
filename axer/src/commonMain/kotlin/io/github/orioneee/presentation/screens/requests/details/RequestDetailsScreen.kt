@@ -92,7 +92,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun LargeTextViewer(
+internal fun LargeTextViewer(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalTextStyle.current,

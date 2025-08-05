@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 
-expect object PlatformLogger {
+internal expect object PlatformLogger {
     suspend fun log(
         priority: LogLevel,
         tag: String?,
@@ -15,7 +15,7 @@ expect object PlatformLogger {
         time: Long,
     )
 }
-fun PlatformLogger.performPlatformLog(
+internal fun PlatformLogger.performPlatformLog(
     priority: LogLevel,
     tag: String?,
     throwable: Throwable?,

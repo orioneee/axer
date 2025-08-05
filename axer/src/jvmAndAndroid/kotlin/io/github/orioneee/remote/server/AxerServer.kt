@@ -6,7 +6,6 @@ import io.github.orioneee.axer.generated.resources.axer_already_running
 import io.github.orioneee.axer.generated.resources.axer_port_in_use
 import io.github.orioneee.axer.generated.resources.server_failed
 import io.github.orioneee.axer.generated.resources.server_started
-import io.github.orioneee.axer.generated.resources.server_starting
 import io.github.orioneee.axer.generated.resources.server_stopped
 import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.domain.other.EnabledFeathers
@@ -50,7 +49,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okio.IOException
 import org.jetbrains.compose.resources.getString
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -98,7 +96,7 @@ expect suspend fun sendNotificationAboutRunningServer(
     isRunning: Boolean
 )
 
-fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT) {
+fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT, readOnly: Boolean = false) {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = scope.launch(SupervisorJob() + Dispatchers.IO) {
             val canRun = runChecksBeforeStartingServer(port)
@@ -110,8 +108,7 @@ fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PO
             try {
                 coroutineScope {
                     val startedMsg = getString(Res.string.server_started, "$ip:$port")
-
-                    server = getKtorServer(port)
+                    server = getKtorServer(port, readOnly)
                     serverNotify(startedMsg)
                     server.start(wait = true)
                 }
@@ -172,7 +169,8 @@ const val AXER_SERVER_PORT = 53214
 
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.getKtorServer(
-    port: Int
+    port: Int,
+    readOnly: Boolean
 ): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
     val reader = RoomReader()
     val requestDao: RequestDao by IsolatedContext.koin.inject()
@@ -203,23 +201,29 @@ internal fun CoroutineScope.getKtorServer(
             requestsModule(
                 isEnabledRequests = isEnabledRequests,
                 requestsDao = requestDao,
+                readOnly = readOnly,
             )
             exceptionsModule(
                 isEnabledExceptions = isEnabledExceptions,
                 exceptionsDao = exceptionsDao,
+                readOnly = readOnly,
             )
             logsModule(
                 isEnabledLogs = isEnabledLogs,
                 logsDao = logDao,
+                readOnly = readOnly,
             )
             databaseModule(
                 isEnabledDatabase = isEnabledDatabase,
                 reader = reader,
+                readOnly = readOnly,
             )
 
             get("/isAxerServer") {
                 try {
-                    call.respond(HttpStatusCode.OK, getDeviceData())
+                    val deviceData = getDeviceData(readOnly)
+                    println("data: $deviceData")
+                    call.respond(HttpStatusCode.OK, getDeviceData(readOnly))
                 } catch (e: Exception) {
                     e.printStackTrace()
                     call.respond(HttpStatusCode.InternalServerError, "Error: ${e.message}")
@@ -242,13 +246,15 @@ internal fun CoroutineScope.getKtorServer(
                     requests: Boolean,
                     exceptions: Boolean,
                     logs: Boolean,
-                    database: Boolean
+                    database: Boolean,
+                    isReadOnly: Boolean
                 ): EnabledFeathers {
                     return EnabledFeathers(
                         isEnabledRequests = requests,
                         isEnabledExceptions = exceptions,
                         isEnabledLogs = logs,
-                        isEnabledDatabase = database
+                        isEnabledDatabase = database,
+                        isReadOnly = isReadOnly
                     )
                 }
 
@@ -257,7 +263,8 @@ internal fun CoroutineScope.getKtorServer(
                         requests = isEnabledRequests.first(),
                         exceptions = isEnabledExceptions.first(),
                         logs = isEnabledLogs.first(),
-                        database = isEnabledDatabase.first()
+                        database = isEnabledDatabase.first(),
+                        isReadOnly = readOnly
                     )
                 )
 
@@ -268,7 +275,7 @@ internal fun CoroutineScope.getKtorServer(
                         isEnabledLogs,
                         isEnabledDatabase
                     ) { requests, exceptions, logs, database ->
-                        getEntity(requests, exceptions, logs, database)
+                        getEntity(requests, exceptions, logs, database, readOnly)
                     }.collect { feathers ->
                         sendSerialized(feathers)
                     }

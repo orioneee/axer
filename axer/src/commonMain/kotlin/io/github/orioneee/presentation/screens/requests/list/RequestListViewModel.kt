@@ -5,6 +5,7 @@ import io.github.orioneee.AxerDataProvider
 import io.github.orioneee.core.BaseViewModel
 import io.github.orioneee.domain.requests.formatters.BodyType
 import io.github.orioneee.extentions.successData
+import io.github.orioneee.snackbarProcessor.SnackBarController
 import io.github.orioneee.utils.DataExporter
 import io.github.orioneee.utils.toHarFile
 import kotlinx.coroutines.FlowPreview
@@ -116,7 +117,12 @@ internal class RequestListViewModel(
         currentRequestJob = viewModelScope.launch {
             try {
                 _isShowLoadingDialog.value = true
-                dataProvider.deleteAllRequests()
+                val res = dataProvider.deleteAllRequests()
+                res.onFailure {
+                    SnackBarController.showSnackBar(
+                        text = "Error clearing requests: ${it.message}",
+                    )
+                }
             } finally {
                 _selectedMethods.value = emptyList()
                 _selectedBodyType.value = emptyList()
@@ -136,7 +142,7 @@ internal class RequestListViewModel(
                         DataExporter.exportHar(har)
                     },
                     onFailure = { error ->
-                        println("Error exporting to HAR: ${error.message}")
+                        SnackBarController.showSnackBar(text = "Error exporting HAR: ${error.message}")
                     }
                 )
             } finally {

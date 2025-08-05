@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import io.github.orioneee.domain.other.DataState
 
 @get:Composable
-val LoadingContent: Unit
+internal val LoadingContent: Unit
     get() {
         Box(
             modifier = Modifier
@@ -33,7 +33,7 @@ val LoadingContent: Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> ScreenLayout(
+internal fun <T> ScreenLayout(
     state: DataState<T>,
     isEmpty: (T) -> Boolean,
     topAppBarTitle: String,
@@ -63,7 +63,7 @@ fun <T> ScreenLayout(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenLayout(
+internal fun ScreenLayout(
     isLoading: Boolean,
     isEmpty: Boolean,
     topAppBarTitle: String,

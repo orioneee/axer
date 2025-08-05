@@ -20,6 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
@@ -87,15 +88,15 @@ internal class LocalAxerDataProvider(
             emit(DataState.Loading())
         }
 
-    override suspend fun getSessionEventsByException(id: Long): Result<SessionException?> {
+    override suspend fun getSessionEventsByException(id: Long): Result<SessionException> {
         return try {
             val events = exceptionDao.getSessionEvents(id)
+                ?: throw IllegalArgumentException("Exception with id $id not found")
             Result.success(events)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-
 
 
     override suspend fun deleteAllExceptions(): Result<Unit> {
@@ -179,11 +180,12 @@ internal class LocalAxerDataProvider(
     }
 
 
-    override suspend fun clearTable(file: String, tableName: String) {
+    override suspend fun clearTable(file: String, tableName: String): Result<String> {
         try {
             reader.clearTable(file, tableName)
+            return Result.success("Table $tableName in file $file cleared successfully.")
         } catch (e: Exception) {
-            // Handle exception if needed
+            return Result.failure(e)
         }
     }
 
@@ -291,7 +293,8 @@ internal class LocalAxerDataProvider(
                 isEnabledRequests = request,
                 isEnabledExceptions = exception,
                 isEnabledLogs = log,
-                isEnabledDatabase = database
+                isEnabledDatabase = database,
+                isReadOnly = false
             )
         }.map {
             DataState.Success(it)

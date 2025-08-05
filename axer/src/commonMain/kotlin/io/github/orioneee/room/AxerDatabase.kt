@@ -5,17 +5,15 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.domain.exceptions.AxerException
 import io.github.orioneee.domain.logs.LogLine
-import io.github.orioneee.room.converters.ListConverter
-import io.github.orioneee.room.converters.MapConverter
-import io.github.orioneee.room.dao.RequestDao
-import io.github.orioneee.domain.requests.data.Transaction
 import io.github.orioneee.domain.requests.data.TransactionFull
+import io.github.orioneee.room.converters.ListConverter
 import io.github.orioneee.room.converters.LogLevelConverter
+import io.github.orioneee.room.converters.MapConverter
 import io.github.orioneee.room.dao.AxerExceptionDao
 import io.github.orioneee.room.dao.LogsDAO
+import io.github.orioneee.room.dao.RequestDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 

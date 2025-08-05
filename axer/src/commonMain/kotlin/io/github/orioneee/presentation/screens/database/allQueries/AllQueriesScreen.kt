@@ -31,7 +31,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class AllQueriesScreen {
+internal class AllQueriesScreen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(

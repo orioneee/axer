@@ -3,7 +3,6 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.domain.SupportedLocales
 import io.github.orioneee.processors.LogProcessor
 import io.github.orioneee.logger.PlatformLogger
 import io.github.orioneee.logger.performPlatformLog
@@ -221,9 +220,6 @@ object Axer {
 
     fun getConfig(): AxerConfig {
         return config
-    }
-
-    fun changeLocale(supportedLocale: SupportedLocales) {
     }
 }
 

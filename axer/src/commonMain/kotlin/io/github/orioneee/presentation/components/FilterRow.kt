@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun <T> FilterRow(
+internal fun <T> FilterRow(
     items: List<T>,
     selectedItems: List<T>,
     onItemClicked: (T) -> Unit,

@@ -3,6 +3,7 @@ package io.github.orioneee.presentation.screens.exceptions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.AxerDataProvider
+import io.github.orioneee.snackbarProcessor.SnackBarController
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,12 @@ internal class ExceptionListViewModel(
         currentJob = viewModelScope.launch {
             try {
                 _isShowLoadingDialog.value = true
-                dataProvider.deleteAllExceptions()
+                val res = dataProvider.deleteAllExceptions()
+                res.onFailure {
+                    SnackBarController.showSnackBar(
+                        "Failed to delete all exceptions: ${it.message ?: "Unknown error"}"
+                    )
+                }
             } finally {
                 _isShowLoadingDialog.value = false
             }

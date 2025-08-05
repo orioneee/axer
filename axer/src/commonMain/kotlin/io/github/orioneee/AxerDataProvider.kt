@@ -14,6 +14,7 @@ import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 
 interface AxerDataProvider {
@@ -24,7 +25,7 @@ interface AxerDataProvider {
     suspend fun deleteAllRequests(): Result<Unit>
 
     fun getAllExceptions(): Flow<DataState<List<AxerException>>>
-    suspend fun getSessionEventsByException(id: Long): Result<SessionException?>
+    suspend fun getSessionEventsByException(id: Long): Result<SessionException>
     suspend fun deleteAllExceptions(): Result<Unit>
 
     fun getAllLogs(): Flow<DataState<List<LogLine>>>
@@ -41,7 +42,7 @@ interface AxerDataProvider {
     suspend fun clearTable(
         file: String,
         tableName: String,
-    )
+    ): Result<String>
 
     fun getAllQueries(): Flow<DataState<String>>
 

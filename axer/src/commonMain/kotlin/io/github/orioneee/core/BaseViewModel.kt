@@ -2,7 +2,7 @@ package io.github.orioneee.core
 
 import androidx.lifecycle.ViewModel
 
-open class BaseViewModel : ViewModel() {
+internal open class BaseViewModel : ViewModel() {
 
     fun showMessage(message: String) {
         println("Message: $message")

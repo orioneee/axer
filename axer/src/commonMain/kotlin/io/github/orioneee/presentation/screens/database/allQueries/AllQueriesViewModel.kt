@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class AllQueriesViewModel(
+internal class AllQueriesViewModel(
     provider: AxerDataProvider
 ) : ViewModel() {
     val allQueryFlow = MutableStateFlow<List<String>>(listOf())

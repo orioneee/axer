@@ -1,8 +1,6 @@
 package io.github.orioneee.koin
 
 import io.github.orioneee.AxerDataProvider
-import io.github.orioneee.domain.exceptions.AxerException
-import io.github.orioneee.presentation.navigation.exceptions.ExceptionsDesktopNavigation
 import io.github.orioneee.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.presentation.screens.database.rawQuery.RawQueryViewModel
@@ -77,4 +75,4 @@ internal object Modules {
     }
 }
 
-expect fun getPlatformModules(): Module
+internal expect fun getPlatformModules(): Module
