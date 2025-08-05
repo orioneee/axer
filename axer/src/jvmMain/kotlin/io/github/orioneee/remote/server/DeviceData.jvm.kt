@@ -3,14 +3,14 @@ package io.github.orioneee.remote.server
 import io.github.orioneee.axer.generated.configs.BuildKonfig
 import io.github.orioneee.domain.other.DeviceData
 
-actual fun getDeviceData(): DeviceData {
+actual fun getDeviceData(isReadOnly: Boolean): DeviceData {
     val os = System.getProperty("os.name").lowercase()
 
     return when {
-        os.contains("mac") -> getMacDeviceData()
-        os.contains("win") -> getWindowsDeviceData()
-        os.contains("nix") || os.contains("nux") || os.contains("aix") -> getLinuxDeviceData()
-        else -> getFallbackDeviceData()
+        os.contains("mac") -> getMacDeviceData(isReadOnly)
+        os.contains("win") -> getWindowsDeviceData(isReadOnly)
+        os.contains("nix") || os.contains("nux") || os.contains("aix") -> getLinuxDeviceData(isReadOnly)
+        else -> getFallbackDeviceData(isReadOnly)
     }
 }
 
@@ -28,7 +28,7 @@ fun runCommand(command: String): String? {
     }
 }
 
-fun getFallbackDeviceData(): DeviceData {
+fun getFallbackDeviceData(isReadOnly: Boolean): DeviceData {
     return DeviceData(
         osName = System.getProperty("os.name") ?: "Unknown OS",
         osVersion = System.getProperty("os.version") ?: "Unknown Version",
@@ -37,10 +37,11 @@ fun getFallbackDeviceData(): DeviceData {
         deviceName = System.getProperty("user.name") ?: "Unknown Device",
         axerVersion = BuildKonfig.VERSION_NAME,
         baseAppName = null,
+        isReadOnly = isReadOnly,
     )
 }
 
-fun getLinuxDeviceData(): DeviceData {
+fun getLinuxDeviceData(isReadOnly: Boolean): DeviceData {
     val model = runCommand("cat /sys/devices/virtual/dmi/id/product_name")?.trim()
     val manufacturer = runCommand("cat /sys/devices/virtual/dmi/id/sys_vendor")?.trim()
 
@@ -52,10 +53,11 @@ fun getLinuxDeviceData(): DeviceData {
         deviceName = runCommand("hostname")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
         baseAppName = null,
+        isReadOnly = isReadOnly,
     )
 }
 
-fun getWindowsDeviceData(): DeviceData {
+fun getWindowsDeviceData(isReadOnly: Boolean): DeviceData {
     return DeviceData(
         osName = System.getProperty("os.name") ?: "Windows",
         osVersion = System.getProperty("os.version") ?: "Unknown",
@@ -66,10 +68,11 @@ fun getWindowsDeviceData(): DeviceData {
         deviceName = runCommand("hostname")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
         baseAppName = null,
+        isReadOnly = isReadOnly,
     )
 }
 
-fun getMacDeviceData(): DeviceData {
+fun getMacDeviceData(isReadOnly: Boolean): DeviceData {
     return DeviceData(
         osName = runCommand("sw_vers -productName")?.trim() ?: "macOS",
         osVersion = runCommand("sw_vers -productVersion")?.trim() ?: "Unknown",
@@ -78,5 +81,6 @@ fun getMacDeviceData(): DeviceData {
         deviceName = runCommand("scutil --get ComputerName")?.trim() ?: "Unknown",
         axerVersion = BuildKonfig.VERSION_NAME,
         baseAppName = null,
+        isReadOnly = isReadOnly,
     )
 }

@@ -221,7 +221,9 @@ internal fun CoroutineScope.getKtorServer(
 
             get("/isAxerServer") {
                 try {
-                    call.respond(HttpStatusCode.OK, getDeviceData())
+                    val deviceData = getDeviceData(readOnly)
+                    println("data: $deviceData")
+                    call.respond(HttpStatusCode.OK, getDeviceData(readOnly))
                 } catch (e: Exception) {
                     e.printStackTrace()
                     call.respond(HttpStatusCode.InternalServerError, "Error: ${e.message}")
