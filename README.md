@@ -150,16 +150,16 @@ And now you can add in axer remote debugger ip 127.0.0.1, port 53214 and use it.
 
 ## Installation
 
-Add the dependencies to your project (`1.1.9` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.1.10` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.1.9")
+implementation("io.github.orioneee:axer:1.1.10")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.1.9")
+implementation("io.github.orioneee:axer-no-op:1.1.10")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -421,7 +421,7 @@ Axer.configure {
 
 ## Stability
 
-Axer is currently in beta (`1.1.9`).  
+Axer is currently in beta (`1.1.10`).  
 Expect possible bugs and breaking changes as the library evolves.
 
 ---
