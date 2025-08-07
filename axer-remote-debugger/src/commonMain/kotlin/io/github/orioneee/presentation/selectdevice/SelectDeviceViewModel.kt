@@ -29,6 +29,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
@@ -45,6 +47,7 @@ internal expect suspend fun DeviceScanViewModel.checkIsAxerOnAdb(
 ): Result<Device>
 
 class DeviceScanViewModel : ViewModel() {
+    private val updateDeviceStateMutex = Mutex()
     private val allConnections = generateConnections()
     private val _isShowingNewVersionDialog = MutableStateFlow(false)
     private val _manuallyAddedConnections = MutableStateFlow<List<ConnectionInfo>>(emptyList())
@@ -220,7 +223,6 @@ class DeviceScanViewModel : ViewModel() {
         _isScanningManuallyAddedConnections.value = true
         _manuallyAddedFoundedDevices.value = emptyList()
         val completedJobs = AtomicInteger(0)
-        val founded = mutableListOf<Device>()
         _manuallyAddedConnections.value.map { conn ->
             async {
                 ensureActive()
@@ -228,12 +230,13 @@ class DeviceScanViewModel : ViewModel() {
                     _manuallyAddedConnectionsScanProgress.value =
                         completedJobs.incrementAndGet()
                     if (result != null) {
-                        founded += Device(
-                            connection = conn,
-                            data = result,
-                        )
-                        _manuallyAddedFoundedDevices.update {
-                            founded
+                        updateDeviceStateMutex.withLock {
+                            _manuallyAddedFoundedDevices.update {
+                                it + Device(
+                                    connection = conn,
+                                    data = result,
+                                )
+                            }
                         }
                     }
                 }
@@ -253,19 +256,20 @@ class DeviceScanViewModel : ViewModel() {
                 Int.MAX_VALUE
             }
         }
-        val founded = mutableListOf<Device>()
         val completedJobs = AtomicInteger(0)
         devices.map { conn ->
             async {
                 checkConnection(conn).let { result ->
                     _scanningProgress.value = completedJobs.incrementAndGet()
                     if (result != null) {
-                        founded += Device(
-                            connection = conn,
-                            data = result,
-                        )
-                        _foundedDevices.update {
-                            founded
+
+                        updateDeviceStateMutex.withLock {
+                            _foundedDevices.update {
+                                it + Device(
+                                    connection = conn,
+                                    data = result,
+                                )
+                            }
                         }
                     }
                 }
