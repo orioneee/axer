@@ -150,16 +150,16 @@ And now you can add in axer remote debugger ip 127.0.0.1, port 53214 and use it.
 
 ## Installation
 
-Add the dependencies to your project (`1.1.10` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`{{AXER_VERSION}}` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.1.10")
+implementation("io.github.orioneee:axer:{{AXER_VERSION}}")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.1.10")
+implementation("io.github.orioneee:axer-no-op:{{AXER_VERSION}}")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -421,7 +421,7 @@ Axer.configure {
 
 ## Stability
 
-Axer is currently in beta (`1.1.10`).  
+Axer is currently in beta (`{{AXER_VERSION}}`).
 Expect possible bugs and breaking changes as the library evolves.
 
 ---
@@ -439,25 +439,24 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 
 ---
 
-
 ## 📦 Dependency Versions
 
 | Dependency            | Version                             |
 |-----------------------|-------------------------------------|
-| Kotlin                | 2.2.0                  |
-| Compose               | 1.9.0-beta01                 |
-| Ktor                  | 3.2.3                    |
-| Koin                  | 4.1.0                    |
-| Room                  | 2.7.2                    |
-| OkHttp                | 5.1.0                  |
-| Napier                | 2.7.1                  |
-| kotlinx-coroutines    | 1.10.2      |
-| kotlinx-serialization | 1.9.0   |
-| kotlinx-datetime      | 0.7.1        |
-| Accompanist           | 0.37.3 |
-| Coil Compose          | 3.3.0            |
-| Navigation Compose    | 2.9.0-beta04      |
-| minSdk                | 21                         |
+| Kotlin                | {{KOTLIN_VERSION}}                  |
+| Compose               | {{COMPOSE_VERSION}}                 |
+| Ktor                  | {{KTOR_VERSION}}                    |
+| Koin                  | {{KOIN_VERSION}}                    |
+| Room                  | {{ROOM_VERSION}}                    |
+| OkHttp                | {{OKHTTP_VERSION}}                  |
+| Napier                | {{NAPIER_VERSION}}                  |
+| kotlinx-coroutines    | {{KOTLINX_COROUTINES_VERSION}}      |
+| kotlinx-serialization | {{KOTLINX_SERIALIZATION_VERSION}}   |
+| kotlinx-datetime      | {{KOTLINX_DATETIME_VERSION}}        |
+| Accompanist           | {{ACCOMPANIST_PERMISSIONS_VERSION}} |
+| Coil Compose          | {{COIL_COMPOSE_VERSION}}            |
+| Navigation Compose    | {{NAVIGATION_COMPOSE_VERSION}}      |
+| minSdk                | {{MIN_SDK}}                         |
 ---
 
 ## 💡 Tips & Extras
