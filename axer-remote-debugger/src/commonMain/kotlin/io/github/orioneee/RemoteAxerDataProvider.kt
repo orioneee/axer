@@ -59,29 +59,20 @@ import kotlin.math.abs
 class RemoteAxerDataProvider(
     private val serverUrl: String,
 ) : AxerDataProvider {
+    val myJson = Json {
+        prettyPrint = true
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
     private val client = HttpClient {
         install(WebSockets.Plugin) {
             contentConverter = KotlinxWebsocketSerializationConverter(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                }
+                myJson
             )
         }
         install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
+            json(myJson)
         }
-    }
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -116,7 +107,7 @@ class RemoteAxerDataProvider(
                                     if (frame is Frame.Text) {
                                         val data = frame.readText()
                                         val sizeInBytes = data.toByteArray().size
-                                        val obj = json.decodeFromString<T>(data)
+                                        val obj = myJson.decodeFromString<T>(data)
                                         val mapped = dataMapper(obj)
                                         trySend(DataState.Success(mapped)).isSuccess
                                     }
@@ -227,7 +218,7 @@ class RemoteAxerDataProvider(
         return try {
             val response = requestBlock()
             val textBody = response.bodyAsText()
-            val resp = Json.decodeFromString<BaseResponse<T>>(textBody)
+            val resp = myJson.decodeFromString<BaseResponse<T>>(textBody)
             resp.toResult()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -370,7 +361,7 @@ class RemoteAxerDataProvider(
                         if (frame is Frame.Text) {
                             val text = frame.readText()
                             try {
-                                val response = json.decodeFromString<QueryResponse>(text)
+                                val response = myJson.decodeFromString<QueryResponse>(text)
                                 trySend(response).isSuccess
                             } catch (e: Exception) {
                             }

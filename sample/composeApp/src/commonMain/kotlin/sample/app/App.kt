@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.Axer
+import io.github.orioneee.presentation.ContentWithAxerFab
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.request.get
@@ -243,230 +244,232 @@ internal fun App(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                ActionCard("Axer remote") {
-                    SelectionContainer {
-                        Text("Server runned at: ${getAxerServerIp()}")
+        ContentWithAxerFab {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    ActionCard("Axer remote") {
+                        SelectionContainer {
+                            Text("Server runned at: ${getAxerServerIp()}")
+                        }
                     }
                 }
-            }
-            item {
-                ActionCard("Network") {
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { sendGetRequest(client) }) {
-                        Text("GET")
-                    }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { sendPost(client) }) {
-                        Text("POST")
-                    }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { sedRequestForImage(client) }) {
-                        Text("Image")
-                    }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { sendLargeRequest(4, client) }) {
-                        Text("Request 4mb json")
-                    }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { sendLargeRequest(10, client) }) {
-                        Text("Request 10mb json")
-                    }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            sendGetRequest(client)
-                            sendPost(client)
-                            sedRequestForImage(client)
-                        }) {
-                        Text("All")
-                    }
-                }
-            }
-
-            item {
-                ActionCard("Spam Ktor") {
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch { spamKtorMethods(client) }
+                item {
+                    ActionCard("Network") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { sendGetRequest(client) }) {
+                            Text("GET")
                         }
-                    ) { Text("Spam Methods") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch { spamKtorMedia(client) }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { sendPost(client) }) {
+                            Text("POST")
                         }
-                    ) { Text("Spam Media") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch { spamKtorFormatsAndErrors(client) }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { sedRequestForImage(client) }) {
+                            Text("Image")
                         }
-                    ) { Text("Spam Formats") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch { spamKtor(client) }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { sendLargeRequest(4, client) }) {
+                            Text("Request 4mb json")
                         }
-                    ) { Text("Spam All") }
-                }
-            }
-
-            item {
-                if (isSupportOkhttp()) {
-                    ActionCard("Spam OkHttp") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { sendLargeRequest(10, client) }) {
+                            Text("Request 10mb json")
+                        }
                         FilledTonalButton(
                             modifier = Modifier.padding(horizontal = 2.dp),
                             onClick = {
-                                scope.launch { spamOkHttpMethods() }
+                                sendGetRequest(client)
+                                sendPost(client)
+                                sedRequestForImage(client)
+                            }) {
+                            Text("All")
+                        }
+                    }
+                }
+
+                item {
+                    ActionCard("Spam Ktor") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch { spamKtorMethods(client) }
                             }
                         ) { Text("Spam Methods") }
 
                         FilledTonalButton(
                             modifier = Modifier.padding(horizontal = 2.dp),
                             onClick = {
-                                scope.launch { spamOkHttpMedia() }
+                                scope.launch { spamKtorMedia(client) }
                             }
                         ) { Text("Spam Media") }
 
                         FilledTonalButton(
                             modifier = Modifier.padding(horizontal = 2.dp),
                             onClick = {
-                                scope.launch { spamOkHttpFormatsAndErrors() }
+                                scope.launch { spamKtorFormatsAndErrors(client) }
                             }
                         ) { Text("Spam Formats") }
 
                         FilledTonalButton(
                             modifier = Modifier.padding(horizontal = 2.dp),
                             onClick = {
-                                scope.launch { spamOkHttp(client) }
+                                scope.launch { spamKtor(client) }
                             }
                         ) { Text("Spam All") }
                     }
                 }
-            }
 
+                item {
+                    if (isSupportOkhttp()) {
+                        ActionCard("Spam OkHttp") {
+                            FilledTonalButton(
+                                modifier = Modifier.padding(horizontal = 2.dp),
+                                onClick = {
+                                    scope.launch { spamOkHttpMethods() }
+                                }
+                            ) { Text("Spam Methods") }
 
+                            FilledTonalButton(
+                                modifier = Modifier.padding(horizontal = 2.dp),
+                                onClick = {
+                                    scope.launch { spamOkHttpMedia() }
+                                }
+                            ) { Text("Spam Media") }
 
-            item {
-                ActionCard("Exceptions") {
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { Axer.recordException(Exception("Test non‑fatal")) }
-                    ) { Text("Record Non‑Fatal") }
+                            FilledTonalButton(
+                                modifier = Modifier.padding(horizontal = 2.dp),
+                                onClick = {
+                                    scope.launch { spamOkHttpFormatsAndErrors() }
+                                }
+                            ) { Text("Spam Formats") }
 
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { throw Exception("Test fatal") }) {
-                        Text("Throw Fatal")
+                            FilledTonalButton(
+                                modifier = Modifier.padding(horizontal = 2.dp),
+                                onClick = {
+                                    scope.launch { spamOkHttp(client) }
+                                }
+                            ) { Text("Spam All") }
+                        }
                     }
                 }
-            }
 
-            /** ─── Database ─────────────────────────────────────────────── **/
-            item {
-                ActionCard("Database") {
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = { populateDatabase(database) }) {
-                        Text("Populate")
+
+
+                item {
+                    ActionCard("Exceptions") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { Axer.recordException(Exception("Test non‑fatal")) }
+                        ) { Text("Record Non‑Fatal") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { throw Exception("Test fatal") }) {
+                            Text("Throw Fatal")
+                        }
                     }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                database.getMovieDao().deleteAll()
-                                database.getDirectorDao().deleteAll()
-                            }
-                        }) { Text("Clear") }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                val movies = database.getMovieDao().getAllMovies().size
-                                val directors = database.getDirectorDao().getAllDirectors().size
-                                Axer.d("Sample", "movies=$movies directors=$directors")
-                            }
-                        }) { Text("Counts") }
                 }
-            }
 
-            /** ─── Logs ─────────────────────────────────────────────── **/
-            item {
-                ActionCard("Logs") {
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.d("App", "Debug")
-                        }) { Text("Debug") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.i("App", "Info")
-                        }) { Text("Info") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.w("App", "Warn")
-                        }) { Text("Warn") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.e("App", "Error")
-                        }) { Text("Error") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.v("App", "Verbose")
-                        }) { Text("Verbose") }
-
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            Axer.wtf("App", "Assert", Exception("Assert"))
-                        }) { Text("Assert") }
-                    FilledTonalButton(
-                        modifier = Modifier.padding(horizontal = 2.dp),
-                        onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val messages = List(500) {
-                                    "Log message number $it"
+                /** ─── Database ─────────────────────────────────────────────── **/
+                item {
+                    ActionCard("Database") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { populateDatabase(database) }) {
+                            Text("Populate")
+                        }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch(Dispatchers.IO) {
+                                    database.getMovieDao().deleteAll()
+                                    database.getDirectorDao().deleteAll()
                                 }
-                                messages.forEach {
-                                    Axer.d("App", it)
-                                    Axer.i("App", it)
-                                    Axer.w("App", it)
-                                    Axer.e("App", it)
-                                    Axer.v("App", it)
-                                    Axer.wtf("App", it)
-                                    Axer.d("App", "--------------------------")
+                            }) { Text("Clear") }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                scope.launch(Dispatchers.IO) {
+                                    val movies = database.getMovieDao().getAllMovies().size
+                                    val directors = database.getDirectorDao().getAllDirectors().size
+                                    Axer.d("Sample", "movies=$movies directors=$directors")
                                 }
-                            }
-                        }) { Text("Spam logs") }
+                            }) { Text("Counts") }
+                    }
                 }
-            }
 
-            item { MonitorToggles() }
+                /** ─── Logs ─────────────────────────────────────────────── **/
+                item {
+                    ActionCard("Logs") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.d("App", "Debug")
+                            }) { Text("Debug") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.i("App", "Info")
+                            }) { Text("Info") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.w("App", "Warn")
+                            }) { Text("Warn") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.e("App", "Error")
+                            }) { Text("Error") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.v("App", "Verbose")
+                            }) { Text("Verbose") }
+
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                Axer.wtf("App", "Assert", Exception("Assert"))
+                            }) { Text("Assert") }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val messages = List(1500) {
+                                        "Log message number $it"
+                                    }
+                                    messages.forEach {
+                                        Axer.d("App", it)
+                                        Axer.i("App", it)
+                                        Axer.w("App", it)
+                                        Axer.e("App", it)
+                                        Axer.v("App", it)
+                                        Axer.wtf("App", it)
+                                        Axer.d("App", "--------------------------")
+                                    }
+                                }
+                            }) { Text("Spam logs") }
+                    }
+                }
+
+                item { MonitorToggles() }
+            }
         }
     }
 }
@@ -527,7 +530,6 @@ private fun MonitorToggles() {
         }
     }
 }
-
 
 @Composable
 private fun SettingSwitch(

@@ -19,6 +19,7 @@ import kotlinx.coroutines.IO
 
 
 @Database(
+    exportSchema = false,
     entities = [
         TransactionFull::class,
         AxerException::class,

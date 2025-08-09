@@ -73,7 +73,7 @@
 - Capture and display **logs**, powered by [Napier](https://github.com/AAkira/Napier)
 - Use all these features locally or remotely via the **Remote Debugger** app
 
-Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), but adds multiplatform support and real-time database inspection.
+Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), [LensLogger](https://github.com/farhazulMullick/Lens-Logger) but adds multiplatform support and real-time database inspection, crashes, and logs.
 
 ---
 
@@ -435,7 +435,7 @@ Expect possible bugs and breaking changes as the library evolves.
 ## Inspiration
 
 Axer is a lightweight, cross-platform HTTP logging library for Kotlin Multiplatform projects.  
-It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), with added multiplatform and Room DB inspection support.
+It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), [LensLogger](https://github.com/farhazulMullick/Lens-Logger) with added multiplatform and Room DB inspection support.
 
 ---
 
