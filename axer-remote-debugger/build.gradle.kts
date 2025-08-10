@@ -59,7 +59,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Axer Debbugger"
-            packageVersion = axerVersion.substringAfter('-').substringBeforeLast("-")
+            packageVersion = axerVersion.substringBeforeLast("-")
 
 
             windows {

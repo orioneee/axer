@@ -419,13 +419,6 @@ Axer.configure {
 
 ---
 
-## Stability
-
-Axer is currently in beta (`{{AXER_VERSION}}`).
-Expect possible bugs and breaking changes as the library evolves.
-
----
-
 ## iOS Limitations
 
 - Stack traces are not supported.
