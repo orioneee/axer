@@ -323,7 +323,7 @@ generateDocumentations()
 
 
 dokka {
-    moduleName.set("io.github.orioneee")
+    moduleName.set("Axer")
     basePublicationsDirectory = layout.settingsDirectory.dir("docs")
 
     dokkaSourceSets {
