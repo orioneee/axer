@@ -264,9 +264,12 @@ class RemoteAxerDataProvider(
 
 
     override suspend fun deleteAllExceptions(): Result<Unit> {
-        return safeRequest {
+        return safeRequest<String> {
             client.delete("$serverUrl/exceptions")
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
     override fun getAllLogs(): Flow<DataState<List<LogLine>>> =
@@ -278,9 +281,12 @@ class RemoteAxerDataProvider(
 
 
     override suspend fun deleteAllLogs(): Result<Unit> {
-        return safeRequest {
+        return safeRequest<String> {
             client.delete("$serverUrl/logs")
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
     override fun getDatabases(): Flow<DataState<List<DatabaseWrapped>>> =
@@ -310,12 +316,15 @@ class RemoteAxerDataProvider(
         tableName: String,
         editableItem: EditableRowItem
     ): Result<Unit> {
-        return safeRequest {
+        return safeRequest<String> {
             client.post("$serverUrl/database/cell/$file/$tableName") {
                 contentType(ContentType.Application.Json)
                 setBody(editableItem)
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
     override suspend fun deleteRow(
@@ -323,21 +332,27 @@ class RemoteAxerDataProvider(
         tableName: String,
         row: RowItem
     ): Result<Unit> {
-        return safeRequest {
+        return safeRequest<String> {
             client.delete("$serverUrl/database/row/$file/$tableName") {
                 contentType(ContentType.Application.Json)
                 setBody(row)
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
     override suspend fun executeRawQuery(file: String, query: String): Result<Unit> {
-        return safeRequest<Unit> {
+        return safeRequest<String> {
             client.post("$serverUrl/ws/db_queries/execute/$file") {
                 contentType(ContentType.Text.Plain)
                 setBody(query)
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it) }
+        )
     }
 
 
