@@ -6,8 +6,8 @@ import androidx.compose.ui.window.application
 import androidx.navigation.compose.rememberNavController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.logo_circle
+import io.github.orioneee.internal.presentation.components.AxerTheme
 import io.github.orioneee.navigation.NavigationClass
-import io.github.orioneee.presentation.components.AxerTheme
 import org.jetbrains.compose.resources.painterResource
 import java.io.File
 

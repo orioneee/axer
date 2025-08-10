@@ -31,13 +31,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import io.github.orioneee.AxerUIEntryPoint
+import io.github.orioneee.RemoteAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.app_name_device
-import io.github.orioneee.AxerUIEntryPoint
-import io.github.orioneee.presentation.components.AxerLogo
-import io.github.orioneee.presentation.components.MultiplatformAlertDialog
-import io.github.orioneee.RemoteAxerDataProvider
 import io.github.orioneee.axer.generated.resources.network_off
+import io.github.orioneee.internal.presentation.components.AxerLogo
+import io.github.orioneee.internal.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.models.Device
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -1,18 +1,18 @@
 package io.github.orioneee
 
-import io.github.orioneee.domain.database.DatabaseData
-import io.github.orioneee.domain.database.DatabaseWrapped
-import io.github.orioneee.domain.database.EditableRowItem
-import io.github.orioneee.domain.database.QueryResponse
-import io.github.orioneee.domain.database.RowItem
-import io.github.orioneee.domain.exceptions.AxerException
-import io.github.orioneee.domain.exceptions.SessionException
-import io.github.orioneee.domain.logs.LogLine
-import io.github.orioneee.domain.other.BaseResponse
-import io.github.orioneee.domain.other.DataState
-import io.github.orioneee.domain.other.EnabledFeathers
-import io.github.orioneee.domain.requests.data.TransactionFull
-import io.github.orioneee.domain.requests.data.TransactionShort
+import io.github.orioneee.internal.domain.database.DatabaseData
+import io.github.orioneee.internal.domain.database.DatabaseWrapped
+import io.github.orioneee.internal.domain.database.EditableRowItem
+import io.github.orioneee.internal.domain.database.QueryResponse
+import io.github.orioneee.internal.domain.database.RowItem
+import io.github.orioneee.internal.domain.exceptions.AxerException
+import io.github.orioneee.internal.domain.exceptions.SessionException
+import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.other.BaseResponse
+import io.github.orioneee.internal.domain.other.DataState
+import io.github.orioneee.internal.domain.other.EnabledFeathers
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
+import io.github.orioneee.internal.domain.requests.data.TransactionShort
 import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.remote.server.UpdatesData
 import io.github.orioneee.internal.remote.server.requestReplaceAll
@@ -243,7 +243,7 @@ class RemoteAxerDataProvider(
         )
     }
 
-    override suspend fun deleteAllRequests(): Result<Unit> {
+    override suspend fun deleteAllRequests(): Result<String> {
         return safeRequest {
             client.delete("$serverUrl/requests")
         }

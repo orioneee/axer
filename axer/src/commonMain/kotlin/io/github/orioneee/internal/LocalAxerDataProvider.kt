@@ -68,10 +68,10 @@ internal class LocalAxerDataProvider(
         }
     }
 
-    override suspend fun deleteAllRequests(): Result<Unit> {
+    override suspend fun deleteAllRequests(): Result<String> {
         try {
             requestDao.deleteAll()
-            return Result.success(Unit)
+            return Result.success("All requests deleted successfully.")
         } catch (e: Exception) {
             return Result.failure(e)
         }

@@ -21,7 +21,7 @@ interface AxerDataProvider {
     suspend fun getDataForExportAsHar(): Result<List<TransactionFull>>
     fun getRequestById(id: Long): Flow<DataState<TransactionFull?>>
     suspend fun markAsViewed(id: Long): Result<Unit>
-    suspend fun deleteAllRequests(): Result<Unit>
+    suspend fun deleteAllRequests(): Result<String>
 
     fun getAllExceptions(): Flow<DataState<List<AxerException>>>
     suspend fun getSessionEventsByException(id: Long): Result<SessionException>

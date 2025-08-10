@@ -6,9 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import io.github.orioneee.internal.presentation.navigation.Animations
 import io.github.orioneee.models.NavArgumentsDTO
 import io.github.orioneee.presentation.inpsection.InspectionScreen
-import io.github.orioneee.presentation.navigation.Animations
 import io.github.orioneee.presentation.selectdevice.SelectDeviceScreen
 
 class NavigationClass {

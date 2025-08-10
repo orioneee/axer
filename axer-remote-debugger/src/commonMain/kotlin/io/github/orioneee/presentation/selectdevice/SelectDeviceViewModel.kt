@@ -3,7 +3,7 @@ package io.github.orioneee.presentation.selectdevice
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.data.RemoteRepositoryImpl
-import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.internal.domain.other.DeviceData
 import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.ConnectionInfo
 import io.github.orioneee.models.CreatedPortForwardingRules

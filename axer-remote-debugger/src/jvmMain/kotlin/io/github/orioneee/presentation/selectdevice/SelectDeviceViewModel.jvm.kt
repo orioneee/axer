@@ -13,7 +13,7 @@ import com.malinskiy.adam.request.forwarding.PortForwardingRule
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.forwarding.RemovePortForwardRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
-import io.github.orioneee.domain.other.DeviceData
+import io.github.orioneee.internal.domain.other.DeviceData
 import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.CreatedPortForwardingRules
 import io.ktor.client.HttpClient
