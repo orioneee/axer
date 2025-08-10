@@ -343,6 +343,7 @@ dokka {
             )
 
             skipEmptyPackages.set(true)
+            skipDeprecated.set(true)
         }
     }
 }
