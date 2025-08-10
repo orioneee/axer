@@ -1,15 +1,12 @@
 package io.github.orioneee
 
-import io.github.orioneee.domain.requests.Request
-import io.github.orioneee.processors.RequestProcessor
-import io.github.orioneee.domain.requests.data.Transaction
-import io.github.orioneee.domain.requests.data.TransactionFull
-import io.github.orioneee.domain.requests.formatters.BodyType
-import io.github.orioneee.extentions.isValidImage
-import io.github.orioneee.extentions.toBodyType
-import io.github.orioneee.logger.getSavableError
-import io.github.orioneee.processors.SessionManager
-import io.ktor.http.contentType
+import io.github.orioneee.internal.extentions.toBodyType
+import io.github.orioneee.internal.processors.RequestProcessor
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
+import io.github.orioneee.internal.domain.requests.formatters.BodyType
+import io.github.orioneee.internal.extentions.isValidImage
+import io.github.orioneee.internal.logger.getSavableError
+import io.github.orioneee.internal.processors.SessionManager
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -21,11 +18,11 @@ import kotlin.time.ExperimentalTime
 
 class AxerOkhttpInterceptor private constructor(
     private val requestImportantSelector: (Request) -> List<String>,
-    private val responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String>,
+    private val responseImportantSelector: (io.github.orioneee.Response) -> List<String>,
     private val requestFilter: (Request) -> Boolean,
-    private val responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean,
+    private val responseFilter: (io.github.orioneee.Response) -> Boolean,
     private val requestReducer: (Request) -> Request = { request -> request },
-    private val responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response,
+    private val responseReducer: (io.github.orioneee.Response) -> io.github.orioneee.Response,
     private val requestMaxAgeInSeconds: Long,
     private val retentionSizeInBytes: Long,
     private val maxBodySize: Long = 250_000 // ~244 KB
@@ -48,13 +45,13 @@ class AxerOkhttpInterceptor private constructor(
 
     class Builder() {
         private var requestImportantSelector: (Request) -> List<String> = { emptyList() }
-        private var responseImportantSelector: (io.github.orioneee.domain.requests.Response) -> List<String> =
+        private var responseImportantSelector: (io.github.orioneee.Response) -> List<String> =
             { emptyList() }
         private var requestFilter: (Request) -> Boolean = { true }
         private var requestReducer: (Request) -> Request = { it }
-        private var responseFilter: (io.github.orioneee.domain.requests.Response) -> Boolean =
+        private var responseFilter: (io.github.orioneee.Response) -> Boolean =
             { true }
-        private var responseReducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response =
+        private var responseReducer: (io.github.orioneee.Response) -> io.github.orioneee.Response =
             { it }
         private var requestMaxAgeInSeconds: Long = 60 * 60 * 12 // 12 hour
         private var retentionSizeInBytes: Long = 1024 * 1024 * 100 // 100 MB
@@ -73,12 +70,12 @@ class AxerOkhttpInterceptor private constructor(
             this.requestReducer = reducer
         }
 
-        fun setResponseFilter(filter: (io.github.orioneee.domain.requests.Response) -> Boolean) =
+        fun setResponseFilter(filter: (io.github.orioneee.Response) -> Boolean) =
             apply {
                 this.responseFilter = filter
             }
 
-        fun setResponseImportantSelector(selector: (io.github.orioneee.domain.requests.Response) -> List<String>) =
+        fun setResponseImportantSelector(selector: (io.github.orioneee.Response) -> List<String>) =
             apply {
                 this.responseImportantSelector = selector
             }
@@ -88,7 +85,7 @@ class AxerOkhttpInterceptor private constructor(
         }
 
 
-        fun setResponseReducer(reducer: (io.github.orioneee.domain.requests.Response) -> io.github.orioneee.domain.requests.Response) =
+        fun setResponseReducer(reducer: (io.github.orioneee.Response) -> io.github.orioneee.Response) =
             apply {
                 this.responseReducer = reducer
             }

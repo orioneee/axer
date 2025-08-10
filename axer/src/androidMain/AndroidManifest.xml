@@ -4,12 +4,11 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <application
-        android:networkSecurityConfig="@xml/network_security_config"
-        >
+    <application>
         <activity
             android:name="io.github.orioneee.AxerActivity"
             android:exported="true"
+            android:icon="@mipmap/ic_launcher"
             android:label="Axer"
             android:launchMode="singleTask"
             android:taskAffinity="io.github.orioneee.axer" />
@@ -28,7 +27,7 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="io.github.orioneee.koin.KoinInitializer"
+                android:name="io.github.orioneee.internal.koin.KoinInitializer"
                 android:value="androidx.startup" />
         </provider>
         <provider

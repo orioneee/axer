@@ -6,21 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
-import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.koin.Modules
-import io.github.orioneee.koin.getPlatformModules
-import io.github.orioneee.presentation.AxerUIEntryPoint
-import io.github.orioneee.presentation.LocalAxerDataProvider
-import io.github.orioneee.processors.ExceptionProcessor
-import io.github.orioneee.room.AxerDatabase
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.staticCFunction
-import org.koin.compose.KoinIsolatedContext
+import io.github.orioneee.internal.koin.IsolatedContext
+import io.github.orioneee.internal.koin.Modules
 import org.koin.dsl.koinApplication
-import platform.Foundation.NSException
-import platform.Foundation.NSSetUncaughtExceptionHandler
 import platform.UIKit.UIApplication
-import platform.posix.exit
 import kotlin.experimental.ExperimentalNativeApi
 
 actual fun openAxer() {

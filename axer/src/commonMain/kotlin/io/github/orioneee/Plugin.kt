@@ -1,14 +1,12 @@
 package io.github.orioneee
 
-import io.github.orioneee.config.AxerKtorPluginConfig
-import io.github.orioneee.domain.requests.data.Transaction
-import io.github.orioneee.domain.requests.data.TransactionFull
-import io.github.orioneee.domain.requests.formatters.BodyType
-import io.github.orioneee.extentions.isValidImage
-import io.github.orioneee.extentions.toBodyType
-import io.github.orioneee.logger.getSavableError
-import io.github.orioneee.processors.RequestProcessor
-import io.github.orioneee.processors.SessionManager
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
+import io.github.orioneee.internal.domain.requests.formatters.BodyType
+import io.github.orioneee.internal.extentions.isValidImage
+import io.github.orioneee.internal.extentions.toBodyType
+import io.github.orioneee.internal.logger.getSavableError
+import io.github.orioneee.internal.processors.RequestProcessor
+import io.github.orioneee.internal.processors.SessionManager
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin

@@ -6,10 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -17,8 +14,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import io.github.orioneee.Axer
 import io.github.orioneee.installErrorHandler
-import io.github.orioneee.remote.server.runServerIfNotRunning
-import io.github.orioneee.remote.server.stopServerIfRunning
+import io.github.orioneee.runServerIfNotRunning
 
 class MainActivity : ComponentActivity() {
 

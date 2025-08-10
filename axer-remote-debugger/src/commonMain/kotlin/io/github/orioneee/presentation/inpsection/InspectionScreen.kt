@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.app_name_device
-import io.github.orioneee.presentation.AxerUIEntryPoint
+import io.github.orioneee.AxerUIEntryPoint
 import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.RemoteAxerDataProvider

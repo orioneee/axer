@@ -1,10 +1,12 @@
 package io.github.orioneee
 
+
 class AxerConfig {
-    var enableRequestMonitor: Boolean = true
-    var enableExceptionMonitor: Boolean = true
-    var enableLogMonitor: Boolean = true
-    var enableDatabaseMonitor: Boolean = true
-    var isRecordingLogs: Boolean = true
-    var isSendNotification: Boolean = true
+    var enableRequestMonitor: Boolean = false
+    var enableExceptionMonitor: Boolean = false
+    var enableLogMonitor: Boolean = false
+    var enableDatabaseMonitor: Boolean = false
+    var isRecordingLogs: Boolean = false
+    var isSendNotification: Boolean = false
+
 }

@@ -78,7 +78,7 @@ import io.github.orioneee.presentation.components.AxerLogo
 import io.github.orioneee.presentation.components.AxerLogoDialog
 import io.github.orioneee.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.presentation.screens.requests.EmptyScreen
-import io.github.orioneee.remote.server.AXER_SERVER_PORT
+import io.github.orioneee.AXER_SERVER_PORT
 import kotlinx.coroutines.channels.Channel
 
 class SelectDeviceScreen {

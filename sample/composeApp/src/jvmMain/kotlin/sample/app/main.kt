@@ -1,5 +1,3 @@
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -7,9 +5,8 @@ import androidx.compose.ui.window.rememberWindowState
 import io.github.orioneee.Axer
 import io.github.orioneee.AxerOkhttpInterceptor
 import io.github.orioneee.AxerTrayWindow
-import io.github.orioneee.AxerWindows
 import io.github.orioneee.installErrorHandler
-import io.github.orioneee.remote.server.runServerIfNotRunning
+import io.github.orioneee.runServerIfNotRunning
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +15,6 @@ import org.koin.core.context.startKoin
 import sample.app.App
 import sample.app.koin.KoinModules
 import java.awt.Dimension
-import java.util.concurrent.TimeUnit
 
 val url = "https://pastebin.com/raw/Q315ARJ8?apiKey=test_api_key"
 

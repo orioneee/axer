@@ -13,11 +13,11 @@ import io.github.orioneee.domain.other.DataState
 import io.github.orioneee.domain.other.EnabledFeathers
 import io.github.orioneee.domain.requests.data.TransactionFull
 import io.github.orioneee.domain.requests.data.TransactionShort
-import io.github.orioneee.remote.server.UpdatesData
-import io.github.orioneee.remote.server.requestReplaceAll
-import io.github.orioneee.remote.server.toSha256Hash
+import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.remote.server.UpdatesData
+import io.github.orioneee.internal.remote.server.requestReplaceAll
+import io.github.orioneee.internal.remote.server.toSha256Hash
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -30,7 +30,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
-import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.websocket.Frame
@@ -49,7 +48,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json

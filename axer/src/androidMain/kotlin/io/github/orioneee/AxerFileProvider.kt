@@ -1,3 +1,3 @@
 package io.github.orioneee
 
-class AxerFileProvider : androidx.core.content.FileProvider()
+internal class AxerFileProvider : androidx.core.content.FileProvider()

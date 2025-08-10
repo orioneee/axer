@@ -1,7 +1,8 @@
 package io.github.orioneee
 
 import android.content.Context
-import io.github.orioneee.koin.IsolatedContext
+import io.github.orioneee.internal.NotificationInfo
+import io.github.orioneee.internal.koin.IsolatedContext
 
 actual fun openAxer() {
     val context: Context by IsolatedContext.koin.inject()

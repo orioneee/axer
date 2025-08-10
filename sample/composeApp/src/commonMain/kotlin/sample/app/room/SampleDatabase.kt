@@ -4,7 +4,7 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
-import io.github.orioneee.room.AxerBundledSQLiteDriver
+import io.github.orioneee.AxerBundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import sample.app.room.dao.DirectorDao

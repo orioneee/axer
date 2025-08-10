@@ -1,8 +1,7 @@
 package io.github.orioneee
 
-import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.koin.Modules
-import io.github.orioneee.koin.getPlatformModules
+import io.github.orioneee.internal.koin.IsolatedContext
+import io.github.orioneee.internal.koin.Modules
 import org.koin.dsl.koinApplication
 
 

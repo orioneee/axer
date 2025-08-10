@@ -1,7 +1,7 @@
 package io.github.orioneee.models
 
 import io.github.orioneee.domain.other.DeviceData
-import io.github.orioneee.remote.server.AXER_SERVER_PORT
+import io.github.orioneee.AXER_SERVER_PORT
 import kotlinx.serialization.Serializable
 
 data class AdbDevice(

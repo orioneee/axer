@@ -1,6 +1,6 @@
 package io.github.orioneee
 
-import io.github.orioneee.storage.AxerSettings
+import io.github.orioneee.internal.storage.AxerSettings
 
 class AxerConfig {
     var enableRequestMonitor: Boolean = AxerSettings.enableRequestMonitor.get()

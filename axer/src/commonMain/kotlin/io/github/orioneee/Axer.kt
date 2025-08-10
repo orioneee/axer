@@ -3,11 +3,11 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.processors.LogProcessor
-import io.github.orioneee.logger.PlatformLogger
-import io.github.orioneee.logger.performPlatformLog
-import io.github.orioneee.processors.ExceptionProcessor
-import io.github.orioneee.storage.AxerSettings
+import io.github.orioneee.internal.processors.LogProcessor
+import io.github.orioneee.internal.logger.PlatformLogger
+import io.github.orioneee.internal.logger.performPlatformLog
+import io.github.orioneee.internal.processors.ExceptionProcessor
+import io.github.orioneee.internal.storage.AxerSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 

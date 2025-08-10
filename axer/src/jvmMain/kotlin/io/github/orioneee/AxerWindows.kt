@@ -12,7 +12,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
-import androidx.compose.ui.window.MenuScope
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
@@ -22,13 +21,8 @@ import io.github.orioneee.axer.generated.resources.exit
 import io.github.orioneee.axer.generated.resources.ic_logo
 import io.github.orioneee.axer.generated.resources.logo_circle
 import io.github.orioneee.axer.generated.resources.open_axer
-import io.github.orioneee.koin.IsolatedContext
-import io.github.orioneee.presentation.AxerUIEntryPoint
-import io.github.orioneee.room.AxerDatabase
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.KoinIsolatedContext
-import org.koin.compose.koinInject
 
 @Composable
 fun AxerWindows(

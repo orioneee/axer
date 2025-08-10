@@ -12,12 +12,7 @@ import com.malinskiy.adam.request.forwarding.PortForwardingMode
 import com.malinskiy.adam.request.forwarding.PortForwardingRule
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.forwarding.RemovePortForwardRequest
-import com.malinskiy.adam.request.prop.GetPropRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
-import com.malinskiy.adam.request.reverse.ListReversePortForwardsRequest
-import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
-import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
-import com.malinskiy.adam.request.reverse.ReversePortForwardingRule
 import io.github.orioneee.domain.other.DeviceData
 import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.CreatedPortForwardingRules
