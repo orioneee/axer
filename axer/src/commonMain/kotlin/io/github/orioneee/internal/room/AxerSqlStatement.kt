@@ -6,7 +6,7 @@ internal class AxerSqlStatement(
     private val originalStatement: SQLiteStatement,
     query: String,
     private val onStep: (String) -> Unit,
-) : SQLiteStatement {
+) : SQLiteStatement by originalStatement {
     private var bindedString = query
 
     fun bindValue(index: Int, value: Any?) {
@@ -46,50 +46,6 @@ internal class AxerSqlStatement(
     override fun bindNull(index: Int) {
         bindValue(index, null)
         originalStatement.bindNull(index)
-    }
-
-    override fun getBlob(index: Int): ByteArray {
-        return originalStatement.getBlob(index)
-    }
-
-    override fun getDouble(index: Int): Double {
-        return originalStatement.getDouble(index)
-    }
-
-    override fun getLong(index: Int): Long {
-        return originalStatement.getLong(index)
-    }
-
-    override fun getText(index: Int): String {
-        return originalStatement.getText(index)
-    }
-
-    override fun isNull(index: Int): Boolean {
-        return originalStatement.isNull(index)
-    }
-
-    override fun getColumnCount(): Int {
-        return originalStatement.getColumnCount()
-    }
-
-    override fun getColumnName(index: Int): String {
-        return originalStatement.getColumnName(index)
-    }
-
-    override fun getColumnType(index: Int): Int {
-        return originalStatement.getColumnType(index)
-    }
-
-    override fun step(): Boolean {
-        return originalStatement.step()
-    }
-
-    override fun reset() {
-        originalStatement.reset()
-    }
-
-    override fun clearBindings() {
-        originalStatement.clearBindings()
     }
 
     override fun close() {

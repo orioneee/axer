@@ -165,8 +165,7 @@ internal class LocalAxerDataProvider(
                     val content = reader.getTableContent(file, tableName, page, pageSize)
                     val schema = reader.getTableSchema(file, tableName)
                     val size = reader.getTableSize(file, tableName)
-                    val state: DataState<DatabaseData> =
-                        DataState.Success(DatabaseData(schema, content, size))
+                    val state: DataState<DatabaseData> = DataState.Success(DatabaseData(schema, content, size))
                     emit(state)
                 }
             }
@@ -245,7 +244,6 @@ internal class LocalAxerDataProvider(
         val initial = flow {
             try {
                 val result = reader.executeRawQuery(file, query)
-                println("Initial query result: $result")
                 emit(result)
             } catch (e: Exception) {
                 emit(
@@ -262,7 +260,6 @@ internal class LocalAxerDataProvider(
                 flow {
                     try {
                         val result = reader.executeRawQuery(file, query)
-                        println("Update query result: $result")
                         emit(result)
                     } catch (e: Exception) {
                         emit(

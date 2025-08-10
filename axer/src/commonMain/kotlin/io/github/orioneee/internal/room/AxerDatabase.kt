@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
-import io.github.orioneee.getBaseSqliteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.internal.domain.exceptions.AxerException
 import io.github.orioneee.internal.domain.logs.LogLine
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
@@ -44,7 +44,7 @@ internal expect object AxerDatabaseConstructor : RoomDatabaseConstructor<AxerDat
 
 internal fun getAxerDatabase(builder: RoomDatabase.Builder<AxerDatabase>): AxerDatabase {
     return builder
-        .setDriver(getBaseSqliteDriver())
+        .setDriver(BundledSQLiteDriver())
 //        .setDriver(AxerBundledSQLiteDriver.getInstance())
         .setQueryCoroutineContext(Dispatchers.IO)
         .fallbackToDestructiveMigration(true)
