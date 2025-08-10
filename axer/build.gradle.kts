@@ -1,5 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.internal.utils.getLocalProperty
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -272,6 +273,28 @@ generateDocumentations()
 
 
 dokka {
-    moduleName.set("Axer")
+    moduleName.set("io.github.orioneee")
     basePublicationsDirectory = layout.settingsDirectory.dir("docs")
+
+    dokkaSourceSets {
+        configureEach {
+            // Exclude `.internal` and `.generated` packages
+            perPackageOption {
+                matchingRegex.set(".*\\.(internal|generated)(\\..*)?")
+                suppress.set(true)
+            }
+
+            // Keep only public and protected members
+            documentedVisibilities.set(
+                setOf(
+                    VisibilityModifier.Public,
+                    VisibilityModifier.Protected
+                )
+            )
+
+            skipEmptyPackages.set(true)
+        }
+    }
 }
+
+
