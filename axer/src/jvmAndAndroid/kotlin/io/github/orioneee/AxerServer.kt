@@ -170,7 +170,10 @@ internal suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
 }
 
 
-internal const val AXER_SERVER_PORT = 53214
+/**
+ * @suppress
+ */
+const val AXER_SERVER_PORT = 53214
 
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.getKtorServer(
