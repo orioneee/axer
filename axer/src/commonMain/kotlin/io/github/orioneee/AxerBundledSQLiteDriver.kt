@@ -14,24 +14,24 @@ import kotlinx.coroutines.flow.sample
 import kotlin.time.ExperimentalTime
 
 class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
-    val driver = BundledSQLiteDriver()
-    val dbFiles = mutableSetOf<String>()
+    internal val driver = BundledSQLiteDriver()
+    internal val dbFiles = mutableSetOf<String>()
 
 
-    fun isSqlQueryChangeData(sql: String): Boolean {
+    internal fun isSqlQueryChangeData(sql: String): Boolean {
         return sql.startsWith("INSERT") || sql.startsWith("UPDATE") || sql.startsWith("DELETE") || sql.contains(
             "END TRANSACTION",
             ignoreCase = true
         )
     }
 
-    val allQueryFlow = MutableSharedFlow<String>(
+    internal val allQueryFlow = MutableSharedFlow<String>(
         extraBufferCapacity = 500,
         onBufferOverflow = BufferOverflow.DROP_LATEST
     )
-    val _changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    internal val _changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
     @OptIn(FlowPreview::class)
-    val changeDataFlow = _changeDataFlow.asSharedFlow().sample(500)
+    internal val changeDataFlow = _changeDataFlow.asSharedFlow().sample(500)
 
     init {
         Axer.initIfCan()
