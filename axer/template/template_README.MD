@@ -7,7 +7,7 @@
 # Axer Library
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.orioneee/axer?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.orioneee/axer)
-[![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/axer/io.github.orioneee/io.github.orioneee/index.html/)
+[![Kotlin Docs](https://img.shields.io/badge/docs-kotlin-blue?logo=kotlin)](https://orioneee.github.io/axer/io.github.orioneee/io.github.orioneee/index.html)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose-Multiplatform-success?logo=jetpackcompose)
 ![Android](https://img.shields.io/badge/Android-✔️-green?logo=android)
 ![iOS](https://img.shields.io/badge/iOS-✔️-lightgrey?logo=apple)
