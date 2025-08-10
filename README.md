@@ -28,7 +28,6 @@
   - [⚠️ Exception Handling](#exception-handling)
   - [🗄️ Room Database Inspection](#room-database-inspection)
 - [⚙️ Runtime Configuration](#runtime-configuration)
-- [🛡️ Stability](#stability)
 - [🍏 iOS Limitations](#ios-limitations)
 - [💭 Inspiration](#inspiration)
 - [📦 Dependency Versions](#-dependency-versions)
