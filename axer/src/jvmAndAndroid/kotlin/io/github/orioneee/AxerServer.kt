@@ -70,7 +70,7 @@ internal var serverJob: Job? = null
 
 internal expect fun serverNotify(message: String)
 
-fun isPortInUse(port: Int): Boolean {
+internal fun isPortInUse(port: Int): Boolean {
     return try {
         val socket = ServerSocket(port)
         socket.close()
@@ -81,7 +81,7 @@ fun isPortInUse(port: Int): Boolean {
 }
 
 
-suspend fun checkIfAnotherAxerInstanceIsRunning(port: Int): Pair<Boolean, String?> {
+internal suspend fun checkIfAnotherAxerInstanceIsRunning(port: Int): Pair<Boolean, String?> {
     return try {
         val client = HttpClient()
         val response = client.get("http://127.0.0.1:$port/isAxerServer")
@@ -95,7 +95,7 @@ suspend fun checkIfAnotherAxerInstanceIsRunning(port: Int): Pair<Boolean, String
     }
 }
 
-expect suspend fun sendNotificationAboutRunningServer(
+internal expect suspend fun sendNotificationAboutRunningServer(
     ip: String,
     port: Int,
     isRunning: Boolean
@@ -144,7 +144,7 @@ fun Axer.stopServerIfRunning() {
     }
 }
 
-suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
+internal suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
     val (isRunning, appName) = checkIfAnotherAxerInstanceIsRunning(port)
     if (isRunning) {
         val msg = if (appName != null) {
@@ -170,7 +170,7 @@ suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
 }
 
 
-const val AXER_SERVER_PORT = 53214
+internal const val AXER_SERVER_PORT = 53214
 
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.getKtorServer(

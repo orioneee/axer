@@ -12,7 +12,7 @@ import org.koin.dsl.koinApplication
 import platform.UIKit.UIApplication
 import kotlin.experimental.ExperimentalNativeApi
 
-actual fun openAxer() {
+internal actual fun openAxer() {
     val topController =
         UIApplication.sharedApplication.keyWindow?.rootViewController
             ?: throw IllegalStateException("No root view controller found")
@@ -34,7 +34,7 @@ actual fun openAxer() {
     )
 }
 
-actual fun initializeIfCan() {
+internal actual fun initializeIfCan() {
     IsolatedContext.initIfNotInited(
         koinApplication {
             modules(
@@ -61,6 +61,6 @@ fun Axer.installErrorHandler() {
     }
 }
 
-actual fun installErrorHandler() {
+internal actual fun installErrorHandler() {
     Axer.installErrorHandler()
 }

@@ -50,7 +50,7 @@ kotlin {
             implementation(libs.napier)
 
 
-            implementation(project(":axer-no-op"))
+            implementation(project(":axer"))
 
         }
 

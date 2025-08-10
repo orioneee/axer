@@ -28,7 +28,7 @@ internal actual fun serverNotify(message: String) {
     }
 }
 
-actual suspend fun sendNotificationAboutRunningServer(
+internal actual suspend fun sendNotificationAboutRunningServer(
     ip: String,
     port: Int,
     isRunning: Boolean

@@ -53,6 +53,10 @@ class AxerUIEntryPoint {
         Axer.initIfCan()
     }
 
+
+    /**
+     * @suppress
+     */
     @Composable
     fun Screen(provider: AxerDataProvider) {
         KoinIsolatedContext(IsolatedContext.koinApp) {

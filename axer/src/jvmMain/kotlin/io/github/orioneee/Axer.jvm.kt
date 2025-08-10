@@ -4,8 +4,8 @@ import io.github.orioneee.internal.koin.IsolatedContext
 import io.github.orioneee.internal.koin.Modules
 import org.koin.dsl.koinApplication
 
-actual fun openAxer() {}
-actual fun initializeIfCan() {
+internal actual fun openAxer() {}
+internal actual fun initializeIfCan() {
     IsolatedContext.initIfNotInited(
         koinApplication {
             modules(

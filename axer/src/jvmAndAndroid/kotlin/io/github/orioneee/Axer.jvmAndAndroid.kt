@@ -4,7 +4,7 @@ fun Axer.installErrorHandler() {
     Thread.setDefaultUncaughtExceptionHandler(AxerUncaughtExceptionHandler())
 }
 
-actual fun installErrorHandler() {
+internal actual fun installErrorHandler() {
     Axer.installErrorHandler()
 }
 

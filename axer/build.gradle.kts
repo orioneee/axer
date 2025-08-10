@@ -268,7 +268,57 @@ fun generateDocumentations() {
     println("README.md updated with versions.")
 }
 
+fun printCodeStatistic() {
+    // 1. Get list of files tracked by git with given extensions
+    val gitLsFilesCmd = listOf("git", "ls-files", "*.kts", "*.kt", "*.yml", "*.md")
+
+    val filesOutput = ProcessBuilder(gitLsFilesCmd)
+        .redirectErrorStream(true)
+        .start()
+        .inputStream.bufferedReader()
+        .readText()
+        .trim()
+
+    if (filesOutput.isEmpty()) {
+        println("No files found.")
+        return
+    }
+
+    val files = filesOutput.lines()
+
+    // 2. Initialize counters
+    var totalLines = 0L
+    var totalChars = 0L
+
+    // 3. Read each file and accumulate counts
+    for (filePath in files) {
+        try {
+            val file = File(filePath)
+            if (!file.exists() || !file.isFile) continue
+
+            file.useLines { linesSequence ->
+                linesSequence.forEach { line ->
+                    totalLines++
+                    totalChars += line.length
+                }
+            }
+        } catch (e: Exception) {
+            // Skip unreadable files, or log if you want
+        }
+    }
+
+    val fileCount = files.size.coerceAtLeast(1)  // avoid div by zero
+
+    // 4. Print all stats in one line
+    println(
+        "Lines: $totalLines Characters: $totalChars Files: $fileCount " +
+                "AvgChars/File: %.2f AvgLines/File: %.2f".format(totalChars.toDouble() / fileCount, totalLines.toDouble() / fileCount)
+    )
+}
+
+
 generateDocumentations()
+
 
 
 
