@@ -20,8 +20,8 @@
 ## 📑 Summary
 
 - [📝 Overview](#overview)
-- [🚀 Remote Debugger Support](#-remote-debugger-support)
 - [💾 Installation](#installation)
+- [🚀 Remote Debugger Support](#-remote-debugger-support)
 - [✨ Features & Usage](#features--usage)
   - [🔍 HTTP Request Monitoring](#http-request-monitoring)
   - [📋 Logger](#logger)
@@ -73,6 +73,26 @@
 - Use all these features locally or remotely via the **Remote Debugger** app
 
 Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMonitor](http://github.com/CosminMihuMDC/KtorMonitor/), [LensLogger](https://github.com/farhazulMullick/Lens-Logger) but adds multiplatform support and real-time database inspection, crashes, and logs.
+
+---
+
+
+## Installation
+
+Add the dependencies to your project (`{{AXER_VERSION}}` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+
+```kotlin
+implementation("io.github.orioneee:axer:{{AXER_VERSION}}")
+```
+
+For production, use the no-op variant to avoid runtime overhead and source changes:
+
+```kotlin
+implementation("io.github.orioneee:axer-no-op:{{AXER_VERSION}}")
+```
+
+No-op maintains the same API, so switching in/out is seamless.
+
 
 ---
 
@@ -144,24 +164,6 @@ And now you can add in axer remote debugger ip 127.0.0.1, port 53214 and use it.
 
 - **Note**: Both debugger and debuggable device **must be on the same network**.
 - **Only one server** can be runned on one device at same time (Axer uses port `53214`) so if you want monitor multiple app enshure only one server runned
-
----
-
-## Installation
-
-Add the dependencies to your project (`{{AXER_VERSION}}` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
-
-```kotlin
-implementation("io.github.orioneee:axer:{{AXER_VERSION}}")
-```
-
-For production, use the no-op variant to avoid runtime overhead and source changes:
-
-```kotlin
-implementation("io.github.orioneee:axer-no-op:{{AXER_VERSION}}")
-```
-
-No-op maintains the same API, so switching in/out is seamless.
 
 ---
 
