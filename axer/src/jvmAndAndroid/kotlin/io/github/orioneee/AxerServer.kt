@@ -189,6 +189,11 @@ internal fun CoroutineScope.getKtorServer(
     val isEnabledExceptions = AxerSettings.enableExceptionMonitor.asFlow()
     val isEnabledLogs = AxerSettings.enableLogMonitor.asFlow()
     val isEnabledDatabase = AxerSettings.enableDatabaseMonitor.asFlow()
+    val myJson = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        prettyPrint = true
+    }
 
     return embeddedServer(CIO, port = port) {
         install(WebSockets) {
@@ -196,10 +201,10 @@ internal fun CoroutineScope.getKtorServer(
             timeout = 15.seconds
             maxFrameSize = Long.MAX_VALUE
             masking = false
-            contentConverter = KotlinxWebsocketSerializationConverter(Json)
+            contentConverter = KotlinxWebsocketSerializationConverter(myJson)
         }
         install(ContentNegotiation) {
-            json(Json { prettyPrint = true; isLenient = true })
+            json(myJson)
         }
         install(DefaultHeaders) {
             header("Content-Type", "application/json")

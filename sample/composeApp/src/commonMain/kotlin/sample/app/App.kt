@@ -42,6 +42,7 @@ import io.github.orioneee.Axer
 import io.github.orioneee.ContentWithAxerFab
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post

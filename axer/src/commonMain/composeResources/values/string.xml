@@ -65,7 +65,6 @@
     <string name="version_format">Version: %1$s</string>
     <string name="json">Json</string>
     <string name="non_formated">Non-formatted</string>
-    <string name="export">Export</string>
     <string name="har">.har</string>
     <string name="open_axer">Open Axer</string>
     <string name="exit">Exit</string>
@@ -91,5 +90,8 @@
 
     <string name="axer_already_running">Axer already running on port %1$s (%2$s)</string>
     <string name="axer_port_in_use">Port %1$s is in use</string>
+    <string name="logs_copied">Logs copied to clipboard</string>
+    <string name="file">File</string>
+    <string name="oops_something_went_wrong">Oops! Something went wrong: %1$s</string>
 
 </resources>

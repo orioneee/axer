@@ -8,47 +8,60 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.SubtitlesOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.courier
-import io.github.orioneee.axer.generated.resources.export
+import io.github.orioneee.axer.generated.resources.file
 import io.github.orioneee.axer.generated.resources.ic_export_logs
 import io.github.orioneee.axer.generated.resources.logs
 import io.github.orioneee.axer.generated.resources.no_logs_desc
 import io.github.orioneee.internal.domain.logs.LogLine
 import io.github.orioneee.internal.domain.other.DataState
-import io.github.orioneee.LocalAxerDataProvider
+import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.FilterRow
 import io.github.orioneee.internal.presentation.components.LoadingDialog
@@ -97,6 +110,67 @@ internal class LogViewScreen {
         )
     }
 
+
+    @Composable
+    fun LogItemCard(log: LogLine) {
+        SelectionContainer {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Row(
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(
+                        Modifier
+                            .width(4.dp)
+                            .fillMaxHeight()
+                            .background(colorForLevel(log.level))
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                log.time.formateAsDate(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                log.level.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = colorForLevel(log.level),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = log.message,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun colorForLevel(level: LogLevel): Color {
+        return when (level) {
+            LogLevel.ERROR, LogLevel.ASSERT -> MaterialTheme.colorScheme.error
+            LogLevel.WARNING -> MaterialTheme.colorScheme.tertiary
+            else -> MaterialTheme.colorScheme.primary
+        }
+    }
+
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun Screen(
@@ -105,8 +179,6 @@ internal class LogViewScreen {
         val viewModel: LogViewViewModel = koinViewModel {
             parametersOf(dataProvider)
         }
-
-
         val state = viewModel.logsState.collectAsState(DataState.Loading())
         val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsState(false)
         val filtredLogs = viewModel.filtredLogs.collectAsState(listOf())
@@ -120,6 +192,8 @@ internal class LogViewScreen {
         val isExporting = viewModel.isExporting.collectAsState(false)
         val firstExportPointId = viewModel.firstExportPointId.collectAsState(null)
         val lastExportPointId = viewModel.lastExportPointId.collectAsState(null)
+
+        val clipboard = LocalClipboard.current
 
         LoadingDialog(
             isShow = isShowLoadingDialog.value,
@@ -157,12 +231,24 @@ internal class LogViewScreen {
                             (firstExportPointId.value != null && lastExportPointId.value != null)
                             && selectedForExport.value.isNotEmpty(),
                 ) {
-                    TextButton(
-                        onClick = {
-                            viewModel.onExport()
+                    Row {
+                        TextButton(
+                            onClick = {
+                                viewModel.onExport()
+                            }
+                        ) {
+                            Text(stringResource(Res.string.file))
                         }
-                    ) {
-                        Text(stringResource(Res.string.export))
+                        IconButton(
+                            onClick = {
+                                viewModel.onClickCopy(clipboard)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CopyAll,
+                                contentDescription = "Clear Export Points"
+                            )
+                        }
                     }
                 }
                 IconButton(
@@ -188,153 +274,151 @@ internal class LogViewScreen {
             },
         ) { logs ->
             val listState = rememberLazyListState()
-            SelectionContainer {
-                Box {
-                    Column {
-                        LazyColumn(
-                            state = listState,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 4.dp)
-                                .horizontalScroll(rememberScrollState())
-                        )
-                        {
-                            item {
-                                FilterRow(
-                                    items = tags.value,
-                                    selectedItems = selectedTags.value,
-                                    onItemClicked = { tag ->
-                                        viewModel.toggleTag(tag)
-                                    },
-                                    onClear = {
-                                        viewModel.clearTags()
-                                    },
-                                    getItemString = {
-                                        it
-                                    },
-                                    scrolable = false
-                                )
+            Box {
+                Column {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 4.dp)
+                            .horizontalScroll(rememberScrollState())
+                    ) {
+                        item {
+                            FilterRow(
+                                items = tags.value,
+                                selectedItems = selectedTags.value,
+                                onItemClicked = { tag ->
+                                    viewModel.toggleTag(tag)
+                                },
+                                onClear = {
+                                    viewModel.clearTags()
+                                },
+                                getItemString = {
+                                    it
+                                },
+                                scrolable = false
+                            )
+                        }
+                        item {
+                            FilterRow(
+                                items = levels.value,
+                                selectedItems = selectedLevels.value,
+                                onItemClicked = { level ->
+                                    viewModel.toggleLevel(level)
+                                },
+                                onClear = {
+                                    viewModel.clearLevels()
+                                },
+                                getItemString = {
+                                    it.name
+                                },
+                                scrolable = false
+                            )
+                        }
+                        items(
+                            items = logs,
+                            key = {
+                                it.id
                             }
-                            item {
-                                FilterRow(
-                                    items = levels.value,
-                                    selectedItems = selectedLevels.value,
-                                    onItemClicked = { level ->
-                                        viewModel.toggleLevel(level)
-                                    },
-                                    onClear = {
-                                        viewModel.clearLevels()
-                                    },
-                                    getItemString = {
-                                        it.name
-                                    },
-                                    scrolable = false
-                                )
-                            }
-                            items(
-                                items = logs,
-                                key = {
-                                    it.id
-                                }
-                            ) { line ->
-                                AnimatedVisibility(
-                                    visible = filtredLogs.value.contains(line),
-                                    enter = fadeIn() + expandVertically(),
-                                    exit = fadeOut() + shrinkVertically(),
+                        ) { line ->
+                            AnimatedVisibility(
+                                visible = filtredLogs.value.contains(line),
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically(),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .height(IntrinsicSize.Min)
                                 ) {
                                     Row(
-                                        verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
-                                            .padding(horizontal = 8.dp)
-                                            .height(IntrinsicSize.Min)
+                                            .fillMaxHeight(),
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxHeight(),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            val firstSelected =
-                                                selectedForExport.value.firstOrNull { it.id == firstExportPointId.value }
-                                            val lastSelected =
-                                                selectedForExport.value.firstOrNull { it.id == lastExportPointId.value }
-                                            val list = listOfNotNull(
-                                                firstSelected,
-                                                lastSelected
-                                            ).sortedByDescending {
-                                                it.time
-                                            }
-                                            val isFirstSelected = line == list.firstOrNull()
-                                            val isLastSelected = line == list.lastOrNull()
+                                        val firstSelected =
+                                            selectedForExport.value.firstOrNull { it.id == firstExportPointId.value }
+                                        val lastSelected =
+                                            selectedForExport.value.firstOrNull { it.id == lastExportPointId.value }
+                                        val list = listOfNotNull(
+                                            firstSelected,
+                                            lastSelected
+                                        ).sortedByDescending {
+                                            it.time
+                                        }
+                                        val isFirstSelected = line == list.firstOrNull()
+                                        val isLastSelected = line == list.lastOrNull()
 
-                                            val isNeedsToShowLine = firstExportPointId.value != null
-                                                    && lastExportPointId.value != null
-                                                    && selectedForExport.value.contains(line)
-                                            val isNeedToShowButtons =
-                                                firstExportPointId.value == null
-                                                        || lastExportPointId.value == null
-                                                        || line.id == firstExportPointId.value
-                                                        || line.id == lastExportPointId.value
-                                                        || !selectedForExport.value.contains(line)
-                                            AnimatedVisibility(
-                                                visible = isExporting.value,
-                                                enter = fadeIn() + expandHorizontally(),
-                                                exit = fadeOut() + shrinkHorizontally(),
-                                                modifier = Modifier.fillMaxHeight()
+                                        val isNeedsToShowLine = firstExportPointId.value != null
+                                                && lastExportPointId.value != null
+                                                && selectedForExport.value.contains(line)
+                                        val isNeedToShowButtons =
+                                            firstExportPointId.value == null
+                                                    || lastExportPointId.value == null
+                                                    || line.id == firstExportPointId.value
+                                                    || line.id == lastExportPointId.value
+                                                    || !selectedForExport.value.contains(line)
+                                        AnimatedVisibility(
+                                            visible = isExporting.value,
+                                            enter = fadeIn() + expandHorizontally(),
+                                            exit = fadeOut() + shrinkHorizontally(),
+                                            modifier = Modifier.fillMaxHeight()
+                                        ) {
+                                            AnimatedContent(
+                                                isNeedsToShowLine to isNeedToShowButtons,
                                             ) {
-                                                AnimatedContent(
-                                                    isNeedsToShowLine to isNeedToShowButtons,
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxHeight(),
+                                                    contentAlignment = Alignment.Center
                                                 ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxHeight(),
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        if (it.first) {
-                                                            MyVerticalLine(
-                                                                modifier = Modifier.fillMaxHeight(),
-                                                                isFirst = isFirstSelected,
-                                                                isLast = isLastSelected,
-                                                                onClick = {
-                                                                    viewModel.onSelectPoint(
-                                                                        line.id
-                                                                    )
-                                                                },
-                                                            )
-                                                        }
-                                                        if (it.second) {
-                                                            val isButtonSelected =
-                                                                line.id == firstExportPointId.value
-                                                                        || line.id == lastExportPointId.value
-                                                            PhantomMyRatioButton(
-                                                                selected = isButtonSelected,
-                                                            )
-                                                            MyRatioButton(
-                                                                selected = isButtonSelected,
-                                                                onClick = {
-                                                                    viewModel.onSelectPoint(
-                                                                        line.id
-                                                                    )
-                                                                }
-                                                            )
-                                                        }
+                                                    if (it.first) {
+                                                        MyVerticalLine(
+                                                            modifier = Modifier.fillMaxHeight(),
+                                                            isFirst = isFirstSelected,
+                                                            isLast = isLastSelected,
+                                                            onClick = {
+                                                                viewModel.onSelectPoint(
+                                                                    line.id
+                                                                )
+                                                            },
+                                                        )
+                                                    }
+                                                    if (it.second) {
+                                                        val isButtonSelected =
+                                                            line.id == firstExportPointId.value
+                                                                    || line.id == lastExportPointId.value
+                                                        PhantomMyRatioButton(
+                                                            selected = isButtonSelected,
+                                                        )
+                                                        MyRatioButton(
+                                                            selected = isButtonSelected,
+                                                            onClick = {
+                                                                viewModel.onSelectPoint(
+                                                                    line.id
+                                                                )
+                                                            }
+                                                        )
                                                     }
                                                 }
                                             }
                                         }
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxHeight()
-                                        ) {
-                                            DisplayLogline(line)
-                                        }
                                     }
-
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                    ) {
+                                        LogItemCard(line)
+//                                            DisplayLogline(line)
+                                    }
                                 }
+
                             }
                         }
                     }
-                    PlatformVerticalScrollBar(listState)
                 }
+                PlatformVerticalScrollBar(listState)
             }
         }
     }

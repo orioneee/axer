@@ -315,7 +315,7 @@ Axer logging is powered by [Napier](https://github.com/AAkira/Napier).
         <div>In IDE</div>
       </td>
       <td>
-        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs.png" alt="IDE Logs Screenshot" width="500px" style="margin: 10px;" />
+        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_ui.png" alt="IDE Logs Screenshot" width="500px" style="margin: 10px;" />
         <div>In Axer</div>
       </td>
     </tr>

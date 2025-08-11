@@ -2,6 +2,7 @@ package io.github.orioneee.internal.remote.server
 
 import io.github.orioneee.internal.domain.other.BaseResponse
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
+import io.github.orioneee.internal.presentation.screens.requests.list.onClearAllRequests
 import io.github.orioneee.internal.room.dao.RequestDao
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -102,6 +103,7 @@ internal fun Route.requestsModule(
         }
         if (isEnabledRequests.first()) {
             requestsDao.deleteAll()
+            onClearAllRequests()
             call.respond(HttpStatusCode.OK,
                 BaseResponse(
                     status = HttpStatusCode.OK.description,

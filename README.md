@@ -79,16 +79,16 @@ Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorM
 
 ## Installation
 
-Add the dependencies to your project (`1.2.0-beta03` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.2.0-beta04` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.2.0-beta03")
+implementation("io.github.orioneee:axer:1.2.0-beta04")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.2.0-beta03")
+implementation("io.github.orioneee:axer-no-op:1.2.0-beta04")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -315,7 +315,7 @@ Axer logging is powered by [Napier](https://github.com/AAkira/Napier).
         <div>In IDE</div>
       </td>
       <td>
-        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs.png" alt="IDE Logs Screenshot" width="500px" style="margin: 10px;" />
+        <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_ui.png" alt="IDE Logs Screenshot" width="500px" style="margin: 10px;" />
         <div>In Axer</div>
       </td>
     </tr>

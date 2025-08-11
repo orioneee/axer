@@ -34,11 +34,13 @@ import io.github.orioneee.internal.presentation.components.AxerTheme
 import io.github.orioneee.internal.presentation.navigation.FlowDestinations
 import io.github.orioneee.internal.presentation.navigation.MainNavigation
 import io.github.orioneee.internal.room.AxerDatabase
+import io.github.orioneee.internal.snackbarProcessor.SnackBarController
 import io.github.orioneee.internal.snackbarProcessor.SnackBarEvent
 import io.github.orioneee.internal.snackbarProcessor.snackbarEvents
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
 import org.koin.compose.koinInject
@@ -111,19 +113,21 @@ class AxerUIEntryPoint {
             LaunchedEffect(Unit) {
                 snackbarEvents
                     .onEach {
-                        println("Snackbar event: $it")
-                        when (it) {
-                            is SnackBarEvent.Message -> {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar(
-                                    message = it.text,
-                                    duration = it.duration,
-                                    withDismissAction = true
-                                )
-                            }
+                        launch {
+                            println("Snackbar event: $it")
+                            when (it) {
+                                is SnackBarEvent.Message -> {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar(
+                                        message = it.text,
+                                        duration = it.duration,
+                                        withDismissAction = true
+                                    )
+                                }
 
-                            is SnackBarEvent.Dismiss -> {
-                                snackbarHostState.currentSnackbarData?.dismiss()
+                                is SnackBarEvent.Dismiss -> {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                }
                             }
                         }
                     }

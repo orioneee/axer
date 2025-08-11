@@ -1,9 +1,14 @@
 package io.github.orioneee.internal.presentation.screens.logView
 
+import androidx.compose.ui.platform.Clipboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.logs_copied
+import io.github.orioneee.axer.generated.resources.oops_something_went_wrong
 import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.domain.logs.LogLine
 import io.github.orioneee.internal.extentions.successData
 import io.github.orioneee.internal.snackbarProcessor.SnackBarController
 import io.github.orioneee.internal.utils.DataExporter
@@ -19,9 +24,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.math.max
 import kotlin.math.min
 
+expect suspend fun copyLogs(clipboard: Clipboard, logs: List<LogLine>)
 internal class LogViewViewModel(
     private val dataProvider: AxerDataProvider,
 ) : ViewModel() {
@@ -38,12 +45,14 @@ internal class LogViewViewModel(
     val isExporting = _isExporting.asStateFlow()
     val firstExportPointId = _firstExportPointId.asStateFlow()
     val lastExportPointId = _lastExportPointId.asStateFlow()
+
     @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
 
     @OptIn(FlowPreview::class)
     val logsState by lazy {
-        dataProvider.getAllLogs().shareIn(viewModelScope , SharingStarted.WhileSubscribed(), replay = 1)
+        dataProvider.getAllLogs()
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
     }
     val logs = logsState.successData().filterNotNull()
     val filtredLogs = combine(
@@ -136,6 +145,26 @@ internal class LogViewViewModel(
         if (!_isExporting.value) {
             _firstExportPointId.value = null
             _lastExportPointId.value = null
+        }
+    }
+
+    fun onClickCopy(
+        clipboard: Clipboard,
+    ) {
+        currentJob = viewModelScope.launch {
+            try {
+                _isExporting.value = true
+                val logs = selectedForExport.first()
+                copyLogs(clipboard, logs)
+                SnackBarController.showSnackBar(getString(Res.string.logs_copied))
+            } catch (e: Exception) {
+                SnackBarController.showSnackBar(getString(Res.string.oops_something_went_wrong, e.message ?: ""))
+            } finally {
+                _isShowLoadingDialog.value = false
+                _isExporting.value = false
+                _firstExportPointId.value = null
+                _lastExportPointId.value = null
+            }
         }
     }
 
