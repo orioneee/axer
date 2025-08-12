@@ -452,12 +452,14 @@ internal class RequestDetailsScreen {
                                     ?: if (request.error != null) stringResource(Res.string.request_failed)
                                     else stringResource(Res.string.unknown)
                             )
-                            InfoRow(
-                                icon = Icons.Outlined.Details,
-                                title = stringResource(Res.string.details),
-                                value = HttpStatusCode.allStatusCodes.first { it.value == request.responseStatus }
-                                    .description
-                            )
+                            HttpStatusCode.allStatusCodes.firstOrNull { it.value == request.responseStatus }
+                                ?.description?.let {
+                                    InfoRow(
+                                        icon = Icons.Outlined.Details,
+                                        title = stringResource(Res.string.details),
+                                        value = it
+                                    )
+                                }
                         }
                     }
                 }
