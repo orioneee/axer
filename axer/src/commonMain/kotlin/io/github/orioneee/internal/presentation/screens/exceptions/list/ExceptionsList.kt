@@ -1,13 +1,22 @@
-package io.github.orioneee.internal.presentation.screens.exceptions
+package io.github.orioneee.internal.presentation.screens.exceptions.list
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.WebAssetOff
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +41,7 @@ import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.logger.formateAsTime
 import io.github.orioneee.internal.extentions.clickableWithoutRipple
 import io.github.orioneee.LocalAxerDataProvider
+import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.LoadingDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
@@ -48,39 +58,48 @@ internal class ExceptionsList {
         onClick: () -> Unit,
     ) {
         val animatedContainerColor by animateColorAsState(
-            targetValue = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-            label = "RequestCardColorAnimation"
+            targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+            else MaterialTheme.colorScheme.surface,
+            label = "ExceptionCardColor"
         )
-        ListItem(
-            colors = ListItemDefaults.colors(
-                containerColor = animatedContainerColor,
-                headlineColor = if (exception.isFatal) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            ),
+
+        val animatedElevation by animateDpAsState(
+            targetValue = if (isSelected) 6.dp else 2.dp,
+            label = "CardElevation"
+        )
+
+        Card(
+            onClick = onClick,
             modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .clickableWithoutRipple {
-                    onClick()
-                },
-            headlineContent = {
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 6.dp)
+            ,
+            colors = CardDefaults.cardColors(containerColor = animatedContainerColor),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
                 Text(
-                    exception.error.name,
-                    color = if (exception.isFatal) MaterialTheme.colorScheme.error else Color.Unspecified,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                    text = exception.error.name,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = if (exception.isFatal) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-            },
-            supportingContent = {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    exception.time.formateAsTime() + " ${exception.error.message}",
+                    text = "${exception.time.formateAsDate()} | ${exception.error.message}",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
-            },
-        )
+            }
+        }
     }
 
 

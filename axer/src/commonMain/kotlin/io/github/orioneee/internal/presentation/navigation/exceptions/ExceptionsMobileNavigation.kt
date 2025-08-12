@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.savedstate.read
 import io.github.orioneee.internal.presentation.navigation.Animations
 import io.github.orioneee.internal.presentation.navigation.Routes
-import io.github.orioneee.internal.presentation.screens.exceptions.ExceptionsList
+import io.github.orioneee.internal.presentation.screens.exceptions.list.ExceptionsList
 import io.github.orioneee.internal.presentation.screens.exceptions.details.ExceptionDetails
 
 internal class ExceptionsMobileNavigation {

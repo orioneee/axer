@@ -93,5 +93,7 @@
     <string name="logs_copied">Logs copied to clipboard</string>
     <string name="file">File</string>
     <string name="oops_something_went_wrong">Oops! Something went wrong: %1$s</string>
+    <string name="timeline">Timeline</string>
+
 
 </resources>

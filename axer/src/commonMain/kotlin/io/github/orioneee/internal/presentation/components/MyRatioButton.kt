@@ -23,13 +23,13 @@ import io.github.orioneee.internal.extentions.clickableWithoutRipple
 internal fun PhantomMyRatioButton(
     modifier: Modifier = Modifier,
     selected: Boolean,
+    radioColor: Color = MaterialTheme.colorScheme.surface
 ) {
     val dotRadius =
         animateDpAsState(
             targetValue = if (selected) 4.dp else 0.dp,
             animationSpec = tween(durationMillis = 100)
         )
-    val radioColor = MaterialTheme.colorScheme.surface
     Canvas(
         modifier
             .size(24.dp)

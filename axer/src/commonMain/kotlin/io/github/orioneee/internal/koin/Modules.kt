@@ -5,7 +5,7 @@ import io.github.orioneee.internal.presentation.screens.database.TableDetailsVie
 import io.github.orioneee.internal.presentation.screens.database.allQueries.AllQueriesViewModel
 import io.github.orioneee.internal.presentation.screens.database.rawQuery.RawQueryViewModel
 import io.github.orioneee.internal.presentation.screens.database.tableList.ListDatabaseViewModel
-import io.github.orioneee.internal.presentation.screens.exceptions.ExceptionListViewModel
+import io.github.orioneee.internal.presentation.screens.exceptions.list.ExceptionListViewModel
 import io.github.orioneee.internal.presentation.screens.exceptions.details.ExceptionDetailsViewModel
 import io.github.orioneee.internal.presentation.screens.logView.LogViewViewModel
 import io.github.orioneee.internal.presentation.screens.requests.details.RequestDetailsViewModel

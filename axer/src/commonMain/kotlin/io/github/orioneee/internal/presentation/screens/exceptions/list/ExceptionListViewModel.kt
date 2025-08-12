@@ -1,4 +1,4 @@
-package io.github.orioneee.internal.presentation.screens.exceptions
+package io.github.orioneee.internal.presentation.screens.exceptions.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

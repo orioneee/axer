@@ -14,7 +14,7 @@ import io.github.orioneee.internal.presentation.components.SplitScreen
 import io.github.orioneee.internal.presentation.navigation.Routes
 import io.github.orioneee.internal.presentation.navigation.exceptions.ExceptionsDesktopNavigation
 import io.github.orioneee.internal.presentation.navigation.exceptions.ExceptionsMobileNavigation
-import io.github.orioneee.internal.presentation.screens.exceptions.ExceptionsList
+import io.github.orioneee.internal.presentation.screens.exceptions.list.ExceptionsList
 
 internal object ExceptionEntryPoint {
     @Composable
