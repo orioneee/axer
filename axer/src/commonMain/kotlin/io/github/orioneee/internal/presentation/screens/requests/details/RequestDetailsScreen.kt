@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Http
 import androidx.compose.material.icons.filled.Link
@@ -34,11 +35,11 @@ import androidx.compose.material.icons.outlined.DataArray
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,6 +66,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -256,18 +259,37 @@ internal class RequestDetailsScreen {
         viewModel: RequestDetailsViewModel
     ) {
         BoxWithConstraints {
-            val maxScreenHeight = maxHeight
             Column(
                 modifier = Modifier.Companion
                     .padding(horizontal = 8.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.Companion.Start,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Spacer(Modifier.Companion.height(8.dp))
+                Spacer(Modifier.height(16.dp))
                 if (request.importantInRequest.isNotEmpty()) {
                     DisplayImportantSection(request.importantInRequest)
-                    Spacer(Modifier.Companion.height(16.dp))
+                }
+
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SelectionContainer {
+                            InfoRow(
+                                Icons.Default.Link,
+                                stringResource(Res.string.url),
+                                request.fullUrl
+                            )
+                        }
+                    }
                 }
 
                 Card(
@@ -281,11 +303,6 @@ internal class RequestDetailsScreen {
                                 .fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            InfoRow(
-                                Icons.Default.Link,
-                                stringResource(Res.string.url),
-                                request.fullUrl
-                            )
                             InfoRow(
                                 Icons.Default.Http,
                                 stringResource(Res.string.method),
@@ -306,10 +323,9 @@ internal class RequestDetailsScreen {
                 }
 
                 if (request.requestHeaders.isNotEmpty()) {
-                    Spacer(Modifier.Companion.height(16.dp))
                     ExpandableCard(
                         title = stringResource(Res.string.headers),
-                        icon = Icons.Outlined.List
+                        icon = Icons.AutoMirrored.Outlined.List
                     ) {
                         request.requestHeaders.entries.forEach {
                             Text(buildStringSection(it.key, it.value))
@@ -317,7 +333,6 @@ internal class RequestDetailsScreen {
                     }
                 }
                 if ((request.requestBody?.size ?: 0) > 0) {
-                    Spacer(Modifier.height(16.dp))
                     val selectedFromVm =
                         viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
                     val selected =
@@ -328,61 +343,63 @@ internal class RequestDetailsScreen {
                             viewModel.onRequestBodyFormatSelected(it)
                         },
                     )
-                    Spacer(Modifier.height(16.dp))
-                    ExpandableCard(
-                        title = stringResource(Res.string.body),
-                        icon = Icons.Outlined.DataArray
+                    BodySection(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .heightIn(max = maxScreenHeight)
-                                .padding(8.dp)
+                        SelectionContainer {
+                            Box(
+                                modifier = Modifier
+                                    .heightIn(max = 2000.dp)
+                                    .padding(8.dp)
 
-                        ) {
-                            when (selected) {
-                                BodyType.JSON -> {
-                                    var isErrorDecoding by remember { mutableStateOf(false) }
-                                    if (isErrorDecoding) {
-                                        Text(stringResource(Res.string.failed_decode_as_json))
-                                    } else {
-                                        JsonTree(
-                                            json = request.requestBody?.decodeToString()
-                                                ?: "",
-                                            onLoading = { CircularProgressIndicator() },
-                                            initialState = TreeState.EXPANDED,
-                                            onError = {
-                                                isErrorDecoding = true
-                                            }
+                            ) {
+                                when (selected) {
+                                    BodyType.JSON -> {
+                                        var isErrorDecoding by remember { mutableStateOf(false) }
+                                        if (isErrorDecoding) {
+                                            Text(stringResource(Res.string.failed_decode_as_json))
+                                        } else {
+                                            JsonTree(
+                                                json = request.requestBody?.decodeToString()
+                                                    ?: "",
+                                                onLoading = { CircularProgressIndicator() },
+                                                initialState = TreeState.EXPANDED,
+                                                onError = {
+                                                    isErrorDecoding = true
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    BodyType.IMAGE -> {
+                                        var isErrorLoadingImage by remember {
+                                            mutableStateOf(
+                                                false
+                                            )
+                                        }
+                                        if (!isErrorLoadingImage) {
+                                            AsyncImage(
+                                                model = request.requestBody,
+                                                contentDescription = "Response Image",
+                                                modifier = Modifier.Companion
+                                                    .height(300.dp)
+                                                    .clip(RoundedCornerShape(12.dp)),
+                                                onError = {
+                                                    isErrorLoadingImage = true
+                                                }
+                                            )
+                                        } else {
+                                            Text(stringResource(Res.string.failed_decode_as_image))
+                                        }
+                                    }
+
+                                    BodyType.RAW_TEXT -> {
+                                        LargeTextViewer(
+                                            request.requestBody?.decodeToString() ?: "",
                                         )
                                     }
-                                }
-
-                                BodyType.IMAGE -> {
-                                    var isErrorLoadingImage by remember {
-                                        mutableStateOf(
-                                            false
-                                        )
-                                    }
-                                    if (!isErrorLoadingImage) {
-                                        AsyncImage(
-                                            model = request.requestBody,
-                                            contentDescription = "Response Image",
-                                            modifier = Modifier.Companion
-                                                .height(300.dp)
-                                                .clip(RoundedCornerShape(12.dp)),
-                                            onError = {
-                                                isErrorLoadingImage = true
-                                            }
-                                        )
-                                    } else {
-                                        Text(stringResource(Res.string.failed_decode_as_image))
-                                    }
-                                }
-
-                                BodyType.RAW_TEXT -> {
-                                    LargeTextViewer(
-                                        request.requestBody?.decodeToString() ?: "",
-                                    )
                                 }
                             }
                         }
@@ -448,7 +465,7 @@ internal class RequestDetailsScreen {
                     Spacer(Modifier.Companion.height(16.dp))
                     ExpandableCard(
                         title = stringResource(Res.string.headers),
-                        icon = Icons.Outlined.List
+                        icon = Icons.AutoMirrored.Outlined.List
                     ) {
                         request.responseHeaders.entries.forEach {
                             Text(buildStringSection(it.key, it.value))
@@ -473,79 +490,82 @@ internal class RequestDetailsScreen {
                         )
                         Spacer(Modifier.height(16.dp))
                     }
-                    ExpandableCard(
-                        title = stringResource(Res.string.body),
-                        icon = Icons.Outlined.DataArray
+                    BodySection(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .heightIn(max = maxScreenHeight)
-                                .padding(8.dp)
-                        ) {
-                            if (request.error == null) {
-                                when (selected) {
-                                    BodyType.JSON -> {
-                                        var isErrorDecoding by remember {
-                                            mutableStateOf(
-                                                false
-                                            )
-                                        }
-                                        if (isErrorDecoding) {
-                                            Text(stringResource(Res.string.failed_decode_as_json))
-                                        } else {
-                                            JsonTree(
-                                                json = request.responseBody?.decodeToString()
-                                                    ?: "",
-                                                onLoading = { CircularProgressIndicator() },
-                                                initialState = TreeState.EXPANDED,
-                                                onError = {
-                                                    isErrorDecoding = true
-                                                }
-                                            )
-                                        }
-                                    }
-
-                                    BodyType.IMAGE -> {
-                                        Box(
-                                            modifier = Modifier.Companion
-                                                .fillMaxWidth()
-                                                .padding(8.dp),
-                                            contentAlignment = Alignment.Companion.Center
-                                        ) {
-                                            var isErrorLoadingImage by remember {
+                        SelectionContainer {
+                            Box(
+                                modifier = Modifier
+                                    .heightIn(max = 2000.dp)
+                                    .padding(8.dp)
+                            ) {
+                                if (request.error == null) {
+                                    when (selected) {
+                                        BodyType.JSON -> {
+                                            var isErrorDecoding by remember {
                                                 mutableStateOf(
                                                     false
                                                 )
                                             }
-                                            if (!isErrorLoadingImage) {
-                                                AsyncImage(
-                                                    model = request.responseBody,
-                                                    contentDescription = "Response Image",
-                                                    modifier = Modifier
-                                                        .height(300.dp)
-                                                        .clip(RoundedCornerShape(12.dp)),
+                                            if (isErrorDecoding) {
+                                                Text(stringResource(Res.string.failed_decode_as_json))
+                                            } else {
+                                                JsonTree(
+                                                    json = request.responseBody?.decodeToString()
+                                                        ?: "",
+                                                    onLoading = { CircularProgressIndicator() },
+                                                    initialState = TreeState.EXPANDED,
                                                     onError = {
-                                                        isErrorLoadingImage = true
+                                                        isErrorDecoding = true
                                                     }
                                                 )
-                                            } else {
-                                                Text(stringResource(Res.string.failed_decode_as_image))
                                             }
                                         }
-                                    }
 
-                                    BodyType.RAW_TEXT -> {
-                                        LargeTextViewer(
-                                            request.responseBody?.decodeToString() ?: ""
-                                        )
-                                    }
+                                        BodyType.IMAGE -> {
+                                            Box(
+                                                modifier = Modifier.Companion
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp),
+                                                contentAlignment = Alignment.Companion.Center
+                                            ) {
+                                                var isErrorLoadingImage by remember {
+                                                    mutableStateOf(
+                                                        false
+                                                    )
+                                                }
+                                                if (!isErrorLoadingImage) {
+                                                    AsyncImage(
+                                                        model = request.responseBody,
+                                                        contentDescription = "Response Image",
+                                                        modifier = Modifier
+                                                            .height(300.dp)
+                                                            .clip(RoundedCornerShape(12.dp)),
+                                                        onError = {
+                                                            isErrorLoadingImage = true
+                                                        }
+                                                    )
+                                                } else {
+                                                    Text(stringResource(Res.string.failed_decode_as_image))
+                                                }
+                                            }
+                                        }
 
+                                        BodyType.RAW_TEXT -> {
+                                            LargeTextViewer(
+                                                request.responseBody?.decodeToString() ?: ""
+                                            )
+                                        }
+
+                                    }
+                                } else {
+                                    Text(
+                                        text = request.error.stackTrace,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
                                 }
-                            } else {
-                                Text(
-                                    text = request.error.stackTrace,
-                                    color = MaterialTheme.colorScheme.error
-                                )
                             }
                         }
                     }
@@ -558,10 +578,24 @@ internal class RequestDetailsScreen {
 
     @Composable
     fun InfoRow(icon: ImageVector, title: String, value: String) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(buildStringSection(title, value))
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "$title:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.width(4.dp))
+            }
+            Text(value)
         }
     }
 

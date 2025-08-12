@@ -9,6 +9,10 @@ import java.io.File
 import javax.swing.JFileChooser
 
 internal actual object DataExporter {
+    val json = Json {
+        prettyPrint = true
+        isLenient = true
+    }
     actual fun exportLogs(logs: List<LogLine>) {
         val textContent = logs.joinToString("\n") { it.toString() }
         exportText(textContent, "logs_${System.currentTimeMillis()}.txt")
@@ -40,7 +44,7 @@ internal actual object DataExporter {
         val file = chooseFile("har_${System.currentTimeMillis()}.har") ?: return
         try {
             file.outputStream().use { output ->
-                Json { prettyPrint = true }.encodeToStream(har, output)
+                json.encodeToStream(har, output)
             }
         } catch (e: Exception) {
             e.printStackTrace()
