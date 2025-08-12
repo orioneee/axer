@@ -78,6 +78,7 @@
     <string name="more">More</string>
     <string name="less">Less</string>
     <string name="failed_decode_as_json">Failed to decode as JSON. Please check if the response is in valid JSON format.</string>
+    <string name="failed_decode_as_image">Failed to decode as image. Please check if the response is in valid image format.</string>
     <string name="run_server_on">Run axer server on %1$s</string>
     <string name="server_stop">Axer server stopped</string>
 
@@ -94,6 +95,8 @@
     <string name="file">File</string>
     <string name="oops_something_went_wrong">Oops! Something went wrong: %1$s</string>
     <string name="timeline">Timeline</string>
+    <string name="body">Body</string>
+    <string name="details">Details</string>
 
 
 </resources>

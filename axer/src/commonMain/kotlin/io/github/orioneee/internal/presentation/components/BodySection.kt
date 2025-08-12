@@ -36,6 +36,7 @@ internal fun BodySection(
     defaultExpanded: Boolean = true,
     isExpandable: Boolean = true,
     onClick: (() -> Unit)? = null,
+    colors: androidx.compose.material3.CardColors = CardDefaults.cardColors(),
 
     thickness: Dp = 8.dp,
     innerRadius: Dp = 8.dp,
@@ -53,6 +54,7 @@ internal fun BodySection(
     Card(
         modifier = modifier,
         shape = outerShape,
+        colors = colors,
         elevation = CardDefaults.cardElevation(outerElevation)
     ) {
         Column {

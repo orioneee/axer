@@ -111,27 +111,24 @@ class AxerUIEntryPoint {
             }
             val snackbarHostState = remember { SnackbarHostState() }
             LaunchedEffect(Unit) {
-                snackbarEvents
-                    .onEach {
-                        launch {
-                            println("Snackbar event: $it")
-                            when (it) {
-                                is SnackBarEvent.Message -> {
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-                                    snackbarHostState.showSnackbar(
-                                        message = it.text,
-                                        duration = it.duration,
-                                        withDismissAction = true
-                                    )
-                                }
+                for(snackbarEvent in snackbarEvents) {
+                    launch {
+                        when (snackbarEvent) {
+                            is SnackBarEvent.Message -> {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar(
+                                    message = snackbarEvent.text,
+                                    duration = snackbarEvent.duration,
+                                    withDismissAction = true
+                                )
+                            }
 
-                                is SnackBarEvent.Dismiss -> {
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-                                }
+                            is SnackBarEvent.Dismiss -> {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                             }
                         }
                     }
-                    .launchIn(this)
+                }
             }
 
 

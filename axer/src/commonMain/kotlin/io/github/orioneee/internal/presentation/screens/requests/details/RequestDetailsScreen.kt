@@ -1,9 +1,13 @@
 package io.github.orioneee.internal.presentation.screens.requests.details
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -22,8 +28,18 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Http
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.outlined.DataArray
+import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,7 +62,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,9 +72,13 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.sebastianneubauer.jsontree.JsonTree
 import com.sebastianneubauer.jsontree.TreeState
+import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.body
+import io.github.orioneee.axer.generated.resources.details
 import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
 import io.github.orioneee.axer.generated.resources.duration
+import io.github.orioneee.axer.generated.resources.failed_decode_as_image
 import io.github.orioneee.axer.generated.resources.failed_decode_as_json
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
@@ -76,7 +97,6 @@ import io.github.orioneee.axer.generated.resources.what_is_important
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
-import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.internal.presentation.components.BodySection
 import io.github.orioneee.internal.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
@@ -84,6 +104,7 @@ import io.github.orioneee.internal.presentation.components.buildStringSection
 import io.github.orioneee.internal.presentation.components.canSwipePage
 import io.github.orioneee.internal.utils.DataExporter
 import io.github.orioneee.internal.utils.toHarFile
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -99,9 +120,6 @@ internal fun LargeTextViewer(
     lineHeight: Dp = 20.dp
 ) {
     val lines = remember(text) { text.lineSequence().toList() }
-
-    // Estimate number of visible lines for performance tweaks if needed
-    val lineHeightPx = with(LocalDensity.current) { lineHeight.toPx() }
 
     SelectionContainer {
         LazyColumn(
@@ -177,6 +195,9 @@ internal class RequestDetailsScreen {
         var isVisibleInfoDialog by remember { mutableStateOf(false) }
 
         BodySection(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
             titleContent = {
                 Row(
                     verticalAlignment = Alignment.Companion.CenterVertically,
@@ -234,82 +255,90 @@ internal class RequestDetailsScreen {
         request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
-        Column(
-            modifier = Modifier.Companion
-                .padding(horizontal = 8.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Companion.Start,
-        ) {
-            Spacer(Modifier.Companion.height(8.dp))
-            if (request.importantInRequest.isNotEmpty()) {
-                DisplayImportantSection(request.importantInRequest)
-                Spacer(Modifier.Companion.height(16.dp))
-            }
-            SelectionContainer {
-                Text(buildStringSection(stringResource(Res.string.url), request.fullUrl))
-            }
-            SelectionContainer {
-                Text(buildStringSection(stringResource(Res.string.method), request.method))
-            }
-            Text(
-                buildStringSection(
-                    stringResource(Res.string.duration),
-                    if (request.responseTime != null) "${request.totalTime} ms" else ""
-                )
-            )
-            if ((request.requestBody?.size ?: 0) > 0) {
-                Text(
-                    buildStringSection(
-                        stringResource(Res.string.request_size),
-                        getSizeText(request.requestBody?.size?.toLong() ?: 0L)
-                    ),
-                )
-            }
+        BoxWithConstraints {
+            val maxScreenHeight = maxHeight
+            Column(
+                modifier = Modifier.Companion
+                    .padding(horizontal = 8.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.Companion.Start,
+            ) {
+                Spacer(Modifier.Companion.height(8.dp))
+                if (request.importantInRequest.isNotEmpty()) {
+                    DisplayImportantSection(request.importantInRequest)
+                    Spacer(Modifier.Companion.height(16.dp))
+                }
 
-            if (request.requestHeaders.isNotEmpty()) {
-                Spacer(Modifier.Companion.height(16.dp))
-                BodySection(
-                    title = stringResource(Res.string.headers)
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     SelectionContainer {
                         Column(
-                            modifier = Modifier.Companion
-                                .padding(8.dp)
+                            modifier = Modifier
+                                .padding(16.dp)
                                 .fillMaxWidth(),
-                            horizontalAlignment = Alignment.Companion.Start,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            request.requestHeaders.entries.forEach {
-                                Text(
-                                    buildStringSection(it.key, it.value),
+                            InfoRow(
+                                Icons.Default.Link,
+                                stringResource(Res.string.url),
+                                request.fullUrl
+                            )
+                            InfoRow(
+                                Icons.Default.Http,
+                                stringResource(Res.string.method),
+                                request.method
+                            )
+                            InfoRow(
+                                Icons.Outlined.Timer, stringResource(Res.string.duration),
+                                if (request.responseTime != null) "${request.totalTime} ms" else ""
+                            )
+                            if ((request.requestBody?.size ?: 0) > 0) {
+                                InfoRow(
+                                    Icons.Outlined.Storage, stringResource(Res.string.request_size),
+                                    getSizeText(request.requestBody?.size?.toLong() ?: 0L)
                                 )
                             }
                         }
                     }
                 }
 
-            }
-            if ((request.requestBody?.size ?: 0) > 0) {
-                Spacer(Modifier.height(16.dp))
-                val selectedFromVm =
-                    viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
-                val selected =
-                    selectedFromVm.value ?: BodyType.JSON
-                ChoiceFormatButton(
-                    selected = selected,
-                    onSelect = {
-                        viewModel.onRequestBodyFormatSelected(it)
-                    },
-                )
-                Spacer(Modifier.height(16.dp))
-                BodySection {
-                    Box(
-                        modifier = Modifier
-                            .heightIn(max = 2000.dp)
-                            .padding(8.dp)
-
+                if (request.requestHeaders.isNotEmpty()) {
+                    Spacer(Modifier.Companion.height(16.dp))
+                    ExpandableCard(
+                        title = stringResource(Res.string.headers),
+                        icon = Icons.Outlined.List
                     ) {
-                        SelectionContainer {
+                        request.requestHeaders.entries.forEach {
+                            Text(buildStringSection(it.key, it.value))
+                        }
+                    }
+                }
+                if ((request.requestBody?.size ?: 0) > 0) {
+                    Spacer(Modifier.height(16.dp))
+                    val selectedFromVm =
+                        viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
+                    val selected =
+                        selectedFromVm.value ?: BodyType.JSON
+                    ChoiceFormatButton(
+                        selected = selected,
+                        onSelect = {
+                            viewModel.onRequestBodyFormatSelected(it)
+                        },
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    ExpandableCard(
+                        title = stringResource(Res.string.body),
+                        icon = Icons.Outlined.DataArray
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .heightIn(max = maxScreenHeight)
+                                .padding(8.dp)
+
+                        ) {
                             when (selected) {
                                 BodyType.JSON -> {
                                     var isErrorDecoding by remember { mutableStateOf(false) }
@@ -317,7 +346,8 @@ internal class RequestDetailsScreen {
                                         Text(stringResource(Res.string.failed_decode_as_json))
                                     } else {
                                         JsonTree(
-                                            json = request.requestBody?.decodeToString() ?: "",
+                                            json = request.requestBody?.decodeToString()
+                                                ?: "",
                                             onLoading = { CircularProgressIndicator() },
                                             initialState = TreeState.EXPANDED,
                                             onError = {
@@ -328,13 +358,25 @@ internal class RequestDetailsScreen {
                                 }
 
                                 BodyType.IMAGE -> {
-                                    AsyncImage(
-                                        model = request.requestBody,
-                                        contentDescription = "Response Image",
-                                        modifier = Modifier.Companion
-                                            .height(300.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                    )
+                                    var isErrorLoadingImage by remember {
+                                        mutableStateOf(
+                                            false
+                                        )
+                                    }
+                                    if (!isErrorLoadingImage) {
+                                        AsyncImage(
+                                            model = request.requestBody,
+                                            contentDescription = "Response Image",
+                                            modifier = Modifier.Companion
+                                                .height(300.dp)
+                                                .clip(RoundedCornerShape(12.dp)),
+                                            onError = {
+                                                isErrorLoadingImage = true
+                                            }
+                                        )
+                                    } else {
+                                        Text(stringResource(Res.string.failed_decode_as_image))
+                                    }
                                 }
 
                                 BodyType.RAW_TEXT -> {
@@ -346,8 +388,8 @@ internal class RequestDetailsScreen {
                         }
                     }
                 }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
         }
     }
 
@@ -356,90 +398,104 @@ internal class RequestDetailsScreen {
         request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            Spacer(Modifier.height(8.dp))
-            if (request.importantInResponse.isNotEmpty()) {
-                DisplayImportantSection(request.importantInResponse)
-                Spacer(Modifier.height(16.dp))
-            }
-            Text(
-                buildStringSection(
-                    title = stringResource(Res.string.response_size),
-                    content = getSizeText(request.responseBody?.size?.toLong() ?: 0)
-                )
-            )
-
-            Text(
-                buildStringSection(
-                    title = stringResource(Res.string.status),
-                    content = request.responseStatus?.toString()
-                        ?: if (request.error != null) stringResource(Res.string.request_failed) else stringResource(
-                            Res.string.unknown
-                        )
-                )
-            )
-            if (request.responseHeaders.isNotEmpty()) {
-                Spacer(Modifier.Companion.height(16.dp))
-                BodySection(
-                    defaultExpanded = false,
-                    title = stringResource(Res.string.headers),
+        BoxWithConstraints {
+            val maxScreenHeight = maxHeight
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Spacer(Modifier.height(8.dp))
+                if (request.importantInResponse.isNotEmpty()) {
+                    DisplayImportantSection(request.importantInResponse)
+                    Spacer(Modifier.height(16.dp))
+                }
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     SelectionContainer {
                         Column(
-                            modifier = Modifier.Companion
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.Companion.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            request.responseHeaders.entries.forEach {
-                                Text(
-                                    buildStringSection(it.key, it.value),
-                                )
-                            }
+                            InfoRow(
+                                icon = Icons.Outlined.Storage,
+                                title = stringResource(Res.string.response_size),
+                                value = getSizeText(request.responseBody?.size?.toLong() ?: 0)
+                            )
+                            InfoRow(
+                                icon = Icons.Outlined.Info,
+                                title = stringResource(Res.string.status),
+                                value = request.responseStatus?.toString()
+                                    ?: if (request.error != null) stringResource(Res.string.request_failed)
+                                    else stringResource(Res.string.unknown)
+                            )
+                            InfoRow(
+                                icon = Icons.Outlined.Details,
+                                title = stringResource(Res.string.details),
+                                value = HttpStatusCode.allStatusCodes.first { it.value == request.responseStatus }
+                                    .description
+                            )
                         }
                     }
                 }
-            }
-            Spacer(Modifier.height(16.dp))
-            if (
-                request.responseBody?.isNotEmpty() == true ||
-                request.error != null
-            ) {
-                val selectedFromVm =
-                    viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
-                val selected =
-                    selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
-                if (request.error == null) {
-                    ChoiceFormatButton(
-                        selected = selected,
-                        onSelect = {
-                            viewModel.onResponseBodyFormatSelected(it)
+                if (request.responseHeaders.isNotEmpty()) {
+                    Spacer(Modifier.Companion.height(16.dp))
+                    ExpandableCard(
+                        title = stringResource(Res.string.headers),
+                        icon = Icons.Outlined.List
+                    ) {
+                        request.responseHeaders.entries.forEach {
+                            Text(buildStringSection(it.key, it.value))
                         }
-                    )
-                    Spacer(Modifier.height(16.dp))
+                    }
                 }
-                BodySection {
-                    SelectionContainer {
+                Spacer(Modifier.height(16.dp))
+                if (
+                    request.responseBody?.isNotEmpty() == true ||
+                    request.error != null
+                ) {
+                    val selectedFromVm =
+                        viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
+                    val selected =
+                        selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
+                    if (request.error == null) {
+                        ChoiceFormatButton(
+                            selected = selected,
+                            onSelect = {
+                                viewModel.onResponseBodyFormatSelected(it)
+                            }
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
+                    ExpandableCard(
+                        title = stringResource(Res.string.body),
+                        icon = Icons.Outlined.DataArray
+                    ) {
                         Box(
                             modifier = Modifier
-                                .heightIn(max = 2000.dp)
+                                .heightIn(max = maxScreenHeight)
                                 .padding(8.dp)
                         ) {
                             if (request.error == null) {
                                 when (selected) {
                                     BodyType.JSON -> {
-                                        var isErrorDecoding by remember { mutableStateOf(false) }
+                                        var isErrorDecoding by remember {
+                                            mutableStateOf(
+                                                false
+                                            )
+                                        }
                                         if (isErrorDecoding) {
                                             Text(stringResource(Res.string.failed_decode_as_json))
                                         } else {
                                             JsonTree(
-                                                json = request.responseBody?.decodeToString() ?: "",
+                                                json = request.responseBody?.decodeToString()
+                                                    ?: "",
                                                 onLoading = { CircularProgressIndicator() },
                                                 initialState = TreeState.EXPANDED,
                                                 onError = {
@@ -456,17 +512,25 @@ internal class RequestDetailsScreen {
                                                 .padding(8.dp),
                                             contentAlignment = Alignment.Companion.Center
                                         ) {
-                                            AsyncImage(
-                                                model = request.responseBody,
-                                                contentDescription = "Response Image",
-                                                modifier = Modifier.Companion
-                                                    .height(300.dp)
-                                                    .clip(
-                                                        RoundedCornerShape(
-                                                            12.dp
-                                                        )
-                                                    )
-                                            )
+                                            var isErrorLoadingImage by remember {
+                                                mutableStateOf(
+                                                    false
+                                                )
+                                            }
+                                            if (!isErrorLoadingImage) {
+                                                AsyncImage(
+                                                    model = request.responseBody,
+                                                    contentDescription = "Response Image",
+                                                    modifier = Modifier
+                                                        .height(300.dp)
+                                                        .clip(RoundedCornerShape(12.dp)),
+                                                    onError = {
+                                                        isErrorLoadingImage = true
+                                                    }
+                                                )
+                                            } else {
+                                                Text(stringResource(Res.string.failed_decode_as_image))
+                                            }
                                         }
                                     }
 
@@ -485,12 +549,64 @@ internal class RequestDetailsScreen {
                             }
                         }
                     }
+                    Spacer(Modifier.Companion.height(8.dp))
                 }
-                Spacer(Modifier.Companion.height(8.dp))
             }
         }
     }
 
+
+    @Composable
+    fun InfoRow(icon: ImageVector, title: String, value: String) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(buildStringSection(title, value))
+        }
+    }
+
+    @Composable
+    fun ExpandableCard(
+        title: String,
+        icon: ImageVector,
+        content: @Composable ColumnScope.() -> Unit
+    ) {
+        var expanded by remember { mutableStateOf(true) }
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Column(
+                modifier = Modifier
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = !expanded }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(icon, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        Icons.Outlined.KeyboardArrowDown, contentDescription = null,
+                        modifier = Modifier.rotate(if (expanded) 180f else 0f)
+                    )
+                }
+                AnimatedVisibility(expanded) {
+                    SelectionContainer {
+
+                        Column(modifier = Modifier.padding(16.dp), content = content)
+                    }
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable

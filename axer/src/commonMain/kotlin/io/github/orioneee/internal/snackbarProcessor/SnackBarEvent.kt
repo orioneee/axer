@@ -1,6 +1,8 @@
 package io.github.orioneee.internal.snackbarProcessor
 
 import androidx.compose.material3.SnackbarDuration
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal sealed class SnackBarEvent {
@@ -12,18 +14,17 @@ internal sealed class SnackBarEvent {
     class Dismiss() : SnackBarEvent()
 }
 
-internal val snackbarEvents = MutableSharedFlow<SnackBarEvent>(
-    replay = 1,
-    extraBufferCapacity = 1,
+internal val snackbarEvents = Channel<SnackBarEvent>(
+    capacity = 10,
+    onBufferOverflow = BufferOverflow.DROP_OLDEST
 )
-
 
 internal object SnackBarController {
     fun showSnackBar(text: String, duration: SnackbarDuration = SnackbarDuration.Short) {
-        snackbarEvents.tryEmit(SnackBarEvent.Message(text, duration))
+        snackbarEvents.trySend(SnackBarEvent.Message(text, duration))
     }
 
     fun dismissSnackBar() {
-        snackbarEvents.tryEmit(SnackBarEvent.Dismiss())
+        snackbarEvents.trySend(SnackBarEvent.Dismiss())
     }
 }
