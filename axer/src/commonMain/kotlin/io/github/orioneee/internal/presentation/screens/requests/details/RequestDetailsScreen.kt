@@ -3,6 +3,7 @@ package io.github.orioneee.internal.presentation.screens.requests.details
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -416,7 +417,6 @@ internal class RequestDetailsScreen {
         viewModel: RequestDetailsViewModel
     ) {
         BoxWithConstraints {
-            val maxScreenHeight = maxHeight
             Column(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -565,13 +565,15 @@ internal class RequestDetailsScreen {
                                 } else {
                                     Text(
                                         text = request.error.stackTrace,
-                                        color = MaterialTheme.colorScheme.error
+                                        color = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier
+                                            .horizontalScroll(rememberScrollState())
                                     )
                                 }
                             }
                         }
                     }
-                    Spacer(Modifier.Companion.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
@@ -581,7 +583,7 @@ internal class RequestDetailsScreen {
     @Composable
     fun InfoRow(icon: ImageVector, title: String, value: String) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
