@@ -29,8 +29,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from git tag
-        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Get version from release
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
       - name: Grant execute permissions to Gradle
         run: chmod +x ./gradlew
@@ -67,9 +67,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from git tag
+      - name: Get version from release
         shell: pwsh
-        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $env:GITHUB_ENV
+        run: echo "VERSION=$env:GITHUB_REF_NAME" >> $env:GITHUB_ENV
 
       - name: Build Windows distributable
         run: .\gradlew.bat :axer-remote-debugger:createDistributable
@@ -104,8 +104,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from git tag
-        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Get version from release
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
       - name: Grant execute permissions to Gradle
         run: chmod +x ./gradlew
@@ -143,8 +143,8 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Get version from git tag
-        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Get version from release
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
       - name: Build APK
         run: ./gradlew :axer-remote-debugger:assembleRelease
@@ -176,3 +176,63 @@ jobs:
           overwrite: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  build-maven:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+
+      - name: Publish to MavenCentral
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_KEY_CONTENTS }}
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permissions to Gradle
+        run: chmod +x ./gradlew
+
+      - name: Build Dokka HTML documentation
+        run: ./gradlew dokkaGeneratePublicationHtml
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/html
+
+  deploy-docs:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
