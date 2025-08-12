@@ -2,7 +2,7 @@ name: Build and deploy Axer
 
 on:
   release:
-    types: [created]
+    types: [ created ]
   workflow_dispatch:
 
 permissions:
@@ -29,8 +29,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from release
-        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Get version from git tag
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Grant execute permissions to Gradle
         run: chmod +x ./gradlew
@@ -43,13 +45,16 @@ jobs:
           cd axer-remote-debugger/build/compose/binaries/main
           zip -r Axer-Debugger-macos-${VERSION}.zip app
 
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Axer-Debugger-macos-${{ env.VERSION }}
+          path: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-macos-${{ env.VERSION }}.zip
+
       - name: Upload macOS release asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
           files: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-macos-${{ env.VERSION }}.zip
-          update_only: true
-          overwrite: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -67,9 +72,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from release
+      - name: Get version from git tag
         shell: pwsh
-        run: echo "VERSION=$env:GITHUB_REF_NAME" >> $env:GITHUB_ENV
+        run: |
+          $version = git describe --tags --abbrev=0
+          "VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Build Windows distributable
         run: .\gradlew.bat :axer-remote-debugger:createDistributable
@@ -80,13 +87,16 @@ jobs:
           cd axer-remote-debugger\build\compose\binaries\main
           Compress-Archive -Path app -DestinationPath "Axer-Debugger-windows-$env:VERSION.zip"
 
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Axer-Debugger-windows-${{ env.VERSION }}
+          path: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-windows-${{ env.VERSION }}.zip
+
       - name: Upload Windows release asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
           files: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-windows-${{ env.VERSION }}.zip
-          update_only: true
-          overwrite: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -104,8 +114,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Get version from release
-        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Get version from git tag
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Grant execute permissions to Gradle
         run: chmod +x ./gradlew
@@ -118,13 +130,16 @@ jobs:
           cd axer-remote-debugger/build/compose/binaries/main
           zip -r Axer-Debugger-linux-${VERSION}.zip app
 
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Axer-Debugger-linux-${{ env.VERSION }}
+          path: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-linux-${{ env.VERSION }}.zip
+
       - name: Upload Linux release asset
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
           files: axer-remote-debugger/build/compose/binaries/main/Axer-Debugger-linux-${{ env.VERSION }}.zip
-          update_only: true
-          overwrite: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -143,8 +158,10 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Get version from release
-        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+      - name: Get version from git tag
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Build APK
         run: ./gradlew :axer-remote-debugger:assembleRelease
@@ -158,7 +175,9 @@ jobs:
         run: |
           BUILD_APK=./axer-remote-debugger/build/outputs/apk/release/axer-remote-debugger-release-unsigned.apk
           SIGNED_APK=./axer-remote-debugger/build/outputs/apk/release/Axer-Debugger-${VERSION}.apk
+
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner | sort -V | tail -n 1)
+
           $APKSIGNER sign \
             --ks $RUNNER_TEMP/keystores/keystore.jks \
             --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
@@ -167,13 +186,16 @@ jobs:
             --out "$SIGNED_APK" \
             "$BUILD_APK"
 
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Axer-Debugger-apk-${{ env.VERSION }}
+          path: axer-remote-debugger/build/outputs/apk/release/Axer-Debugger-${{ env.VERSION }}.apk
+
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
           files: axer-remote-debugger/build/outputs/apk/release/Axer-Debugger-${{ env.VERSION }}.apk
-          update_only: true
-          overwrite: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -217,22 +239,3 @@ jobs:
 
       - name: Grant execute permissions to Gradle
         run: chmod +x ./gradlew
-
-      - name: Build Dokka HTML documentation
-        run: ./gradlew dokkaGeneratePublicationHtml
-
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs/html
-
-  deploy-docs:
-    needs: build-docs
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
