@@ -85,6 +85,9 @@ kotlin {
 
 
             implementation("com.sebastianneubauer.jsontree:jsontree:2.5.0")
+
+            implementation("io.github.alexzhirkevich:compottie:2.0.0-rc04")
+            implementation("io.github.alexzhirkevich:compottie-dot:2.0.0-rc04")
         }
 
 

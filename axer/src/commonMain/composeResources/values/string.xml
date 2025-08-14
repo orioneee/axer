@@ -99,6 +99,9 @@
     <string name="details">Details</string>
     <string name="search">Search</string>
     <string name="found">Found %1$s</string>
-
+    <string name="server_started_on">Axer server started on %1$s</string>
+    <string name="server_stopped_on">Axer server stopped on %1$s</string>
+    <string name="stop_server">Stop</string>
+    <string name="start_server">Start</string>
 
 </resources>

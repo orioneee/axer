@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -41,6 +42,7 @@ import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.BodySection
 import io.github.orioneee.internal.presentation.components.ScreenLayout
+import io.github.orioneee.internal.presentation.components.ServerRunStatus
 import io.github.orioneee.internal.presentation.navigation.Routes
 import io.github.orioneee.internal.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.painterResource
@@ -157,7 +159,10 @@ internal class ListTables {
                 }
             },
             navigationIcon = {
-                AxerLogoDialog()
+                Row {
+                    AxerLogoDialog()
+                    ServerRunStatus(provider)
+                }
             },
             emptyContent = {
                 EmptyScreen().Screen(

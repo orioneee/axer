@@ -70,6 +70,7 @@ import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.FilterRow
 import io.github.orioneee.internal.presentation.components.LoadingDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
+import io.github.orioneee.internal.presentation.components.ServerRunStatus
 import io.github.orioneee.internal.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -244,7 +245,10 @@ internal class RequestListScreen() {
                 }
             },
             navigationIcon = {
-                AxerLogoDialog()
+                Row {
+                    AxerLogoDialog()
+                    ServerRunStatus(dataProvider)
+                }
             },
             emptyContent = {
                 EmptyScreen().Screen(

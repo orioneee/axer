@@ -440,6 +440,20 @@ internal fun App(
                             }) { Text("Counts") }
                     }
                 }
+                item {
+                    ActionCard("Server") {
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = { runServerIfCan() }) {
+                            Text("Run")
+                        }
+                        FilledTonalButton(
+                            modifier = Modifier.padding(horizontal = 2.dp),
+                            onClick = {
+                                stopServerIfCan()
+                            }) { Text("Stop") }
+                    }
+                }
 
                 /** ─── Logs ─────────────────────────────────────────────── **/
                 item {

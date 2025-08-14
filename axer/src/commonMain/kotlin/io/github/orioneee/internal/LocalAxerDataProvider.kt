@@ -8,6 +8,7 @@ import io.github.orioneee.internal.domain.database.RowItem
 import io.github.orioneee.internal.domain.exceptions.AxerException
 import io.github.orioneee.internal.domain.exceptions.SessionException
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
@@ -294,4 +295,9 @@ internal class LocalAxerDataProvider(
             DataState.Success(it)
         }
     }
+
+
+    override fun isServerRunning(): Flow<AxerServerStatus> = getAxerServerStatus()
 }
+
+expect fun getAxerServerStatus(): Flow<AxerServerStatus>

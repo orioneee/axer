@@ -6,6 +6,7 @@ import io.github.orioneee.axer.generated.resources.axer_port_in_use
 import io.github.orioneee.axer.generated.resources.server_failed
 import io.github.orioneee.axer.generated.resources.server_started
 import io.github.orioneee.axer.generated.resources.server_stopped
+import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.domain.other.DeviceData
 import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.koin.IsolatedContext
@@ -49,6 +50,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -101,7 +105,16 @@ internal expect suspend fun sendNotificationAboutRunningServer(
     isRunning: Boolean
 )
 
-fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PORT, readOnly: Boolean = false) {
+private val _isServerRunning = MutableStateFlow<AxerServerStatus>(AxerServerStatus.Stopped)
+val isAxerServerRunning = _isServerRunning.asStateFlow()
+
+
+fun Axer.runServerIfNotRunning(
+    scope: CoroutineScope,
+    port: Int = AXER_SERVER_PORT,
+    readOnly: Boolean = false,
+    sendInfoMessages: Boolean = true
+) {
     if (serverJob == null || serverJob?.isCompleted == true) {
         serverJob = scope.launch(SupervisorJob() + Dispatchers.IO) {
             val canRun = runChecksBeforeStartingServer(port)
@@ -111,38 +124,58 @@ fun Axer.runServerIfNotRunning(scope: CoroutineScope, port: Int = AXER_SERVER_PO
             var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? =
                 null
             try {
+                _isServerRunning.value = AxerServerStatus.Started(port)
                 coroutineScope {
                     val startedMsg = getString(Res.string.server_started, "$ip:$port")
                     server = getKtorServer(port, readOnly)
-                    serverNotify(startedMsg)
+                    if (sendInfoMessages) {
+                        serverNotify(startedMsg)
+                    }
                     server.start(wait = true)
                 }
             } catch (e: CancellationException) {
                 val stoppedMsg = getString(Res.string.server_stopped)
-                serverNotify(stoppedMsg)
+                if (sendInfoMessages) {
+                    serverNotify(stoppedMsg)
+                }
                 server?.stop(1000, 1000)
                 throw e
             } catch (e: Exception) {
                 val failedMsg = getString(Res.string.server_failed, e.message ?: "unknown error")
-                serverNotify(failedMsg)
+                if (sendInfoMessages) {
+                    serverNotify(failedMsg)
+                }
                 server?.stop()
                 e.printStackTrace()
             } finally {
+                _isServerRunning.value = AxerServerStatus.Stopped
                 server?.stop(1000, 1000)
+            }
+        }.also {
+            it.invokeOnCompletion { cause ->
+                _isServerRunning.value = AxerServerStatus.Stopped
             }
         }
     }
 }
 
-fun Axer.stopServerIfRunning() {
+fun Axer.stopServerIfRunning(
+    sendInfoMessages: Boolean = true
+) {
     if (serverJob != null && serverJob?.isActive == true) {
         serverJob?.cancel()
         serverJob = null
-        serverNotify("Axer server stopped")
+        if(sendInfoMessages){
+            serverNotify("Axer server stopped")
+        }
     } else {
-        serverNotify("Axer server is not running")
+        if(sendInfoMessages) {
+            serverNotify("Axer server is not running")
+        }
     }
+    _isServerRunning.value = AxerServerStatus.Stopped
 }
+
 
 internal suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
     val (isRunning, appName) = checkIfAnotherAxerInstanceIsRunning(port)

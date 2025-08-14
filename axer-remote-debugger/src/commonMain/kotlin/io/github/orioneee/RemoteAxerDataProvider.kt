@@ -14,6 +14,7 @@ import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.data.TransactionShort
 import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.remote.server.UpdatesData
 import io.github.orioneee.internal.remote.server.requestReplaceAll
 import io.github.orioneee.internal.remote.server.toSha256Hash
@@ -47,6 +48,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -430,6 +432,9 @@ class RemoteAxerDataProvider(
     override fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>> {
         return webSocketFlow("/ws/feathers")
     }
+
+
+    override fun isServerRunning(): Flow<AxerServerStatus> = flowOf(AxerServerStatus.NotSupported)
 
 
     suspend fun close() {

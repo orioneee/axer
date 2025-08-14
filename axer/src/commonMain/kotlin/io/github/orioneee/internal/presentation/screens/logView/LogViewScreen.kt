@@ -70,6 +70,7 @@ import io.github.orioneee.internal.presentation.components.MyVerticalLine
 import io.github.orioneee.internal.presentation.components.PhantomMyRatioButton
 import io.github.orioneee.internal.presentation.components.PlatformVerticalScrollBar
 import io.github.orioneee.internal.presentation.components.ScreenLayout
+import io.github.orioneee.internal.presentation.components.ServerRunStatus
 import io.github.orioneee.internal.presentation.components.warning
 import io.github.orioneee.internal.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.Font
@@ -263,7 +264,10 @@ internal class LogViewScreen {
                 }
             },
             navigationIcon = {
-                AxerLogoDialog()
+                Row {
+                    AxerLogoDialog()
+                    ServerRunStatus(dataProvider)
+                }
             },
 
             emptyContent = {

@@ -352,8 +352,8 @@ internal class RoomReader {
                         columns.add(
                             SchemaItem(
                                 name = columnName,
-                                isPrimary = false, // Primary key info not available in raw queries
-                                isNullable = true, // Nullable info not available in raw queries
+                                isPrimary = false, // Primary key info not available in files queries
+                                isNullable = true, // Nullable info not available in files queries
                                 type = type
                             )
                         )

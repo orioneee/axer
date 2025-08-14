@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,7 @@ import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.LoadingDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
+import io.github.orioneee.internal.presentation.components.ServerRunStatus
 import io.github.orioneee.internal.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -130,7 +132,10 @@ internal class ExceptionsList {
             },
             topAppBarTitle = stringResource(Res.string.exceptions),
             navigationIcon = {
-                AxerLogoDialog()
+                Row {
+                    AxerLogoDialog()
+                    ServerRunStatus(provider)
+                }
             },
             actions = {
                 IconButton(
