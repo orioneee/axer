@@ -31,11 +31,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Http
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.outlined.DataArray
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +52,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -76,6 +80,8 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.sebastianneubauer.jsontree.JsonTree
 import com.sebastianneubauer.jsontree.TreeState
+import com.sebastianneubauer.jsontree.search.SearchState
+import com.sebastianneubauer.jsontree.search.rememberSearchState
 import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.body
@@ -84,6 +90,7 @@ import io.github.orioneee.axer.generated.resources.developer_mark_this_as_import
 import io.github.orioneee.axer.generated.resources.duration
 import io.github.orioneee.axer.generated.resources.failed_decode_as_image
 import io.github.orioneee.axer.generated.resources.failed_decode_as_json
+import io.github.orioneee.axer.generated.resources.found
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
 import io.github.orioneee.axer.generated.resources.important
@@ -94,6 +101,7 @@ import io.github.orioneee.axer.generated.resources.request_size
 import io.github.orioneee.axer.generated.resources.request_tab
 import io.github.orioneee.axer.generated.resources.response_size
 import io.github.orioneee.axer.generated.resources.response_tab
+import io.github.orioneee.axer.generated.resources.search
 import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
@@ -142,6 +150,78 @@ internal fun LargeTextViewer(
 
 
 internal class RequestDetailsScreen {
+
+    @Composable
+    fun SearchJson(
+        searchState: SearchState,
+        isEnabled: Boolean
+    ) {
+        val scope = rememberCoroutineScope()
+        Row(
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val scope = rememberCoroutineScope()
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.Center
+            ) {
+                OutlinedTextField(
+                    enabled = isEnabled,
+                    value = searchState.query ?: "",
+                    onValueChange = { searchState.query = it },
+                    label = { Text(stringResource(Res.string.search)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.Search,
+                            contentDescription = null
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.width(300.dp),
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                ){
+                    IconButton(
+                        enabled = isEnabled,
+                        onClick = {
+                            scope.launch { searchState.selectPrevious() }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "prev"
+                        )
+                    }
+
+                    IconButton(
+                        enabled = isEnabled,
+                        onClick = {
+                            scope.launch { searchState.selectNext() }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "next"
+                        )
+                    }
+
+
+
+                    Text(
+                        stringResource(
+                            Res.string.found,
+                            "${searchState.selectedResultIndex?.let { it + 1 } ?: 0}/${searchState.totalResults}"
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     fun getSizeText(size: Long): String {
         return if (
             size < 1024
@@ -165,8 +245,8 @@ internal class RequestDetailsScreen {
 
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         ) {
             supportedFormats.forEach { bodyType ->
                 val isSelected = selected == bodyType
@@ -336,14 +416,20 @@ internal class RequestDetailsScreen {
                 if ((request.requestBody?.size ?: 0) > 0) {
                     val selectedFromVm =
                         viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
-                    val selected =
-                        selectedFromVm.value ?: BodyType.JSON
-                    ChoiceFormatButton(
-                        selected = selected,
-                        onSelect = {
-                            viewModel.onRequestBodyFormatSelected(it)
-                        },
-                    )
+                    val selected = selectedFromVm.value ?: BodyType.JSON
+                    val searchState = rememberSearchState()
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ChoiceFormatButton(
+                            selected = selected,
+                            onSelect = {
+                                viewModel.onRequestBodyFormatSelected(it)
+                            },
+                        )
+                        SearchJson(searchState, isEnabled = selected == BodyType.JSON)
+                    }
                     BodySection(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -363,6 +449,7 @@ internal class RequestDetailsScreen {
                                             Text(stringResource(Res.string.failed_decode_as_json))
                                         } else {
                                             JsonTree(
+                                                searchState = searchState,
                                                 json = request.requestBody?.decodeToString()
                                                     ?: "",
                                                 onLoading = { CircularProgressIndicator() },
@@ -467,6 +554,7 @@ internal class RequestDetailsScreen {
                     Spacer(Modifier.Companion.height(16.dp))
                     ExpandableCard(
                         title = stringResource(Res.string.headers),
+                        initialExpandState = false,
                         icon = Icons.AutoMirrored.Outlined.List
                     ) {
                         request.responseHeaders.entries.forEach {
@@ -483,14 +571,18 @@ internal class RequestDetailsScreen {
                         viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
                     val selected =
                         selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
+                    val searchState = rememberSearchState()
                     if (request.error == null) {
-                        ChoiceFormatButton(
-                            selected = selected,
-                            onSelect = {
-                                viewModel.onResponseBodyFormatSelected(it)
-                            }
-                        )
-                        Spacer(Modifier.height(16.dp))
+                        Column {
+                            ChoiceFormatButton(
+                                selected = selected,
+                                onSelect = {
+                                    viewModel.onResponseBodyFormatSelected(it)
+                                }
+                            )
+                            SearchJson(searchState, isEnabled = selected == BodyType.JSON)
+                            Spacer(Modifier.height(16.dp))
+                        }
                     }
                     BodySection(
                         colors = CardDefaults.cardColors(
@@ -515,6 +607,7 @@ internal class RequestDetailsScreen {
                                                 Text(stringResource(Res.string.failed_decode_as_json))
                                             } else {
                                                 JsonTree(
+                                                    searchState = searchState,
                                                     json = request.responseBody?.decodeToString()
                                                         ?: "",
                                                     onLoading = { CircularProgressIndicator() },
@@ -607,9 +700,10 @@ internal class RequestDetailsScreen {
     fun ExpandableCard(
         title: String,
         icon: ImageVector,
+        initialExpandState: Boolean = true,
         content: @Composable ColumnScope.() -> Unit
     ) {
-        var expanded by remember { mutableStateOf(true) }
+        var expanded by remember { mutableStateOf(initialExpandState) }
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)

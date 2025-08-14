@@ -97,6 +97,8 @@
     <string name="timeline">Timeline</string>
     <string name="body">Body</string>
     <string name="details">Details</string>
+    <string name="search">Search</string>
+    <string name="found">Found %1$s</string>
 
 
 </resources>

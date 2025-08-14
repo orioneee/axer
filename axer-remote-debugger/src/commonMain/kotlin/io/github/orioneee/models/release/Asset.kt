@@ -15,7 +15,7 @@ data class Asset(
     @SerialName("download_count")
     val downloadCount: Int,
     val id: Int,
-    val label: String,
+    val label: String? = null,
     val name: String,
     @SerialName("node_id")
     val nodeId: String,

@@ -156,7 +156,7 @@ class DeviceScanViewModel : ViewModel() {
                         _isShowingNewVersionDialog.value = true
                     }
                 } else {
-                    println("Failed to fetch latest version: ${latestTag.exceptionOrNull()?.message}")
+                    println("Failed to fetch latest version: ${latestTag.exceptionOrNull()?.stackTraceToString()}")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

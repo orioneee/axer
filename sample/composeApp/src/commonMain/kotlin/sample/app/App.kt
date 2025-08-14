@@ -136,43 +136,75 @@ internal fun populateDatabase(database: SampleDatabase) {
             "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White",
             "Harris", "Martin", "Thompson", "Garcia", "Martinez"
         )
+
+        // --- Create 100k random directors ---
         val directors = List(100_000) {
-            val name = nameList.random()
-            val surname = surnameList.random()
             Director(
-                firstName = name,
-                lastName = surname,
+                firstName = nameList.random(),
+                lastName = surnameList.random()
             )
         }
+
         val directorsDao = database.getDirectorDao()
         val startTime = Clock.System.now().toEpochMilliseconds()
-        directors.chunked(50_000).forEachIndexed { index, it ->
-            directorsDao.upsertDirectors(it)
+
+        // Insert in chunks to avoid transaction overload
+        directors.chunked(50_000).forEachIndexed { index, chunk ->
+            directorsDao.upsertDirectors(chunk)
             Axer.d("Sample", "Inserted page ${index + 1} of directors")
         }
+
         val endTime = Clock.System.now().toEpochMilliseconds()
-        Axer.d("Sample", "Directors inserted in ${(endTime - startTime).div(1000.0)} seconds")
+        Axer.d("Sample", "Directors inserted in ${(endTime - startTime) / 1000.0} seconds")
+
+        // --- Retrieve directors from DB once ---
         val directorsFromDB = directorsDao.getAllDirectors()
-        val movies = List(25) {
-            val name = "Movie ${it + 1}"
+
+        val genres = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Fantasy", "Thriller")
+        val ageRatings = listOf("G", "PG", "PG-13", "R", "NC-17")
+
+        // --- Create 25 movies with all fields populated ---
+        val movies = List(25) { index ->
+            val name = "Movie ${index + 1}"
             val director = directorsFromDB.random()
+
             Movie(
                 title = name,
-                directorId = director.id,
-                releaseYear = (2000..2023).random(),
-                rating = (10..50).random().toFloat().div(10f),
                 description = "Description for $name",
-                genre = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi").random()
+                releaseYear = (1980..2023).random(),
+                rating = (10..50).random() / 10f,
+                genre = genres.random(),
+                directorId = director.id,
+
+                durationMinutes = (80..180).random(),
+                budget = (1_000_000L..300_000_000L step 500_000L).toList().random(),
+                boxOffice = (500_000L..1_500_000_000L step 1_000_000L).toList().random(),
+                language = listOf("English", "French", "Spanish", "German", "Japanese").random(),
+                country = listOf("USA", "UK", "France", "Japan", "Canada", "Australia").random(),
+                imdbId = "tt${(1000000..9999999).random()}",
+                posterUrl = "https://example.com/posters/${index + 1}.jpg",
+                trailerUrl = "https://example.com/trailers/${index + 1}.mp4",
+                ageRating = ageRatings.random(),
+                isAwardWinner = listOf(true, false).random(),
+                awardsCount = (0..10).random(),
+                nominationsCount = (0..15).random(),
+                filmingLocations = listOf("New York", "London", "Tokyo", "Paris").shuffled().take(2).joinToString(", "),
+                soundtrackComposer = listOf("Hans Zimmer", "John Williams", "Ennio Morricone", "Ramin Djawadi").random(),
+                productionCompany = listOf("Warner Bros", "Universal Pictures", "Paramount", "20th Century Studios").random()
             )
         }
+
+        // --- Insert movies ---
         val moviesDao = database.getMovieDao()
         moviesDao.upsertMovies(movies)
+
         Axer.d(
             "App",
             "Database populated with ${directors.size} directors and ${movies.size} movies."
         )
     }
 }
+
 
 @Composable
 fun SwitchItem(

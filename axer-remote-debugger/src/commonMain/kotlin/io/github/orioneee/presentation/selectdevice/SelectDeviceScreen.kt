@@ -473,7 +473,7 @@ class SelectDeviceScreen {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             columns = StaggeredGridCells.Adaptive(300.dp)
         ) {
-            if(devices.isNotEmpty()){
+            if (devices.isNotEmpty()) {
                 item(
                     span = StaggeredGridItemSpan.FullLine
                 ) {
@@ -491,7 +491,8 @@ class SelectDeviceScreen {
                 }
             }
             items(
-                items = devices.toList(), key = { it.connection.toAddress() }) { device ->
+                items = devices.toList()
+            ) { device ->
                 DeviceCard(device, onClick = { onDeviceClick(device) }, onDelete = {
                     onDelete(device.connection)
                 }

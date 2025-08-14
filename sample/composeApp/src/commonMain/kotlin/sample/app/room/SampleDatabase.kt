@@ -13,11 +13,12 @@ import sample.app.room.entity.Director
 import sample.app.room.entity.Movie
 
 @Database(
+    exportSchema = false,
     entities = [
         Movie::class,
         Director::class
     ],
-    version = 1
+    version = 2
 )
 @ConstructedBy(SampleDatabaseConstructor::class)
 internal abstract class SampleDatabase : RoomDatabase() {
