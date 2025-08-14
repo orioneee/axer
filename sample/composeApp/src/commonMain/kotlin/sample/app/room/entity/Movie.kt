@@ -14,15 +14,33 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["directorId"])] // This fixes the warning about indexing
+    indices = [Index(value = ["directorId"])]
 )
 data class Movie(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
     val title: String,
     val description: String,
     val releaseYear: Int,
     val rating: Float,
     val genre: String,
-    val directorId: Long // reference to the Director's primary key
+    val directorId: Long,
+
+    val durationMinutes: Int,
+    val budget: Long,
+    val boxOffice: Long,
+    val language: String,
+    val country: String,
+    val imdbId: String?,
+    val posterUrl: String?,
+    val trailerUrl: String?,
+    val ageRating: String,
+    val isAwardWinner: Boolean,
+    val awardsCount: Int,
+    val nominationsCount: Int,
+    val filmingLocations: String?,
+    val soundtrackComposer: String?,
+    val productionCompany: String?
 )
+
