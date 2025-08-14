@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -272,7 +273,7 @@ internal fun PaginationUI(
 }
 
 @Composable
-internal fun Table(
+private fun Table(
     modifier: Modifier = Modifier,
     rowCount: Int,
     columnCount: Int,
@@ -454,46 +455,49 @@ internal fun <T, R> ViewTable(
             shape = RoundedCornerShape(8.dp)
         ),
 ) {
-    Table(
-        modifier = modifier
-            .horizontalScroll(rememberScrollState())
-        ,
-        rowCount = rows.size + 1,
-        columnCount = headers.size.let {
-            if (withDeleteButton) {
-                it + 1
-            } else {
-                it
-            }
-        },
-    ) { rowIndex, columnIndex ->
-        if (rowIndex == 0 && columnIndex < headers.size) {
-            headerUI.invoke(
-                headers[columnIndex],
-                rowIndex,
-                columnIndex
-            )
-        } else if (rowIndex == 0 && columnIndex == headers.size && withDeleteButton) {
-            deleteButtonHeaderUI?.invoke()
-        } else if (rowIndex > 0 && columnIndex < headers.size) {
-            cellUI.invoke(
-                rows[rowIndex - 1],
-                headers[columnIndex],
-                rowIndex,
-                columnIndex
-            )
-        } else {
-            if (withDeleteButton) {
-                deleteButtonUI?.invoke(
+    Column {
+        val horizontalScroll = rememberScrollState()
+        PlatformHorizontalScrollBar(horizontalScroll)
+        Table(
+            modifier = modifier
+                .horizontalScroll(horizontalScroll),
+            rowCount = rows.size + 1,
+            columnCount = headers.size.let {
+                if (withDeleteButton) {
+                    it + 1
+                } else {
+                    it
+                }
+            },
+        ) { rowIndex, columnIndex ->
+            if (rowIndex == 0 && columnIndex < headers.size) {
+                headerUI.invoke(
+                    headers[columnIndex],
+                    rowIndex,
+                    columnIndex
+                )
+            } else if (rowIndex == 0 && columnIndex == headers.size && withDeleteButton) {
+                deleteButtonHeaderUI?.invoke()
+            } else if (rowIndex > 0 && columnIndex < headers.size) {
+                cellUI.invoke(
                     rows[rowIndex - 1],
-                    rowIndex - 1
+                    headers[columnIndex],
+                    rowIndex,
+                    columnIndex
                 )
             } else {
-                Box(
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.surface)
-                        .padding(8.dp)
-                )
+                if (withDeleteButton) {
+                    deleteButtonUI?.invoke(
+                        rows[rowIndex - 1],
+                        rowIndex - 1
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.surface)
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }

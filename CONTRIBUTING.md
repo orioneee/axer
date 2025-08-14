@@ -111,18 +111,6 @@ Axer is a Kotlin Multiplatform debugging library that provides HTTP request moni
    ./gradlew :sample:composeApp:build       # Sample app
    ```
 
-### Running Tests
-
-```bash
-# Run all tests
-./gradlew test
-
-# Run tests for specific module
-./gradlew :axer:test
-
-# Run tests with detailed output
-./gradlew test --info
-```
 
 ### Building Sample Applications
 
@@ -132,13 +120,6 @@ Axer is a Kotlin Multiplatform debugging library that provides HTTP request moni
 
 # Desktop remote debugger
 ./gradlew :axer-remote-debugger:createDistributable
-```
-
-### Documentation Generation
-
-```bash
-# Generate API documentation
-./gradlew dokkaGeneratePublicationHtml
 ```
 
 ## Making Changes
@@ -216,9 +197,8 @@ docs(readme): update installation instructions for v1.2.0
 
 ### Before Submitting
 
-- [ ] Ensure all tests pass
 - [ ] Update documentation if needed
-- [ ] Add tests for new functionality
+- [ ] Add tests for new functionality(optionally)
 - [ ] Verify multiplatform compatibility
 - [ ] Check that no existing functionality is broken
 
