@@ -241,17 +241,17 @@ internal fun ServerStatusDialog(
                             startServerIfCan()
                         }
                     }
-                )
-                {
+                ) {
+                    val composition by rememberLottieComposition {
+                        LottieCompositionSpec.JsonString(
+                            Res.readBytes("files/pause_play.json").decodeToString()
+                        )
+                    }
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val composition by rememberLottieComposition {
-                            LottieCompositionSpec.JsonString(
-                                Res.readBytes("files/pause_play.json").decodeToString()
-                            )
-                        }
 
                         Icon(
                             painter = rememberLottiePainter(
@@ -261,7 +261,10 @@ internal fun ServerStatusDialog(
                             modifier = Modifier.size(24.dp),
                             contentDescription = "Lottie animation"
                         )
-                        AnimatedContent(serverStatus) {
+                        AnimatedContent(
+                            serverStatus,
+                            modifier = Modifier.width(45.dp)
+                        ) {
                             when (it) {
                                 AxerServerStatus.NotSupported -> {}
                                 is AxerServerStatus.Started -> {

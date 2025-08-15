@@ -83,11 +83,8 @@ kotlin {
             implementation(libs.multiplatform.settings)
 
 
-
-            implementation("com.sebastianneubauer.jsontree:jsontree:2.5.0")
-
-            implementation("io.github.alexzhirkevich:compottie:2.0.0-rc04")
-            implementation("io.github.alexzhirkevich:compottie-dot:2.0.0-rc04")
+            implementation(libs.json.tree)
+            implementation(libs.compottie)
         }
 
 
@@ -134,7 +131,6 @@ kotlin {
                 api(libs.ktor.client.okhttp)
                 implementation(libs.koin.android)
                 implementation(libs.androidx.startup.runtime)
-                implementation("androidx.lifecycle:lifecycle-process:2.9.2")
 
 
             }

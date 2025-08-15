@@ -23,6 +23,7 @@ fun main() = application {
         title = "Axer Desktop",
         onCloseRequest = ::exitApplication,
     ) {
+        window.minimumSize = java.awt.Dimension(350, 600)
         AxerTheme.ProvideTheme {
             Surface(
                 modifier = Modifier.fillMaxSize()

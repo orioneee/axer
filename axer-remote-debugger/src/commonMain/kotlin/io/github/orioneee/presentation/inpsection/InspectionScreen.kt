@@ -31,6 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import io.github.alexzhirkevich.compottie.Compottie
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import io.github.orioneee.AxerUIEntryPoint
 import io.github.orioneee.RemoteAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
@@ -72,10 +77,31 @@ class InspectionScreen {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    val composition by rememberLottieComposition(
+                    ) {
+                        LottieCompositionSpec.JsonString(
+                            io.github.orioneee.axer.debugger.generated.resources.Res.readBytes("files/loading.json")
+                                .decodeToString()
+                        )
+                    }
+                    val progress by animateLottieCompositionAsState(
+                        composition,
+                        iterations = Compottie.IterateForever,
+                    )
+
+//                    Icon(
+//                        painterResource(Res.drawable.network_off),
+//                        contentDescription = "Connection Lost",
+//                        modifier = Modifier.size(48.dp),
+//                        tint = MaterialTheme.colorScheme.primary
+//                    )
                     Icon(
-                        painterResource(Res.drawable.network_off),
-                        contentDescription = "Connection Lost",
-                        modifier = Modifier.size(48.dp),
+                        painter = rememberLottiePainter(
+                            composition = composition,
+                            progress = { progress },
+                        ),
+                        modifier = Modifier.size(96.dp),
+                        contentDescription = "Lottie animation",
                         tint = MaterialTheme.colorScheme.primary
                     )
 

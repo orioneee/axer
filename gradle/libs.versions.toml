@@ -36,6 +36,8 @@ junit = "1.2.1"
 startupRuntime = "1.2.0"
 adaptiveDesktop = "1.0.0"
 dokka = "2.0.0"
+compottie = "2.0.0-rc04"
+jsonTree = "2.5.0"
 
 
 [libraries]
@@ -63,6 +65,8 @@ ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+json-tree = { module = "com.sebastianneubauer.jsontree:jsontree", version.ref = "jsonTree" }
 
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 

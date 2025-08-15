@@ -442,7 +442,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | Dependency            | Version                             |
 |-----------------------|-------------------------------------|
 | Kotlin                | 2.2.10                  |
-| Compose               | 1.9.0-beta01                 |
+| Compose               | 1.9.0-beta03                 |
 | Ktor                  | 3.2.3                    |
 | Koin                  | 4.1.0                    |
 | Room                  | 2.7.2                    |
@@ -453,7 +453,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | kotlinx-datetime      | 0.7.1        |
 | Accompanist           | 0.37.3 |
 | Coil Compose          | 3.3.0            |
-| Navigation Compose    | 2.9.0-beta04      |
+| Navigation Compose    | 2.9.0-beta05      |
 | minSdk                | 21                         |
 ---
 

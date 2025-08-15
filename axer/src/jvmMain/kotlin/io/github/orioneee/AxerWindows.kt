@@ -10,12 +10,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.rememberWindowState
+import coil3.size.Dimension
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.exit
 import io.github.orioneee.axer.generated.resources.ic_logo
@@ -36,6 +38,7 @@ fun AxerWindows(
         icon = painter,
         onCloseRequest = onCloseWindow,
     ) {
+        window.minimumSize = java.awt.Dimension(350, 600)
         Scaffold {
             Box(
                 modifier = Modifier

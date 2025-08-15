@@ -37,6 +37,7 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.navigation.compose)
                 implementation(compose.components.resources)
+                implementation(libs.compottie)
                 implementation(project(":axer"))
             }
         }
@@ -117,4 +118,9 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", axerVersion)
     }
+}
+
+compose.resources {
+    packageOfResClass = "io.github.orioneee.axer.debugger.generated.resources"
+    publicResClass = true
 }
