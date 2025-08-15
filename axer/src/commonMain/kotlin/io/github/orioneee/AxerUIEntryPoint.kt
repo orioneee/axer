@@ -22,10 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.orioneee.internal.AxerDataProvider
-import io.github.orioneee.internal.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.no_available_options
+import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.LocalAxerDataProvider
 import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.extentions.navigateSaveState
 import io.github.orioneee.internal.extentions.successData
@@ -34,12 +34,9 @@ import io.github.orioneee.internal.presentation.components.AxerTheme
 import io.github.orioneee.internal.presentation.navigation.FlowDestinations
 import io.github.orioneee.internal.presentation.navigation.MainNavigation
 import io.github.orioneee.internal.room.AxerDatabase
-import io.github.orioneee.internal.snackbarProcessor.SnackBarController
 import io.github.orioneee.internal.snackbarProcessor.SnackBarEvent
 import io.github.orioneee.internal.snackbarProcessor.snackbarEvents
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinIsolatedContext
