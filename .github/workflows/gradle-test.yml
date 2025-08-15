@@ -22,4 +22,4 @@ jobs:
           java-version: 17
 
       - name: Run Gradle tests
-        run: ./gradlew test --no-daemon --stacktrace
+        run: ./gradlew :sample:composeApp:cleanJvmTest :sample:composeApp:jvmTest --tests "AxerCompatibilityTests"

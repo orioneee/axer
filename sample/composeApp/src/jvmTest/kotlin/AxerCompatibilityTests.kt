@@ -1,5 +1,3 @@
-package org.example.project
-
 import io.github.classgraph.ClassGraph
 import kotlin.reflect.KVisibility
 import kotlin.reflect.jvm.kotlinFunction
@@ -15,7 +13,6 @@ class AxerCompatibilityTests {
             .scan()
 
         return scanResult.allClasses
-            .filter { !it.isInterface && !it.isAbstract }
             .flatMap { classInfo ->
                 val clazz = classInfo.loadClass()
 
