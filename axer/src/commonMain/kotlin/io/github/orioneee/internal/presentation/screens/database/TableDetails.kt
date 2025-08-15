@@ -38,12 +38,14 @@ import io.github.orioneee.axer.generated.resources.action
 import io.github.orioneee.axer.generated.resources.clear
 import io.github.orioneee.internal.domain.database.EditableRowItem
 import io.github.orioneee.LocalAxerDataProvider
+import io.github.orioneee.axer.generated.resources.ic_sql
 import io.github.orioneee.internal.presentation.components.ContentCell
 import io.github.orioneee.internal.presentation.components.DeleteButton
 import io.github.orioneee.internal.presentation.components.HeaderCell
 import io.github.orioneee.internal.presentation.components.PaginationUI
 import io.github.orioneee.internal.presentation.components.ViewTable
 import io.github.orioneee.internal.presentation.navigation.Routes
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -113,7 +115,7 @@ internal class TableDetails {
                             }
                         ) {
                             Icon(
-                                Icons.Outlined.RawOn,
+                                painterResource(Res.drawable.ic_sql),
                                 null,
                             )
                         }

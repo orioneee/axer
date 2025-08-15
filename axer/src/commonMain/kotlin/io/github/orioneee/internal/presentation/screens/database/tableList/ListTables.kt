@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -39,10 +42,12 @@ import io.github.orioneee.internal.domain.database.Table
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.extentions.formate
 import io.github.orioneee.LocalAxerDataProvider
+import io.github.orioneee.axer.generated.resources.ic_sql
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.BodySection
 import io.github.orioneee.internal.presentation.components.ScreenLayout
 import io.github.orioneee.internal.presentation.components.ServerRunStatus
+import io.github.orioneee.internal.presentation.components.buildStringSection
 import io.github.orioneee.internal.presentation.navigation.Routes
 import io.github.orioneee.internal.presentation.screens.requests.EmptyScreen
 import org.jetbrains.compose.resources.painterResource
@@ -103,8 +108,26 @@ internal class ListTables {
         ) {
             items(databases) { database ->
                 BodySection(
-                    database.name,
-                    separator = "",
+                    titleContent = {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            Text(
+                                buildStringSection(
+                                    title = database.name,
+                                    content = "",
+                                    separator = ""
+                                ),
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Icon(
+                                painterResource(Res.drawable.ic_sql),
+                                null,
+                            )
+                        }
+                    },
                     isExpandable = false,
                     onClick = {
                         navController.navigate(Routes.RAW_QUERY.route + "/${database.name}")
