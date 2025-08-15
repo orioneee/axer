@@ -15,6 +15,7 @@
 ![Kotlin Multiplatform](https://img.shields.io/badge/Kotlin-Multiplatform-orange?logo=kotlin)
 [![License](https://img.shields.io/github/license/orioneee/Axer)](https://github.com/orioneee/Axer/blob/main/LICENSE)
 ![Build and deploy Axer](https://github.com/orioneee/axer/actions/workflows/build-axer.yml/badge.svg)
+[![Kotlin Multiplatform Tests](https://github.com/orioneee/axer/actions/workflows/gradle-test.yml/badge.svg)](https://github.com/orioneee/axer/actions/workflows/gradle-test.yml)
 
 
 ## 📑 Summary
@@ -32,7 +33,6 @@
 - [💭 Inspiration](#inspiration)
 - [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
-- [MacOS Remote Debugger]
 - [📄 License](#license)
 
 ---

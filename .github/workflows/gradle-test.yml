@@ -1,4 +1,4 @@
-name: Kotlin Multiplatform Tests
+name: Automated Test
 
 on:
   push:
