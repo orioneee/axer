@@ -49,7 +49,7 @@
   <!-- Screenshots: 2 per line -->
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/request.png" width="45%" />
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/exception.png" width="45%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/axer_overview.png" width="45%" />
   </div>
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_ui.png" width="45%" />
