@@ -12,6 +12,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -19,6 +20,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
+
 expect fun onClearAllRequests()
 internal class RequestListViewModel(
     private val dataProvider: AxerDataProvider
@@ -30,11 +33,14 @@ internal class RequestListViewModel(
     private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
     private val _isShowLoadingDialog = MutableStateFlow(false)
 
-
+    init {
+        println("RequestListViewModel initialized")
+    }
     @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
     private val _requestsState by lazy {
-        dataProvider.getAllRequests().shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
+        dataProvider.getAllRequests()
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
     }
     val requestsState = _requestsState
 

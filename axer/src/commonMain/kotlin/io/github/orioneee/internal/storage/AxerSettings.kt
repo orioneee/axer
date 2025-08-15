@@ -2,6 +2,7 @@ package io.github.orioneee.internal.storage
 
 import com.russhwolf.settings.ObservableSettings
 import io.github.orioneee.AxerConfig
+import io.github.orioneee.internal.domain.other.Theme
 
 internal object AxerSettings {
     private val settings by lazy { createSettings("AxerSettings") }
@@ -13,6 +14,13 @@ internal object AxerSettings {
     val isRecordingLogs = BooleanSettingItem(settings, "isRecordingLogs")
 
     val isSendNotification = BooleanSettingItem(settings, "isSendNotification", true)
+
+    val theme = EnumSettingsItem(
+        settings,
+        "theme",
+        Theme.FOLLOW_SYSTEM,
+        Theme.serializer()
+    )
 
     fun configure(config: AxerConfig) {
         enableRequestMonitor.set(config.enableRequestMonitor)

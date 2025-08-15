@@ -5,7 +5,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.orioneee.internal.domain.other.Theme
+import io.github.orioneee.internal.storage.AxerSettings
+
 /**
  * @suppress
  */
@@ -71,11 +76,21 @@ object AxerTheme {
     fun ProvideTheme(
         content: @Composable () -> Unit
     ) {
-        val isDark = isSystemInDarkTheme()
-        MaterialTheme(
-            if (isDark) dark
-            else light
-        ) {
+        val currentTheme by AxerSettings.theme.asFlow()
+            .collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
+        val scheme = when (currentTheme) {
+            Theme.FOLLOW_SYSTEM -> {
+                if (isSystemInDarkTheme()) {
+                    dark
+                } else {
+                    light
+                }
+            }
+
+            Theme.LIGHT -> light
+            Theme.DARK -> dark
+        }
+        MaterialTheme(scheme) {
             content()
         }
     }

@@ -104,4 +104,10 @@
     <string name="stop_server">Stop</string>
     <string name="start_server">Start</string>
 
+
+    <string name="choose_theme">Choose theme</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="system">System</string>
+
 </resources>

@@ -16,6 +16,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.seconds
 
 expect suspend fun copyLogs(clipboard: Clipboard, logs: List<LogLine>)
 internal class LogViewViewModel(
@@ -52,7 +54,7 @@ internal class LogViewViewModel(
     @OptIn(FlowPreview::class)
     val logsState by lazy {
         dataProvider.getAllLogs()
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
     }
     val logs = logsState.successData().filterNotNull()
     val filtredLogs = combine(

@@ -4,14 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,41 +28,31 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.no_requests_desc
 import io.github.orioneee.axer.generated.resources.requests
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.data.Transaction
-import io.github.orioneee.internal.extentions.clickableWithoutRipple
 import io.github.orioneee.internal.logger.formateAsTime
-import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.FilterRow
 import io.github.orioneee.internal.presentation.components.LoadingDialog
@@ -178,10 +165,11 @@ internal class RequestListScreen() {
                     request.error?.let { append(it.name) }
                     if (request.isFinished()) append("${request.totalTime}ms")
                 }
-
+                val fontWeight = animateIntAsState(if (request.isViewed) 400 else 700)
                 Text(
                     text = infoText,
-                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                    fontWeight = FontWeight(fontWeight.value),
                 )
             }
         }
@@ -201,11 +189,11 @@ internal class RequestListScreen() {
         }
         val state = viewModel.requestsState.collectAsStateWithLifecycle(DataState.Loading())
         val isShowLoadingDialog = viewModel.isShowLoadingDialog.collectAsStateWithLifecycle(false)
-        val requests = viewModel.filteredRequests.collectAsState(emptyList())
-        val methodFilters = viewModel.methodFilters.collectAsState(emptyList())
-        val typeFilters = viewModel.bodyTypeFilters.collectAsState(emptyList())
-        val selectedMethods = viewModel.selectedMethods.collectAsState(emptyList())
-        val selectedBodyTypes = viewModel.selectedBodyType.collectAsState(emptyList())
+        val requests = viewModel.filteredRequests.collectAsStateWithLifecycle(emptyList())
+        val methodFilters = viewModel.methodFilters.collectAsStateWithLifecycle(emptyList())
+        val typeFilters = viewModel.bodyTypeFilters.collectAsStateWithLifecycle(emptyList())
+        val selectedMethods = viewModel.selectedMethods.collectAsStateWithLifecycle(emptyList())
+        val selectedBodyTypes = viewModel.selectedBodyType.collectAsStateWithLifecycle(emptyList())
         LoadingDialog(
             isShow = isShowLoadingDialog.value,
             onCancel = viewModel::cancelCurrentJob

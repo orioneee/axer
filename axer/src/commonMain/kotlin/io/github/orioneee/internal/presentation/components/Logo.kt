@@ -4,8 +4,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,6 +66,8 @@ import io.github.orioneee.axer.generated.resources.stop_server
 import io.github.orioneee.axer.generated.resources.version_format
 import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.other.AxerServerStatus
+import io.github.orioneee.internal.domain.other.Theme
+import io.github.orioneee.internal.storage.AxerSettings
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -81,6 +86,7 @@ fun AxerLogo(
 
 @Composable
 fun AxerLogoDialog() {
+    val currentTheme by AxerSettings.theme.asFlow().collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
     val isShowInfoDialog = remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
@@ -112,7 +118,7 @@ fun AxerLogoDialog() {
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 // Description
                 Text(
@@ -121,15 +127,46 @@ fun AxerLogoDialog() {
                     textAlign = TextAlign.Center
                 )
 
+                // Theme chooser
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        listOf(
+                            Theme.FOLLOW_SYSTEM to Icons.Outlined.DarkLightTheme,
+                            Theme.LIGHT to Icons.Outlined.LightMode,
+                            Theme.DARK to Icons.Outlined.DarkMode
+                        ).forEach { (mode, icon) ->
+                            ThemeOption(
+                                mode = mode,
+                                icon = icon,
+                                selected = currentTheme == mode,
+                                onClick = {
+                                    AxerSettings.theme.set(mode)
+                                }
+                            )
+                        }
+                    }
+                }
+
+                HorizontalDivider(Modifier.padding(top = 4.dp))
+
                 // Links & buttons
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(
-                        space = 8.dp,
-                        alignment = Alignment.CenterHorizontally
+                        8.dp,
+                        Alignment.CenterHorizontally
                     ),
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 ) {
-                    // GitHub pill
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
@@ -140,11 +177,10 @@ fun AxerLogoDialog() {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val isDark = isSystemInDarkTheme()
                         Icon(
                             painterResource(Res.drawable.ic_github),
                             contentDescription = stringResource(Res.string.github_icon_description),
-                            tint = if (isDark) Color.White else Color.Black,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
@@ -153,7 +189,6 @@ fun AxerLogoDialog() {
                         )
                     }
 
-                    // “Report a bug” button
                     Button(
                         onClick = {
                             uriHandler.openUri("https://github.com/orioneee/Axer/issues")
@@ -165,9 +200,7 @@ fun AxerLogoDialog() {
                     }
                 }
 
-                HorizontalDivider(Modifier.padding(top = 4.dp))
-
-                // Version line with placeholder
+                // Version
                 Text(
                     text = stringResource(
                         Res.string.version_format,
@@ -180,6 +213,41 @@ fun AxerLogoDialog() {
         }
     )
 }
+
+@Composable
+private fun ThemeOption(
+    mode: Theme,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceVariant,
+        label = ""
+    )
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
+    else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(backgroundColor)
+            .clickable { onClick() }
+            .padding(16.dp)
+            .size(30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = mode.name,
+            tint = contentColor,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
 
 internal expect fun getServerIp(): String?
 internal expect fun startServerIfCan()

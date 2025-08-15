@@ -10,11 +10,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import kotlin.time.Duration.Companion.seconds
 
 internal class RequestDetailsViewModel(
     private val dataProvider: AxerDataProvider,
@@ -31,7 +33,7 @@ internal class RequestDetailsViewModel(
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
     private val _requestByIDState by lazy {
         dataProvider.getRequestById(requestId)
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), replay = 1)
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
     }
     val requestByIDState = _requestByIDState.distinctUntilChanged()
     val requestByID = requestByIDState.successData()
