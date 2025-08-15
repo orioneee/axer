@@ -32,6 +32,7 @@
 - [💭 Inspiration](#inspiration)
 - [📦 Dependency Versions](#-dependency-versions)
 - [💡 Tips & Extras](#-tips--extras)
+- [MacOS Remote Debugger]
 - [📄 License](#license)
 
 ---
@@ -102,6 +103,9 @@ Axer now features **remote debugging**! You can run the Axer debugger app on you
 
 > ⚡️ **Download the remote debugger app in the [Releases section](https://github.com/orioneee/Axer/releases).**  
 > The standalone desktop debugger is distributed there.
+
+> **⚠️ On MacOS:**  
+> If you see a warning about "unsigned" applications when launching the remote debugger, see the [Opening Unsigned Applications on macOS Sequoia](https://wiki.hacks.guide/wiki/Open_unsigned_applications_on_macOS_Sequoia) section below.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/orioneee/Axer/refs/heads/main/sample/screenshots/remote_debugger_android.jpg" width="22%" />
