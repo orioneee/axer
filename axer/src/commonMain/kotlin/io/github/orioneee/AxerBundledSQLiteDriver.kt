@@ -4,6 +4,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.github.orioneee.internal.room.AxerSQLiteConnection
 import io.github.orioneee.internal.room.AxerSqlStatement
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
@@ -18,18 +19,12 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     internal val dbFiles = mutableSetOf<String>()
 
 
-    internal fun isSqlQueryChangeData(sql: String): Boolean {
-        return sql.startsWith("INSERT") || sql.startsWith("UPDATE") || sql.startsWith("DELETE") || sql.contains(
-            "END TRANSACTION",
-            ignoreCase = true
-        )
-    }
-
     internal val allQueryFlow = MutableSharedFlow<String>(
         extraBufferCapacity = 500,
         onBufferOverflow = BufferOverflow.DROP_LATEST
     )
     internal val _changeDataFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+
     @OptIn(FlowPreview::class)
     internal val changeDataFlow = _changeDataFlow.asSharedFlow().sample(500)
 
@@ -37,32 +32,23 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
         Axer.initIfCan()
     }
 
+
     @OptIn(ExperimentalTime::class)
     override fun open(fileName: String): SQLiteConnection {
-        if (!dbFiles.contains(fileName)){
+        if (!dbFiles.contains(fileName)) {
             dbFiles.add(fileName)
             _changeDataFlow.tryEmit(fileName)
         }
         val connection = driver.open(fileName)
-        return object : SQLiteConnection {
-            override fun prepare(sql: String): SQLiteStatement {
-                if (isSqlQueryChangeData(sql)) {
-                    _changeDataFlow.tryEmit(sql)
-                }
-                val originalStatement = connection.prepare(sql)
-                return AxerSqlStatement(
-                    originalStatement = originalStatement,
-                    query = sql,
-                    onStep = {
-                        allQueryFlow.tryEmit(it)
-                    }
-                )
+        return AxerSQLiteConnection(
+            connection = connection,
+            onStep = { sql ->
+                allQueryFlow.tryEmit(sql)
+            },
+            onChangeData = { sql ->
+                _changeDataFlow.tryEmit(sql)
             }
-
-            override fun close() {
-                connection.close()
-            }
-        }
+        )
     }
 
     companion object {
@@ -71,7 +57,7 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
             AxerBundledSQLiteDriver()
         }
 
-        fun getInstance(): AxerBundledSQLiteDriver {
+        fun getInstance(): SQLiteDriver {
             isInitialized.value = true
             return instance
         }

@@ -106,7 +106,7 @@ internal expect suspend fun sendNotificationAboutRunningServer(
 )
 
 private val _isServerRunning = MutableStateFlow<AxerServerStatus>(AxerServerStatus.Stopped)
-val isAxerServerRunning = _isServerRunning.asStateFlow()
+internal val isAxerServerRunning = _isServerRunning.asStateFlow()
 
 
 fun Axer.runServerIfNotRunning(

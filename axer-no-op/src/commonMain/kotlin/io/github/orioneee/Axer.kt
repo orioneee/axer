@@ -3,7 +3,7 @@
 package io.github.orioneee
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.logger.PlatformLogger
+import io.github.orioneee.internal.logger.PlatformLogger
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 

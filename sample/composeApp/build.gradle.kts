@@ -8,6 +8,16 @@ plugins {
 
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+val noOpJarTask = project(":axer-no-op").tasks.named<Jar>("jvmJar")
+
+val relocatedNoOpJar = tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("relocateNoOpJar") {
+    archiveClassifier.set("no-op-relocated")
+    from(noOpJarTask.map { zipTree(it.archiveFile) })
+    relocate("io.github.orioneee", "io.github.orioneee_no_op")
 }
 
 kotlin {
@@ -56,7 +66,23 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation("io.github.classgraph:classgraph:4.8.181")
+            implementation(kotlin("reflect"))
+            implementation(project(":axer"))
+            implementation(files(relocatedNoOpJar.get().archiveFile))
         }
+
+       val  androidUnitTest by getting {
+           dependsOn(commonTest.get())
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("io.github.classgraph:classgraph:4.8.181")
+                implementation(kotlin("reflect"))
+                implementation(project(":axer"))
+                implementation(files(relocatedNoOpJar.get().archiveFile))
+            }
+        }
+
 
         val androidAndJvm by creating {
             dependsOn(commonMain.get())

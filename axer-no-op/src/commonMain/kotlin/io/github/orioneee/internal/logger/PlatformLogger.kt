@@ -1,8 +1,8 @@
-package io.github.orioneee.logger
+package io.github.orioneee.internal.logger
 
 import io.github.aakira.napier.LogLevel
 
-expect object PlatformLogger {
+internal expect object PlatformLogger {
     fun performPlatformLog(
         priority: LogLevel,
         tag: String?,

@@ -1,8 +1,6 @@
 package io.github.orioneee.internal.logger
 
 import io.github.aakira.napier.LogLevel
-import io.github.orioneee.internal.logger.formateAsDate
-import io.github.orioneee.internal.logger.getPlatformStackTrace
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

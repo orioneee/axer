@@ -1,8 +1,10 @@
-package io.github.orioneee.logger
+package io.github.orioneee.internal.logger
 
 import io.github.aakira.napier.LogLevel
+import io.github.orioneee.internal.logger.formateAsDate
+import io.github.orioneee.internal.logger.getPlatformStackTrace
 
-actual object PlatformLogger {
+internal actual object PlatformLogger {
     actual fun performPlatformLog(
         priority: LogLevel,
         tag: String?,

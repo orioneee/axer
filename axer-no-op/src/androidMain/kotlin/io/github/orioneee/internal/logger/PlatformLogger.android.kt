@@ -1,4 +1,4 @@
-package io.github.orioneee.logger
+package io.github.orioneee.internal.logger
 
 import android.util.Log
 import io.github.aakira.napier.LogLevel
