@@ -42,7 +42,7 @@
   <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/requests_mobile.jpg" width="22%" />
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/exceptions_mobile.jpg" width="22%" />
-    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/logs_mobile.jpg" width="22%" />
+    <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/server_info_mobile.jpg" width="22%" />
     <img src="https://github.com/orioneee/Axer/raw/main/sample/screenshots/db_mobile.jpg" width="22%" />
   </div>
 

@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -22,9 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.outlined.Dns
-import androidx.compose.material.icons.outlined.PauseCircle
-import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,7 +34,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
-import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import io.github.orioneee.axer.generated.configs.BuildKonfig
@@ -63,14 +57,12 @@ import io.github.orioneee.axer.generated.resources.ic_nest_remote
 import io.github.orioneee.axer.generated.resources.logo_description
 import io.github.orioneee.axer.generated.resources.report_bug
 import io.github.orioneee.axer.generated.resources.server_started
-import io.github.orioneee.axer.generated.resources.server_stopped
 import io.github.orioneee.axer.generated.resources.server_stopped_on
 import io.github.orioneee.axer.generated.resources.start_server
 import io.github.orioneee.axer.generated.resources.stop_server
 import io.github.orioneee.axer.generated.resources.version_format
 import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.other.AxerServerStatus
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -215,13 +207,14 @@ internal fun ServerStatusDialog(
                 ) {
                     Text(stringResource(Res.string.close))
                 }
-                val progressAnim = remember { Animatable(if (serverStatus !is AxerServerStatus.Started) 0.07462f else 0.537f) }
+                val progressAnim =
+                    remember { Animatable(if (serverStatus !is AxerServerStatus.Started) 0.07462f else 0.537f) }
 
                 LaunchedEffect(serverStatus) {
                     val target = if (serverStatus !is AxerServerStatus.Started) 1f else 0.5f
                     val start = if (serverStatus !is AxerServerStatus.Started) 0.537f else 0.07462f
                     val end = if (serverStatus !is AxerServerStatus.Started) 0.07462f else 0.537f
-                    if(progressAnim.value != end){
+                    if (progressAnim.value != end) {
                         if (progressAnim.value != start) {
                             progressAnim.snapTo(start)
                         }
@@ -250,7 +243,10 @@ internal fun ServerStatusDialog(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        )
                     ) {
 
                         Icon(
@@ -263,8 +259,8 @@ internal fun ServerStatusDialog(
                         )
                         AnimatedContent(
                             serverStatus,
-                            modifier = Modifier.width(45.dp)
-                        ) {
+
+                            ) {
                             when (it) {
                                 AxerServerStatus.NotSupported -> {}
                                 is AxerServerStatus.Started -> {
@@ -353,11 +349,12 @@ internal fun ServerRunStatus(
             )
         }
 
-        status.value.takeIf { it is AxerServerStatus.Started || it is AxerServerStatus.Stopped }?.let {
-            ServerStatusDialog(
-                state = isShowServerStatusDialog,
-                serverStatus = it
-            )
-        }
+        status.value.takeIf { it is AxerServerStatus.Started || it is AxerServerStatus.Stopped }
+            ?.let {
+                ServerStatusDialog(
+                    state = isShowServerStatusDialog,
+                    serverStatus = it
+                )
+            }
     }
 }
