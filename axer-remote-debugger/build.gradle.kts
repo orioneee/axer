@@ -50,7 +50,7 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation("com.malinskiy.adam:adam:0.5.10")
+            implementation(libs.adam)
         }
     }
 }
@@ -125,34 +125,4 @@ buildkonfig {
 compose.resources {
     packageOfResClass = "io.github.orioneee.axer.debugger.generated.resources"
     publicResClass = true
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    if (project.path != ":axer") {
-        val axerProject = project(":axer")
-        val kotlinExt = axerProject.extensions.getByType<KotlinMultiplatformExtension>()
-
-        val friendPath = when {
-            name.contains("jvm", ignoreCase = true) -> {
-                kotlinExt.targets.getByName("jvm").compilations["main"].output.classesDirs.asPath
-            }
-
-            name.contains("android", ignoreCase = true) -> {
-                val variantName = listOf("debug", "release").find { variant ->
-                    name.contains(variant, ignoreCase = true)
-                }
-
-                val targetCompilationName = variantName ?: "debug"
-
-                kotlinExt.targets.getByName("android")
-                    .compilations.findByName(targetCompilationName)?.output?.classesDirs?.asPath
-            }
-
-            else -> null
-        }
-
-        friendPath?.let {
-            compilerOptions.freeCompilerArgs.add("-Xfriend-paths=$it")
-        }
-    }
 }

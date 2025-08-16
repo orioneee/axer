@@ -1,6 +1,7 @@
 [versions]
 
 accompanistPermissions = "0.37.3"
+adam = "0.5.10"
 coilCompose = "3.3.0"
 composableTable = "1.3.1"
 kodeview = "0.9.0"
@@ -42,6 +43,7 @@ jsonTree = "2.5.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+adam = { module = "com.malinskiy.adam:adam", version.ref = "adam" }
 androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 composable-table = { module = "io.github.sunny-chung:composable-table", version.ref = "composableTable" }
