@@ -439,18 +439,9 @@ internal fun ServerStatusDialog(
                     val json = Res.readBytes("files/server_status.json")
                         .decodeToString()
                         .replace("[0,0,0,1]", primaryColor.toLottieColor())
-                        .replace(
-                            "[0.917999985639,0.917999985639,0.917999985639,1]",
-                            surfaceVariantColor.toLottieColor()
-                        )
-                        .replace(
-                            "[0.917647058824,0.917647058824,0.917647058824,1]",
-                            surfaceVariantColor.toLottieColor()
-                        )
-                        .replace(
-                            "[0.917647063732,0.917647063732,0.917647063732,1]",
-                            surfaceVariantColor.toLottieColor()
-                        )
+                        .replace("[0.917999985639,0.917999985639,0.917999985639,1]", surfaceVariantColor.toLottieColor())
+                        .replace("[0.917647058824,0.917647058824,0.917647058824,1]", surfaceVariantColor.toLottieColor())
+                        .replace("[0.917647063732,0.917647063732,0.917647063732,1]", surfaceVariantColor.toLottieColor())
 
                     LottieCompositionSpec.JsonString(json)
                 }
@@ -484,7 +475,6 @@ internal fun ServerStatusDialog(
                         style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                         textAlign = TextAlign.Center
                     )
-
                     is AxerServerStatus.Started -> Text(
                         text = stringResource(
                             Res.string.server_started,
@@ -493,7 +483,6 @@ internal fun ServerStatusDialog(
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                         textAlign = TextAlign.Center
                     )
-
                     AxerServerStatus.Stopped -> Text(
                         text = stringResource(
                             Res.string.server_stopped_on,
