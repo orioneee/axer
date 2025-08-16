@@ -396,6 +396,7 @@ class RemoteAxerDataProvider(
         }
     }
 
+    @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
     fun initConnectedFlow(): StateFlow<Boolean> {
         val maxDelta = 5_000L
 
