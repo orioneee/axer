@@ -1,8 +1,6 @@
 package io.github.orioneee.internal.presentation.screens.exceptions.list
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,27 +19,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.exceptions
 import io.github.orioneee.axer.generated.resources.no_exceptions_desc
 import io.github.orioneee.internal.domain.exceptions.AxerException
 import io.github.orioneee.internal.domain.other.DataState
-import io.github.orioneee.internal.logger.formateAsTime
-import io.github.orioneee.internal.extentions.clickableWithoutRipple
-import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
 import io.github.orioneee.internal.presentation.components.LoadingDialog
@@ -59,11 +51,8 @@ internal class ExceptionsList {
         exception: AxerException,
         onClick: () -> Unit,
     ) {
-        val animatedContainerColor by animateColorAsState(
-            targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surface,
-            label = "ExceptionCardColor"
-        )
+        val animatedContainerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surface
 
         val animatedElevation by animateDpAsState(
             targetValue = if (isSelected) 6.dp else 2.dp,

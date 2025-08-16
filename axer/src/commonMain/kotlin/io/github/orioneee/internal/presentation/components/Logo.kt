@@ -33,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,7 +87,7 @@ fun AxerLogo(
 
 @Composable
 fun AxerLogoDialog() {
-    val currentTheme by AxerSettings.theme.asFlow().collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
+    val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
     val isShowInfoDialog = remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 

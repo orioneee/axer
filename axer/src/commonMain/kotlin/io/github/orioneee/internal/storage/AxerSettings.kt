@@ -3,6 +3,11 @@ package io.github.orioneee.internal.storage
 import com.russhwolf.settings.ObservableSettings
 import io.github.orioneee.AxerConfig
 import io.github.orioneee.internal.domain.other.Theme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 object AxerSettings {
     private val settings by lazy { createSettings("AxerSettings") }
@@ -20,6 +25,13 @@ object AxerSettings {
         Theme.FOLLOW_SYSTEM,
         Theme.serializer()
     )
+    val themeFlow = theme
+        .asFlow()
+        .stateIn(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            started = SharingStarted.Eagerly,
+            initialValue = theme.get()
+        )
 
     internal fun configure(config: AxerConfig) {
         enableRequestMonitor.set(config.enableRequestMonitor)

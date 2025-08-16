@@ -1,13 +1,18 @@
 package io.github.orioneee.internal.presentation.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.storage.AxerSettings
 
@@ -73,18 +78,104 @@ object AxerTheme {
     )
 
     @Composable
+    fun getAnimatedColorScheme(
+        scheme: ColorScheme
+    ): ColorScheme {
+        val spec: AnimationSpec<Color> = spring(stiffness = Spring.StiffnessMediumLow)
+        return ColorScheme(
+            primary = animateColorAsState(scheme.primary, animationSpec = spec).value,
+            onPrimary = animateColorAsState(scheme.onPrimary, animationSpec = spec).value,
+            primaryContainer = animateColorAsState(
+                scheme.primaryContainer,
+                animationSpec = spec
+            ).value,
+            onPrimaryContainer = animateColorAsState(
+                scheme.onPrimaryContainer,
+                animationSpec = spec
+            ).value,
+            inversePrimary = animateColorAsState(scheme.inversePrimary, animationSpec = spec).value,
+            secondary = animateColorAsState(scheme.secondary, animationSpec = spec).value,
+            onSecondary = animateColorAsState(scheme.onSecondary, animationSpec = spec).value,
+            secondaryContainer = animateColorAsState(
+                scheme.secondaryContainer,
+                animationSpec = spec
+            ).value,
+            onSecondaryContainer = animateColorAsState(
+                scheme.onSecondaryContainer,
+                animationSpec = spec
+            ).value,
+            tertiary = animateColorAsState(scheme.tertiary, animationSpec = spec).value,
+            onTertiary = animateColorAsState(scheme.onTertiary, animationSpec = spec).value,
+            tertiaryContainer = animateColorAsState(
+                scheme.tertiaryContainer,
+                animationSpec = spec
+            ).value,
+            onTertiaryContainer = animateColorAsState(
+                scheme.onTertiaryContainer,
+                animationSpec = spec
+            ).value,
+            background = animateColorAsState(scheme.background, animationSpec = spec).value,
+            onBackground = animateColorAsState(scheme.onBackground, animationSpec = spec).value,
+            surface = animateColorAsState(scheme.surface, animationSpec = spec).value,
+            onSurface = animateColorAsState(scheme.onSurface, animationSpec = spec).value,
+            surfaceVariant = animateColorAsState(scheme.surfaceVariant, animationSpec = spec).value,
+            onSurfaceVariant = animateColorAsState(
+                scheme.onSurfaceVariant,
+                animationSpec = spec
+            ).value,
+            surfaceTint = animateColorAsState(scheme.surfaceTint, animationSpec = spec).value,
+            inverseSurface = animateColorAsState(scheme.inverseSurface, animationSpec = spec).value,
+            inverseOnSurface = animateColorAsState(
+                scheme.inverseOnSurface,
+                animationSpec = spec
+            ).value,
+            error = animateColorAsState(scheme.error, animationSpec = spec).value,
+            onError = animateColorAsState(scheme.onError, animationSpec = spec).value,
+            errorContainer = animateColorAsState(scheme.errorContainer, animationSpec = spec).value,
+            onErrorContainer = animateColorAsState(
+                scheme.onErrorContainer,
+                animationSpec = spec
+            ).value,
+            outline = animateColorAsState(scheme.outline, animationSpec = spec).value,
+            outlineVariant = animateColorAsState(scheme.outlineVariant, animationSpec = spec).value,
+            scrim = animateColorAsState(scheme.scrim, animationSpec = spec).value,
+            surfaceBright = animateColorAsState(scheme.surfaceBright, animationSpec = spec).value,
+            surfaceDim = animateColorAsState(scheme.surfaceDim, animationSpec = spec).value,
+            surfaceContainer = animateColorAsState(
+                scheme.surfaceContainer,
+                animationSpec = spec
+            ).value,
+            surfaceContainerHigh = animateColorAsState(
+                scheme.surfaceContainerHigh,
+                animationSpec = spec
+            ).value,
+            surfaceContainerHighest = animateColorAsState(
+                scheme.surfaceContainerHighest,
+                animationSpec = spec
+            ).value,
+            surfaceContainerLow = animateColorAsState(
+                scheme.surfaceContainerLow,
+                animationSpec = spec
+            ).value,
+            surfaceContainerLowest = animateColorAsState(
+                scheme.surfaceContainerLowest,
+                animationSpec = spec
+            ).value,
+        )
+    }
+
+    @Composable
     fun ProvideTheme(
         content: @Composable () -> Unit
     ) {
-        val currentTheme by AxerSettings.theme.asFlow()
-            .collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
+        val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
         val isDark = when (currentTheme) {
             Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
             Theme.LIGHT -> false
             Theme.DARK -> true
         }
         val scheme = if (isDark) dark else light
-        MaterialTheme(scheme) {
+        MaterialTheme(getAnimatedColorScheme(scheme)) {
             content()
         }
     }

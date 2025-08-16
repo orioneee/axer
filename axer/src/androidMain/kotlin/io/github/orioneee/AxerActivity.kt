@@ -12,11 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.presentation.components.AxerTheme
 import io.github.orioneee.internal.storage.AxerSettings
@@ -37,8 +37,8 @@ internal class AxerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val theme by AxerSettings.theme.asFlow()
-                .collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
+            val theme by AxerSettings.themeFlow
+                .collectAsState(AxerSettings.theme.get())
             val isDark = when (theme) {
                 Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
                 Theme.DARK -> true

@@ -1,5 +1,6 @@
 package io.github.orioneee.presentation.inpsection
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +43,15 @@ import io.github.orioneee.AxerUIEntryPoint
 import io.github.orioneee.RemoteAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.app_name_device
-import io.github.orioneee.axer.generated.resources.network_off
+import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.presentation.components.AxerLogo
+import io.github.orioneee.internal.presentation.components.AxerTheme.dark
+import io.github.orioneee.internal.presentation.components.AxerTheme.light
 import io.github.orioneee.internal.presentation.components.MultiplatformAlertDialog
+import io.github.orioneee.internal.storage.AxerSettings
 import io.github.orioneee.models.Device
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 class InspectionScreen {
@@ -149,9 +154,24 @@ class InspectionScreen {
             remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
         val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
         var isDialogDismissed by remember { mutableStateOf(false) }
+
+        val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
+        val isDark = when (currentTheme) {
+            Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+            Theme.LIGHT -> false
+            Theme.DARK -> true
+        }
+        val scheme = if (isDark) dark else light
+        val colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = scheme.surface,
+            titleContentColor = scheme.onSurface,
+            actionIconContentColor = scheme.onSurface,
+            navigationIconContentColor = scheme.onSurface
+        )
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = colors,
                     title = {
                         Text(
                             stringResource(

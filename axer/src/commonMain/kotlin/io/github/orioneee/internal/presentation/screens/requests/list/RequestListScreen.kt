@@ -1,7 +1,6 @@
 package io.github.orioneee.internal.presentation.screens.requests.list
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
@@ -94,14 +93,11 @@ internal class RequestListScreen() {
         request: Transaction,
         onClick: () -> Unit,
     ) {
-        val animatedContainerColor by animateColorAsState(
-            targetValue = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-            label = "RequestCardColorAnimation"
-        )
+        val animatedContainerColor = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
 
         val animatedElevation by animateDpAsState(
             targetValue = if (isSelected) 6.dp else 2.dp,
@@ -119,7 +115,7 @@ internal class RequestListScreen() {
             Column(
                 modifier = Modifier.padding(
                     vertical = 8.dp,
-                     horizontal = 12.dp,
+                    horizontal = 12.dp,
                 )
             ) {
                 Row(
@@ -147,7 +143,7 @@ internal class RequestListScreen() {
                     }
                 }
 
-                if(request.path.isNotBlank()){
+                if (request.path.isNotBlank()) {
                     Text(
                         text = request.path,
                         color = if (

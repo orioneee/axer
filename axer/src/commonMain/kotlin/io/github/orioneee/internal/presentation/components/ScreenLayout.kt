@@ -1,5 +1,6 @@
 package io.github.orioneee.internal.presentation.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
@@ -12,11 +13,18 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.orioneee.internal.domain.other.DataState
+import io.github.orioneee.internal.domain.other.Theme
+import io.github.orioneee.internal.presentation.components.AxerTheme.dark
+import io.github.orioneee.internal.presentation.components.AxerTheme.light
+import io.github.orioneee.internal.storage.AxerSettings
 
 @get:Composable
 internal val LoadingContent: Unit
@@ -74,12 +82,26 @@ internal fun ScreenLayout(
     emptyContent: @Composable BoxScope.() -> Unit,
     content: @Composable () -> Unit,
 ) {
+    val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
+    val isDark = when (currentTheme) {
+        Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+        Theme.LIGHT -> false
+        Theme.DARK -> true
+    }
+    val scheme = if (isDark) dark else light
+    val colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        containerColor = scheme.surface,
+        titleContentColor = scheme.onSurface,
+        actionIconContentColor = scheme.onSurface,
+        navigationIconContentColor = scheme.onSurface
+    )
     Scaffold(
         floatingActionButton = {
             floatingActionButton()
         },
         topBar = {
             CenterAlignedTopAppBar(
+                colors = colors,
                 windowInsets = WindowInsets(0, 0, 0, 0),
                 title = {
                     Text(

@@ -117,8 +117,9 @@ class DeviceScanViewModel : ViewModel() {
             json(Json { ignoreUnknownKeys = true })
         }
         install(HttpTimeout) {
-            connectTimeoutMillis = 1000
+            connectTimeoutMillis = 3_500
             requestTimeoutMillis = 3_500
+            socketTimeoutMillis = 3_500
         }
     }
 
@@ -204,7 +205,7 @@ class DeviceScanViewModel : ViewModel() {
                 .toIntOrNull()
         }
 
-    private fun generateConnections(): List<ConnectionInfo> {
+    fun generateConnections(): List<ConnectionInfo> {
         val subnets = getSubNetMask()
 
 
@@ -283,18 +284,27 @@ class DeviceScanViewModel : ViewModel() {
         data: ConnectionInfo,
     ): DeviceData? {
         fun doInNeededIp(action: () -> Unit) {
-            if (data.ip == "192.168.0.238" || data.ip == "192.168.0.165") {
+            if (data.ip == "192.168.0.238") {
                 action()
             }
         }
         return try {
             val response = localClient.get("${data.toAddress()}/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
+                doInNeededIp {
+                    println("Found Axer server at ${data.toAddress()}")
+                }
                 response.body<DeviceData>()
             } else {
+                doInNeededIp {
+                    println("No Axer server found at ${data.toAddress()}")
+                }
                 null
             }
         } catch (e: Exception) {
+            doInNeededIp {
+                println("Error checking connection for ${data.toAddress()}: ${e.message}")
+            }
             null
         }
     }
