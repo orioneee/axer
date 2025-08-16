@@ -84,7 +84,8 @@ class AxerUIEntryPoint {
             val currentBackStack by navController.currentBackStackEntryAsState()
             val currentRoute = currentBackStack?.destination?.route
             val dataProvider = LocalAxerDataProvider.current
-            val enabledFeathers by dataProvider.getEnabledFeatures().successData()
+            val enabledFeathers by dataProvider.getEnabledFeatures()
+                .successData()
                 .filterNotNull()
                 .collectAsStateWithLifecycle(initialValue = EnabledFeathers.Default)
 

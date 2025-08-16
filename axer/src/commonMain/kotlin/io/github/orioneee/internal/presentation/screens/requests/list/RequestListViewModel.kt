@@ -3,6 +3,7 @@ package io.github.orioneee.internal.presentation.screens.requests.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.github.orioneee.internal.extentions.successData
 import io.github.orioneee.internal.snackbarProcessor.SnackBarController
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
@@ -40,7 +41,11 @@ internal class RequestListViewModel(
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
     private val _requestsState by lazy {
         dataProvider.getAllRequests()
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(3.seconds),
+                initialValue = DataState.Loading()
+            )
     }
     val requestsState = _requestsState
 

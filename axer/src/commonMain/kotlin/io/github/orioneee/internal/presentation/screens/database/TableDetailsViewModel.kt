@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -84,6 +85,11 @@ internal class TableDetailsViewModel(
                 page = _currentPage.value,
                 pageSize = PAGE_SIZE
             ).successData()
+                .stateIn(
+                    scope = viewModelScope,
+                    started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+                    initialValue = null
+                )
                 .filterNotNull()
                 .collect {
                     val (schema, content, totalItems) = it

@@ -3,6 +3,7 @@ package io.github.orioneee.internal.presentation.screens.requests.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.orioneee.internal.AxerDataProvider
+import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.data.Transaction
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.github.orioneee.internal.extentions.successData
@@ -12,8 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlin.time.Duration.Companion.seconds
@@ -33,14 +33,19 @@ internal class RequestDetailsViewModel(
     val selectedResponseBodyFormat = _selectedResponseBodyFormat.asStateFlow()
     private val _requestByIDState by lazy {
         dataProvider.getRequestById(requestId)
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(3.seconds),
+                DataState.Loading()
+            )
     }
-    val requestByIDState = _requestByIDState.distinctUntilChanged()
+    val requestByIDState = _requestByIDState
     val requestByID = requestByIDState.successData()
 
     fun onRequestBodyFormatSelected(bodyType: BodyType) {
         _selectedRequestBodyFormat.value = bodyType
     }
+
     fun onResponseBodyFormatSelected(bodyType: BodyType) {
         _selectedResponseBodyFormat.value = bodyType
     }

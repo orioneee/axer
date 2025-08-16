@@ -7,6 +7,7 @@ import io.github.orioneee.internal.domain.other.BaseResponse
 import io.github.orioneee.internal.presentation.screens.database.TableDetailsViewModel
 import io.github.orioneee.internal.processors.RoomReader
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -31,6 +32,8 @@ internal fun Route.databaseModule(
     isEnabledDatabase: Flow<Boolean>,
     reader: RoomReader,
     readOnly: Boolean,
+    onAddClient: (ApplicationCall) -> Unit,
+    onRemoveClient: (ApplicationCall) -> Unit
 ) {
     val dbMutex = Mutex()
     webSocket("/ws/database") {
@@ -39,6 +42,7 @@ internal fun Route.databaseModule(
                 reader.getTablesFromAllDatabase()
             }
             sendSerialized(tables)
+            onAddClient(call)
         } else {
             sendSerialized(null)
         }
@@ -52,7 +56,14 @@ internal fun Route.databaseModule(
                 }
             }
             .launchIn(this)
-        for (frame in incoming) {
+        try {
+            for (frame in incoming) {
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        } finally {
+            onRemoveClient(call)
         }
     }
 
@@ -174,8 +185,7 @@ internal fun Route.databaseModule(
         val file = call.parameters["file"] ?: return@webSocket
         val table = call.parameters["table"] ?: return@webSocket
         val page = call.parameters["page"]?.toIntOrNull() ?: 0
-        val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull()
-            ?: TableDetailsViewModel.PAGE_SIZE
+        val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: TableDetailsViewModel.PAGE_SIZE
 
         suspend fun getTableInfo(): DatabaseData {
             val content = dbMutex.withLock {
@@ -202,6 +212,7 @@ internal fun Route.databaseModule(
         try {
             if (isEnabledDatabase.first()) {
                 sendSerialized(getTableInfo())
+                onAddClient(call)
             } else {
                 sendSerialized(null)
             }
@@ -221,11 +232,19 @@ internal fun Route.databaseModule(
                 }
             }
             .launchIn(this)
-        for (frame in incoming) {
+        try{
+            for (frame in incoming) {
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        } finally {
+            onRemoveClient(call)
         }
     }
 
     webSocket("/ws/db_queries") {
+        onAddClient(call)
         reader.axerDriver.allQueryFlow
             .onEach {
                 if (isEnabledDatabase.first()) {
@@ -233,7 +252,14 @@ internal fun Route.databaseModule(
                 }
             }
             .launchIn(this)
-        for (frame in incoming) {
+        try {
+            for (frame in incoming) {
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        } finally {
+            onRemoveClient(call)
         }
     }
     post("/ws/db_queries/execute/{file}") {
@@ -300,7 +326,7 @@ internal fun Route.databaseModule(
             close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "File parameter is missing"))
             return@webSocket
         }
-
+        onAddClient(call)
         var command: String? = null
         reader.axerDriver.changeDataFlow
             .onEach {
@@ -330,24 +356,31 @@ internal fun Route.databaseModule(
                 }
             }
             .launchIn(this)
-        for (frame in incoming) {
-            if (command == null && frame is Frame.Text) {
-                val text = frame.readText()
-                if (text.isNotBlank()) {
-                    command = text
-                    if (isEnabledDatabase.first()) {
-                        val response = dbMutex.withLock {
-                            reader.executeRawQuery(
-                                file = file,
-                                query = text
-                            )
+        try{
+            for (frame in incoming) {
+                if (command == null && frame is Frame.Text) {
+                    val text = frame.readText()
+                    if (text.isNotBlank()) {
+                        command = text
+                        if (isEnabledDatabase.first()) {
+                            val response = dbMutex.withLock {
+                                reader.executeRawQuery(
+                                    file = file,
+                                    query = text
+                                )
+                            }
+                            sendSerialized(response)
                         }
-                        sendSerialized(response)
                     }
+                } else if (frame is Frame.Close) {
+                    break
                 }
-            } else if (frame is Frame.Close) {
-                break
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        } finally {
+            onRemoveClient(call)
         }
     }
 

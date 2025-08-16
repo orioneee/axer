@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -150,9 +151,9 @@ class InspectionScreen {
         navController: NavHostController,
         deviceData: Device,
     ) {
-        val provider =
-            remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
-        val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
+        val provider = rememberSaveable(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
+        val isConnected = provider.isConnected()
+            .collectAsStateWithLifecycle(true)
         var isDialogDismissed by remember { mutableStateOf(false) }
 
         val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())

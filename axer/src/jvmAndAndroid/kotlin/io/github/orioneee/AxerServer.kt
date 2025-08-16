@@ -1,5 +1,6 @@
 package io.github.orioneee
 
+import androidx.compose.material3.SnackbarDuration
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.axer_already_running
 import io.github.orioneee.axer.generated.resources.axer_port_in_use
@@ -11,21 +12,22 @@ import io.github.orioneee.internal.domain.other.DeviceData
 import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.koin.IsolatedContext
 import io.github.orioneee.internal.processors.RoomReader
-import io.github.orioneee.internal.room.dao.AxerExceptionDao
-import io.github.orioneee.internal.room.dao.LogsDAO
-import io.github.orioneee.internal.room.dao.RequestDao
-import io.github.orioneee.internal.storage.AxerSettings
 import io.github.orioneee.internal.remote.server.databaseModule
 import io.github.orioneee.internal.remote.server.exceptionsModule
 import io.github.orioneee.internal.remote.server.getDeviceData
 import io.github.orioneee.internal.remote.server.logsModule
 import io.github.orioneee.internal.remote.server.requestsModule
+import io.github.orioneee.internal.room.dao.AxerExceptionDao
+import io.github.orioneee.internal.room.dao.LogsDAO
+import io.github.orioneee.internal.room.dao.RequestDao
+import io.github.orioneee.internal.storage.AxerSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.cio.CIOApplicationEngine
@@ -33,6 +35,8 @@ import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.origin
+import io.ktor.server.request.path
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -51,11 +55,16 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.getString
 import java.net.InetAddress
@@ -72,7 +81,10 @@ internal fun getLocalIpAddress(): String? {
 
 internal var serverJob: Job? = null
 
-internal expect fun serverNotify(message: String)
+internal expect fun serverNotify(
+    message: String,
+    duration: SnackbarDuration = SnackbarDuration.Long
+)
 
 internal fun isPortInUse(port: Int): Boolean {
     return try {
@@ -108,6 +120,22 @@ internal expect suspend fun sendNotificationAboutRunningServer(
 private val _isServerRunning = MutableStateFlow<AxerServerStatus>(AxerServerStatus.Stopped)
 internal val isAxerServerRunning = _isServerRunning.asStateFlow()
 
+private fun getEntity(
+    requests: Boolean,
+    exceptions: Boolean,
+    logs: Boolean,
+    database: Boolean,
+    isReadOnly: Boolean
+): EnabledFeathers {
+    return EnabledFeathers(
+        isEnabledRequests = requests,
+        isEnabledExceptions = exceptions,
+        isEnabledLogs = logs,
+        isEnabledDatabase = database,
+        isReadOnly = isReadOnly
+    )
+}
+
 
 fun Axer.runServerIfNotRunning(
     scope: CoroutineScope,
@@ -127,7 +155,7 @@ fun Axer.runServerIfNotRunning(
                 _isServerRunning.value = AxerServerStatus.Started(port)
                 coroutineScope {
                     val startedMsg = getString(Res.string.server_started, "$ip:$port")
-                    server = getKtorServer(port, readOnly)
+                    server = getKtorServer(port, readOnly, sendInfoMessages)
                     if (sendInfoMessages) {
                         serverNotify(startedMsg)
                     }
@@ -149,6 +177,7 @@ fun Axer.runServerIfNotRunning(
                 e.printStackTrace()
             } finally {
                 _isServerRunning.value = AxerServerStatus.Stopped
+                connectedClients.value = emptyMap()
                 server?.stop(1000, 1000)
             }
         }.also {
@@ -165,16 +194,20 @@ fun Axer.stopServerIfRunning(
     if (serverJob != null && serverJob?.isActive == true) {
         serverJob?.cancel()
         serverJob = null
-        if(sendInfoMessages){
+        if (sendInfoMessages) {
             serverNotify("Axer server stopped")
         }
     } else {
-        if(sendInfoMessages) {
+        if (sendInfoMessages) {
             serverNotify("Axer server is not running")
         }
     }
     _isServerRunning.value = AxerServerStatus.Stopped
+    connectedClients.value = emptyMap()
 }
+
+private val connectedClients: MutableStateFlow<Map<String, List<String>>> = MutableStateFlow(emptyMap())
+
 
 
 internal suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
@@ -207,11 +240,13 @@ internal suspend fun runChecksBeforeStartingServer(port: Int): Boolean {
  * @suppress
  */
 const val AXER_SERVER_PORT = 53214
+private val addClientMutex = Mutex()
 
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.getKtorServer(
     port: Int,
-    readOnly: Boolean
+    readOnly: Boolean,
+    sendInfoMessages: Boolean
 ): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
     val reader = RoomReader()
     val requestDao: RequestDao by IsolatedContext.koin.inject()
@@ -228,6 +263,54 @@ internal fun CoroutineScope.getKtorServer(
         prettyPrint = true
     }
 
+
+    fun onAddClient(call: ApplicationCall) {
+        val ip = call.request.origin.remoteHost
+        val path = call.request.path()
+        launch {
+            addClientMutex.withLock {
+                val inList = connectedClients.value[ip] ?: emptyList()
+                if (inList.isEmpty()) {
+                    connectedClients.update {
+                        val current = it.toMutableMap()
+                        current[ip] = listOf(path)
+                        current
+                    }
+                } else if (!inList.contains(path)) {
+                    connectedClients.update {
+                        val current = it.toMutableMap()
+                        current[ip] = inList + path
+                        current
+                    }
+                }
+                println("Added client with IP: $ip and path: $path")
+            }
+        }
+    }
+
+    fun onRemoveClient(
+        call: ApplicationCall
+    ) {
+        val ip = call.request.origin.remoteHost
+        val path = call.request.path()
+        launch {
+            addClientMutex.withLock {
+                connectedClients.update { currentClients ->
+                    val updatedClients = currentClients.toMutableMap()
+                    val inList = updatedClients[ip] ?: emptyList()
+                    if (inList.isNotEmpty()) {
+                        updatedClients[ip] = inList - path
+                        if (updatedClients[ip]?.isEmpty() == true) {
+                            updatedClients.remove(ip)
+                        }
+                    }
+                    updatedClients
+                }
+                println("Removed client with IP: $ip and path: $path")
+            }
+        }
+    }
+
     return embeddedServer(CIO, port = port) {
         install(WebSockets) {
             pingPeriod = 15.seconds
@@ -242,27 +325,63 @@ internal fun CoroutineScope.getKtorServer(
         install(DefaultHeaders) {
             header("Content-Type", "application/json")
         }
+        var previousClients: Set<String> = emptySet()
+
+        launch {
+            connectedClients
+                .map { it.keys }
+                .sample(1.seconds)
+                .distinctUntilChanged()
+                .collect { currentClients ->
+                    val added = currentClients - previousClients
+                    val removed = previousClients - currentClients
+
+                    previousClients = currentClients
+
+                    val message = buildString {
+                        if (added.isNotEmpty()) {
+                            append("Connected: ${added.joinToString("\n")}")
+                        }
+                        if (removed.isNotEmpty()) {
+                            append("Disconnected: ${removed.joinToString("\n")}")
+                        }
+                    }.let {
+                        if(it.endsWith("\n")) it.dropLast(1) else it
+                    }
+                    if (message.isNotEmpty() && sendInfoMessages) {
+                        serverNotify(message, SnackbarDuration.Short)
+                    }
+                }
+        }
 
         routing {
             requestsModule(
                 isEnabledRequests = isEnabledRequests,
                 requestsDao = requestDao,
                 readOnly = readOnly,
+                onAddClient = ::onAddClient,
+                onRemoveClient = ::onRemoveClient,
             )
             exceptionsModule(
                 isEnabledExceptions = isEnabledExceptions,
                 exceptionsDao = exceptionsDao,
                 readOnly = readOnly,
+                onAddClient = ::onAddClient,
+                onRemoveClient = ::onRemoveClient,
             )
             logsModule(
                 isEnabledLogs = isEnabledLogs,
                 logsDao = logDao,
                 readOnly = readOnly,
+                onAddClient = ::onAddClient,
+                onRemoveClient = ::onRemoveClient,
             )
             databaseModule(
                 isEnabledDatabase = isEnabledDatabase,
                 reader = reader,
                 readOnly = readOnly,
+                onAddClient = ::onAddClient,
+                onRemoveClient = ::onRemoveClient,
             )
 
             get("/isAxerServer") {
@@ -277,33 +396,27 @@ internal fun CoroutineScope.getKtorServer(
             }
 
             webSocket("/ws/isAlive") {
-                try {
-                    while (true) {
-                        ensureActive()
-                        delay(1000L)
-                        val time = System.currentTimeMillis()
-                        sendSerialized("ping - $time")
+                onAddClient(call)
+                launch {
+                    try {
+                        while (true) {
+                            ensureActive()
+                            delay(1000L)
+                            val time = System.currentTimeMillis()
+                            sendSerialized("ping - $time")
+                        }
+                    } catch (e: Exception) {
                     }
-                } catch (e: Exception) {
+                }
+
+                try {
+                    for (frame in incoming) {
+                    }
+                } finally {
+                    onRemoveClient(call)
                 }
             }
             webSocket("/ws/feathers") {
-                fun getEntity(
-                    requests: Boolean,
-                    exceptions: Boolean,
-                    logs: Boolean,
-                    database: Boolean,
-                    isReadOnly: Boolean
-                ): EnabledFeathers {
-                    return EnabledFeathers(
-                        isEnabledRequests = requests,
-                        isEnabledExceptions = exceptions,
-                        isEnabledLogs = logs,
-                        isEnabledDatabase = database,
-                        isReadOnly = isReadOnly
-                    )
-                }
-
                 sendSerialized(
                     getEntity(
                         requests = isEnabledRequests.first(),
@@ -313,6 +426,7 @@ internal fun CoroutineScope.getKtorServer(
                         isReadOnly = readOnly
                     )
                 )
+                onAddClient(call)
 
                 launch {
                     combine(
@@ -327,7 +441,11 @@ internal fun CoroutineScope.getKtorServer(
                     }
                 }
 
-                for (frame in incoming) {
+                try {
+                    for (frame in incoming) {
+                    }
+                } finally {
+                    onRemoveClient(call)
                 }
             }
         }

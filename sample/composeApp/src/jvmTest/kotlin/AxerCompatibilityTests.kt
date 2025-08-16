@@ -61,6 +61,7 @@ class AxerCompatibilityTests {
             .filter { !it.contains(".generated.") }
             .filter { it != "io.github.orioneee.AxerUIEntryPoint.Screen(AxerDataProvider, Composer, Int): Void" }
             .filter { it != "io.github.orioneee.AxerServerKt.AXER_SERVER_PORT: Int" }
+            .filter { it != "io.github.orioneee.AxerServerKt\$getKtorServer\$1\$4\$invokeSuspend\$\$inlined\$map\$1.collect(FlowCollector, Continuation): Object" }
             .toList()
     }
 

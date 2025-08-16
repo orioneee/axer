@@ -1,5 +1,6 @@
 package io.github.orioneee
 
+import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.database.DatabaseData
 import io.github.orioneee.internal.domain.database.DatabaseWrapped
 import io.github.orioneee.internal.domain.database.EditableRowItem
@@ -8,13 +9,12 @@ import io.github.orioneee.internal.domain.database.RowItem
 import io.github.orioneee.internal.domain.exceptions.AxerException
 import io.github.orioneee.internal.domain.exceptions.SessionException
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.domain.other.BaseResponse
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.other.EnabledFeathers
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.data.TransactionShort
-import io.github.orioneee.internal.AxerDataProvider
-import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.remote.server.UpdatesData
 import io.github.orioneee.internal.remote.server.requestReplaceAll
 import io.github.orioneee.internal.remote.server.toSha256Hash
@@ -37,12 +37,15 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -50,6 +53,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -392,8 +396,7 @@ class RemoteAxerDataProvider(
         }
     }
 
-    @OptIn(FlowPreview::class)
-    override fun isConnected(): Flow<Boolean> {
+    fun initConnectedFlow(): StateFlow<Boolean> {
         val maxDelta = 5_000L
 
         val serverTimeFlow = webSocketFlow<String>("/ws/isAlive") {
@@ -426,12 +429,26 @@ class RemoteAxerDataProvider(
         }
             .distinctUntilChanged()
             .debounce(500)
+            .stateIn(
+                scope = GlobalScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = true
+            )
     }
 
+    val connectedFlow: StateFlow<Boolean> = initConnectedFlow()
+    @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
+    override fun isConnected(): Flow<Boolean> = connectedFlow
 
-    override fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>> {
-        return webSocketFlow("/ws/feathers")
-    }
+    val enabledFeathersFlow = webSocketFlow<EnabledFeathers>("/ws/feathers")
+        .stateIn(
+            scope = GlobalScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = DataState.Loading()
+        )
+
+    @OptIn(DelicateCoroutinesApi::class)
+    override fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>> = enabledFeathersFlow
 
 
     override fun isServerRunning(): Flow<AxerServerStatus> = flowOf(AxerServerStatus.NotSupported)

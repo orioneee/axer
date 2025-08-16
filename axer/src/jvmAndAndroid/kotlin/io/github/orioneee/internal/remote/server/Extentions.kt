@@ -1,6 +1,7 @@
 package io.github.orioneee.internal.remote.server
 
 import androidx.compose.ui.util.fastCoerceAtLeast
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
@@ -20,7 +21,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
-import kotlin.collections.chunked
 
 
 private suspend inline fun <reified T> sendChuncked(
@@ -90,11 +90,14 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
     crossinline initialData: suspend () -> List<T>,
     crossinline dataFlow: () -> Flow<List<T>>,
     crossinline getId: (T) -> Long,
-    chunkSize: Int = 200
+    chunkSize: Int = 200,
+    crossinline onAddClient: suspend (ApplicationCall) -> Unit,
+    crossinline onRemoveClient: suspend (ApplicationCall) -> Unit
 ) {
     val mutex = Mutex()
     webSocket(path) {
         val clientState = mutableListOf<T>()
+        onAddClient(call)
 
         mutex.withLock {
             if (isEnabledFlow().first()) {
@@ -148,28 +151,35 @@ internal inline fun <reified T : Any> Route.reactiveUpdatesSocket(
                 }
         }
 
-        for (frame in incoming) {
-            if (frame is Frame.Text){
-                if (frame.readText() == Frame.requestReplaceAll) {
-                    println("[$path] Received request to replace all data")
-                    mutex.withLock {
-                        ensureActive()
-                        val list = dataFlow().first()
-                        clientState.clear()
-                        clientState.addAll(list)
-                        sendSerialized(
-                            UpdatesData(
-                                updatedOrCreated = emptyList(),
-                                deleted = emptyList(),
-                                replaceWith = list,
-                                replaceAll = true,
-                                hash = list.toSha256Hash{
-                                    getId(it)
-                                }
+        try {
+            for (frame in incoming) {
+                if (frame is Frame.Text){
+                    if (frame.readText() == Frame.requestReplaceAll) {
+                        println("[$path] Received request to replace all data")
+                        mutex.withLock {
+                            ensureActive()
+                            val list = dataFlow().first()
+                            clientState.clear()
+                            clientState.addAll(list)
+                            sendSerialized(
+                                UpdatesData(
+                                    updatedOrCreated = emptyList(),
+                                    deleted = emptyList(),
+                                    replaceWith = list,
+                                    replaceAll = true,
+                                    hash = list.toSha256Hash{
+                                        getId(it)
+                                    }
+                                )
                             )
-                        )
+                        }
                     }
                 }
+            }
+        } finally {
+            onRemoveClient(call)
+            mutex.withLock {
+                clientState.clear()
             }
         }
     }

@@ -5,6 +5,7 @@ import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.presentation.screens.requests.list.onClearAllRequests
 import io.github.orioneee.internal.room.dao.RequestDao
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
@@ -27,6 +28,8 @@ internal fun Route.requestsModule(
     isEnabledRequests: Flow<Boolean>,
     requestsDao: RequestDao,
     readOnly: Boolean,
+    onAddClient: suspend (ApplicationCall) -> Unit,
+    onRemoveClient: suspend (ApplicationCall) -> Unit,
 ) {
     reactiveUpdatesSocket(
         path = "/ws/requests",
@@ -34,11 +37,14 @@ internal fun Route.requestsModule(
         initialData = { requestsDao.getAllShortSync() },
         dataFlow = { requestsDao.getAllShort() },
         getId = { it.id },
+        onAddClient = onAddClient,
+        onRemoveClient = onRemoveClient
     )
 
     webSocket("/ws/requests/{id}") {
         val id = call.parameters["id"]?.toLongOrNull()
         if (id != null) {
+            onAddClient(call)
             if (isEnabledRequests.first()) {
                 sendSerialized(requestsDao.getByIdSync(id))
             } else {
@@ -61,7 +67,13 @@ internal fun Route.requestsModule(
 
             }
 
-            for (frame in incoming) {
+            try {
+                for (frame in incoming) {
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                onRemoveClient(call)
             }
 
         } else {

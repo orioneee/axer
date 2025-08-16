@@ -3,6 +3,7 @@ package io.github.orioneee.internal.remote.server
 import io.github.orioneee.internal.domain.other.BaseResponse
 import io.github.orioneee.internal.room.dao.LogsDAO
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
@@ -12,7 +13,9 @@ import kotlinx.coroutines.flow.first
 internal fun Route.logsModule(
     logsDao: LogsDAO,
     isEnabledLogs: Flow<Boolean>,
-    readOnly: Boolean
+    readOnly: Boolean,
+    onAddClient: (ApplicationCall) -> Unit,
+    onRemoveClient: (ApplicationCall) -> Unit
 ) {
     reactiveUpdatesSocket(
         path = "/ws/logs",
@@ -20,7 +23,9 @@ internal fun Route.logsModule(
         initialData = { logsDao.getAllSync() },
         dataFlow = { logsDao.getAll() },
         getId = { it.id },
-        chunkSize = 5000
+        chunkSize = 5000,
+        onAddClient = onAddClient,
+        onRemoveClient = onRemoveClient
     )
 
 

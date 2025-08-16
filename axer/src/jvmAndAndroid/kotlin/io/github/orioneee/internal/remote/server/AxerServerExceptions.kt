@@ -4,6 +4,7 @@ import io.github.orioneee.internal.domain.exceptions.SessionException
 import io.github.orioneee.internal.domain.other.BaseResponse
 import io.github.orioneee.internal.room.dao.AxerExceptionDao
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
@@ -14,14 +15,18 @@ import kotlinx.coroutines.flow.first
 internal fun Route.exceptionsModule(
     exceptionsDao: AxerExceptionDao,
     isEnabledExceptions: Flow<Boolean>,
-    readOnly: Boolean
+    readOnly: Boolean,
+    onAddClient: (ApplicationCall) -> Unit,
+    onRemoveClient: (ApplicationCall) -> Unit
 ) {
     reactiveUpdatesSocket(
         path = "/ws/exceptions",
         isEnabledFlow = { isEnabledExceptions },
         initialData = { exceptionsDao.getAllSuspend() },
         dataFlow = { exceptionsDao.getAll() },
-        getId = { it.id }
+        getId = { it.id },
+        onAddClient = onAddClient,
+        onRemoveClient = onRemoveClient
     )
 
 

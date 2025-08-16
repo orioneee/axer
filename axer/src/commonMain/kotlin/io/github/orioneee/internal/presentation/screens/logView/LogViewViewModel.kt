@@ -9,6 +9,7 @@ import io.github.orioneee.axer.generated.resources.logs_copied
 import io.github.orioneee.axer.generated.resources.oops_something_went_wrong
 import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.extentions.successData
 import io.github.orioneee.internal.snackbarProcessor.SnackBarController
 import io.github.orioneee.internal.utils.DataExporter
@@ -23,7 +24,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import kotlin.math.max
@@ -54,7 +55,11 @@ internal class LogViewViewModel(
     @OptIn(FlowPreview::class)
     val logsState by lazy {
         dataProvider.getAllLogs()
-            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(3.seconds), replay = 1)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(3.seconds),
+                initialValue = DataState.Loading()
+            )
     }
     val logs = logsState.successData().filterNotNull()
     val filtredLogs = combine(

@@ -10,21 +10,30 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.material3.SnackbarDuration
 import androidx.core.app.NotificationCompat
-import io.github.orioneee.internal.NotificationInfo
 import io.github.orioneee.axer.R
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.axer_server
 import io.github.orioneee.axer.generated.resources.server_started
 import io.github.orioneee.axer.generated.resources.stop
+import io.github.orioneee.internal.NotificationInfo
 import io.github.orioneee.internal.koin.IsolatedContext
 import io.github.orioneee.internal.koin.getContext
 import org.jetbrains.compose.resources.getString
 
-internal actual fun serverNotify(message: String) {
+internal actual fun serverNotify(
+    message: String,
+    duration: SnackbarDuration
+) {
+    val duration = when (duration) {
+        SnackbarDuration.Short -> Toast.LENGTH_SHORT
+        SnackbarDuration.Long -> Toast.LENGTH_LONG
+        SnackbarDuration.Indefinite -> Toast.LENGTH_LONG // Indefinite is not supported in Android Toasts
+    }
     val context = IsolatedContext.getContext()
     Handler(Looper.getMainLooper()).post {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(context, message, duration).show()
     }
 }
 
