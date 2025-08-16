@@ -23,3 +23,5 @@ jobs:
 
       - name: Run Gradle tests
         run: ./gradlew :sample:composeApp:cleanJvmTest :sample:composeApp:jvmTest --tests "AxerCompatibilityTests"
+      - name: Run Gradle tests
+        run: ./gradlew :axer:cleanJvmTest :axer:jvmTest --tests "HarFileGenerationTest"
