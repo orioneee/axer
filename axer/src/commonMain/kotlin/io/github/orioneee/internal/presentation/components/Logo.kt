@@ -3,7 +3,9 @@ package io.github.orioneee.internal.presentation.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,9 +46,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.alexzhirkevich.compottie.ExperimentalCompottieApi
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
@@ -69,6 +74,7 @@ import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.storage.AxerSettings
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -170,7 +176,8 @@ fun AxerLogoDialog() {
                 ) {
                     Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(50))
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(16.dp))
                             .clickable {
                                 uriHandler.openUri("https://github.com/orioneee/Axer")
                             }
@@ -191,6 +198,8 @@ fun AxerLogoDialog() {
                     }
 
                     Button(
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.height(48.dp),
                         onClick = {
                             uriHandler.openUri("https://github.com/orioneee/Axer/issues")
                         }
@@ -222,13 +231,18 @@ private fun ThemeOption(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val ownColorScheme = when (mode) {
+        Theme.FOLLOW_SYSTEM -> AxerTheme.systemColorScheme
+        Theme.LIGHT -> AxerTheme.light
+        Theme.DARK -> AxerTheme.dark
+    }
     val backgroundColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer
-        else MaterialTheme.colorScheme.surfaceVariant,
+        targetValue = if (selected) ownColorScheme.primaryContainer
+        else ownColorScheme.background,
         label = ""
     )
-    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer
-    else MaterialTheme.colorScheme.onSurfaceVariant
+    val contentColor = if (selected) ownColorScheme.onPrimaryContainer
+    else ownColorScheme.onBackground
 
     Column(
         modifier = Modifier
@@ -254,13 +268,86 @@ internal expect fun getServerIp(): String?
 internal expect fun startServerIfCan()
 internal expect fun stopServerIfCan()
 
+private fun Color.toLottieColor(): String {
+    val red = red.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
+    val green = green.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
+    val blue = blue.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
+    val alpha = alpha.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
+    return "[${red},${green},${blue},${alpha}]"
+}
+
+private suspend fun Animatable<Float, AnimationVector1D>.animateBetween(
+    from: Float,
+    to: Float,
+    target: Float,
+    duration: Int = 700
+) {
+    if (value != to) {
+        if (value != from) {
+            snapTo(from)
+        }
+        animateTo(
+            targetValue = target,
+            animationSpec = tween(duration)
+        )
+        snapTo(to)
+    }
+}
+
+
+private const val pointFoStartPlay = 0.07462f
+private const val pointForStartEnd = 0.537f
+
+private val runServerAnimationRange = 0f to 49f / 130f
+private val stopServerAnimationRange =
+    runServerAnimationRange.second to runServerAnimationRange.first
+
+@OptIn(ExperimentalCompottieApi::class)
 @Composable
 internal fun ServerStatusDialog(
     state: MutableState<Boolean>,
     serverStatus: AxerServerStatus
 ) {
-    val color =
-        animateColorAsState(if (serverStatus is AxerServerStatus.Started) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+    val pausePlayAnimationProgress =
+        remember { Animatable(if (serverStatus !is AxerServerStatus.Started) pointFoStartPlay else pointForStartEnd) }
+    val serverStatusAnimationProgress =
+        remember { Animatable(if (serverStatus !is AxerServerStatus.Started) stopServerAnimationRange.second else runServerAnimationRange.second) }
+
+    LaunchedEffect(serverStatus) {
+        if (serverStatus !is AxerServerStatus.Started) {
+            launch {
+                pausePlayAnimationProgress.animateBetween(
+                    from = pointForStartEnd,
+                    to = pointFoStartPlay,
+                    target = 1f
+                )
+            }
+            launch {
+                serverStatusAnimationProgress.animateBetween(
+                    from = stopServerAnimationRange.first,
+                    to = stopServerAnimationRange.second,
+                    target = stopServerAnimationRange.second,
+                )
+            }
+        } else {
+            launch {
+                pausePlayAnimationProgress.animateBetween(
+                    from = pointFoStartPlay,
+                    to = pointForStartEnd,
+                    target = 0.5f
+                )
+            }
+            launch {
+                serverStatusAnimationProgress.animateBetween(
+                    from = runServerAnimationRange.first,
+                    to = runServerAnimationRange.second,
+                    target = runServerAnimationRange.second,
+                )
+            }
+        }
+    }
+
+
     MultiplatformAlertDialog(
         state = state,
         confirmButton = {
@@ -276,26 +363,11 @@ internal fun ServerStatusDialog(
                 ) {
                     Text(stringResource(Res.string.close))
                 }
-                val progressAnim =
-                    remember { Animatable(if (serverStatus !is AxerServerStatus.Started) 0.07462f else 0.537f) }
 
-                LaunchedEffect(serverStatus) {
-                    val target = if (serverStatus !is AxerServerStatus.Started) 1f else 0.5f
-                    val start = if (serverStatus !is AxerServerStatus.Started) 0.537f else 0.07462f
-                    val end = if (serverStatus !is AxerServerStatus.Started) 0.07462f else 0.537f
-                    if (progressAnim.value != end) {
-                        if (progressAnim.value != start) {
-                            progressAnim.snapTo(start)
-                        }
-                        progressAnim.animateTo(
-                            targetValue = target,
-                            animationSpec = tween(700)
-                        )
-                        progressAnim.snapTo(end)
-                    }
-                }
 
                 Button(
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.height(48.dp),
                     onClick = {
                         if (serverStatus is AxerServerStatus.Started) {
                             stopServerIfCan()
@@ -321,23 +393,28 @@ internal fun ServerStatusDialog(
                         Icon(
                             painter = rememberLottiePainter(
                                 composition = composition,
-                                progress = { progressAnim.value },
+                                progress = { pausePlayAnimationProgress.value },
                             ),
                             modifier = Modifier.size(24.dp),
                             contentDescription = "Lottie animation"
                         )
-                        AnimatedContent(
-                            serverStatus,
-
-                            ) {
+                        AnimatedContent(serverStatus) {
                             when (it) {
                                 AxerServerStatus.NotSupported -> {}
                                 is AxerServerStatus.Started -> {
-                                    Text(stringResource(Res.string.stop_server))
+                                    Text(
+                                        stringResource(Res.string.stop_server),
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
 
                                 AxerServerStatus.Stopped -> {
-                                    Text(stringResource(Res.string.start_server))
+                                    Text(
+                                        stringResource(
+                                            Res.string.start_server
+                                        ),
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }
@@ -347,14 +424,48 @@ internal fun ServerStatusDialog(
         },
         title = {
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painterResource(Res.drawable.ic_nest_remote),
+                val primaryColor = MaterialTheme.colorScheme.primary
+                val surfaceVariantColor = MaterialTheme.colorScheme.outline
+                val composition by rememberLottieComposition {
+                    val json = Res.readBytes("files/server_status.json")
+                        .decodeToString()
+                        .replace("[0,0,0,1]", primaryColor.toLottieColor())
+                        .replace(
+                            "[0.917999985639,0.917999985639,0.917999985639,1]",
+                            surfaceVariantColor.toLottieColor()
+                        )
+                        .replace(
+                            "[0.917647058824,0.917647058824,0.917647058824,1]",
+                            surfaceVariantColor.toLottieColor()
+                        )
+                        .replace(
+                            "[0.917647063732,0.917647063732,0.917647063732,1]",
+                            surfaceVariantColor.toLottieColor()
+                        )
+
+                    LottieCompositionSpec.JsonString(json)
+                }
+
+
+                val painter = rememberLottiePainter(
+                    composition = composition,
+                    progress = { serverStatusAnimationProgress.value },
+                )
+
+
+                Image(
+                    painter = painter,
                     contentDescription = "Server status",
-                    tint = color.value,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(150.dp)
                 )
             }
         },
@@ -363,34 +474,34 @@ internal fun ServerStatusDialog(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 10.dp),
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 when (serverStatus) {
-                    AxerServerStatus.NotSupported -> {}
-                    is AxerServerStatus.Started -> {
-                        Text(
-                            text = stringResource(
-                                Res.string.server_started,
-                                "${getServerIp()}:${serverStatus.port}"
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    AxerServerStatus.NotSupported -> Text(
+                        "Server not supported",
+                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
+                        textAlign = TextAlign.Center
+                    )
 
-                    AxerServerStatus.Stopped -> {
-                        Text(
-                            text = stringResource(
-                                Res.string.server_stopped_on,
-                                "${getServerIp()}:XXXXX"
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    is AxerServerStatus.Started -> Text(
+                        text = stringResource(
+                            Res.string.server_started,
+                            "${getServerIp()}:${serverStatus.port}"
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        textAlign = TextAlign.Center
+                    )
+
+                    AxerServerStatus.Stopped -> Text(
+                        text = stringResource(
+                            Res.string.server_stopped_on,
+                            "${getServerIp()}:XXXXX"
+                        ),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         },
@@ -406,7 +517,7 @@ internal fun ServerRunStatus(
     if (status.value != AxerServerStatus.NotSupported) {
         val isShowServerStatusDialog = remember { mutableStateOf(false) }
         val color =
-            animateColorAsState(if (status.value is AxerServerStatus.Started) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+            animateColorAsState(if (status.value is AxerServerStatus.Started) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
         IconButton(
             onClick = { isShowServerStatusDialog.value = true },
             modifier = Modifier
