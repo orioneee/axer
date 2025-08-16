@@ -4,25 +4,24 @@ import com.russhwolf.settings.ObservableSettings
 import io.github.orioneee.AxerConfig
 import io.github.orioneee.internal.domain.other.Theme
 
-internal object AxerSettings {
+object AxerSettings {
     private val settings by lazy { createSettings("AxerSettings") }
 
-    val enableRequestMonitor = BooleanSettingItem(settings, "enableRequestMonitor")
-    val enableExceptionMonitor = BooleanSettingItem(settings, "enableExceptionMonitor")
-    val enableLogMonitor = BooleanSettingItem(settings, "enableLogMonitor")
-    val enableDatabaseMonitor = BooleanSettingItem(settings, "enableDatabaseMonitor")
-    val isRecordingLogs = BooleanSettingItem(settings, "isRecordingLogs")
+    internal val enableRequestMonitor = BooleanSettingItem(settings, "enableRequestMonitor")
+    internal val enableExceptionMonitor = BooleanSettingItem(settings, "enableExceptionMonitor")
+    internal val enableLogMonitor = BooleanSettingItem(settings, "enableLogMonitor")
+    internal val enableDatabaseMonitor = BooleanSettingItem(settings, "enableDatabaseMonitor")
+    internal val isRecordingLogs = BooleanSettingItem(settings, "isRecordingLogs")
+    internal val isSendNotification = BooleanSettingItem(settings, "isSendNotification", true)
 
-    val isSendNotification = BooleanSettingItem(settings, "isSendNotification", true)
-
-    val theme = EnumSettingsItem(
+    val theme: SettingItem<Theme> = EnumSettingsItem(
         settings,
         "theme",
         Theme.FOLLOW_SYSTEM,
         Theme.serializer()
     )
 
-    fun configure(config: AxerConfig) {
+    internal fun configure(config: AxerConfig) {
         enableRequestMonitor.set(config.enableRequestMonitor)
         enableExceptionMonitor.set(config.enableExceptionMonitor)
         enableLogMonitor.set(config.enableLogMonitor)

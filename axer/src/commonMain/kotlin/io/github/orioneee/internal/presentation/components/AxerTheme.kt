@@ -78,18 +78,12 @@ object AxerTheme {
     ) {
         val currentTheme by AxerSettings.theme.asFlow()
             .collectAsStateWithLifecycle(Theme.FOLLOW_SYSTEM)
-        val scheme = when (currentTheme) {
-            Theme.FOLLOW_SYSTEM -> {
-                if (isSystemInDarkTheme()) {
-                    dark
-                } else {
-                    light
-                }
-            }
-
-            Theme.LIGHT -> light
-            Theme.DARK -> dark
+        val isDark = when (currentTheme) {
+            Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+            Theme.LIGHT -> false
+            Theme.DARK -> true
         }
+        val scheme = if (isDark) dark else light
         MaterialTheme(scheme) {
             content()
         }

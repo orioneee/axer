@@ -1,5 +1,7 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -123,4 +125,34 @@ buildkonfig {
 compose.resources {
     packageOfResClass = "io.github.orioneee.axer.debugger.generated.resources"
     publicResClass = true
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    if (project.path != ":axer") {
+        val axerProject = project(":axer")
+        val kotlinExt = axerProject.extensions.getByType<KotlinMultiplatformExtension>()
+
+        val friendPath = when {
+            name.contains("jvm", ignoreCase = true) -> {
+                kotlinExt.targets.getByName("jvm").compilations["main"].output.classesDirs.asPath
+            }
+
+            name.contains("android", ignoreCase = true) -> {
+                val variantName = listOf("debug", "release").find { variant ->
+                    name.contains(variant, ignoreCase = true)
+                }
+
+                val targetCompilationName = variantName ?: "debug"
+
+                kotlinExt.targets.getByName("android")
+                    .compilations.findByName(targetCompilationName)?.output?.classesDirs?.asPath
+            }
+
+            else -> null
+        }
+
+        friendPath?.let {
+            compilerOptions.freeCompilerArgs.add("-Xfriend-paths=$it")
+        }
+    }
 }
