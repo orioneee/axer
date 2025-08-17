@@ -85,6 +85,7 @@ import io.github.orioneee.internal.storage.AxerSettings
 import io.github.orioneee.models.AdbDevice
 import io.github.orioneee.models.ConnectionInfo
 import io.github.orioneee.models.Device
+import io.github.orioneee.utils.JetbrainsMonoFontFamily
 import kotlinx.coroutines.channels.Channel
 
 class SelectDeviceScreen {
@@ -129,6 +130,7 @@ class SelectDeviceScreen {
             title = {
                 Text(
                     text = "Manual Connection",
+                    fontFamily = JetbrainsMonoFontFamily,
                     style = MaterialTheme.typography.titleLarge,
                 )
             },
@@ -143,7 +145,12 @@ class SelectDeviceScreen {
                             ip = it
                             ipError = validateIp(it)
                         },
-                        label = { Text("IP Address") },
+                        label = {
+                            Text(
+                                "IP Address",
+                                fontFamily = JetbrainsMonoFontFamily,
+                            )
+                        },
                         isError = ipError != null,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -151,6 +158,7 @@ class SelectDeviceScreen {
                     if (ipError != null) {
                         Text(
                             text = ipError!!,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -162,7 +170,12 @@ class SelectDeviceScreen {
                             port = it
                             portError = validatePort(it)
                         },
-                        label = { Text("Port") },
+                        label = {
+                            Text(
+                                "Port",
+                                fontFamily = JetbrainsMonoFontFamily,
+                            )
+                        },
                         isError = portError != null,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
@@ -171,6 +184,7 @@ class SelectDeviceScreen {
                     if (portError != null) {
                         Text(
                             text = portError!!,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -187,7 +201,10 @@ class SelectDeviceScreen {
                     TextButton(
                         onClick = onDismiss,
                     ) {
-                        Text("Dismiss")
+                        Text(
+                            "Dismiss",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
 
                     Button(
@@ -200,7 +217,10 @@ class SelectDeviceScreen {
                             }
                         }, enabled = isFormValid
                     ) {
-                        Text("Add")
+                        Text(
+                            "Add",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
                 }
             })
@@ -254,6 +274,7 @@ class SelectDeviceScreen {
                 ) {
                     AxerLogo(modifier = Modifier.size(32.dp))
                     Text(
+                        fontFamily = JetbrainsMonoFontFamily,
                         text = "New Version Available",
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -274,6 +295,7 @@ class SelectDeviceScreen {
 
                     Text(
                         text = "A New Version is Available",
+                        fontFamily = JetbrainsMonoFontFamily,
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
@@ -282,6 +304,7 @@ class SelectDeviceScreen {
                     Text(
                         text = "Please update to the latest version for new features and improvements.",
                         style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = JetbrainsMonoFontFamily,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
@@ -297,14 +320,20 @@ class SelectDeviceScreen {
                     TextButton(
                         onClick = viewModel::onDismissNewVersion,
                     ) {
-                        Text("Later")
+                        Text(
+                            "Later",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
                     val uriHandler = LocalUriHandler.current
                     Button(
                         onClick = {
                             uriHandler.openUri("https://github.com/orioneee/Axer/releases")
                         }) {
-                        Text("Update")
+                        Text(
+                            "Update",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
                 }
             }
@@ -328,7 +357,12 @@ class SelectDeviceScreen {
             topBar = {
                 CenterAlignedTopAppBar(
                     colors = colors,
-                    title = { Text("Select a Device") },
+                    title = {
+                        Text(
+                            "Select a Device",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
+                    },
                     navigationIcon = {
                         AxerLogoDialog()
                     },
@@ -375,6 +409,7 @@ class SelectDeviceScreen {
                         ) {
                             Text(
                                 "Scanning for devices on your network...",
+                                fontFamily = JetbrainsMonoFontFamily,
                                 style = MaterialTheme.typography.titleMedium,
                                 textAlign = TextAlign.Companion.Center,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -423,6 +458,7 @@ class SelectDeviceScreen {
             )
             Text(
                 text = "Progress: ${(animatedProgress * 100).toInt()}%",
+                fontFamily = JetbrainsMonoFontFamily,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -449,6 +485,7 @@ class SelectDeviceScreen {
             Text(
                 text = "No Devices Found",
                 style = MaterialTheme.typography.titleLarge,
+                fontFamily = JetbrainsMonoFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface
@@ -469,6 +506,7 @@ class SelectDeviceScreen {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = it.text,
+                            fontFamily = JetbrainsMonoFontFamily,
                             textAlign = TextAlign.Start,
                         )
                     }
@@ -508,6 +546,7 @@ class SelectDeviceScreen {
                     ) {
                         Text(
                             text = "Axer devices in local network",
+                            fontFamily = JetbrainsMonoFontFamily,
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -533,6 +572,7 @@ class SelectDeviceScreen {
                     ) {
                         Text(
                             text = "Manually added but not recognized as Axer devices, try different IP/port or retry scanning.",
+                            fontFamily = JetbrainsMonoFontFamily,
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -546,7 +586,9 @@ class SelectDeviceScreen {
                     ListItem(
                         headlineContent = {
                             Text(
-                                text = it.toAddress(), style = MaterialTheme.typography.titleMedium
+                                text = it.toAddress(),
+                                fontFamily = JetbrainsMonoFontFamily,
+                                style = MaterialTheme.typography.titleMedium
                             )
                         },
                         leadingContent = {
@@ -578,6 +620,7 @@ class SelectDeviceScreen {
                         Text(
                             text = "Devices connected via ADB",
                             style = MaterialTheme.typography.titleMedium,
+                            fontFamily = JetbrainsMonoFontFamily,
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
@@ -632,6 +675,7 @@ class SelectDeviceScreen {
             title = {
                 Text(
                     text = "Select Port",
+                    fontFamily = JetbrainsMonoFontFamily,
                     style = MaterialTheme.typography.titleLarge,
                 )
             },
@@ -647,7 +691,8 @@ class SelectDeviceScreen {
                         )
                     }
                     Text(
-                        "Enter the port number for the Axer server on this device, by default it is ${AXER_SERVER_PORT}. "
+                        "Enter the port number for the Axer server on this device, by default it is ${AXER_SERVER_PORT}. ",
+                        fontFamily = JetbrainsMonoFontFamily,
                     )
                     OutlinedTextField(
                         enabled = !isLoading,
@@ -656,7 +701,12 @@ class SelectDeviceScreen {
                             port = it
                             portError = validatePort(it)
                         },
-                        label = { Text("Port") },
+                        label = {
+                            Text(
+                                "Port",
+                                fontFamily = JetbrainsMonoFontFamily,
+                            )
+                        },
                         isError = portError != null,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
@@ -665,6 +715,7 @@ class SelectDeviceScreen {
                     portError?.let {
                         Text(
                             text = it,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -684,7 +735,11 @@ class SelectDeviceScreen {
                             portError = null
                         },
                     ) {
-                        Text("Dismiss")
+                        Text(
+                            "Dismiss",
+                            fontFamily = JetbrainsMonoFontFamily,
+
+                            )
                     }
 
                     Button(
@@ -697,7 +752,10 @@ class SelectDeviceScreen {
                         },
                         enabled = !isLoading && portError == null && port.isNotBlank() && port.toIntOrNull() != null && port.toInt() in 1..65535
                     ) {
-                        Text("Add")
+                        Text(
+                            "Add",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
                 }
             }
@@ -711,11 +769,13 @@ class SelectDeviceScreen {
             headlineContent = {
                 Text(
                     text = device.name,
+                    fontFamily = JetbrainsMonoFontFamily,
                 )
             },
             supportingContent = {
                 Text(
                     text = device.serial,
+                    fontFamily = JetbrainsMonoFontFamily,
                 )
             },
             leadingContent = {
@@ -753,6 +813,7 @@ class SelectDeviceScreen {
                         )
                         Text(
                             text = device.data.baseAppName ?: "Unknown",
+                            fontFamily = JetbrainsMonoFontFamily,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -761,21 +822,25 @@ class SelectDeviceScreen {
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
                             text = device.data.readableDeviceName,
+                            fontFamily = JetbrainsMonoFontFamily,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
                             text = "OS: ${device.data.osName} ${device.data.osVersion}",
                             style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
                         Text(
                             text = "${device.connection.ip}:${device.connection.port}",
                             style = MaterialTheme.typography.bodySmall,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                         Text(
                             text = "Version: ${device.data.axerVersion}",
                             style = MaterialTheme.typography.bodySmall,
+                            fontFamily = JetbrainsMonoFontFamily,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     }

@@ -50,6 +50,7 @@ import io.github.orioneee.internal.presentation.components.AxerTheme.light
 import io.github.orioneee.internal.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.internal.storage.AxerSettings
 import io.github.orioneee.models.Device
+import io.github.orioneee.utils.JetbrainsMonoFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -71,6 +72,7 @@ class InspectionScreen {
                 ) {
                     AxerLogo(modifier = Modifier.size(32.dp))
                     Text(
+                        fontFamily = JetbrainsMonoFontFamily,
                         text = "Connection Lost",
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -111,12 +113,14 @@ class InspectionScreen {
                     )
 
                     Text(
+                        fontFamily = JetbrainsMonoFontFamily,
                         text = "Connection Lost",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
+                        fontFamily = JetbrainsMonoFontFamily,
                         text = "We're trying to reconnect. Please wait a moment.",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -137,7 +141,10 @@ class InspectionScreen {
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(onClick = onDismiss) {
-                        Text("Exit")
+                        Text(
+                            "Exit",
+                            fontFamily = JetbrainsMonoFontFamily,
+                        )
                     }
                 }
             }
@@ -150,9 +157,10 @@ class InspectionScreen {
         navController: NavHostController,
         deviceData: Device,
     ) {
-        val provider = remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
-        val isConnected = provider.isConnected()
-            .collectAsStateWithLifecycle(true)
+        val provider =
+            remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
+        val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
+        val ping = provider.pingFlow.collectAsStateWithLifecycle(null)
         var isDialogDismissed by remember { mutableStateOf(false) }
 
         val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
@@ -173,11 +181,13 @@ class InspectionScreen {
                 CenterAlignedTopAppBar(
                     colors = colors,
                     title = {
+                        val animatedPing = ping.value?.toInt() ?: 0
                         Text(
-                            stringResource(
+                            fontFamily = JetbrainsMonoFontFamily,
+                            text = stringResource(
                                 Res.string.app_name_device,
                                 deviceData.data.readableDeviceName
-                            )
+                            ) + " - ${animatedPing.takeIf { it != 0 } ?: "..."} ms"
                         )
                     },
                     navigationIcon = {

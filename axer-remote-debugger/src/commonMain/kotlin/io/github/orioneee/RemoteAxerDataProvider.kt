@@ -47,10 +47,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -58,7 +56,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
-import kotlin.math.abs
+import kotlin.time.Duration.Companion.seconds
 
 class RemoteAxerDataProvider(
     private val serverUrl: String,
@@ -396,50 +394,147 @@ class RemoteAxerDataProvider(
         }
     }
 
-    @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
-    fun initConnectedFlow(): StateFlow<Boolean> {
-        val maxDelta = 5_000L
+    data class ConnectionState(
+        val isConnected: Boolean,
+        val rtt: Long
+    )
 
-        val serverTimeFlow = webSocketFlow<String>("/ws/isAlive") {
-            val m = it.substringAfter("ping - ").replace("\"", "")
-            m
-        }.map {
-            when (it) {
-                is DataState.Loading<*> -> {
-                    System.currentTimeMillis()
-                }
+    @OptIn(DelicateCoroutinesApi::class)
+    fun connectionFlow(): StateFlow<ConnectionState> = callbackFlow {
+        val uri = URI(serverUrl)
 
-                is DataState.Success<*> -> {
-                    val time = it.data as String
-                    time.toLongOrNull() ?: 0L
+        val job = launch {
+            while (isActive) {
+                try {
+                    client.webSocket(
+                        method = HttpMethod.Get,
+                        host = uri.host,
+                        port = uri.port,
+                        path = "/ws/echo"
+                    ) {
+                        val sender = launch {
+                            while (isActive) {
+                                val sentTime = System.currentTimeMillis()
+                                val msg = """{"type":"ping","sent":$sentTime}"""
+                                send(Frame.Text(msg))
+                                delay(1.seconds)
+                            }
+                        }
+
+                        for (frame in incoming) {
+                            if (frame is Frame.Text) {
+                                val text = frame.readText()
+                                val sentTime = Regex(""""sent":(\d+)""")
+                                    .find(text)
+                                    ?.groupValues?.get(1)?.toLongOrNull()
+
+                                if (sentTime != null) {
+                                    val rtt = System.currentTimeMillis() - sentTime
+                                    trySend(ConnectionState(true, rtt)).isSuccess
+                                }
+                            }
+                        }
+
+                        sender.cancel()
+                    }
+
+                    delay(1_000)
+
+                } catch (e: Exception) {
+                    if (e.message?.contains("404") == true) {
+                        println("connectionFlow: server returned 404, stopping reconnects")
+                        break
+                    } else {
+                        println("connectionFlow error: ${e.message}, retrying in 2s")
+                        trySend(ConnectionState(false, 0L)).isSuccess
+                        delay(2_000)
+                    }
                 }
             }
         }
-        val clientTimeFlow = flow {
-            while (true) {
-                emit(System.currentTimeMillis())
-                delay(1000)
-            }
-        }
 
-        return combine(
-            serverTimeFlow,
-            clientTimeFlow
-        ) { serverTime, clientTime ->
-            abs(serverTime - clientTime) < maxDelta
-        }
-            .distinctUntilChanged()
-            .debounce(500)
-            .stateIn(
-                scope = GlobalScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = true
-            )
-    }
+        awaitClose { job.cancel() }
+    }.stateIn(
+        scope = GlobalScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ConnectionState(true, 0L)
+    )
 
-    val connectedFlow: StateFlow<Boolean> = initConnectedFlow()
+
+
+    val connection = connectionFlow()
+
+    @OptIn(FlowPreview::class)
+    val connectedFlow: Flow<Boolean> = connection.map { it.isConnected }.debounce(500)
+    val pingFlow: Flow<Long> = connection.map { it.rtt }
+
     @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
     override fun isConnected(): Flow<Boolean> = connectedFlow
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun realPingFlow(): StateFlow<Long> = callbackFlow {
+        val uri = URI(serverUrl)
+
+        val job = launch {
+            while (isActive) {
+                try {
+                    client.webSocket(
+                        method = HttpMethod.Get,
+                        host = uri.host,
+                        port = uri.port,
+                        path = "/ws/echo"
+                    ) {
+                        // sender job: send pings every second
+                        val sender = launch {
+                            while (isActive) {
+                                val sentTime = System.currentTimeMillis()
+                                val msg = """{"type":"ping","sent":$sentTime}"""
+                                send(Frame.Text(msg))
+                                delay(1.seconds)
+                            }
+                        }
+
+                        // receive echoed frames
+                        for (frame in incoming) {
+                            if (frame is Frame.Text) {
+                                val text = frame.readText()
+                                val sentTime = Regex(""""sent":(\d+)""")
+                                    .find(text)
+                                    ?.groupValues?.get(1)?.toLongOrNull()
+
+                                if (sentTime != null) {
+                                    val rtt = System.currentTimeMillis() - sentTime
+                                    trySend(rtt).isSuccess
+                                }
+                            }
+                        }
+
+                        sender.cancel()
+                    }
+
+                    // if socket closes normally, reconnect after short delay
+                    delay(1_000)
+                } catch (e: Exception) {
+                    // Check for 404
+                    if (e.message?.contains("404") == true) {
+                        println("realPingFlow: server returned 404, stopping reconnects")
+                        break
+                    } else {
+                        println("realPingFlow error: ${e.message}, retrying in 2s")
+                        delay(2_000)
+                    }
+                }
+            }
+        }
+
+        awaitClose { job.cancel() }
+    }.stateIn(
+        scope = GlobalScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0L
+    )
+
+
 
     val enabledFeathersFlow = webSocketFlow<EnabledFeathers>("/ws/feathers")
         .stateIn(
@@ -447,6 +542,7 @@ class RemoteAxerDataProvider(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = DataState.Loading()
         )
+
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun getEnabledFeatures(): Flow<DataState<EnabledFeathers>> = enabledFeathersFlow

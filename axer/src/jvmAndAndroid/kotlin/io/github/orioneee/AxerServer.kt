@@ -45,6 +45,8 @@ import io.ktor.server.websocket.pingPeriod
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -409,6 +411,19 @@ internal fun CoroutineScope.getKtorServer(
 
                 try {
                     for (frame in incoming) {
+                    }
+                } finally {
+                    onRemoveClient(call)
+                }
+            }
+            webSocket("/ws/echo") {
+                onAddClient(call)
+                try {
+                    for (frame in incoming) {
+                        if (frame is Frame.Text) {
+                            val text = frame.readText()
+                            send(Frame.Text(text))
+                        }
                     }
                 } finally {
                     onRemoveClient(call)
