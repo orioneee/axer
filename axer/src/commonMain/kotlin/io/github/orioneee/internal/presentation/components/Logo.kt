@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -282,7 +281,8 @@ private suspend fun Animatable<Float, AnimationVector1D>.animateBetween(
     from: Float?,
     to: Float,
     target: Float,
-    duration: Int = 700
+    duration: Int = 700,
+    delay: Int = 0
 ) {
     if (value != to) {
         if (value != from && from != null) {
@@ -290,7 +290,7 @@ private suspend fun Animatable<Float, AnimationVector1D>.animateBetween(
         }
         animateTo(
             targetValue = target,
-            animationSpec = tween(duration, 0, FastOutLinearInEasing)
+            animationSpec = tween(duration, delay)
         )
         snapTo(to)
     }
@@ -330,11 +330,16 @@ internal fun ServerStatusDialog(
                     from = null,
                     to = runServerAnimationRange.first,
                     target = runServerAnimationRange.first,
+                    duration = 1000,
                 )
+            }
+            launch {
                 noInetProgress.animateBetween(
                     from = null,
                     to = noInetRange.second,
                     target = noInetRange.second,
+                    duration = 1000,
+                    delay = 550
                 )
             }
         } else {
@@ -350,11 +355,16 @@ internal fun ServerStatusDialog(
                     from = null,
                     to = noInetRange.first,
                     target = noInetRange.first,
+                    duration = 1000,
                 )
+            }
+            launch {
                 serverRunProgress.animateBetween(
                     from = null,
                     to = runServerAnimationRange.second,
                     target = runServerAnimationRange.second,
+                    duration = 1000,
+                    delay = 600
                 )
             }
         }
