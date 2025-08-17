@@ -272,7 +272,7 @@ class DeviceScanViewModel : ViewModel() {
 
 
         println("Checking ${devices.size} devices for Axer server...")
-        devices.chunked(70).forEach { chunk ->
+        devices.chunked(20).forEach { chunk ->
             chunk.map { conn ->
                 async {
                     checkConnection(conn).let { result ->
@@ -309,7 +309,7 @@ class DeviceScanViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 Socket().use { socket ->
                     val socketAddress = InetSocketAddress(data.ip, data.port)
-                    socket.connect(socketAddress, 2000)
+                    socket.connect(socketAddress, 200)
                     true
                 }
             }
