@@ -178,7 +178,15 @@ object AxerTheme {
     val systemColorScheme: ColorScheme
         @Composable get() = if (isSystemInDarkTheme()) dark else light
 
-
+    val isDark: Boolean
+        @Composable get() {
+            val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
+            return when (currentTheme) {
+                Theme.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+                Theme.LIGHT -> false
+                Theme.DARK -> true
+            }
+        }
     @Composable
     fun ProvideTheme(
         content: @Composable () -> Unit

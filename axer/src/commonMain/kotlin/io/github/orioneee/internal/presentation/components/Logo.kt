@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -74,6 +75,7 @@ import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.other.AxerServerStatus
 import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.storage.AxerSettings
+import io.github.orioneee.internal.utils.replaceColorsInLottieJson
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -277,18 +279,18 @@ private fun Color.toLottieColor(): String {
 }
 
 private suspend fun Animatable<Float, AnimationVector1D>.animateBetween(
-    from: Float,
+    from: Float?,
     to: Float,
     target: Float,
     duration: Int = 700
 ) {
     if (value != to) {
-        if (value != from) {
+        if (value != from && from != null) {
             snapTo(from)
         }
         animateTo(
             targetValue = target,
-            animationSpec = tween(duration)
+            animationSpec = tween(duration, 0, FastOutLinearInEasing)
         )
         snapTo(to)
     }
@@ -298,9 +300,8 @@ private suspend fun Animatable<Float, AnimationVector1D>.animateBetween(
 private const val pointFoStartPlay = 0.07462f
 private const val pointForStartEnd = 0.537f
 
-private val runServerAnimationRange = 0f to 49f / 130f
-private val stopServerAnimationRange =
-    runServerAnimationRange.second to runServerAnimationRange.first
+private val runServerAnimationRange = 0f to 62f / 72f
+private val noInetRange = 0f to 30f / 61f
 
 @OptIn(ExperimentalCompottieApi::class)
 @Composable
@@ -309,45 +310,55 @@ internal fun ServerStatusDialog(
     serverStatus: AxerServerStatus
 ) {
     val pausePlayAnimationProgress =
-        remember { Animatable(if (serverStatus !is AxerServerStatus.Started) pointFoStartPlay else pointForStartEnd) }
-    val serverStatusAnimationProgress =
-        remember { Animatable(if (serverStatus !is AxerServerStatus.Started) stopServerAnimationRange.second else runServerAnimationRange.second) }
+        remember { Animatable(if (serverStatus is AxerServerStatus.Started) pointForStartEnd else pointFoStartPlay) }
+    val serverRunProgress =
+        remember { Animatable(if (serverStatus is AxerServerStatus.Started) runServerAnimationRange.second else runServerAnimationRange.first) }
+    val noInetProgress =
+        remember { Animatable(if (serverStatus is AxerServerStatus.Started) noInetRange.first else noInetRange.second) }
 
     LaunchedEffect(serverStatus) {
         if (serverStatus !is AxerServerStatus.Started) {
             launch {
                 pausePlayAnimationProgress.animateBetween(
-                    from = pointForStartEnd,
+                    from = null,
                     to = pointFoStartPlay,
                     target = 1f
                 )
             }
             launch {
-                serverStatusAnimationProgress.animateBetween(
-                    from = stopServerAnimationRange.first,
-                    to = stopServerAnimationRange.second,
-                    target = stopServerAnimationRange.second,
+                serverRunProgress.animateBetween(
+                    from = null,
+                    to = runServerAnimationRange.first,
+                    target = runServerAnimationRange.first,
+                )
+                noInetProgress.animateBetween(
+                    from = null,
+                    to = noInetRange.second,
+                    target = noInetRange.second,
                 )
             }
         } else {
             launch {
                 pausePlayAnimationProgress.animateBetween(
-                    from = pointFoStartPlay,
+                    from = null,
                     to = pointForStartEnd,
                     target = 0.5f
                 )
             }
             launch {
-                serverStatusAnimationProgress.animateBetween(
-                    from = runServerAnimationRange.first,
+                noInetProgress.animateBetween(
+                    from = null,
+                    to = noInetRange.first,
+                    target = noInetRange.first,
+                )
+                serverRunProgress.animateBetween(
+                    from = null,
                     to = runServerAnimationRange.second,
                     target = runServerAnimationRange.second,
                 )
             }
         }
     }
-
-
     MultiplatformAlertDialog(
         state = state,
         confirmButton = {
@@ -434,30 +445,48 @@ internal fun ServerStatusDialog(
                 contentAlignment = Alignment.Center
             ) {
                 val primaryColor = MaterialTheme.colorScheme.primary
-                val surfaceVariantColor = MaterialTheme.colorScheme.outline
-                val composition by rememberLottieComposition {
-                    val json = Res.readBytes("files/server_status.json")
+                val errorColor = MaterialTheme.colorScheme.error
+                val outlineColor = MaterialTheme.colorScheme.outline
+                val wifiStatusComposition by rememberLottieComposition {
+                    val json = Res.readBytes("files/server_run.json")
                         .decodeToString()
-                        .replace("[0,0,0,1]", primaryColor.toLottieColor())
-                        .replace("[0.917999985639,0.917999985639,0.917999985639,1]", surfaceVariantColor.toLottieColor())
-                        .replace("[0.917647058824,0.917647058824,0.917647058824,1]", surfaceVariantColor.toLottieColor())
-                        .replace("[0.917647063732,0.917647063732,0.917647063732,1]", surfaceVariantColor.toLottieColor())
-
+                        .replace("[1,1,1]", primaryColor.toLottieColor())
+                    LottieCompositionSpec.JsonString(json)
+                }
+                val noInetComposition by rememberLottieComposition {
+                    val json = Res.readBytes("files/no_internet.json")
+                        .decodeToString()
+                        .replaceColorsInLottieJson {
+                            when (it) {
+                                Color(0.90588236f, 0.2627451f, 0.2627451f, 1.0f) -> errorColor
+                                Color(0.050980393f, 0.48235294f, 0.98039216f, 1.0f) -> outlineColor
+                                else -> it
+                            }
+                        }
                     LottieCompositionSpec.JsonString(json)
                 }
 
-
-                val painter = rememberLottiePainter(
-                    composition = composition,
-                    progress = { serverStatusAnimationProgress.value },
-                )
-
-
-                Image(
-                    painter = painter,
-                    contentDescription = "Server status",
-                    modifier = Modifier.size(150.dp)
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = rememberLottiePainter(
+                            composition = wifiStatusComposition,
+                            progress = { serverRunProgress.value },
+                        ),
+                        contentDescription = "Server status",
+                        modifier = Modifier.size(75.dp)
+                    )
+                    Image(
+                        painter = rememberLottiePainter(
+                            composition = noInetComposition,
+                            progress = { noInetProgress.value },
+                        ),
+                        contentDescription = "No internet status",
+                        modifier = Modifier.size(150.dp)
+                    )
+                }
             }
         },
         content = {
@@ -475,6 +504,7 @@ internal fun ServerStatusDialog(
                         style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                         textAlign = TextAlign.Center
                     )
+
                     is AxerServerStatus.Started -> Text(
                         text = stringResource(
                             Res.string.server_started,
@@ -483,6 +513,7 @@ internal fun ServerStatusDialog(
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                         textAlign = TextAlign.Center
                     )
+
                     AxerServerStatus.Stopped -> Text(
                         text = stringResource(
                             Res.string.server_stopped_on,
