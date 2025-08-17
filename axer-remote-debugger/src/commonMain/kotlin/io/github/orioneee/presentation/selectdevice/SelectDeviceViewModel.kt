@@ -35,7 +35,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.Inet4Address
+import java.net.InetSocketAddress
 import java.net.NetworkInterface
+import java.net.Socket
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.seconds
 
@@ -117,9 +119,9 @@ class DeviceScanViewModel : ViewModel() {
             json(Json { ignoreUnknownKeys = true })
         }
         install(HttpTimeout) {
-            connectTimeoutMillis = 3_500
-            requestTimeoutMillis = 3_500
-            socketTimeoutMillis = 3_500
+            connectTimeoutMillis = 1.5.seconds.inWholeMilliseconds
+            requestTimeoutMillis = 1.5.seconds.inWholeMilliseconds
+            socketTimeoutMillis = 1.5.seconds.inWholeMilliseconds
         }
     }
 
@@ -140,6 +142,9 @@ class DeviceScanViewModel : ViewModel() {
             }
             .launchIn(viewModelScope)
 
+        scanLocalNetwork()
+        scanManuallyAddedConnections()
+
         viewModelScope.launch {
             try {
                 val latestTag = remoteRepository.getLatestGitTag()
@@ -157,7 +162,11 @@ class DeviceScanViewModel : ViewModel() {
                         _isShowingNewVersionDialog.value = true
                     }
                 } else {
-                    println("Failed to fetch latest version: ${latestTag.exceptionOrNull()?.stackTraceToString()}")
+                    println(
+                        "Failed to fetch latest version: ${
+                            latestTag.exceptionOrNull()?.stackTraceToString()
+                        }"
+                    )
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -250,6 +259,7 @@ class DeviceScanViewModel : ViewModel() {
         val currentDevices = _foundedDevices.value
         _isAutoScanning.value = true
         _foundedDevices.value = emptyList()
+
         val devices = allConnections.sortedBy { conn ->
             if (currentDevices.any { it.connection.toAddress() == conn.toAddress() }) {
                 currentDevices.indexOfFirst { it.connection.toAddress() == conn.toAddress() }
@@ -257,25 +267,31 @@ class DeviceScanViewModel : ViewModel() {
                 Int.MAX_VALUE
             }
         }
-        val completedJobs = AtomicInteger(0)
-        devices.map { conn ->
-            async {
-                checkConnection(conn).let { result ->
-                    _scanningProgress.value = completedJobs.incrementAndGet()
-                    if (result != null) {
 
-                        updateDeviceStateMutex.withLock {
-                            _foundedDevices.update {
-                                it + Device(
-                                    connection = conn,
-                                    data = result,
-                                )
+        val completedJobs = AtomicInteger(0)
+
+
+        println("Checking ${devices.size} devices for Axer server...")
+        devices.chunked(70).forEach { chunk ->
+            chunk.map { conn ->
+                async {
+                    checkConnection(conn).let { result ->
+                        _scanningProgress.value = completedJobs.incrementAndGet()
+                        if (result != null) {
+                            updateDeviceStateMutex.withLock {
+                                _foundedDevices.update {
+                                    it + Device(
+                                        connection = conn,
+                                        data = result,
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-        }.awaitAll()
+            }.awaitAll()
+        }
+
         _isAutoScanning.value = false
     }
 
@@ -288,6 +304,24 @@ class DeviceScanViewModel : ViewModel() {
                 action()
             }
         }
+
+        val isReachable = try {
+            withContext(Dispatchers.IO) {
+                Socket().use { socket ->
+                    val socketAddress = InetSocketAddress(data.ip, data.port)
+                    socket.connect(socketAddress, 2000)
+                    true
+                }
+            }
+        } catch (_: Exception) {
+            doInNeededIp {
+                println("Socket not reachable at ${data.toAddress()}")
+            }
+            false
+        }
+
+        if (!isReachable) return null
+
         return try {
             val response = localClient.get("${data.toAddress()}/isAxerServer")
             if (response.status.value == HttpURLConnection.HTTP_OK) {
@@ -308,4 +342,5 @@ class DeviceScanViewModel : ViewModel() {
             null
         }
     }
+
 }

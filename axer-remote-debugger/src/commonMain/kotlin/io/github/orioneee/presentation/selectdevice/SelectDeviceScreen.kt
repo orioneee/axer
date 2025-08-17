@@ -226,10 +226,6 @@ class SelectDeviceScreen {
         val addedButNotAxer =
             viewModel.manuallyAddedButNotAxer.collectAsStateWithLifecycle(emptyList())
         val adbDevices = viewModel.adbDevices.collectAsStateWithLifecycle(emptyList())
-        LaunchedEffect(Unit) {
-            viewModel.scanLocalNetwork()
-            viewModel.scanManuallyAddedConnections()
-        }
         ManualConnectionDialog(
             isShown = isShowAddDeviceDialog.value,
             onDismiss = viewModel::onDismissAddDevice,

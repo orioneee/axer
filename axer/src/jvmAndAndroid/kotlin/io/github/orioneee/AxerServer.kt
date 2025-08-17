@@ -60,7 +60,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -330,7 +329,6 @@ internal fun CoroutineScope.getKtorServer(
         launch {
             connectedClients
                 .map { it.keys }
-                .sample(1.seconds)
                 .distinctUntilChanged()
                 .collect { currentClients ->
                     val added = currentClients - previousClients
@@ -387,7 +385,7 @@ internal fun CoroutineScope.getKtorServer(
             get("/isAxerServer") {
                 try {
                     val deviceData = getDeviceData(readOnly)
-                    println("data: $deviceData")
+                    serverNotify("This device founded by remote: ${call.request.origin.remoteHost}", SnackbarDuration.Short)
                     call.respond(HttpStatusCode.OK, getDeviceData(readOnly))
                 } catch (e: Exception) {
                     e.printStackTrace()
