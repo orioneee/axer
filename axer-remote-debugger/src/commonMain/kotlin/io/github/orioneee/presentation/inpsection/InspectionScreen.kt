@@ -1,5 +1,6 @@
 package io.github.orioneee.presentation.inpsection
 
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,8 +42,6 @@ import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import io.github.orioneee.AxerUIEntryPoint
 import io.github.orioneee.RemoteAxerDataProvider
-import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.app_name_device
 import io.github.orioneee.internal.domain.other.Theme
 import io.github.orioneee.internal.presentation.components.AxerLogo
 import io.github.orioneee.internal.presentation.components.AxerTheme.dark
@@ -53,7 +52,6 @@ import io.github.orioneee.models.Device
 import io.github.orioneee.utils.JetbrainsMonoFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 
 class InspectionScreen {
     @Composable
@@ -181,13 +179,10 @@ class InspectionScreen {
                 CenterAlignedTopAppBar(
                     colors = colors,
                     title = {
-                        val animatedPing = ping.value?.toInt() ?: 0
+                        val animatedPing = animateIntAsState(ping.value?.toInt() ?: 0)
                         Text(
                             fontFamily = JetbrainsMonoFontFamily,
-                            text = stringResource(
-                                Res.string.app_name_device,
-                                deviceData.data.readableDeviceName
-                            ) + " - ${animatedPing.takeIf { it != 0 } ?: "..."} ms"
+                            text = deviceData.data.readableDeviceName + " - ${animatedPing.value.takeIf { it != 0 } ?: "..."} ms"
                         )
                     },
                     navigationIcon = {

@@ -427,6 +427,7 @@ Axer.configure {
 ## iOS Limitations
 
 - Stack traces are not supported.
+- No support for remote debugging on iOS.
 
 ---
 

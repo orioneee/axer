@@ -25,7 +25,7 @@ room = "2.7.2"
 ksp = "2.2.10-2.0.2"
 sqlite = "2.5.2"
 androidx-lifecycle = "2.9.2"
-navigationCompose = "2.9.0-beta05"
+navigationCompose = "2.9.0-beta04"
 
 minSdk = "21"
 compileSdk = "36"
@@ -91,6 +91,8 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+
+
 
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }

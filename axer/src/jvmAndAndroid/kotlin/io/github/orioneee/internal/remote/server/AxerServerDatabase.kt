@@ -13,6 +13,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
+import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.CloseReason
@@ -185,7 +186,8 @@ internal fun Route.databaseModule(
         val file = call.parameters["file"] ?: return@webSocket
         val table = call.parameters["table"] ?: return@webSocket
         val page = call.parameters["page"]?.toIntOrNull() ?: 0
-        val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull() ?: TableDetailsViewModel.PAGE_SIZE
+        val pageSize = call.request.queryParameters["pageSize"]?.toIntOrNull()
+            ?: TableDetailsViewModel.PAGE_SIZE
 
         suspend fun getTableInfo(): DatabaseData {
             val content = dbMutex.withLock {
@@ -232,7 +234,7 @@ internal fun Route.databaseModule(
                 }
             }
             .launchIn(this)
-        try{
+        try {
             for (frame in incoming) {
             }
         } catch (e: Exception) {
@@ -321,69 +323,55 @@ internal fun Route.databaseModule(
     }
 
     webSocket("/ws/db_queries/execute_and_get_updates/{file}") {
-        val file = call.parameters["file"]
-        if (file == null) {
+        val file = call.parameters["file"] ?: return@webSocket run {
             close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "File parameter is missing"))
-            return@webSocket
         }
-        onAddClient(call)
-        var command: String? = null
-        reader.axerDriver.changeDataFlow
-            .onEach {
-                command?.let {
-                    val isViewCommand = it.trimStart()
-                        .uppercase()
-                        .startsWith("SELECT") || it.uppercase().startsWith("PRAGMA")
-                    if (!isViewCommand && readOnly) {
-                        close(
-                            CloseReason(
-                                CloseReason.Codes.CANNOT_ACCEPT,
-                                "Database updates are not allowed in read-only mode"
-                            )
-                        )
-                        return@onEach
-                    }
 
-                    if (isEnabledDatabase.first()) {
-                        val response = dbMutex.withLock {
-                            reader.executeRawQuery(
-                                file = file,
-                                query = it
-                            )
-                        }
-                        sendSerialized(response)
-                    }
-                }
+        onAddClient(call)
+
+        var command: String? = null
+        val dbFlowJob = reader.axerDriver.changeDataFlow
+            .onEach {
+                handleDataFlowUpdate(
+                    file,
+                    command,
+                    isEnabled = isEnabledDatabase.first(),
+                    dbMutex = dbMutex,
+                    reader = reader,
+                    isReadOnly = readOnly
+                )
             }
             .launchIn(this)
-        try{
+
+        try {
             for (frame in incoming) {
-                if (command == null && frame is Frame.Text) {
-                    val text = frame.readText()
-                    if (text.isNotBlank()) {
-                        command = text
-                        if (isEnabledDatabase.first()) {
-                            val response = dbMutex.withLock {
-                                reader.executeRawQuery(
+                when (frame) {
+                    is Frame.Text -> {
+                        if (command == null) {
+                            command = frame.readText().takeIf { it.isNotBlank() }
+                            command?.let {
+                                executeAndRespond(
                                     file = file,
-                                    query = text
+                                    query = it,
+                                    isEnabledDatabase = isEnabledDatabase.first(),
+                                    dbMutex = dbMutex,
+                                    reader = reader
                                 )
                             }
-                            sendSerialized(response)
                         }
                     }
-                } else if (frame is Frame.Close) {
-                    break
+
+                    is Frame.Close -> break
+                    else -> Unit
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
+        } catch (e: Throwable) {
+            handleError(file, e)
         } finally {
+            dbFlowJob.cancel()
             onRemoveClient(call)
         }
     }
-
 
     delete("/database/{file}/{table}") {
         if (readOnly) {
@@ -429,4 +417,75 @@ internal fun Route.databaseModule(
             )
         }
     }
+}
+
+private suspend fun DefaultWebSocketServerSession.handleDataFlowUpdate(
+    file: String,
+    command: String?,
+    isEnabled: Boolean,
+    dbMutex: Mutex,
+    reader: RoomReader,
+    isReadOnly: Boolean
+) {
+    command ?: return
+    if (!isEnabled) return
+
+    val isViewCommand = command.trimStart()
+        .uppercase()
+        .let { it.startsWith("SELECT") || it.startsWith("PRAGMA") }
+
+    if (!isViewCommand && isReadOnly) {
+        close(
+            CloseReason(
+                CloseReason.Codes.CANNOT_ACCEPT,
+                "Database updates are not allowed in read-only mode"
+            )
+        )
+        return
+    }
+
+    runCatching {
+        dbMutex.withLock {
+            reader.executeRawQuery(file = file, query = command)
+        }
+    }.onSuccess { response ->
+        sendSerialized(BaseResponse(status = HttpStatusCode.OK.description, data = response))
+    }.onFailure { e ->
+        handleError(file, e)
+    }
+}
+
+private suspend fun DefaultWebSocketServerSession.executeAndRespond(
+    file: String,
+    query: String,
+    isEnabledDatabase: Boolean,
+    dbMutex: Mutex,
+    reader: RoomReader
+
+) {
+    if (!isEnabledDatabase) return
+    runCatching {
+        dbMutex.withLock { reader.executeRawQuery(file = file, query = query) }
+    }.onSuccess { response ->
+        sendSerialized(BaseResponse(status = HttpStatusCode.OK.description, data = response))
+    }.onFailure { e ->
+        handleError(file, e)
+    }
+}
+
+private suspend fun DefaultWebSocketServerSession.handleError(file: String, e: Throwable) {
+    e.printStackTrace()
+    val message = if (e is NoSuchElementException) {
+        "Could not find active connection for file: $file. " +
+                "Please ensure the file exists and is accessible."
+    } else {
+        e.message
+    }
+    sendSerialized(
+        BaseResponse<String>(
+            status = HttpStatusCode.InternalServerError.description,
+            error = message
+        )
+    )
+    close(CloseReason(CloseReason.Codes.INTERNAL_ERROR, e.stackTraceToString()))
 }

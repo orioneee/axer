@@ -166,7 +166,8 @@ internal class LocalAxerDataProvider(
                     val content = reader.getTableContent(file, tableName, page, pageSize)
                     val schema = reader.getTableSchema(file, tableName)
                     val size = reader.getTableSize(file, tableName)
-                    val state: DataState<DatabaseData> = DataState.Success(DatabaseData(schema, content, size))
+                    val state: DataState<DatabaseData> =
+                        DataState.Success(DatabaseData(schema, content, size))
                     emit(state)
                 }
             }
@@ -241,35 +242,21 @@ internal class LocalAxerDataProvider(
     override fun executeRawQueryAndGetUpdates(
         file: String,
         query: String
-    ): Flow<QueryResponse> {
+    ): Flow<Result<QueryResponse>> {
         val initial = flow {
-            try {
-                val result = reader.executeRawQuery(file, query)
-                emit(result)
-            } catch (e: Exception) {
-                emit(
-                    QueryResponse(
-                        schema = emptyList(),
-                        rows = emptyList(),
-                    )
-                )
+            val result = runCatching {
+                reader.executeRawQuery(file, query)
             }
+            emit(result)
         }
 
         val updates = reader.axerDriver.changeDataFlow
             .flatMapLatest {
                 flow {
-                    try {
-                        val result = reader.executeRawQuery(file, query)
-                        emit(result)
-                    } catch (e: Exception) {
-                        emit(
-                            QueryResponse(
-                                schema = emptyList(),
-                                rows = emptyList(),
-                            )
-                        )
+                    val result = runCatching {
+                        reader.executeRawQuery(file, query)
                     }
+                    emit(result)
                 }
             }
 

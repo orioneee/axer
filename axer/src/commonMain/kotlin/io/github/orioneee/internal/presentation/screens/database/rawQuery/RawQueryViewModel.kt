@@ -6,15 +6,18 @@ import io.github.orioneee.internal.AxerDataProvider
 import io.github.orioneee.internal.domain.database.QueryResponse
 import io.github.orioneee.internal.domain.database.SchemaItem
 import io.github.orioneee.internal.domain.database.SortColumn
-import io.github.orioneee.internal.snackbarProcessor.SnackBarController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
 internal class RawQueryViewModel(
@@ -26,15 +29,26 @@ internal class RawQueryViewModel(
     val currentQuery = _currentQuery.asStateFlow()
 
     private val _queryResponse = MutableStateFlow(
-        QueryResponse(
-            rows = emptyList(),
-            schema = emptyList()
+        Result.success(
+            QueryResponse(
+                rows = emptyList(),
+                schema = emptyList()
+            )
         )
     )
     val queryResponse = _queryResponse.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asSharedFlow()
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
+
+    init {
+        loading
+            .onEach {
+//                println("Loading state changed: $it")
+            }
+            .launchIn(viewModelScope)
+    }
+
 
     private val _sortColumn = MutableStateFlow<SortColumn?>(null)
     val sortColumn = _sortColumn.asStateFlow()
@@ -45,47 +59,55 @@ internal class RawQueryViewModel(
 
     fun executeQuery() {
         currentJob?.cancel()
-        currentJob = viewModelScope.launch {
+        currentJob = viewModelScope.launch(Dispatchers.IO) {
+            val scope = this
             val query = _currentQuery.value
             if (query.isBlank()) return@launch
             else if (!query.startsWith("SELECT", ignoreCase = true)) {
                 try {
-                    _isLoading.value = true
+                    _loading.value = true
+                    delay(500.milliseconds)
                     val res = provider.executeRawQuery(
                         file = name,
                         query = query
                     )
                     res.onFailure {
-                        SnackBarController.showSnackBar(text = "Error executing query: ${it.message}")
+                        _queryResponse.value = Result.failure(it)
+//                        SnackBarController.showSnackBar(text = "Error executing query: ${it.message}")
                     }
-                    _queryResponse.value = QueryResponse(
-                        rows = emptyList(),
-                        schema = emptyList()
+                    _queryResponse.value = Result.success(
+                        QueryResponse(
+                            rows = emptyList(),
+                            schema = emptyList()
+                        )
                     )
                     return@launch
                 } finally {
-                    _isLoading.value = false
+                    _loading.value = false
                 }
             } else {
-                _queryResponse.value = QueryResponse(
-                    rows = emptyList(),
-                    schema = emptyList()
+                _loading.value = true
+                delay(500.milliseconds)
+                _queryResponse.value = Result.success(
+                    QueryResponse(
+                        rows = emptyList(),
+                        schema = emptyList()
+                    )
                 )
                 provider.executeRawQueryAndGetUpdates(
                     file = name,
                     query = query
-                ).stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = QueryResponse(
-                        rows = emptyList(),
-                        schema = emptyList()
-                    )
-                )
-                    .collect { response ->
-                        _queryResponse.value = response
+                ).collect { res ->
+                    if (scope.isActive) {
+                        _loading.value = false
+                        res.onSuccess {
+                            _queryResponse.value = Result.success(it)
+                        }.onFailure {
+                            _queryResponse.value = Result.failure(it)
+//                                SnackBarController.showSnackBar(text = text)
+                        }
                     }
-
+                }
             }
         }
     }
@@ -97,7 +119,7 @@ internal class RawQueryViewModel(
         if (currentSort != null && currentSort.schemaItem.name == schemaItem.name) {
             _sortColumn.value = currentSort.copy(isDescending = !currentSort.isDescending)
         } else {
-            val currentSchema = _queryResponse.value.schema
+            val currentSchema = _queryResponse.value.getOrNull()?.schema ?: return
             val index = currentSchema.indexOfFirst { it.name == schemaItem.name }
             _sortColumn.value = SortColumn(
                 index = index,
@@ -108,8 +130,9 @@ internal class RawQueryViewModel(
     }
 
     fun cancelCurrentJob() {
+        println("Canceling current job")
         currentJob?.cancel()
         currentJob = null
-        _isLoading.value = false
+        _loading.value = false
     }
 }

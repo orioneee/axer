@@ -80,16 +80,16 @@ Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorM
 
 ## Installation
 
-Add the dependencies to your project (`1.2.1` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.2.2` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.2.1")
+implementation("io.github.orioneee:axer:1.2.2")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.2.1")
+implementation("io.github.orioneee:axer-no-op:1.2.2")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -427,6 +427,7 @@ Axer.configure {
 ## iOS Limitations
 
 - Stack traces are not supported.
+- No support for remote debugging on iOS.
 
 ---
 
@@ -453,7 +454,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | kotlinx-datetime      | 0.7.1        |
 | Accompanist           | 0.37.3 |
 | Coil Compose          | 3.3.0            |
-| Navigation Compose    | 2.9.0-beta05      |
+| Navigation Compose    | 2.9.0-beta04      |
 | minSdk                | 21                         |
 ---
 

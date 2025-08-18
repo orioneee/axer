@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -270,7 +271,7 @@ internal expect fun getServerIp(): String?
 internal expect fun startServerIfCan()
 internal expect fun stopServerIfCan()
 
-private fun Color.toLottieColor(): String {
+internal fun Color.toLottieColor(): String {
     val red = red.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
     val green = green.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
     val blue = blue.toString().let { if (it.endsWith(".0")) it.dropLast(2) else it }
@@ -302,7 +303,26 @@ private const val pointFoStartPlay = 0.07462f
 private const val pointForStartEnd = 0.537f
 
 private val runServerAnimationRange = 0f to 62f / 72f
-private val noInetRange = 0f to 30f / 61f
+private val noInetRange = 0f to 20f / 61f
+
+internal fun Float.normalize(
+    fromMin: Float,
+    fromMax: Float,
+    toMin: Float,
+    toMax: Float
+): Float {
+    if (fromMin == fromMax) return toMin // avoid division by zero
+    val normalized = (this - fromMin) / (fromMax - fromMin) // map to 0..1
+    return toMin + normalized * (toMax - toMin)             // map to target range
+}
+
+internal fun calculateDuration(current: Float, target: Float): Int {
+    val totalDuration = 1500f
+    val range = 2f
+    val msPerUnit = totalDuration / range // 1000 ms на 1f
+    return ((kotlin.math.abs(current - target)) * msPerUnit).toInt()
+}
+
 
 @OptIn(ExperimentalCompottieApi::class)
 @Composable
@@ -315,12 +335,15 @@ internal fun ServerStatusDialog(
 ) {
     val pausePlayAnimationProgress =
         remember { Animatable(if (serverStatus is AxerServerStatus.Started) pointForStartEnd else pointFoStartPlay) }
-    val serverRunProgress =
-        remember { Animatable(if (serverStatus is AxerServerStatus.Started) runServerAnimationRange.second else runServerAnimationRange.first) }
-    val noInetProgress =
-        remember { Animatable(if (serverStatus is AxerServerStatus.Started) noInetRange.first else noInetRange.second) }
+    val serverStatusAnimation =
+        remember { Animatable(if (serverStatus is AxerServerStatus.Started) 0f else 2f) }
 
     LaunchedEffect(serverStatus) {
+        val targetForServerStatus = if (serverStatus is AxerServerStatus.Started) 0f else 2f
+        val animationDuration = calculateDuration(
+            current = serverStatusAnimation.value,
+            target = targetForServerStatus
+        )
         if (serverStatus !is AxerServerStatus.Started) {
             launch {
                 pausePlayAnimationProgress.animateBetween(
@@ -330,20 +353,9 @@ internal fun ServerStatusDialog(
                 )
             }
             launch {
-                serverRunProgress.animateBetween(
-                    from = null,
-                    to = runServerAnimationRange.first,
-                    target = runServerAnimationRange.first,
-                    duration = 1000,
-                )
-            }
-            launch {
-                noInetProgress.animateBetween(
-                    from = null,
-                    to = noInetRange.second,
-                    target = noInetRange.second,
-                    duration = 1000,
-                    delay = 550
+                serverStatusAnimation.animateTo(
+                    targetValue = 2f,
+                    animationSpec = tween(animationDuration, easing = LinearEasing)
                 )
             }
         } else {
@@ -355,20 +367,9 @@ internal fun ServerStatusDialog(
                 )
             }
             launch {
-                noInetProgress.animateBetween(
-                    from = null,
-                    to = noInetRange.first,
-                    target = noInetRange.first,
-                    duration = 1000,
-                )
-            }
-            launch {
-                serverRunProgress.animateBetween(
-                    from = null,
-                    to = runServerAnimationRange.second,
-                    target = runServerAnimationRange.second,
-                    duration = 1000,
-                    delay = 600
+                serverStatusAnimation.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(animationDuration, easing = LinearEasing)
                 )
             }
         }
@@ -456,15 +457,26 @@ internal fun ServerStatusDialog(
             ) {
 
 
-
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
+                    val animationDivider = 0.8f
                     Image(
                         painter = rememberLottiePainter(
                             composition = wifiStatusComposition,
-                            progress = { serverRunProgress.value },
+                            progress = {
+                                val reversed = animationDivider - serverStatusAnimation.value.coerceIn(
+                                    0f,
+                                    animationDivider
+                                )
+                                reversed.normalize(
+                                    fromMin = 0f,
+                                    fromMax = animationDivider,
+                                    toMin = runServerAnimationRange.first,
+                                    toMax = runServerAnimationRange.second
+                                )
+                            },
                         ),
                         contentDescription = "Server status",
                         modifier = Modifier.size(75.dp)
@@ -472,7 +484,18 @@ internal fun ServerStatusDialog(
                     Image(
                         painter = rememberLottiePainter(
                             composition = noInetComposition,
-                            progress = { noInetProgress.value },
+                            progress = {
+                                val clamped = serverStatusAnimation.value.coerceIn(
+                                    animationDivider,
+                                    2f
+                                ) - animationDivider
+                                clamped.normalize(
+                                    fromMin = 0f,
+                                    fromMax = animationDivider,
+                                    toMin = noInetRange.first,
+                                    toMax = noInetRange.second
+                                )
+                            },
                         ),
                         contentDescription = "No internet status",
                         modifier = Modifier.size(150.dp)

@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -115,7 +116,6 @@ class RemoteAxerDataProvider(
                                     }
                                 }
                             } catch (e: Exception) {
-                                println("Error processing frame: ${e.message} from path: $path")
                                 throw e
                             } finally {
                                 outgoingJob.cancel()
@@ -363,7 +363,7 @@ class RemoteAxerDataProvider(
     override fun executeRawQueryAndGetUpdates(
         file: String,
         query: String
-    ): Flow<QueryResponse> = callbackFlow {
+    ): Flow<Result<QueryResponse>> = callbackFlow {
         val uri = URI(serverUrl)
         val job = launch {
             try {
@@ -378,8 +378,8 @@ class RemoteAxerDataProvider(
                         if (frame is Frame.Text) {
                             val text = frame.readText()
                             try {
-                                val response = myJson.decodeFromString<QueryResponse>(text)
-                                trySend(response).isSuccess
+                                val response = myJson.decodeFromString<BaseResponse<QueryResponse>>(text)
+                                trySend(response.toResult()).isSuccess
                             } catch (e: Exception) {
                             }
                         }
@@ -466,7 +466,7 @@ class RemoteAxerDataProvider(
 
     @OptIn(FlowPreview::class)
     val connectedFlow: Flow<Boolean> = connection.map { it.isConnected }.debounce(500)
-    val pingFlow: Flow<Long> = connection.map { it.rtt }
+    val pingFlow: Flow<Long> = connection.map { it.rtt }.distinctUntilChanged().sample(1.seconds)
 
     @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
     override fun isConnected(): Flow<Boolean> = connectedFlow

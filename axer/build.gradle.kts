@@ -85,6 +85,7 @@ kotlin {
 
             implementation(libs.json.tree)
             implementation(libs.compottie)
+
         }
 
 

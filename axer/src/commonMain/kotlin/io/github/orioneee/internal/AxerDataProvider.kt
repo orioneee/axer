@@ -57,7 +57,7 @@ interface AxerDataProvider {
     fun executeRawQueryAndGetUpdates(
         file: String,
         query: String,
-    ): Flow<QueryResponse>
+    ): Flow<Result<QueryResponse>>
 
     fun isConnected(): Flow<Boolean>
 
