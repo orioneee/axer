@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.runningFold
@@ -58,7 +59,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.URI
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 class RemoteAxerDataProvider(
     private val serverUrl: String,
@@ -418,7 +418,7 @@ class RemoteAxerDataProvider(
                             while (isActive) {
                                 val sentTime = System.currentTimeMillis()
                                 send(Frame.Text(sentTime.toString()))
-                                delay(200.milliseconds)
+                                delay(100.milliseconds)
                             }
                         }
 
@@ -458,17 +458,26 @@ class RemoteAxerDataProvider(
     )
 
 
-    val connection = connectionFlow()
+    private val connection = connectionFlow()
 
     @OptIn(FlowPreview::class)
     val connectedFlow: Flow<Boolean> = connection.map { it.isConnected }
-    val pingFlow: Flow<Double> = connection
+    val pingFlow: Flow<Int> = connection
         .map { it.rtt.toDouble() }
+        .filter { it != 0.0 }
         .runningFold(emptyList<Double>()) { acc, value ->
-            (acc + value).takeLast(30)
+            (acc + value).takeLast(50)
         }
-        .map { it.average() }
-        .sample(2.seconds)
+        .sample(500.milliseconds)
+        .map { list ->
+            if (list.isEmpty()) 0
+            else {
+                val sorted = list.sorted()
+                val index = ((sorted.size - 1) * 0.7).toInt() // 70-й процентиль
+                sorted[index].toInt()
+            }
+        }
+
 
     @OptIn(FlowPreview::class, DelicateCoroutinesApi::class)
     override fun isConnected(): Flow<Boolean> = connectedFlow

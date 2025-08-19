@@ -158,7 +158,7 @@ class InspectionScreen {
         val provider =
             remember(deviceData) { RemoteAxerDataProvider(deviceData.connection.toAddress()) }
         val isConnected = provider.isConnected().collectAsStateWithLifecycle(true)
-        val ping = provider.pingFlow.collectAsStateWithLifecycle(null)
+        val ping = provider.pingFlow.collectAsStateWithLifecycle(0)
         var isDialogDismissed by remember { mutableStateOf(false) }
 
         val currentTheme by AxerSettings.themeFlow.collectAsState(AxerSettings.theme.get())
@@ -179,7 +179,7 @@ class InspectionScreen {
                 CenterAlignedTopAppBar(
                     colors = colors,
                     title = {
-                        val animatedPing = animateIntAsState(ping.value?.toInt() ?: 0)
+                        val animatedPing = animateIntAsState(ping.value)
                         Text(
                             fontFamily = JetbrainsMonoFontFamily,
                             text = deviceData.data.readableDeviceName + " - ${animatedPing.value.takeIf { it != 0 } ?: "..."} ms"
