@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -317,41 +318,49 @@ internal class RawQueryScreen {
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)
             ) {
                 stickyHeader {
-                    OutlinedTextField(
-                        enabled = !isLoading,
-                        trailingIcon = {
-                            IconButton(
-                                enabled = !isLoading,
-                                onClick = {
-                                    viewModel.executeQuery()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Save Changes",
-                                    modifier = Modifier.rotate(180f)
-                                )
-                            }
-                        },
+                    Box(
                         modifier = Modifier
-                            .onPreviewKeyEvent { keyEvent ->
-                                if (keyEvent.type == KeyEventType.KeyDown) {
-                                    if (keyEvent.key == Key.Enter && keyEvent.isCtrlPressed.not() && keyEvent.isShiftPressed.not() && keyEvent.isAltPressed.not() && keyEvent.isMetaPressed.not() && !isLoading) {
-                                        viewModel.executeQuery()
-                                        return@onPreviewKeyEvent true // consume the event
-                                    }
-                                }
-                                return@onPreviewKeyEvent false // let TextField handle all other keys
-                            }
-
+                            .background(MaterialTheme.colorScheme.background)
                             .fillMaxWidth()
-                            .heightIn(max = 400.dp)
-                            .padding(vertical = 16.dp),
-                        value = currentQuery,
-                        onValueChange = {
-                            viewModel.setQuery(it)
-                        },
-                    )
+                            .padding(vertical = 8.dp)
+
+                    ) {
+                        OutlinedTextField(
+                            enabled = !isLoading,
+                            trailingIcon = {
+                                IconButton(
+                                    enabled = !isLoading,
+                                    onClick = {
+                                        viewModel.executeQuery()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Save Changes",
+                                        modifier = Modifier.rotate(180f)
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .onPreviewKeyEvent { keyEvent ->
+                                    if (keyEvent.type == KeyEventType.KeyDown) {
+                                        if (keyEvent.key == Key.Enter && keyEvent.isCtrlPressed.not() && keyEvent.isShiftPressed.not() && keyEvent.isAltPressed.not() && keyEvent.isMetaPressed.not() && !isLoading) {
+                                            viewModel.executeQuery()
+                                            return@onPreviewKeyEvent true // consume the event
+                                        }
+                                    }
+                                    return@onPreviewKeyEvent false // let TextField handle all other keys
+                                }
+
+                                .fillMaxWidth()
+                                .heightIn(max = 400.dp)
+                                .padding(vertical = 16.dp),
+                            value = currentQuery,
+                            onValueChange = {
+                                viewModel.setQuery(it)
+                            },
+                        )
+                    }
                 }
                 if (isLoading) {
                     item {

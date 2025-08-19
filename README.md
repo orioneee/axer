@@ -80,16 +80,16 @@ Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorM
 
 ## Installation
 
-Add the dependencies to your project (`1.2.3` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.2.4` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.2.3")
+implementation("io.github.orioneee:axer:1.2.4")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.2.3")
+implementation("io.github.orioneee:axer-no-op:1.2.4")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
