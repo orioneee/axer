@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -58,20 +60,12 @@ class DeviceScanViewModel : ViewModel() {
     private val _scanningProgress = MutableStateFlow(0)
     private val _manuallyAddedConnectionsScanProgress = MutableStateFlow(0)
     private val _manuallyAddedFoundedDevices = MutableStateFlow<List<Device>>(emptyList())
-    private val _isAutoScanning = MutableStateFlow(false)
-    private val _isScanningManuallyAddedConnections = MutableStateFlow(false)
     val _adbDevices = MutableStateFlow<List<AdbDevice>>(emptyList())
     val _createPortForwaringRules = MutableStateFlow<List<CreatedPortForwardingRules>>(emptyList())
 
     val adbDevices = _adbDevices.asStateFlow().sample(1.seconds)
     val isShowingNewVersionDialog = _isShowingNewVersionDialog.asStateFlow()
     val isShowAddDeviceDialog = _isShowAddDeviceDialog.asStateFlow()
-    val isScanning = combine(
-        _isAutoScanning,
-        _isScanningManuallyAddedConnections
-    ) { isAutoScanning, isScanningManuallyAdded ->
-        isAutoScanning || isScanningManuallyAdded
-    }
     val scanningProgress = combine(
         _scanningProgress,
         _manuallyAddedConnectionsScanProgress
@@ -111,7 +105,8 @@ class DeviceScanViewModel : ViewModel() {
     }
 
     fun onDeleteConnection(device: ConnectionInfo) {
-        _manuallyAddedConnections.update { it - device }
+        _manuallyAddedConnections.update { it.filter { it.toAddress() != device.toAddress() } }
+        _manuallyAddedFoundedDevices.update { it.filter { it.connection.toAddress() != device.toAddress() } }
     }
 
     private val localClient = HttpClient {
@@ -136,14 +131,12 @@ class DeviceScanViewModel : ViewModel() {
     }
 
     init {
+
         _manuallyAddedConnections
             .onEach {
-                scanForAxerManuallyAddedConnections()
+                restartScanning()
             }
             .launchIn(viewModelScope)
-
-        scanLocalNetwork()
-        scanManuallyAddedConnections()
 
         viewModelScope.launch {
             try {
@@ -174,28 +167,44 @@ class DeviceScanViewModel : ViewModel() {
         }
     }
 
-    var autoScanningJob: Job? = null
+    var scanningJob: Job? = null
     var manuallyAddedScanningJob: Job? = null
-    fun scanLocalNetwork() {
+    private suspend fun searchAxerServer() {
         lookForAdbConnectAxer()
-        autoScanningJob?.cancel()
-        autoScanningJob = viewModelScope.launch(Dispatchers.IO) {
-            scanForAxerDevices()
+        scanForAxerManuallyAddedConnections()
+        scanForAxerDevices()
+    }
+
+    fun startScanning() {
+        scanningJob?.cancel()
+        scanningJob = viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                println("Scanning for devices...")
+                val startTime = System.currentTimeMillis()
+                searchAxerServer()
+                val elapsedTime = System.currentTimeMillis() - startTime
+                println("Scanning completed in $elapsedTime ms")
+                delay(3.seconds)
+            }
         }
     }
+
+    fun stopScanning() {
+        scanningJob?.cancel()
+        scanningJob = null
+    }
+
+    fun restartScanning() {
+        stopScanning()
+        startScanning()
+    }
+
 
     fun checkAdbDevice(device: AdbDevice, port: Int, channel: SendChannel<Result<Device>>) {
         viewModelScope.launch(Dispatchers.IO) {
             checkIsAxerOnAdb(device, port, localClient).let { result ->
                 channel.trySend(result)
             }
-        }
-    }
-
-    fun scanManuallyAddedConnections() {
-        manuallyAddedScanningJob?.cancel()
-        manuallyAddedScanningJob = viewModelScope.launch(Dispatchers.IO) {
-            scanForAxerManuallyAddedConnections()
         }
     }
 
@@ -230,8 +239,6 @@ class DeviceScanViewModel : ViewModel() {
 
 
     private suspend fun scanForAxerManuallyAddedConnections() = withContext(Dispatchers.IO) {
-        _isScanningManuallyAddedConnections.value = true
-        _manuallyAddedFoundedDevices.value = emptyList()
         val completedJobs = AtomicInteger(0)
         _manuallyAddedConnections.value.map { conn ->
             async {
@@ -239,26 +246,27 @@ class DeviceScanViewModel : ViewModel() {
                 checkConnection(conn).let { result ->
                     _manuallyAddedConnectionsScanProgress.value =
                         completedJobs.incrementAndGet()
-                    if (result != null) {
-                        updateDeviceStateMutex.withLock {
+                    updateDeviceStateMutex.withLock {
+                        if (result != null) {
                             _manuallyAddedFoundedDevices.update {
                                 it + Device(
                                     connection = conn,
                                     data = result,
                                 )
                             }
+                        } else if (_manuallyAddedFoundedDevices.value.any { it.connection.toAddress() == conn.toAddress() }) {
+                            _manuallyAddedFoundedDevices.update { devices ->
+                                devices.filterNot { it.connection.toAddress() == conn.toAddress() }
+                            }
                         }
                     }
                 }
             }
         }.awaitAll()
-        _isScanningManuallyAddedConnections.value = false
     }
 
     private suspend fun scanForAxerDevices() = withContext(Dispatchers.IO) {
         val currentDevices = _foundedDevices.value
-        _isAutoScanning.value = true
-        _foundedDevices.value = emptyList()
 
         val devices = allConnections.sortedBy { conn ->
             if (currentDevices.any { it.connection.toAddress() == conn.toAddress() }) {
@@ -275,15 +283,19 @@ class DeviceScanViewModel : ViewModel() {
         devices.chunked(20).forEach { chunk ->
             chunk.map { conn ->
                 async {
-                    checkConnection(conn).let { result ->
-                        _scanningProgress.value = completedJobs.incrementAndGet()
+                    val result = checkConnection(conn)
+                    _scanningProgress.value = completedJobs.incrementAndGet()
+                    updateDeviceStateMutex.withLock {
                         if (result != null) {
-                            updateDeviceStateMutex.withLock {
-                                _foundedDevices.update {
-                                    it + Device(
-                                        connection = conn,
-                                        data = result,
-                                    )
+                            _foundedDevices.update {
+                                it + Device(connection = conn, data = result)
+                            }
+                        } else {
+                            val isDeviceInList =
+                                _foundedDevices.value.any { it.connection.toAddress() == conn.toAddress() }
+                            if (isDeviceInList) {
+                                _foundedDevices.update { devices ->
+                                    devices.filterNot { it.connection.toAddress() == conn.toAddress() }
                                 }
                             }
                         }
@@ -291,8 +303,6 @@ class DeviceScanViewModel : ViewModel() {
                 }
             }.awaitAll()
         }
-
-        _isAutoScanning.value = false
     }
 
 

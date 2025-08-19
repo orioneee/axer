@@ -356,7 +356,13 @@ class RemoteAxerDataProvider(
             }
         }.fold(
             onSuccess = { Result.success(Unit) },
-            onFailure = { Result.failure(it) }
+            onFailure = {
+                val message = it.message ?: "Unknown error"
+                val newMessage = message.replace("Error code: 1, message: ", "")
+                    .replaceFirstChar { it.uppercase() }
+                val exception = Exception(newMessage.takeIf { it.isNotBlank() } ?: message)
+                Result.failure(exception)
+            }
         )
     }
 
@@ -381,7 +387,20 @@ class RemoteAxerDataProvider(
                             try {
                                 val response =
                                     myJson.decodeFromString<BaseResponse<QueryResponse>>(text)
-                                trySend(response.toResult()).isSuccess
+                                trySend(
+                                    response
+                                        .toResult()
+                                        .fold(
+                                            onSuccess = { Result.success(it) },
+                                            onFailure = {
+                                                val message = it.message ?: "Unknown error"
+                                                val newMessage = message.replace("Error code: 1, message: ", "")
+                                                    .replaceFirstChar { it.uppercase() }
+                                                val exception = Exception(newMessage.takeIf { it.isNotBlank() } ?: message)
+                                                Result.failure(exception)
+                                            }
+                                        )
+                                ).isSuccess
                             } catch (e: Exception) {
                             }
                         }

@@ -19,10 +19,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -278,15 +277,13 @@ internal class RawQueryScreen {
 
         val currentQuery by viewModel.currentQuery.collectAsState("")
 
-        val errorColor = MaterialTheme.colorScheme.error
-
-        val primaryColor = MaterialTheme.colorScheme.primary
-        val secondaryColor = MaterialTheme.colorScheme.secondary
         val composition by rememberLottieComposition {
             val json = Res.readBytes("files/error.json")
                 .decodeToString()
             LottieCompositionSpec.JsonString(json)
         }
+        val resp by viewModel.queryResponse.collectAsState()
+
 
         Scaffold(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -311,81 +308,86 @@ internal class RawQueryScreen {
                     },
                 )
             }) { contentPadding ->
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-                    .padding(horizontal = 8.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(horizontal = 8.dp),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)
             ) {
-                OutlinedTextField(
-                    enabled = !isLoading,
-                    trailingIcon = {
-                        IconButton(
-                            enabled = !isLoading,
-                            onClick = {
-                                viewModel.executeQuery()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Save Changes",
-                                modifier = Modifier.rotate(180f)
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .onPreviewKeyEvent { keyEvent ->
-                            if (keyEvent.type == KeyEventType.KeyDown) {
-                                if (keyEvent.key == Key.Enter && keyEvent.isCtrlPressed.not() && keyEvent.isShiftPressed.not() && keyEvent.isAltPressed.not() && keyEvent.isMetaPressed.not() && !isLoading) {
+                stickyHeader {
+                    OutlinedTextField(
+                        enabled = !isLoading,
+                        trailingIcon = {
+                            IconButton(
+                                enabled = !isLoading,
+                                onClick = {
                                     viewModel.executeQuery()
-                                    return@onPreviewKeyEvent true // consume the event
                                 }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Save Changes",
+                                    modifier = Modifier.rotate(180f)
+                                )
                             }
-                            return@onPreviewKeyEvent false // let TextField handle all other keys
-                        }
-
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp)
-                        .padding(vertical = 16.dp),
-                    value = currentQuery,
-                    onValueChange = {
-                        viewModel.setQuery(it)
-                    },
-                )
-                if (isLoading) {
-                    Box(
+                        },
                         modifier = Modifier
-                            .fillMaxSize()
-                            .weight(0.5f)
+                            .onPreviewKeyEvent { keyEvent ->
+                                if (keyEvent.type == KeyEventType.KeyDown) {
+                                    if (keyEvent.key == Key.Enter && keyEvent.isCtrlPressed.not() && keyEvent.isShiftPressed.not() && keyEvent.isAltPressed.not() && keyEvent.isMetaPressed.not() && !isLoading) {
+                                        viewModel.executeQuery()
+                                        return@onPreviewKeyEvent true // consume the event
+                                    }
+                                }
+                                return@onPreviewKeyEvent false // let TextField handle all other keys
+                            }
+
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp)
                             .padding(vertical = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LoadingAnimation()
-                    }
-                } else {
-                    val resp by viewModel.queryResponse.collectAsState()
-                    resp.onSuccess {
-                        DisplayData(
-                            viewModel = viewModel,
-                            queryResponse = it
-                        )
-                    }.onFailure {
+                        value = currentQuery,
+                        onValueChange = {
+                            viewModel.setQuery(it)
+                        },
+                    )
+                }
+                if (isLoading) {
+                    item {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(0.5f)
                                 .padding(vertical = 16.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            DisplayError(
-                                error = it,
-                                composition = composition,
-                                onRetry = {
-                                    viewModel.executeQuery()
-                                }
+                            LoadingAnimation()
+                        }
+                    }
+                } else {
+                    resp.onSuccess {
+                        item {
+                            DisplayData(
+                                viewModel = viewModel,
+                                queryResponse = it
                             )
+                        }
+                    }.onFailure {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(vertical = 16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                DisplayError(
+                                    error = it,
+                                    composition = composition,
+                                    onRetry = {
+                                        viewModel.executeQuery()
+                                    }
+                                )
+                            }
                         }
                     }
                 }

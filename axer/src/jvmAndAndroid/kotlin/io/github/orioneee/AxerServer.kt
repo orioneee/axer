@@ -387,7 +387,6 @@ internal fun CoroutineScope.getKtorServer(
             get("/isAxerServer") {
                 try {
                     val deviceData = getDeviceData(readOnly)
-                    serverNotify("This device founded by remote: ${call.request.origin.remoteHost}", SnackbarDuration.Short)
                     call.respond(HttpStatusCode.OK, getDeviceData(readOnly))
                 } catch (e: Exception) {
                     e.printStackTrace()

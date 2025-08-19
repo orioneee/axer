@@ -237,15 +237,24 @@ class SelectDeviceScreen {
                 initializer {
                     DeviceScanViewModel()
                 }
-            })
+            }
+        )
         val isShown = viewModel.isShowingNewVersionDialog.collectAsState(false)
         val isShowAddDeviceDialog = viewModel.isShowAddDeviceDialog.collectAsState(false)
-        val isScanning = viewModel.isScanning.collectAsStateWithLifecycle(false)
         val scanningProgress = viewModel.scanningProgress.collectAsStateWithLifecycle(0f)
         val foundedDevices = viewModel.foundedDevices.collectAsStateWithLifecycle(emptyList())
         val addedButNotAxer =
             viewModel.manuallyAddedButNotAxer.collectAsStateWithLifecycle(emptyList())
         val adbDevices = viewModel.adbDevices.collectAsStateWithLifecycle(emptyList())
+
+
+        DisposableEffect(Unit) {
+            viewModel.startScanning()
+            onDispose {
+                viewModel.stopScanning()
+            }
+        }
+
         ManualConnectionDialog(
             isShown = isShowAddDeviceDialog.value,
             onDismiss = viewModel::onDismissAddDevice,
@@ -368,7 +377,7 @@ class SelectDeviceScreen {
                     },
                     actions = {
                         IconButton(
-                            enabled = !isScanning.value, onClick = viewModel::onClickAddDevice
+                            onClick = viewModel::onClickAddDevice
                         ) {
                             Icon(
                                 Icons.Outlined.Add,
@@ -376,52 +385,32 @@ class SelectDeviceScreen {
                             )
                         }
                         IconButton(
-                            enabled = !isScanning.value, onClick = {
-                                viewModel.scanLocalNetwork()
-                                viewModel.scanManuallyAddedConnections()
-                            }) {
+                            onClick = {
+                                viewModel.restartScanning()
+                            }
+                        ) {
                             Icon(Icons.Default.Refresh, contentDescription = "Rescan")
                         }
                     },
                 )
-            }) { padding ->
+            }
+        ) { padding ->
             Column(
                 modifier = Modifier.Companion.fillMaxSize().padding(padding),
                 horizontalAlignment = Alignment.Companion.CenterHorizontally
             ) {
-                AnimatedVisibility(
-                    isScanning.value
-                ) {
-                    ScanningProgress(scanningProgress.value)
-                }
                 if (foundedDevices.value.isEmpty() && addedButNotAxer.value.isEmpty() && adbDevices.value.isEmpty()) {
-                    if (!isScanning.value) {
-                        Box(
-                            modifier = Modifier.Companion.weight(1f),
-                            contentAlignment = Alignment.Companion.Center
-                        ) {
-                            EmptyState()
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier.Companion.weight(1f).padding(horizontal = 32.dp),
-                            contentAlignment = Alignment.Companion.Center
-                        ) {
-                            Text(
-                                "Scanning for devices on your network...",
-                                fontFamily = JetbrainsMonoFontFamily,
-                                style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Companion.Center,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
-                        }
+                    Box(
+                        modifier = Modifier.Companion.weight(1f),
+                        contentAlignment = Alignment.Companion.Center
+                    ) {
+                        EmptyState()
                     }
                 } else {
                     DeviceList(
                         viewModel = viewModel,
                         devices = foundedDevices.value,
                         addedButNotAxer = addedButNotAxer.value,
-                        isScanning = isScanning.value,
                         onDeviceClick = { device ->
                             navController.navigate(device.toNavArguments())
                         },
@@ -522,13 +511,10 @@ class SelectDeviceScreen {
         devices: List<Device>,
         onDeviceClick: (Device) -> Unit,
         addedButNotAxer: List<ConnectionInfo>,
-        isScanning: Boolean,
         onDelete: (ConnectionInfo) -> Unit,
         navController: NavHostController
     ) {
-        val isShowingAddedButNotAxer = remember(addedButNotAxer, isScanning) {
-            addedButNotAxer.isNotEmpty() && !isScanning
-        }
+        val isShowingAddedButNotAxer = addedButNotAxer.isNotEmpty()
         val adbDevices = viewModel.adbDevices.collectAsStateWithLifecycle(emptyList())
         LazyVerticalStaggeredGrid(
             modifier = Modifier.Companion.fillMaxSize(),
