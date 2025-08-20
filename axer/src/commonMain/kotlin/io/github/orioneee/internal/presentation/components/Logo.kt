@@ -333,10 +333,8 @@ internal fun ServerStatusDialog(
     wifiStatusComposition: LottieComposition?,
     noInetComposition: LottieComposition?
 ) {
-    val pausePlayAnimationProgress =
-        remember { Animatable(if (serverStatus is AxerServerStatus.Started) pointForStartEnd else pointFoStartPlay) }
-    val serverStatusAnimation =
-        remember { Animatable(if (serverStatus is AxerServerStatus.Started) 0f else 2f) }
+    val pausePlayAnimationProgress = remember { Animatable(if (serverStatus is AxerServerStatus.Started) pointForStartEnd else pointFoStartPlay) }
+    val serverStatusAnimation = remember { Animatable(if (serverStatus is AxerServerStatus.Started) 0f else 2f) }
 
     LaunchedEffect(serverStatus) {
         val targetForServerStatus = if (serverStatus is AxerServerStatus.Started) 0f else 2f
@@ -466,10 +464,11 @@ internal fun ServerStatusDialog(
                         painter = rememberLottiePainter(
                             composition = wifiStatusComposition,
                             progress = {
-                                val reversed = animationDivider - serverStatusAnimation.value.coerceIn(
-                                    0f,
-                                    animationDivider
-                                )
+                                val reversed =
+                                    animationDivider - serverStatusAnimation.value.coerceIn(
+                                        0f,
+                                        animationDivider
+                                    )
                                 reversed.normalize(
                                     fromMin = 0f,
                                     fromMax = animationDivider,
@@ -546,21 +545,30 @@ internal fun ServerStatusDialog(
 internal fun ServerRunStatus(
     axerDataProvider: AxerDataProvider
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val errorColor = MaterialTheme.colorScheme.error
-    val outlineColor = MaterialTheme.colorScheme.outline
-    val pausePlayComposition by rememberLottieComposition {
+    val colorScheme = MaterialTheme.colorScheme
+    val primaryColor = remember(colorScheme) {
+        colorScheme.primary
+    }
+    val errorColor = remember(colorScheme) {
+        colorScheme.error
+    }
+    val outlineColor = remember(colorScheme) {
+        colorScheme.outline
+    }
+    val pausePlayComposition by rememberLottieComposition() {
         LottieCompositionSpec.JsonString(
             Res.readBytes("files/pause_play.json").decodeToString()
         )
     }
-    val wifiStatusComposition by rememberLottieComposition {
+    val wifiStatusComposition by rememberLottieComposition(
+        primaryColor,
+    ) {
         val json = Res.readBytes("files/server_run.json")
             .decodeToString()
             .replace("[1,1,1]", primaryColor.toLottieColor())
         LottieCompositionSpec.JsonString(json)
     }
-    val noInetComposition by rememberLottieComposition {
+    val noInetComposition by rememberLottieComposition(errorColor, outlineColor) {
         val json = Res.readBytes("files/no_internet.json")
             .decodeToString()
             .replaceColorsInLottieJson {
