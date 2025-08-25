@@ -2,14 +2,11 @@ package io.github.orioneee
 
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.orioneee.internal.room.AxerSQLiteConnection
-import io.github.orioneee.internal.room.AxerSqlStatement
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.sample
 import kotlin.time.ExperimentalTime
@@ -52,13 +49,11 @@ class AxerBundledSQLiteDriver private constructor() : SQLiteDriver {
     }
 
     companion object {
-        internal val isInitialized = MutableStateFlow(false)
         internal val instance: AxerBundledSQLiteDriver by lazy {
             AxerBundledSQLiteDriver()
         }
 
         fun getInstance(): SQLiteDriver {
-            isInitialized.value = true
             return instance
         }
     }
