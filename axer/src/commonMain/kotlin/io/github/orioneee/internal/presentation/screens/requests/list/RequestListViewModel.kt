@@ -34,9 +34,6 @@ internal class RequestListViewModel(
     private val _searchQuery: MutableStateFlow<String> = MutableStateFlow("")
     private val _isShowLoadingDialog = MutableStateFlow(false)
 
-    init {
-        println("RequestListViewModel initialized")
-    }
     @OptIn(FlowPreview::class)
     val isShowLoadingDialog = _isShowLoadingDialog.asStateFlow().debounce(100)
     private val _requestsState by lazy {

@@ -129,7 +129,7 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val resp = finishedState.asResponse()
             val importantInResponse = pluginConfig.responseImportantSelector.invoke(resp)
             val responseFiltred = pluginConfig.responseFilter.invoke(resp)
-            if (responseFiltred == true) {
+            if (responseFiltred) {
                 val reducedResponse = pluginConfig.responseReducer.invoke(resp)
                 processor.onFinished(
                     finishedState.copy(

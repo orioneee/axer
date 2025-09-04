@@ -1,11 +1,11 @@
 package io.github.orioneee
 
-import io.github.orioneee.internal.extentions.toBodyType
-import io.github.orioneee.internal.processors.RequestProcessor
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.github.orioneee.internal.extentions.isValidImage
+import io.github.orioneee.internal.extentions.toBodyType
 import io.github.orioneee.internal.logger.getSavableError
+import io.github.orioneee.internal.processors.RequestProcessor
 import io.github.orioneee.internal.processors.SessionManager
 import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.runBlocking
@@ -170,26 +170,36 @@ class AxerOkhttpInterceptor private constructor(
 
                 val responseHeaders =
                     response.headers.toMultimap().mapValues { it.value.joinToString(", ") }
-                val (responseBodyBytes, contentType) = response.body.bytes().let {
-                    val bodySize = it.size
+                val (storedBody, bodyType, fullBody) = response.body.bytes().let { bytes ->
+                    val bodySize = bytes.size
                     if (bodySize > maxBodySize) {
-                        "Body is to large, current max size is ${maxBodySize} bytes but got $bodySize bytes"
-                            .toByteArray() to BodyType.RAW_TEXT
+                        Triple(
+                            "Body is too large, current max size is ${maxBodySize} bytes but got $bodySize bytes"
+                                .toByteArray(),
+                            BodyType.RAW_TEXT,
+                            bytes
+                        )
                     } else {
-                        it to if (it.isValidImage()) {
-                            BodyType.IMAGE
-                        } else {
-                            response.body.contentType()?.toBodyType() ?: BodyType.RAW_TEXT
-                        }
+                        Triple(
+                            bytes,
+                            if (bytes.isValidImage()) {
+                                BodyType.IMAGE
+                            } else {
+                                response.body.contentType()?.toBodyType() ?: BodyType.RAW_TEXT
+                            },
+                            bytes
+                        )
                     }
                 }
 
+
+
                 val finishedTransaction = transaction.updateToFinished(
-                    responseBody = responseBodyBytes,
+                    responseBody = storedBody,
                     responseTime = responseTime,
                     responseHeaders = responseHeaders,
                     responseStatus = response.code,
-                    bodyType = contentType
+                    bodyType = bodyType,
                 )
 
                 val responseModel = finishedTransaction.asResponse()
@@ -212,7 +222,7 @@ class AxerOkhttpInterceptor private constructor(
 
 
                 response.newBuilder()
-                    .body(responseBodyBytes.toResponseBody(response.body?.contentType()))
+                    .body(fullBody.toResponseBody(response.body.contentType()))
                     .build()
 
             } catch (e: Exception) {

@@ -9,8 +9,4 @@ internal object SessionManager {
     val sessionId by lazy {
         Uuid.random().toString()
     }
-
-    init {
-        println("Session started with ID: $sessionId")
-    }
 }

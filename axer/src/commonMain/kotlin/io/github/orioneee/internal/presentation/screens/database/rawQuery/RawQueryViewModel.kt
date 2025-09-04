@@ -130,7 +130,6 @@ internal class RawQueryViewModel(
     }
 
     fun cancelCurrentJob() {
-        println("Canceling current job")
         currentJob?.cancel()
         currentJob = null
         _loading.value = false
