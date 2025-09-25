@@ -37,7 +37,7 @@ junit = "1.3.0"
 startupRuntime = "1.2.0"
 adaptiveDesktop = "1.0.0"
 dokka = "2.0.0"
-compottie = "2.0.0"
+compottie = "2.0.1"
 jsonTree = "2.5.0"
 
 
