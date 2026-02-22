@@ -15,7 +15,7 @@ val libraryVersion = axerVersion
 version = libraryVersion
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 
     androidTarget { publishLibraryVariants("release") }
     jvm()

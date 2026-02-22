@@ -18,7 +18,7 @@ version = axerVersion
 
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     androidTarget()
     jvm()
     sourceSets {

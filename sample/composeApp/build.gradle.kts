@@ -21,7 +21,7 @@ val relocatedNoOpJar = tasks.register<com.github.jengelman.gradle.plugins.shadow
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 
     androidTarget()
     jvm()
