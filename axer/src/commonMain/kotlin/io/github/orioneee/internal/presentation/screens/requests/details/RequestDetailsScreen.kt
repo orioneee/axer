@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Http
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.DataArray
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Info
@@ -93,6 +94,7 @@ import io.github.orioneee.axer.generated.resources.failed_decode_as_json
 import io.github.orioneee.axer.generated.resources.found
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
+import io.github.orioneee.axer.generated.resources.share
 import io.github.orioneee.axer.generated.resources.important
 import io.github.orioneee.axer.generated.resources.method
 import io.github.orioneee.axer.generated.resources.no_request_found_with_id
@@ -117,6 +119,9 @@ import io.github.orioneee.internal.presentation.components.canSwipePage
 import io.github.orioneee.internal.utils.DataExporter
 import io.github.orioneee.internal.utils.toHarFile
 import io.ktor.http.HttpStatusCode
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
@@ -232,6 +237,71 @@ internal class RequestDetailsScreen {
         } else {
             "${size / (1024 * 1024)} MB"
         }
+    }
+
+    fun formatShareText(request: TransactionFull): String {
+        val sb = StringBuilder()
+        val ssl = request.fullUrl.startsWith("https", ignoreCase = true)
+        sb.appendLine("URL: ${request.fullUrl}")
+        sb.appendLine("Method: ${request.method}")
+        if (request.responseStatus != null) {
+            sb.appendLine("Status: Complete")
+            sb.appendLine("Response: ${request.responseStatus}")
+        } else if (request.error != null) {
+            sb.appendLine("Status: Failed")
+        } else {
+            sb.appendLine("Status: In Progress")
+        }
+        if (ssl) sb.appendLine("SSL: Yes")
+        sb.appendLine()
+
+        val tz = TimeZone.currentSystemDefault()
+        val requestTime = Instant.fromEpochMilliseconds(request.sendTime).toLocalDateTime(tz)
+        sb.appendLine("Request time: $requestTime")
+        if (request.responseTime != null) {
+            val responseTime = Instant.fromEpochMilliseconds(request.responseTime).toLocalDateTime(tz)
+            sb.appendLine("Response time: $responseTime")
+            sb.appendLine("Duration: ${request.totalTime} ms")
+        }
+        sb.appendLine()
+
+        val reqSize = request.requestBody?.size?.toLong() ?: 0L
+        val respSize = request.responseBody?.size?.toLong() ?: 0L
+        sb.appendLine("Request size: ${getSizeText(reqSize)}")
+        sb.appendLine("Response size: ${getSizeText(respSize)}")
+        sb.appendLine("Total size: ${getSizeText(reqSize + respSize)}")
+
+        sb.appendLine()
+        sb.appendLine("---------- Request ----------")
+        sb.appendLine()
+        request.requestHeaders.forEach { (key, value) ->
+            sb.appendLine("$key: $value")
+        }
+        if (request.requestBody != null && request.requestBody.isNotEmpty()) {
+            sb.appendLine()
+            sb.appendLine(request.requestBody.decodeToString())
+        }
+
+        sb.appendLine()
+        sb.appendLine("---------- Response ----------")
+        sb.appendLine()
+        request.responseHeaders.forEach { (key, value) ->
+            sb.appendLine("$key: $value")
+        }
+        if (request.error != null) {
+            sb.appendLine()
+            sb.appendLine("Error: ${request.error.name}: ${request.error.message}")
+            sb.appendLine(request.error.stackTrace)
+        } else if (request.responseBody != null && request.responseBody.isNotEmpty()) {
+            sb.appendLine()
+            if (request.responseDefaultType != BodyType.IMAGE) {
+                sb.appendLine(request.responseBody.decodeToString())
+            } else {
+                sb.appendLine("[Image: ${getSizeText(request.responseBody.size.toLong())}]")
+            }
+        }
+
+        return sb.toString()
     }
 
     @Composable
@@ -790,6 +860,19 @@ internal class RequestDetailsScreen {
             },
             actions = {
                 if (request?.isFinished() == true) {
+                    IconButton(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                val text = formatShareText(request!!)
+                                DataExporter.exportText(text, "${request!!.method}_${request!!.host}.txt")
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = stringResource(Res.string.share)
+                        )
+                    }
                     TextButton(
                         onClick = {
                             scope.launch(Dispatchers.IO) {

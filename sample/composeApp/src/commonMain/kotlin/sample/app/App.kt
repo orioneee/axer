@@ -37,7 +37,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.ImageLoader
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import io.github.orioneee.Axer
 import io.github.orioneee.ContentWithAxerFab
 import io.ktor.client.HttpClient
@@ -245,6 +253,14 @@ fun App() {
             }
         }
     }
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .components {
+                add(KtorNetworkFetcherFactory(httpClient = { client }))
+            }
+            .crossfade(true)
+            .build()
+    }
     val database: SampleDatabase = koinInject()
     Axer.configure {
         isSendNotification = true
@@ -326,6 +342,57 @@ internal fun App(
                                 sedRequestForImage(client)
                             }) {
                             Text("All")
+                        }
+                    }
+                }
+
+                item {
+                    ActionCard("Coil Image") {
+                        val context = LocalPlatformContext.current
+                        var imageUrl by remember {
+                            mutableStateOf("https://picsum.photos/400/300")
+                        }
+                        Column {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(imageUrl)
+                                    .crossfade(true)
+                                    .listener(
+                                        onStart = {
+                                            Axer.d("Coil", "Loading image: $imageUrl")
+                                        },
+                                        onSuccess = { _, result ->
+                                            Axer.i("Coil", "Image loaded successfully")
+                                        },
+                                        onError = { _, result ->
+                                            Axer.e(
+                                                "Coil",
+                                                "Failed to load image: ${result.throwable.message}",
+                                                result.throwable
+                                            )
+                                        }
+                                    )
+                                    .build(),
+                                contentDescription = "Sample image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                @OptIn(ExperimentalTime::class)
+                                FilledTonalButton(onClick = {
+                                    imageUrl =
+                                        "https://picsum.photos/400/300?random=${Clock.System.now().toEpochMilliseconds()}"
+                                }) { Text("Reload") }
+                                FilledTonalButton(onClick = {
+                                    imageUrl = "https://invalid.url/broken-image.jpg"
+                                }) { Text("Load Error") }
+                            }
                         }
                     }
                 }

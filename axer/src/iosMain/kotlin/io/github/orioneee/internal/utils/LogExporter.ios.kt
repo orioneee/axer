@@ -1,6 +1,7 @@
 package io.github.orioneee.internal.utils
 
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import kotlinx.serialization.json.Json
 import platform.Foundation.NSDate
 import platform.Foundation.NSFileManager
@@ -72,12 +73,10 @@ internal actual object DataExporter {
     }
 
     actual fun exportHar(har: HarFile) {
-        // 1. Create temporary file path
         val tempDir = NSTemporaryDirectory()
         val fileName = "har_${NSDate().timeIntervalSince1970}.har"
         val filePath = tempDir + fileName
 
-        // 2. Serialize HAR object to JSON data
         val jsonData = try {
             val byteArray = Json { prettyPrint = true }.encodeToString(HarFile.serializer(), har)
             (byteArray as NSString).dataUsingEncoding(NSUTF8StringEncoding)
@@ -86,24 +85,41 @@ internal actual object DataExporter {
             return
         }
 
-        // 3. Write file to temporary directory
         if (jsonData != null) {
             NSFileManager.defaultManager.createFileAtPath(filePath, jsonData, attributes = null)
         } else {
-            println("Failed to create HAR data")
             return
         }
 
-        // 4. Create NSURL for file
-        val fileUrl = NSURL.fileURLWithPath(filePath)
+        shareFile(filePath)
+    }
 
-        // 5. Create UIActivityViewController for sharing
+    actual fun exportHarStreaming(transactions: List<TransactionFull>) {
+        val tempDir = NSTemporaryDirectory()
+        val fileName = "har_${NSDate().timeIntervalSince1970}.har"
+        val filePath = tempDir + fileName
+
+        NSFileManager.defaultManager.createFileAtPath(filePath, null, attributes = null)
+        val handle = platform.Foundation.NSFileHandle.fileHandleForWritingAtPath(filePath) ?: return
+        try {
+            streamHarJson(transactions) { chunk ->
+                (chunk as NSString).dataUsingEncoding(NSUTF8StringEncoding)?.let { data ->
+                    handle.writeData(data)
+                }
+            }
+        } finally {
+            handle.closeFile()
+        }
+
+        shareFile(filePath)
+    }
+
+    private fun shareFile(filePath: String) {
+        val fileUrl = NSURL.fileURLWithPath(filePath)
         val activityVC = UIActivityViewController(
             activityItems = listOf(fileUrl),
             applicationActivities = null
         )
-
-        // 6. Present on main thread
         val presentBlock: () -> Unit = {
             topViewController()?.presentViewController(activityVC, animated = true, completion = null)
         }

@@ -8,7 +8,6 @@ import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.github.orioneee.internal.extentions.successData
 import io.github.orioneee.internal.snackbarProcessor.SnackBarController
 import io.github.orioneee.internal.utils.DataExporter
-import io.github.orioneee.internal.utils.toHarFile
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -149,8 +148,7 @@ internal class RequestListViewModel(
                 _isShowLoadingDialog.value = true
                 dataProvider.getDataForExportAsHar().fold(
                     onSuccess = { harData ->
-                        val har = harData.toHarFile()
-                        DataExporter.exportHar(har)
+                        DataExporter.exportHarStreaming(harData)
                     },
                     onFailure = { error ->
                         SnackBarController.showSnackBar(text = "Error exporting HAR: ${error.message}")

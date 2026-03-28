@@ -5,6 +5,7 @@ import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.ktor.util.encodeBase64
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -100,7 +101,7 @@ internal fun TransactionFull.toHarEntry(): HarEntry {
         postData = requestBody?.let {
             HarPostData(
                 mimeType = requestHeaders["Content-Type"] ?: "application/octet-stream",
-                text = it.encodeBase64()
+                text = it.decodeToString()
             )
         }
     )
@@ -111,11 +112,12 @@ internal fun TransactionFull.toHarEntry(): HarEntry {
         content = HarContent(
             size = responseBody?.size?.toLong() ?: 0L,
             mimeType = responseHeaders["Content-Type"] ?: "application/octet-stream",
-            text = if(responseDefaultType == BodyType.IMAGE){
+            text = if (responseDefaultType == BodyType.IMAGE) {
                 responseBody?.encodeBase64()
-            } else{
-                responseBody?.encodeBase64()
-            }
+            } else {
+                responseBody?.decodeToString()
+            },
+            encoding = if (responseDefaultType == BodyType.IMAGE) "base64" else null
         ),
         bodySize = responseBody?.size?.toLong() ?: 0L
     )
@@ -139,4 +141,21 @@ internal fun List<TransactionFull>.toHarFile(): HarFile {
             entries = this.map { it.toHarEntry() }
         )
     )
+}
+
+private val harJson = Json { prettyPrint = true }
+
+internal fun streamHarJson(
+    transactions: List<TransactionFull>,
+    write: (String) -> Unit
+) {
+    write("{\"log\":{\"version\":\"1.2\",\"creator\":{\"name\":\"Axer\",\"version\":\"")
+    write(BuildKonfig.VERSION_NAME)
+    write("\"},\"entries\":[")
+    transactions.forEachIndexed { index, tx ->
+        if (index > 0) write(",")
+        val entry = tx.toHarEntry()
+        write(harJson.encodeToString(HarEntry.serializer(), entry))
+    }
+    write("]}}")
 }

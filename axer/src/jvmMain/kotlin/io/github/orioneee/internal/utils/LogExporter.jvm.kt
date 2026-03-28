@@ -1,6 +1,7 @@
 package io.github.orioneee.internal.utils
 
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
@@ -48,7 +49,17 @@ internal actual object DataExporter {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            // Optionally, show error dialog or log error
+        }
+    }
+
+    actual fun exportHarStreaming(transactions: List<TransactionFull>) {
+        val file = chooseFile("har_${System.currentTimeMillis()}.har") ?: return
+        try {
+            file.bufferedWriter().use { writer ->
+                streamHarJson(transactions) { writer.write(it) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

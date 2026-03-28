@@ -29,6 +29,10 @@ internal class AxerSQLiteConnection(
         )
     }
 
+    override fun inTransaction(): Boolean {
+        return connection.inTransaction()
+    }
+
     override fun close() {
         connection.close()
     }

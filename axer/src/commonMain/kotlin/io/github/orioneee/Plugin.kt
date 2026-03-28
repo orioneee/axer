@@ -10,18 +10,33 @@ import io.github.orioneee.internal.processors.SessionManager
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
-import io.ktor.client.statement.bodyAsBytes
+import io.ktor.client.statement.content
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
+import io.ktor.util.AttributeKey
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readRemaining
 import kotlinx.io.readByteArray
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, InternalAPI::class)
 internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
     createClientPlugin("Axer", ::AxerKtorPluginConfig) {
+        val cachedBodyKey = AttributeKey<ByteArray>("AxerCachedBody")
+
+        transformResponseBody { response, content, _ ->
+            val cached = response.call.attributes.getOrNull(cachedBodyKey)
+            if (cached != null) {
+                response.call.attributes.remove(cachedBodyKey)
+                ByteReadChannel(cached)
+            } else {
+                content
+            }
+        }
+
         on(Send) {
             Axer.initIfCan()
             val sendTime = Clock.System.now().toEpochMilliseconds()
@@ -107,7 +122,9 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val responseTime = Clock.System.now().toEpochMilliseconds()
             val responseHeaders = response.response.headers.entries()
                 .associate { entry -> entry.key to entry.value.joinToString(", ") }
-            val (responseBody, contentType) = response.response.bodyAsBytes().let {
+            val rawBytes = response.response.content.readRemaining().readByteArray()
+            response.attributes.put(cachedBodyKey, rawBytes)
+            val (responseBody, contentType) = rawBytes.let {
                 val bodySize = it.size
                 if (bodySize > pluginConfig.maxBodySize) {
                     "Body is to large, current max size is ${pluginConfig.maxBodySize} bytes but got $bodySize bytes"

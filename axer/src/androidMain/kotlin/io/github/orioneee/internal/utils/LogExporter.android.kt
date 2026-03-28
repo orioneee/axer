@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import io.github.orioneee.internal.domain.logs.LogLine
+import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.koin.IsolatedContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -74,6 +75,26 @@ internal actual object DataExporter {
         }
 
         // Start chooser
+        context.startActivity(
+            Intent.createChooser(sendIntent, "Share HAR file")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+    }
+
+    actual fun exportHarStreaming(transactions: List<TransactionFull>) {
+        val context: Context by IsolatedContext.koin.inject()
+        val harFile = File(context.cacheDir, "har_${System.currentTimeMillis()}.har")
+
+        harFile.bufferedWriter().use { writer ->
+            streamHarJson(transactions) { writer.write(it) }
+        }
+
+        val uri = FileProvider.getUriForFile(context, fileProviderAuthority(context), harFile)
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            setType("application/json")
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
         context.startActivity(
             Intent.createChooser(sendIntent, "Share HAR file")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

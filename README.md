@@ -442,10 +442,10 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 
 | Dependency            | Version                             |
 |-----------------------|-------------------------------------|
-| Kotlin                | 2.3.10                  |
-| Compose               | 1.10.1                 |
-| Ktor                  | 3.4.0                    |
-| Koin                  | 4.1.1                    |
+| Kotlin                | 2.3.20                  |
+| Compose               | 1.10.3                 |
+| Ktor                  | 3.4.2                    |
+| Koin                  | 4.2.0                    |
 | Room                  | 2.8.4                    |
 | OkHttp                | 5.3.2                  |
 | Napier                | 2.7.1                  |
@@ -453,7 +453,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | kotlinx-serialization | 1.10.0   |
 | kotlinx-datetime      | 0.7.1        |
 | Accompanist           | 0.37.3 |
-| Coil Compose          | 3.3.0            |
+| Coil Compose          | 3.4.0            |
 | Navigation Compose    | 2.9.2      |
 | minSdk                | 21                         |
 ---

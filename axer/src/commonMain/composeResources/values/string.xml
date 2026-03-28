@@ -66,6 +66,7 @@
     <string name="json">Json</string>
     <string name="non_formated">Non-formatted</string>
     <string name="har">.har</string>
+    <string name="share">Share</string>
     <string name="open_axer">Open Axer</string>
     <string name="exit">Exit</string>
     <string name="processing_your_request">Processing your request...</string>
