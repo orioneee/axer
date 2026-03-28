@@ -112,6 +112,7 @@ import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.data.TransactionFull
 import io.github.orioneee.internal.domain.requests.formatters.BodyType
 import io.github.orioneee.internal.presentation.components.BodySection
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import io.github.orioneee.internal.presentation.components.MultiplatformAlertDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
 import io.github.orioneee.internal.presentation.components.buildStringSection
@@ -350,7 +351,7 @@ internal class RequestDetailsScreen {
 
         BodySection(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
             titleContent = {
                 Row(
@@ -424,8 +425,10 @@ internal class RequestDetailsScreen {
                 }
 
                 Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -444,8 +447,10 @@ internal class RequestDetailsScreen {
                 }
 
                 Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     SelectionContainer {
                         Column(
@@ -502,7 +507,7 @@ internal class RequestDetailsScreen {
                     }
                     BodySection(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
                     ) {
                         SelectionContainer {
@@ -587,8 +592,10 @@ internal class RequestDetailsScreen {
                     Spacer(Modifier.height(16.dp))
                 }
                 Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     SelectionContainer {
                         Column(
@@ -656,7 +663,7 @@ internal class RequestDetailsScreen {
                     }
                     BodySection(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
                     ) {
                         SelectionContainer {
@@ -775,8 +782,10 @@ internal class RequestDetailsScreen {
     ) {
         var expanded by remember { mutableStateOf(initialExpandState) }
         Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -906,8 +915,8 @@ internal class RequestDetailsScreen {
                     Tab(
                         modifier = Modifier.clip(
                             RoundedCornerShape(
-                                topStart = 16.dp,
-                                topEnd = 16.dp
+                                topStart = 14.dp,
+                                topEnd = 14.dp
                             )
                         ),
                         selected = pager.currentPage == 0,
@@ -921,8 +930,8 @@ internal class RequestDetailsScreen {
                     Tab(
                         modifier = Modifier.clip(
                             RoundedCornerShape(
-                                topStart = 16.dp,
-                                topEnd = 16.dp
+                                topStart = 14.dp,
+                                topEnd = 14.dp
                             )
                         ),
                         selected = pager.currentPage == 1,

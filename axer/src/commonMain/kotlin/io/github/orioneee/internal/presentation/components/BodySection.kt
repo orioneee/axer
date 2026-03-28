@@ -2,6 +2,7 @@ package io.github.orioneee.internal.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,8 +40,8 @@ internal fun BodySection(
     colors: androidx.compose.material3.CardColors = CardDefaults.cardColors(),
 
     thickness: Dp = 8.dp,
-    innerRadius: Dp = 8.dp,
-    outerElevation: Dp = 2.dp,
+    innerRadius: Dp = 6.dp,
+    outerElevation: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
     val outerRadius = innerRadius + thickness
@@ -51,11 +52,13 @@ internal fun BodySection(
     val outerShape = RoundedCornerShape(outerRadius)
     val innerShape = RoundedCornerShape(innerRadius)
 
+    val axerColors = LocalAxerColors.current
     Card(
         modifier = modifier,
         shape = outerShape,
         colors = colors,
-        elevation = CardDefaults.cardElevation(outerElevation)
+        elevation = CardDefaults.cardElevation(outerElevation),
+        border = BorderStroke(1.dp, axerColors.cardBorder)
     ) {
         Column {
             Row(
@@ -102,6 +105,7 @@ internal fun BodySection(
                         .fillMaxWidth()
                         .padding(all = thickness),
                     shape = innerShape,
+                    border = BorderStroke(1.dp, axerColors.cardBorder),
                 ) {
                     content()
                 }

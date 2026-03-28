@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,7 @@ import io.github.orioneee.internal.domain.logs.LogLine
 import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import io.github.orioneee.internal.presentation.components.FilterRow
 import io.github.orioneee.internal.presentation.components.LoadingDialog
 import io.github.orioneee.internal.presentation.components.MyRatioButton
@@ -85,20 +87,7 @@ internal class LogViewScreen {
     fun DisplayLogline(
         log: LogLine,
     ) {
-        val color =
-            when (log.level) {
-                LogLevel.ERROR, LogLevel.ASSERT -> {
-                    MaterialTheme.colorScheme.error
-                }
-
-                LogLevel.WARNING -> {
-                    MaterialTheme.colorScheme.warning
-                }
-
-                else -> {
-                    MaterialTheme.colorScheme.onSurface
-                }
-            }
+        val color = colorForLevel(log.level)
 
         Text(
             text = log.toString(),
@@ -114,9 +103,12 @@ internal class LogViewScreen {
 
     @Composable
     fun LogItemCard(log: LogLine) {
+        val levelColor = colorForLevel(log.level)
         SelectionContainer {
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -128,9 +120,9 @@ internal class LogViewScreen {
                 ) {
                     Box(
                         Modifier
-                            .width(4.dp)
+                            .width(3.dp)
                             .fillMaxHeight()
-                            .background(colorForLevel(log.level))
+                            .background(levelColor, RoundedCornerShape(2.dp))
                     )
                     Spacer(Modifier.width(8.dp))
                     Column {
@@ -146,7 +138,7 @@ internal class LogViewScreen {
                             Text(
                                 log.level.name,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colorForLevel(log.level),
+                                color = levelColor,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -164,10 +156,14 @@ internal class LogViewScreen {
 
     @Composable
     fun colorForLevel(level: LogLevel): Color {
+        val axerColors = LocalAxerColors.current
         return when (level) {
-            LogLevel.ERROR, LogLevel.ASSERT -> MaterialTheme.colorScheme.error
-            LogLevel.WARNING -> MaterialTheme.colorScheme.tertiary
-            else -> MaterialTheme.colorScheme.primary
+            LogLevel.ASSERT -> axerColors.logAssert
+            LogLevel.ERROR -> axerColors.logError
+            LogLevel.WARNING -> axerColors.logWarning
+            LogLevel.INFO -> axerColors.logInfo
+            LogLevel.DEBUG -> axerColors.logDebug
+            LogLevel.VERBOSE -> axerColors.logVerbose
         }
     }
 

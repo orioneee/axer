@@ -3,6 +3,7 @@ package io.github.orioneee.internal.presentation.screens.exceptions.details
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -71,6 +72,7 @@ import io.github.orioneee.internal.domain.requests.ResponseShort
 import io.github.orioneee.internal.logger.formateAsDate
 import io.github.orioneee.internal.logger.formateAsTime
 import io.github.orioneee.LocalAxerDataProvider
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import io.github.orioneee.axer.generated.resources.timeline
 import io.github.orioneee.internal.presentation.components.MyRatioButton
 import io.github.orioneee.internal.presentation.components.MyVerticalLine
@@ -97,16 +99,17 @@ internal class ExceptionDetails {
 
     @Composable
     private fun EventColor(event: SessionEvent): Color {
+        val axerColors = LocalAxerColors.current
         return when (event) {
-            is SessionEvent.Exception -> MaterialTheme.colorScheme.error
+            is SessionEvent.Exception -> axerColors.logError
             is SessionEvent.Log -> if (event.logLine.level == LogLevel.ERROR || event.logLine.level == LogLevel.ASSERT)
-                MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                axerColors.logError else MaterialTheme.colorScheme.onSurface
 
-            is SessionEvent.Request -> MaterialTheme.colorScheme.tertiary
+            is SessionEvent.Request -> axerColors.accent
             is SessionEvent.Response -> {
                 val isError = event.response is ResponseShort.Error ||
                         (event.response is ResponseShort.Success && event.response.isErrorByStatusCode())
-                if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
+                if (isError) axerColors.logError else axerColors.success
             }
         }
     }
@@ -152,10 +155,13 @@ internal class ExceptionDetails {
     fun DisplayEvents(events: List<SessionEvent>) {
         var isShortView by remember { mutableStateOf(true) }
         val rotating = animateFloatAsState(if (isShortView) 0f else 180f)
+        val axerColors = LocalAxerColors.current
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+            border = BorderStroke(1.dp, axerColors.cardBorder),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column {
                 val scrollState = rememberScrollState()
@@ -304,8 +310,10 @@ internal class ExceptionDetails {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
                         modifier = Modifier
@@ -348,8 +356,10 @@ internal class ExceptionDetails {
                     var expanded by remember { mutableStateOf(false) }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
+                        border = BorderStroke(1.dp, LocalAxerColors.current.cardBorder),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column {
                             Row(

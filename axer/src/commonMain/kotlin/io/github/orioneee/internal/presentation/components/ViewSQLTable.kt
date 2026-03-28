@@ -52,7 +52,7 @@ import io.github.orioneee.internal.presentation.screens.database.TableDetailsVie
 @Composable
 internal fun HeaderCell(
     text: String?,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     onClick: (() -> Unit)? = null,
     isSortColumn: Boolean,
     isDescending: Boolean = false
@@ -62,7 +62,7 @@ internal fun HeaderCell(
             modifier = Modifier
                 .background(color = backgroundColor)
                 .widthIn(max = 350.dp)
-                .border(width = .5.dp, color = MaterialTheme.colorScheme.outline)
+                .border(width = .5.dp, color = LocalAxerColors.current.cardBorder)
                 .clickable(
                     enabled = onClick != null
                 ) {
@@ -112,8 +112,8 @@ internal fun ContentCell(
     text: String,
     isClickable: Boolean,
     alignment: Alignment = Alignment.Center,
-    backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    borderColor: Color = MaterialTheme.colorScheme.outline,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    borderColor: Color = LocalAxerColors.current.cardBorder,
     onClick: () -> Unit = {}
 ) {
     val animatedBackgroundColor by animateColorAsState(backgroundColor)
@@ -150,7 +150,7 @@ internal fun DeleteButton(
         modifier = Modifier
             .background(color = backgroundColor)
             .widthIn(max = 350.dp)
-            .border(width = .5.dp, color = MaterialTheme.colorScheme.outline),
+            .border(width = .5.dp, color = LocalAxerColors.current.cardBorder),
         contentAlignment = Alignment.Center
 
     ) {
@@ -451,7 +451,7 @@ internal fun <T, R> ViewTable(
         .clip(RoundedCornerShape(8.dp))
         .border(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
+            color = LocalAxerColors.current.cardBorder,
             shape = RoundedCornerShape(8.dp)
         ),
 ) {

@@ -1,6 +1,8 @@
 package io.github.orioneee.internal.presentation.screens.requests
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +63,11 @@ class EmptyScreen {
                     modifier = Modifier
                         .size(120.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                            shape = CircleShape
+                        )
+                        .border(
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -69,7 +75,7 @@ class EmptyScreen {
                     Icon(
                         painter = image,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                         modifier = Modifier.size(64.dp)
                     )
                 }
@@ -87,7 +93,7 @@ class EmptyScreen {
                 if (actionText != null && onActionClick != null) {
                     FilledTonalButton(
                         onClick = onActionClick,
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(14.dp),
                         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                     ) {
                         Text(text = actionText, fontWeight = FontWeight.Bold)

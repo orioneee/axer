@@ -6,6 +6,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,12 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.orioneee.axer.generated.resources.Res
 import io.github.orioneee.axer.generated.resources.logo_circle
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.roundToInt
@@ -95,7 +98,22 @@ internal fun AxerFab(
                 .size(nudgeSize)
                 .clip(RoundedCornerShape(100))
                 .background(
-                    color = MaterialTheme.colorScheme.primary,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            LocalAxerColors.current.accent
+                        )
+                    ),
+                    shape = RoundedCornerShape(100)
+                )
+                .border(
+                    width = 1.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            LocalAxerColors.current.accent.copy(alpha = 0.3f)
+                        )
+                    ),
                     shape = RoundedCornerShape(100)
                 )
                 .pointerInput(Unit) {

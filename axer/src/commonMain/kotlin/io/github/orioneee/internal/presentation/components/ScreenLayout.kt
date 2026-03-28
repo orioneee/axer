@@ -90,7 +90,7 @@ internal fun ScreenLayout(
     }
     val scheme = if (isDark) dark else light
     val colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-        containerColor = scheme.surface,
+        containerColor = scheme.background,
         titleContentColor = scheme.onSurface,
         actionIconContentColor = scheme.onSurface,
         navigationIconContentColor = scheme.onSurface

@@ -71,6 +71,7 @@ import io.github.orioneee.internal.domain.database.QueryResponse
 import io.github.orioneee.internal.extentions.sortBySortingItemAndChunck
 import io.github.orioneee.internal.presentation.components.ContentCell
 import io.github.orioneee.internal.presentation.components.HeaderCell
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import io.github.orioneee.internal.presentation.components.PaginationUI
 import io.github.orioneee.internal.presentation.components.ViewTable
 import kotlinx.coroutines.FlowPreview
@@ -141,7 +142,7 @@ internal class RawQueryScreen {
             Spacer(Modifier.height(24.dp))
 
             Button(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.height(48.dp),
                 onClick = onRetry
             ) {
@@ -197,11 +198,11 @@ internal class RawQueryScreen {
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(14.dp))
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(16.dp)
+                            color = LocalAxerColors.current.cardBorder,
+                            shape = RoundedCornerShape(14.dp)
                         )
                 ) {
 
@@ -238,9 +239,9 @@ internal class RawQueryScreen {
                     text = cellData?.value ?: "NULL",
                     alignment = Alignment.CenterStart,
                     backgroundColor = when {
-                        isSelected -> MaterialTheme.colorScheme.tertiaryContainer
-                        isPrimary -> MaterialTheme.colorScheme.primaryContainer
-                        else -> MaterialTheme.colorScheme.surface
+                        isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                        isPrimary -> MaterialTheme.colorScheme.surfaceContainerHigh
+                        else -> MaterialTheme.colorScheme.surfaceContainerLow
                     },
                     isClickable = true,
                     onClick = {

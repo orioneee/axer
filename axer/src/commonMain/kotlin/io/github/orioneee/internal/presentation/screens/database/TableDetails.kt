@@ -42,6 +42,7 @@ import io.github.orioneee.axer.generated.resources.ic_sql
 import io.github.orioneee.internal.presentation.components.ContentCell
 import io.github.orioneee.internal.presentation.components.DeleteButton
 import io.github.orioneee.internal.presentation.components.HeaderCell
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
 import io.github.orioneee.internal.presentation.components.PaginationUI
 import io.github.orioneee.internal.presentation.components.ViewTable
 import io.github.orioneee.internal.presentation.navigation.Routes
@@ -214,19 +215,20 @@ internal class TableDetails {
                         val isSelected =
                             selectedItem?.item == line && selectedItem?.selectedColumnIndex == columnIndex
                         val cellData = line.cells[columnIndex]
+                        val axerColors = LocalAxerColors.current
                         ContentCell(
                             text = cellData?.value ?: "NULL",
                             alignment = Alignment.CenterStart,
                             backgroundColor = when {
-                                isSelected -> MaterialTheme.colorScheme.tertiaryContainer
-                                isPrimary -> MaterialTheme.colorScheme.primaryContainer
-                                else -> MaterialTheme.colorScheme.surface
+                                isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                isPrimary -> MaterialTheme.colorScheme.surfaceContainerHigh
+                                else -> MaterialTheme.colorScheme.surfaceContainerLow
                             },
                             isClickable = !isPrimary && !isUpdatingCell,
                             borderColor = if (isSelected)
-                                MaterialTheme.colorScheme.primary
+                                axerColors.cardBorderSelected
                             else
-                                MaterialTheme.colorScheme.outline,
+                                axerColors.cardBorder,
                             onClick = {
                                 val newSelectedItem = if (!isSelected && cellData != null) {
                                     EditableRowItem(

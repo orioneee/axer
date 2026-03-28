@@ -8,6 +8,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -180,7 +181,7 @@ fun AxerLogoDialog() {
                     Row(
                         modifier = Modifier
                             .height(48.dp)
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(14.dp))
                             .clickable {
                                 uriHandler.openUri("https://github.com/orioneee/Axer")
                             }
@@ -201,7 +202,7 @@ fun AxerLogoDialog() {
                     }
 
                     Button(
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.height(48.dp),
                         onClick = {
                             uriHandler.openUri("https://github.com/orioneee/Axer/issues")
@@ -239,18 +240,32 @@ private fun ThemeOption(
         Theme.LIGHT -> AxerTheme.light
         Theme.DARK -> AxerTheme.dark
     }
+    val axerColors = LocalAxerColors.current
     val backgroundColor by animateColorAsState(
-        targetValue = if (selected) ownColorScheme.primaryContainer
-        else ownColorScheme.background,
+        targetValue = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+        else MaterialTheme.colorScheme.surfaceContainerLow,
         label = ""
     )
-    val contentColor = if (selected) ownColorScheme.onPrimaryContainer
-    else ownColorScheme.onBackground
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+        else axerColors.cardBorder,
+        label = ""
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurfaceVariant,
+        label = ""
+    )
 
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(backgroundColor)
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(14.dp)
+            )
             .clickable { onClick() }
             .padding(16.dp)
             .size(30.dp),
@@ -390,7 +405,7 @@ internal fun ServerStatusDialog(
 
 
                 Button(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.height(48.dp),
                     onClick = {
                         if (serverStatus is AxerServerStatus.Started) {
@@ -447,8 +462,13 @@ internal fun ServerStatusDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(24.dp)
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(20.dp)
                     )
                     .padding(16.dp),
                 contentAlignment = Alignment.Center

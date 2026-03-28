@@ -1,14 +1,17 @@
 package io.github.orioneee.internal.presentation.screens.requests.list
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.WifiTetheringOff
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,7 +41,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +56,9 @@ import io.github.orioneee.internal.domain.other.DataState
 import io.github.orioneee.internal.domain.requests.data.Transaction
 import io.github.orioneee.internal.logger.formateAsTime
 import io.github.orioneee.internal.presentation.components.AxerLogoDialog
+import io.github.orioneee.internal.presentation.components.LocalAxerColors
+import io.github.orioneee.internal.presentation.components.methodColor
+import io.github.orioneee.internal.presentation.components.statusColor
 import io.github.orioneee.internal.presentation.components.FilterRow
 import io.github.orioneee.internal.presentation.components.LoadingDialog
 import io.github.orioneee.internal.presentation.components.ScreenLayout
@@ -65,26 +71,21 @@ import org.koin.core.parameter.parametersOf
 internal class RequestListScreen() {
 
     @Composable
-    private fun StatusChip(request: Transaction) {
-        val status = request.responseStatus
-        val color = when {
-            request.isInProgress() -> MaterialTheme.colorScheme.secondary
-            status != null && status in 200..299 -> MaterialTheme.colorScheme.primary
-            status != null && status in 300..399 -> MaterialTheme.colorScheme.tertiary
-            status != null && status >= 400 -> MaterialTheme.colorScheme.error
-            else -> MaterialTheme.colorScheme.outline
+    private fun MethodBadge(method: String, color: Color) {
+        Surface(
+            color = color.copy(alpha = 0.12f),
+            shape = RoundedCornerShape(6.dp),
+        ) {
+            Text(
+                text = method,
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = FontFamily.Monospace,
+                ),
+                color = color,
+            )
         }
-        AssistChip(
-            onClick = { },
-            label = {
-                Text(status?.toString() ?: if (request.isInProgress()) "…" else "—")
-            },
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = color.copy(alpha = 0.15f),
-                labelColor = color
-            ),
-            border = null
-        )
     }
 
     @Composable
@@ -93,80 +94,125 @@ internal class RequestListScreen() {
         request: Transaction,
         onClick: () -> Unit,
     ) {
-        val animatedContainerColor = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
+        val axerColors = LocalAxerColors.current
+        val statusColor = axerColors.statusColor(request.responseStatus)
+        val methodColor = axerColors.methodColor(request.method)
 
-        val animatedElevation by animateDpAsState(
-            targetValue = if (isSelected) 6.dp else 2.dp,
-            label = "CardElevationAnim"
+        val animatedBorderColor by animateColorAsState(
+            targetValue = when {
+                isSelected -> axerColors.cardBorderSelected
+                request.isInProgress() -> axerColors.accent.copy(alpha = 0.5f)
+                else -> axerColors.cardBorder
+            },
+            label = "borderColor"
         )
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
+                .padding(horizontal = 12.dp, vertical = 3.dp)
+                .clip(RoundedCornerShape(14.dp))
                 .clickable { onClick() },
-            colors = CardDefaults.cardColors(containerColor = animatedContainerColor),
-            elevation = CardDefaults.cardElevation(defaultElevation = animatedElevation)
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSelected)
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                else
+                    MaterialTheme.colorScheme.surfaceContainerLow
+            ),
+            border = BorderStroke(1.dp, animatedBorderColor),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(
-                    vertical = 8.dp,
-                    horizontal = 12.dp,
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        StatusChip(request)
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = request.method,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                Box(
+                    modifier = Modifier
+                        .width(3.dp)
+                        .height(40.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(
+                            if (request.isInProgress()) axerColors.accent.copy(alpha = 0.5f)
+                            else statusColor.copy(alpha = 0.7f)
                         )
-                    }
-
-                    if (request.isInProgress()) {
-                        LinearProgressIndicator(
-                            modifier = Modifier
-                                .width(60.dp)
-                                .height(4.dp),
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                }
-
-                if (request.path.isNotBlank()) {
-                    Text(
-                        text = request.path,
-                        color = if (
-                            request.error != null ||
-                            (request.responseStatus != null && request.isErrorByStatusCode())
-                        ) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(Modifier.height(2.dp))
-                }
-
-                val infoText = buildString {
-                    append("${request.host}  ${request.sendTime.formateAsTime()}  ")
-                    request.error?.let { append(it.name) }
-                    if (request.isFinished()) append("${request.totalTime}ms")
-                }
-                val fontWeight = animateIntAsState(if (request.isViewed) 400 else 700)
-                Text(
-                    text = infoText,
-                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                    fontWeight = FontWeight(fontWeight.value),
                 )
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        MethodBadge(request.method, methodColor)
+                        if (request.responseStatus != null) {
+                            Text(
+                                text = request.responseStatus.toString(),
+                                color = statusColor,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else if (request.isInProgress()) {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(3.dp),
+                                color = axerColors.accent,
+                                trackColor = axerColors.accent.copy(alpha = 0.15f)
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        if (request.isFinished()) {
+                            Text(
+                                text = "${request.totalTime}ms",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    if (request.path.isNotBlank()) {
+                        Text(
+                            text = request.path,
+                            color = if (
+                                request.error != null ||
+                                (request.responseStatus != null && request.isErrorByStatusCode())
+                            ) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                            maxLines = 2,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val fontWeight = animateIntAsState(if (request.isViewed) 400 else 700)
+                        Text(
+                            text = request.host,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight(fontWeight.value),
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        Text(
+                            text = request.sendTime.formateAsTime(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        request.error?.let {
+                            Text(
+                                text = it.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
             }
         }
     }
