@@ -99,16 +99,11 @@ internal actual object DataExporter {
         val fileName = "har_${NSDate().timeIntervalSince1970}.har"
         val filePath = tempDir + fileName
 
-        NSFileManager.defaultManager.createFileAtPath(filePath, null, attributes = null)
-        val handle = platform.Foundation.NSFileHandle.fileHandleForWritingAtPath(filePath) ?: return
-        try {
-            streamHarJson(transactions) { chunk ->
-                (chunk as NSString).dataUsingEncoding(NSUTF8StringEncoding)?.let { data ->
-                    handle.writeData(data)
-                }
-            }
-        } finally {
-            handle.closeFile()
+        val sb = StringBuilder()
+        streamHarJson(transactions) { chunk -> sb.append(chunk) }
+        val nsString: NSString = sb.toString() as NSString
+        nsString.dataUsingEncoding(NSUTF8StringEncoding)?.let { data ->
+            NSFileManager.defaultManager.createFileAtPath(filePath, data, attributes = null)
         }
 
         shareFile(filePath)

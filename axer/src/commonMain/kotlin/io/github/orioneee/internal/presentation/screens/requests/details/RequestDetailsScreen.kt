@@ -34,8 +34,7 @@ import androidx.compose.material.icons.filled.Http
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.DataArray
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Details
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -44,7 +43,6 @@ import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,8 +69,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -85,7 +84,6 @@ import com.sebastianneubauer.jsontree.search.SearchState
 import com.sebastianneubauer.jsontree.search.rememberSearchState
 import io.github.orioneee.LocalAxerDataProvider
 import io.github.orioneee.axer.generated.resources.Res
-import io.github.orioneee.axer.generated.resources.body
 import io.github.orioneee.axer.generated.resources.details
 import io.github.orioneee.axer.generated.resources.developer_mark_this_as_important
 import io.github.orioneee.axer.generated.resources.duration
@@ -94,7 +92,6 @@ import io.github.orioneee.axer.generated.resources.failed_decode_as_json
 import io.github.orioneee.axer.generated.resources.found
 import io.github.orioneee.axer.generated.resources.har
 import io.github.orioneee.axer.generated.resources.headers
-import io.github.orioneee.axer.generated.resources.share
 import io.github.orioneee.axer.generated.resources.important
 import io.github.orioneee.axer.generated.resources.method
 import io.github.orioneee.axer.generated.resources.no_request_found_with_id
@@ -104,6 +101,7 @@ import io.github.orioneee.axer.generated.resources.request_tab
 import io.github.orioneee.axer.generated.resources.response_size
 import io.github.orioneee.axer.generated.resources.response_tab
 import io.github.orioneee.axer.generated.resources.search
+import io.github.orioneee.axer.generated.resources.share
 import io.github.orioneee.axer.generated.resources.status
 import io.github.orioneee.axer.generated.resources.unknown
 import io.github.orioneee.axer.generated.resources.url
@@ -119,12 +117,12 @@ import io.github.orioneee.internal.presentation.components.canSwipePage
 import io.github.orioneee.internal.utils.DataExporter
 import io.github.orioneee.internal.utils.toHarFile
 import io.ktor.http.HttpStatusCode
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -821,6 +819,7 @@ internal class RequestDetailsScreen {
             parametersOf(provider, requestId)
         }
         val scope = rememberCoroutineScope()
+        val clipboardManager = LocalClipboardManager.current
         val request by viewModel.requestByID.collectAsState(initial = null)
         val state by viewModel.requestByIDState.collectAsStateWithLifecycle(DataState.Loading())
         LaunchedEffect(request) {
@@ -862,14 +861,12 @@ internal class RequestDetailsScreen {
                 if (request?.isFinished() == true) {
                     IconButton(
                         onClick = {
-                            scope.launch(Dispatchers.IO) {
-                                val text = formatShareText(request!!)
-                                DataExporter.exportText(text, "${request!!.method}_${request!!.host}.txt")
-                            }
+                            val text = formatShareText(request!!)
+                            clipboardManager.setText(AnnotatedString(text))
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Share,
+                            imageVector = Icons.Outlined.ContentCopy,
                             contentDescription = stringResource(Res.string.share)
                         )
                     }
