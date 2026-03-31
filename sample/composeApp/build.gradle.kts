@@ -101,7 +101,7 @@ kotlin {
 
                 implementation(libs.accompanist.permissions)
                 implementation(libs.koin.android)
-                implementation("com.github.chuckerteam.chucker:library:4.1.0")
+                implementation("com.github.chuckerteam.chucker:library:4.3.1")
 
             }
         }
