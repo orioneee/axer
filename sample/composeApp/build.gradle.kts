@@ -68,7 +68,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation("io.github.classgraph:classgraph:4.8.181")
+            implementation("io.github.classgraph:classgraph:4.8.184")
             implementation(kotlin("reflect"))
             implementation(project(":axer"))
             implementation(files(relocatedNoOpJar.get().archiveFile))
@@ -78,7 +78,7 @@ kotlin {
            dependsOn(commonTest.get())
             dependencies {
                 implementation(kotlin("test"))
-                implementation("io.github.classgraph:classgraph:4.8.181")
+                implementation("io.github.classgraph:classgraph:4.8.184")
                 implementation(kotlin("reflect"))
                 implementation(project(":axer"))
                 implementation(files(relocatedNoOpJar.get().archiveFile))
