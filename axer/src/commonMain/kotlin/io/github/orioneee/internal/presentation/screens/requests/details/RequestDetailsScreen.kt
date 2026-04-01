@@ -115,6 +115,7 @@ import io.github.orioneee.internal.presentation.components.ScreenLayout
 import io.github.orioneee.internal.presentation.components.buildStringSection
 import io.github.orioneee.internal.presentation.components.canSwipePage
 import io.github.orioneee.internal.utils.DataExporter
+import io.github.orioneee.internal.utils.copyImageToClipboard
 import io.github.orioneee.internal.utils.toHarFile
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -407,6 +408,8 @@ internal class RequestDetailsScreen {
         request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
+        val clipboardManager = LocalClipboardManager.current
+        val scope = rememberCoroutineScope()
         BoxWithConstraints {
             Column(
                 modifier = Modifier.Companion
@@ -502,6 +505,18 @@ internal class RequestDetailsScreen {
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         ),
+                        onCopy = {
+                            val body = request.requestBody ?: return@BodySection
+                            when (selected) {
+                                BodyType.JSON, BodyType.RAW_TEXT -> {
+                                    clipboardManager.setText(AnnotatedString(body.decodeToString()))
+                                }
+                                BodyType.IMAGE -> {
+                                    scope.launch { copyImageToClipboard(body) }
+                                }
+                            }
+                        },
+                        copyEnabled = selected != BodyType.IMAGE,
                     ) {
                         SelectionContainer {
                             Box(
@@ -571,6 +586,8 @@ internal class RequestDetailsScreen {
         request: TransactionFull,
         viewModel: RequestDetailsViewModel
     ) {
+        val clipboardManager = LocalClipboardManager.current
+        val scope = rememberCoroutineScope()
         BoxWithConstraints {
             Column(
                 modifier = Modifier
@@ -656,6 +673,18 @@ internal class RequestDetailsScreen {
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         ),
+                        onCopy = {
+                            val body = request.responseBody ?: return@BodySection
+                            when (selected) {
+                                BodyType.JSON, BodyType.RAW_TEXT -> {
+                                    clipboardManager.setText(AnnotatedString(body.decodeToString()))
+                                }
+                                BodyType.IMAGE -> {
+                                    scope.launch { copyImageToClipboard(body) }
+                                }
+                            }
+                        },
+                        copyEnabled = selected != BodyType.IMAGE || request.responseDefaultType == BodyType.IMAGE,
                     ) {
                         SelectionContainer {
                             Box(
