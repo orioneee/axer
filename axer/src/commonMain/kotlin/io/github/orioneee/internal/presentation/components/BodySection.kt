@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +30,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.orioneee.axer.generated.resources.Res
+import io.github.orioneee.axer.generated.resources.share
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun BodySection(
@@ -36,6 +43,8 @@ internal fun BodySection(
     defaultExpanded: Boolean = true,
     isExpandable: Boolean = true,
     onClick: (() -> Unit)? = null,
+    onCopy: (() -> Unit)? = null,
+    copyEnabled: Boolean = false,
     colors: androidx.compose.material3.CardColors = CardDefaults.cardColors(),
 
     thickness: Dp = 8.dp,
@@ -87,12 +96,32 @@ internal fun BodySection(
                         modifier = Modifier.padding(8.dp)
                     )
                 }
-                if (isExpandable) {
-                    androidx.compose.material3.Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowDown,
-                        modifier = Modifier.rotate(animatedRotation),
-                        contentDescription = null
-                    )
+                Row(
+                    verticalAlignment = Alignment.Companion.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (onCopy != null) {
+                        IconButton(
+                            onClick = onCopy,
+                            enabled = copyEnabled,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.ContentCopy,
+                                contentDescription = stringResource(Res.string.share),
+                                tint = if (copyEnabled)
+                                    LocalContentColor.current
+                                else
+                                    LocalContentColor.current.copy(alpha = 0.38f)
+                            )
+                        }
+                    }
+                    if (isExpandable) {
+                        androidx.compose.material3.Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowDown,
+                            modifier = Modifier.rotate(animatedRotation),
+                            contentDescription = null
+                        )
+                    }
                 }
             }
 
