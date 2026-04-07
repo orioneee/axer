@@ -71,6 +71,7 @@ kotlin {
         androidMain {
             dependsOn(jvmAndAndroid)
             dependencies {
+                implementation(libs.androidx.startup.runtime)
             }
         }
 

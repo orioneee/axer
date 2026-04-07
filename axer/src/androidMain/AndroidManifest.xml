@@ -27,7 +27,7 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="io.github.orioneee.internal.koin.KoinInitializer"
+                android:name="io.github.orioneee.AxerInitializer"
                 android:value="androidx.startup" />
         </provider>
         <provider
