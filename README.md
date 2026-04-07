@@ -80,16 +80,16 @@ Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorM
 
 ## Installation
 
-Add the dependencies to your project (`1.2.9` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.2.10` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.2.9")
+implementation("io.github.orioneee:axer:1.2.10")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.2.9")
+implementation("io.github.orioneee:axer-no-op:1.2.10")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
@@ -455,7 +455,7 @@ It’s inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorMo
 | Accompanist           | 0.37.3 |
 | Coil Compose          | 3.4.0            |
 | Navigation Compose    | 2.9.2      |
-| minSdk                | 21                         |
+| minSdk                | 23                         |
 ---
 
 ## 💡 Tips & Extras

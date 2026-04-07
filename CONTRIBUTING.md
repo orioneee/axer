@@ -44,7 +44,7 @@ Axer is a Kotlin Multiplatform debugging library that provides HTTP request moni
 
 ### Platform-Specific Requirements
 
-- **Android**: Android SDK with API level 21+ (minSdk = 21)
+- **Android**: Android SDK with API level 23+ (minSdk = 23)
 - **iOS**: Xcode with iOS deployment target as specified in project
 - **JVM**: Compatible JDK installation
 
