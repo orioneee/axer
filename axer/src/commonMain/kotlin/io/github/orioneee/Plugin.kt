@@ -7,14 +7,12 @@ import io.github.orioneee.internal.extentions.toBodyType
 import io.github.orioneee.internal.logger.getSavableError
 import io.github.orioneee.internal.processors.RequestProcessor
 import io.github.orioneee.internal.processors.SessionManager
+import io.ktor.client.call.save
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.Send
 import io.ktor.client.plugins.api.createClientPlugin
-import io.ktor.client.statement.content
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.contentType
-import io.ktor.util.AttributeKey
-import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readRemaining
@@ -25,18 +23,6 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class, InternalAPI::class)
 internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
     createClientPlugin("Axer", ::AxerKtorPluginConfig) {
-        val cachedBodyKey = AttributeKey<ByteArray>("AxerCachedBody")
-
-        transformResponseBody { response, content, _ ->
-            val cached = response.call.attributes.getOrNull(cachedBodyKey)
-            if (cached != null) {
-                response.call.attributes.remove(cachedBodyKey)
-                ByteReadChannel(cached)
-            } else {
-                content
-            }
-        }
-
         on(Send) {
             Axer.initIfCan()
             val sendTime = Clock.System.now().toEpochMilliseconds()
@@ -112,18 +98,23 @@ internal val AxerPlugin: ClientPlugin<AxerKtorPluginConfig> =
             val id = processor.onSend(state)
             state = state.copy(id = id)
 
-            val response = try {
+            val originalCall = try {
                 proceed(it)
             } catch (e: Exception) {
                 val error = e.getSavableError()
                 processor.onFailed(state.updateToError(error, Clock.System.now().toEpochMilliseconds()))
                 throw e
             }
+            // Buffer the response body in memory once. The returned SavedHttpCall
+            // exposes a fresh ByteReadChannel from the in-memory copy on every read,
+            // so downstream plugins (e.g. decryption) can still consume the body.
+            // Reading response.rawContent directly here would drain the network
+            // channel and break any other plugin that also reads the body.
+            val response = originalCall.save()
             val responseTime = Clock.System.now().toEpochMilliseconds()
             val responseHeaders = response.response.headers.entries()
                 .associate { entry -> entry.key to entry.value.joinToString(", ") }
-            val rawBytes = response.response.content.readRemaining().readByteArray()
-            response.attributes.put(cachedBodyKey, rawBytes)
+            val rawBytes = response.response.rawContent.readRemaining().readByteArray()
             val (responseBody, contentType) = rawBytes.let {
                 val bodySize = it.size
                 if (bodySize > pluginConfig.maxBodySize) {

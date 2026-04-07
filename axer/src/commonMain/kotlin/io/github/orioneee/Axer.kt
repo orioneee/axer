@@ -7,6 +7,7 @@ import io.github.orioneee.internal.processors.LogProcessor
 import io.github.orioneee.internal.logger.PlatformLogger
 import io.github.orioneee.internal.logger.performPlatformLog
 import io.github.orioneee.internal.processors.ExceptionProcessor
+import io.github.orioneee.internal.storage.AxerSettings
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -213,10 +214,13 @@ object Axer {
     private val config = AxerConfig()
 
     fun configure(block: AxerConfig.() -> Unit) {
+        AxerSettings.snapshotInto(config)
         config.block()
+        AxerSettings.configure(config)
     }
 
     fun getConfig(): AxerConfig {
+        AxerSettings.snapshotInto(config)
         return config
     }
 }

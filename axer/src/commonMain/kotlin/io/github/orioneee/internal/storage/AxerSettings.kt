@@ -1,6 +1,7 @@
 package io.github.orioneee.internal.storage
 
 import com.russhwolf.settings.ObservableSettings
+import io.github.orioneee.AxerConfig
 import io.github.orioneee.internal.domain.other.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,23 @@ object AxerSettings {
             initialValue = theme.get()
         )
 
+    internal fun snapshotInto(config: AxerConfig) {
+        config.enableRequestMonitor = enableRequestMonitor.get()
+        config.enableExceptionMonitor = enableExceptionMonitor.get()
+        config.enableLogMonitor = enableLogMonitor.get()
+        config.enableDatabaseMonitor = enableDatabaseMonitor.get()
+        config.isRecordingLogs = isRecordingLogs.get()
+        config.isSendNotification = isSendNotification.get()
+    }
+
+    internal fun configure(config: AxerConfig) {
+        enableRequestMonitor.set(config.enableRequestMonitor)
+        enableExceptionMonitor.set(config.enableExceptionMonitor)
+        enableLogMonitor.set(config.enableLogMonitor)
+        enableDatabaseMonitor.set(config.enableDatabaseMonitor)
+        isRecordingLogs.set(config.isRecordingLogs)
+        isSendNotification.set(config.isSendNotification)
+    }
 }
 
 
