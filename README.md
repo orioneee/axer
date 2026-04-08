@@ -80,20 +80,37 @@ Axer is inspired by [Chucker](https://github.com/ChuckerTeam/chucker) and [KtorM
 
 ## Installation
 
-Add the dependencies to your project (`1.2.10` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
+Add the dependencies to your project (`1.2.12` is the latest version; check [Releases](https://github.com/orioneee/Axer/releases)):
 
 ```kotlin
-implementation("io.github.orioneee:axer:1.2.10")
+implementation("io.github.orioneee:axer:1.2.12")
 ```
 
 For production, use the no-op variant to avoid runtime overhead and source changes:
 
 ```kotlin
-implementation("io.github.orioneee:axer-no-op:1.2.10")
+implementation("io.github.orioneee:axer-no-op:1.2.12")
 ```
 
 No-op maintains the same API, so switching in/out is seamless.
 
+### Android: using Axer from a custom `androidx.startup.Initializer`
+
+Axer wires its internal Koin context through its own `androidx.startup` initializer. If you have your own `Initializer` that touches Axer at startup (for example `Axer.configure { … }`, `Axer.installErrorHandler()`, `AxerBundledSQLiteDriver`, or building an `AxerOkhttpInterceptor` that ends up reading Axer storage), you must declare `AxerInitializer` as a dependency so Axer is fully ready by the time your code runs:
+
+```kotlin
+class MyInitializer : Initializer<Unit> {
+    override fun create(context: Context) {
+        Axer.configure { isSendNotification = false }
+        Axer.installErrorHandler()
+        // ...
+    }
+
+    override fun dependencies() = listOf(AxerInitializer::class.java)
+}
+```
+
+Without this dependency the order of initializers is undefined and Axer may be touched before its internal context is ready, causing a startup crash. The `axer-no-op` artifact ships an empty `AxerInitializer` with the same FQN, so the dependency declaration also compiles when you swap to no-op.
 
 ---
 

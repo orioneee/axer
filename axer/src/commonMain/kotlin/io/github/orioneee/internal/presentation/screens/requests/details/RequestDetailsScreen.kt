@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
@@ -16,11 +15,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -133,16 +133,19 @@ internal fun LargeTextViewer(
     text: String,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = LocalTextStyle.current,
-    lineHeight: Dp = 20.dp
 ) {
+    // Pre-split once per text. A single Text node for a multi-MB body would
+    // freeze layout, so we render line-by-line in a virtualized list.
     val lines = remember(text) { text.lineSequence().toList() }
+    val listState = rememberLazyListState()
 
-    SelectionContainer {
+    SelectionContainer(modifier = modifier) {
         LazyColumn(
-            modifier = modifier.fillMaxWidth(),
+            state = listState,
+            modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(8.dp)
         ) {
-            items(lines.size) { index ->
+            items(count = lines.size) { index ->
                 Text(
                     text = lines[index],
                     style = textStyle,
@@ -410,20 +413,34 @@ internal class RequestDetailsScreen {
     ) {
         val clipboardManager = LocalClipboardManager.current
         val scope = rememberCoroutineScope()
-        BoxWithConstraints {
-            Column(
-                modifier = Modifier.Companion
-                    .padding(horizontal = 8.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.Companion.Start,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Spacer(Modifier.height(16.dp))
-                if (request.importantInRequest.isNotEmpty()) {
+
+        // Decode the body once per request, not on every recomposition.
+        val decodedBody = remember(request.requestBody) {
+            request.requestBody?.takeIf { it.isNotEmpty() }?.decodeToString()
+        }
+        val hasBody = decodedBody != null
+
+        val selectedFromVm = viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
+        val selected = selectedFromVm.value ?: BodyType.JSON
+        val searchState = rememberSearchState()
+        val listState = rememberLazyListState()
+
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item { Spacer(Modifier.height(0.dp)) }
+
+            if (request.importantInRequest.isNotEmpty()) {
+                item(key = "important") {
                     DisplayImportantSection(request.importantInRequest)
                 }
+            }
 
+            item(key = "url") {
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
@@ -443,7 +460,9 @@ internal class RequestDetailsScreen {
                         }
                     }
                 }
+            }
 
+            item(key = "meta") {
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
@@ -466,15 +485,18 @@ internal class RequestDetailsScreen {
                             )
                             if ((request.requestBody?.size ?: 0) > 0) {
                                 InfoRow(
-                                    Icons.Outlined.Storage, stringResource(Res.string.request_size),
+                                    Icons.Outlined.Storage,
+                                    stringResource(Res.string.request_size),
                                     getSizeText(request.requestBody?.size?.toLong() ?: 0L)
                                 )
                             }
                         }
                     }
                 }
+            }
 
-                if (request.requestHeaders.isNotEmpty()) {
+            if (request.requestHeaders.isNotEmpty()) {
+                item(key = "req-headers") {
                     ExpandableCard(
                         title = stringResource(Res.string.headers),
                         icon = Icons.AutoMirrored.Outlined.List
@@ -484,99 +506,133 @@ internal class RequestDetailsScreen {
                         }
                     }
                 }
-                if ((request.requestBody?.size ?: 0) > 0) {
-                    val selectedFromVm =
-                        viewModel.selectedRequestBodyFormat.collectAsStateWithLifecycle()
-                    val selected = selectedFromVm.value ?: BodyType.JSON
-                    val searchState = rememberSearchState()
+            }
+
+            if (hasBody) {
+                item(key = "req-body-controls") {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         ChoiceFormatButton(
                             selected = selected,
-                            onSelect = {
-                                viewModel.onRequestBodyFormatSelected(it)
-                            },
+                            onSelect = { viewModel.onRequestBodyFormatSelected(it) },
                         )
                         SearchJson(searchState, isEnabled = selected == BodyType.JSON)
                     }
-                    BodySection(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                        onCopy = {
-                            val body = request.requestBody ?: return@BodySection
-                            when (selected) {
-                                BodyType.JSON, BodyType.RAW_TEXT -> {
-                                    clipboardManager.setText(AnnotatedString(body.decodeToString()))
-                                }
-                                BodyType.IMAGE -> {
-                                    scope.launch { copyImageToClipboard(body) }
-                                }
-                            }
+                }
+
+                item(key = "req-body") {
+                    BodyViewerCard(
+                        modifier = Modifier.fillParentMaxHeight(0.85f),
+                        selected = selected,
+                        decodedBody = decodedBody,
+                        rawBytes = request.requestBody,
+                        searchState = searchState,
+                        onCopyJsonOrText = {
+                            clipboardManager.setText(AnnotatedString(decodedBody))
                         },
-                        copyEnabled = selected != BodyType.IMAGE,
-                    ) {
-                        SelectionContainer {
-                            Box(
-                                modifier = Modifier
-                                    .heightIn(max = 2000.dp)
-                                    .padding(8.dp)
+                        onCopyImage = {
+                            request.requestBody?.let { body ->
+                                scope.launch { copyImageToClipboard(body) }
+                            }
+                        }
+                    )
+                }
+            }
 
-                            ) {
-                                when (selected) {
-                                    BodyType.JSON -> {
-                                        var isErrorDecoding by remember { mutableStateOf(false) }
-                                        if (isErrorDecoding) {
-                                            Text(stringResource(Res.string.failed_decode_as_json))
-                                        } else {
-                                            JsonTree(
-                                                searchState = searchState,
-                                                json = request.requestBody?.decodeToString()
-                                                    ?: "",
-                                                onLoading = { CircularProgressIndicator() },
-                                                initialState = TreeState.EXPANDED,
-                                                onError = {
-                                                    isErrorDecoding = true
-                                                }
-                                            )
-                                        }
-                                    }
+            item { Spacer(Modifier.height(8.dp)) }
+        }
+    }
 
-                                    BodyType.IMAGE -> {
-                                        var isErrorLoadingImage by remember {
-                                            mutableStateOf(
-                                                false
-                                            )
-                                        }
-                                        if (!isErrorLoadingImage) {
-                                            AsyncImage(
-                                                model = request.requestBody,
-                                                contentDescription = "Response Image",
-                                                modifier = Modifier.Companion
-                                                    .height(300.dp)
-                                                    .clip(RoundedCornerShape(12.dp)),
-                                                onError = {
-                                                    isErrorLoadingImage = true
-                                                }
-                                            )
-                                        } else {
-                                            Text(stringResource(Res.string.failed_decode_as_image))
-                                        }
-                                    }
-
-                                    BodyType.RAW_TEXT -> {
-                                        LargeTextViewer(
-                                            request.requestBody?.decodeToString() ?: "",
-                                        )
-                                    }
-                                }
+    /**
+     * Body viewer extracted so both Request and Response screens share the same
+     * single-scroll behaviour. The card is sized by the caller (typically via
+     * `fillParentMaxHeight`) so the inner JsonTree / LargeTextViewer scroller is
+     * the only scrollable surface a user interacts with.
+     */
+    @Composable
+    private fun BodyViewerCard(
+        modifier: Modifier,
+        selected: BodyType,
+        decodedBody: String?,
+        rawBytes: ByteArray?,
+        searchState: SearchState,
+        onCopyJsonOrText: () -> Unit,
+        onCopyImage: () -> Unit,
+    ) {
+        BodySection(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+            onCopy = {
+                when (selected) {
+                    BodyType.JSON, BodyType.RAW_TEXT -> onCopyJsonOrText()
+                    BodyType.IMAGE -> onCopyImage()
+                }
+            },
+            copyEnabled = selected != BodyType.IMAGE,
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                when (selected) {
+                    BodyType.JSON -> {
+                        var isErrorDecoding by remember(decodedBody) { mutableStateOf(false) }
+                        if (isErrorDecoding) {
+                            Text(stringResource(Res.string.failed_decode_as_json))
+                        } else {
+                            // SelectionContainer is scoped *only* to the JSON case so
+                            // image / raw-text branches don't pay its cost. Only the
+                            // composed (visible) JsonTree items register as selectables,
+                            // which keeps multi-line selection working without forcing
+                            // the whole tree into memory.
+                            SelectionContainer(modifier = Modifier.fillMaxSize()) {
+                                JsonTree(
+                                    modifier = Modifier.fillMaxSize(),
+                                    searchState = searchState,
+                                    json = decodedBody ?: "",
+                                    onLoading = {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center,
+                                        ) { CircularProgressIndicator() }
+                                    },
+                                    initialState = TreeState.EXPANDED,
+                                    onError = { isErrorDecoding = true }
+                                )
                             }
                         }
                     }
+
+                    BodyType.IMAGE -> {
+                        var isErrorLoadingImage by remember(rawBytes) { mutableStateOf(false) }
+                        if (!isErrorLoadingImage) {
+                            AsyncImage(
+                                model = rawBytes,
+                                contentDescription = "Body Image",
+                                modifier = Modifier
+                                    .height(300.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                onError = { isErrorLoadingImage = true }
+                            )
+                        } else {
+                            Text(stringResource(Res.string.failed_decode_as_image))
+                        }
+                    }
+
+                    BodyType.RAW_TEXT -> {
+                        // LargeTextViewer already wraps its lazy list in a
+                        // SelectionContainer, no need to add another one here.
+                        LargeTextViewer(
+                            text = decodedBody ?: "",
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
                 }
-                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -588,19 +644,35 @@ internal class RequestDetailsScreen {
     ) {
         val clipboardManager = LocalClipboardManager.current
         val scope = rememberCoroutineScope()
-        BoxWithConstraints {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Spacer(Modifier.height(8.dp))
-                if (request.importantInResponse.isNotEmpty()) {
+
+        // Decode the response body once per byte array.
+        val decodedBody = remember(request.responseBody) {
+            request.responseBody?.takeIf { it.isNotEmpty() }?.decodeToString()
+        }
+        val hasBody = decodedBody != null || request.error != null
+
+        val selectedFromVm = viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
+        val selected =
+            selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
+        val searchState = rememberSearchState()
+        val listState = rememberLazyListState()
+
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item { Spacer(Modifier.height(0.dp)) }
+
+            if (request.importantInResponse.isNotEmpty()) {
+                item(key = "important") {
                     DisplayImportantSection(request.importantInResponse)
-                    Spacer(Modifier.height(16.dp))
                 }
+            }
+
+            item(key = "meta") {
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant)
@@ -624,7 +696,8 @@ internal class RequestDetailsScreen {
                                     ?: if (request.error != null) stringResource(Res.string.request_failed)
                                     else stringResource(Res.string.unknown)
                             )
-                            HttpStatusCode.allStatusCodes.firstOrNull { it.value == request.responseStatus }
+                            HttpStatusCode.allStatusCodes
+                                .firstOrNull { it.value == request.responseStatus }
                                 ?.description?.let {
                                     InfoRow(
                                         icon = Icons.Outlined.Details,
@@ -635,8 +708,10 @@ internal class RequestDetailsScreen {
                         }
                     }
                 }
-                if (request.responseHeaders.isNotEmpty()) {
-                    Spacer(Modifier.Companion.height(16.dp))
+            }
+
+            if (request.responseHeaders.isNotEmpty()) {
+                item(key = "resp-headers") {
                     ExpandableCard(
                         title = stringResource(Res.string.headers),
                         initialExpandState = false,
@@ -647,125 +722,71 @@ internal class RequestDetailsScreen {
                         }
                     }
                 }
-                Spacer(Modifier.height(16.dp))
-                if (
-                    request.responseBody?.isNotEmpty() == true ||
-                    request.error != null
-                ) {
-                    val selectedFromVm =
-                        viewModel.selectedResponseBodyFormat.collectAsStateWithLifecycle()
-                    val selected =
-                        selectedFromVm.value ?: request.responseDefaultType ?: BodyType.RAW_TEXT
-                    val searchState = rememberSearchState()
-                    if (request.error == null) {
-                        Column {
+            }
+
+            if (hasBody) {
+                if (request.error == null) {
+                    item(key = "resp-body-controls") {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             ChoiceFormatButton(
                                 selected = selected,
-                                onSelect = {
-                                    viewModel.onResponseBodyFormatSelected(it)
-                                }
+                                onSelect = { viewModel.onResponseBodyFormatSelected(it) }
                             )
                             SearchJson(searchState, isEnabled = selected == BodyType.JSON)
-                            Spacer(Modifier.height(16.dp))
                         }
                     }
-                    BodySection(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                        onCopy = {
-                            val body = request.responseBody ?: return@BodySection
-                            when (selected) {
-                                BodyType.JSON, BodyType.RAW_TEXT -> {
-                                    clipboardManager.setText(AnnotatedString(body.decodeToString()))
-                                }
-                                BodyType.IMAGE -> {
+                }
+
+                item(key = "resp-body") {
+                    if (request.error == null) {
+                        BodyViewerCard(
+                            modifier = Modifier.fillParentMaxHeight(0.85f),
+                            selected = selected,
+                            decodedBody = decodedBody,
+                            rawBytes = request.responseBody,
+                            searchState = searchState,
+                            onCopyJsonOrText = {
+                                clipboardManager.setText(AnnotatedString(decodedBody ?: ""))
+                            },
+                            onCopyImage = {
+                                request.responseBody?.let { body ->
                                     scope.launch { copyImageToClipboard(body) }
                                 }
                             }
-                        },
-                        copyEnabled = selected != BodyType.IMAGE || request.responseDefaultType == BodyType.IMAGE,
-                    ) {
-                        SelectionContainer {
-                            Box(
-                                modifier = Modifier
-                                    .heightIn(max = 2000.dp)
-                                    .padding(8.dp)
-                            ) {
-                                if (request.error == null) {
-                                    when (selected) {
-                                        BodyType.JSON -> {
-                                            var isErrorDecoding by remember {
-                                                mutableStateOf(
-                                                    false
-                                                )
-                                            }
-                                            if (isErrorDecoding) {
-                                                Text(stringResource(Res.string.failed_decode_as_json))
-                                            } else {
-                                                JsonTree(
-                                                    searchState = searchState,
-                                                    json = request.responseBody?.decodeToString()
-                                                        ?: "",
-                                                    onLoading = { CircularProgressIndicator() },
-                                                    initialState = TreeState.EXPANDED,
-                                                    onError = {
-                                                        isErrorDecoding = true
-                                                    }
-                                                )
-                                            }
-                                        }
-
-                                        BodyType.IMAGE -> {
-                                            Box(
-                                                modifier = Modifier.Companion
-                                                    .fillMaxWidth()
-                                                    .padding(8.dp),
-                                                contentAlignment = Alignment.Companion.Center
-                                            ) {
-                                                var isErrorLoadingImage by remember {
-                                                    mutableStateOf(
-                                                        false
-                                                    )
-                                                }
-                                                if (!isErrorLoadingImage) {
-                                                    AsyncImage(
-                                                        model = request.responseBody,
-                                                        contentDescription = "Response Image",
-                                                        modifier = Modifier
-                                                            .height(300.dp)
-                                                            .clip(RoundedCornerShape(12.dp)),
-                                                        onError = {
-                                                            isErrorLoadingImage = true
-                                                        }
-                                                    )
-                                                } else {
-                                                    Text(stringResource(Res.string.failed_decode_as_image))
-                                                }
-                                            }
-                                        }
-
-                                        BodyType.RAW_TEXT -> {
-                                            LargeTextViewer(
-                                                request.responseBody?.decodeToString() ?: ""
-                                            )
-                                        }
-
-                                    }
-                                } else {
+                        )
+                    } else {
+                        Card(
+                            modifier = Modifier.fillParentMaxHeight(0.85f),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            SelectionContainer(modifier = Modifier.fillMaxSize()) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                ) {
                                     Text(
                                         text = request.error.stackTrace,
                                         color = MaterialTheme.colorScheme.error,
                                         modifier = Modifier
+                                            .fillMaxSize()
                                             .horizontalScroll(rememberScrollState())
+                                            .verticalScroll(rememberScrollState())
                                     )
                                 }
                             }
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
             }
+
+            item { Spacer(Modifier.height(8.dp)) }
         }
     }
 
