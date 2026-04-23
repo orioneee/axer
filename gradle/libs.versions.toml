@@ -29,7 +29,7 @@ navigationCompose = "2.9.2"
 
 minSdk = "23"
 compileSdk = "36"
-kotlinStdlib = "2.3.20"
+kotlinStdlib = "2.3.21"
 kotlinTest = "2.3.20"
 runner = "1.7.0"
 core = "1.7.0"
